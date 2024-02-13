@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "tulip"
+version = "0.1.0"
+description = ""
+authors = ["Felix Ocker <felix.ocker@googlemail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10.11"
+chromadb = "^0.4.22"
+openai = "^1.12.0"
+
+
+[tool.poetry.group.dev.dependencies]
+black = "^24.1.1"
+ruff = "^0.2.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

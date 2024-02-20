@@ -77,12 +77,15 @@ class FunctionAnalyzer:
         properties = {k: v for d in variable_descriptions for k, v in d.items()}
 
         return {
-            "name": name,
-            "description": function_description,
-            "parameters": {
-                "type": "object",
-                "properties": properties,
-                "required": required,
+            "type": "function",
+            "function": {
+                "name": name,
+                "description": function_description,
+                "parameters": {
+                    "type": "object",
+                    "properties": properties,
+                    "required": required,
+                },
             },
         }
 

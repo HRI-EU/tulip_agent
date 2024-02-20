@@ -12,25 +12,27 @@ from function_analyzer import FunctionAnalyzer
 class ToolLibrary:
     def __init__(
         self,
-        functions: list,
-        classes: list,
+        functions: list = None,
+        classes: list = None,
         chroma_dir: str = "../data/chroma/",
     ) -> None:
         self.function_analyzer = FunctionAnalyzer()
-        self.functions = {f.__name__: f for f in functions}
-        self.function_descriptions = {f.__name__: self.function_analyzer.analyze_function(f) for f in functions}
-        self.classes = classes
-        self.class_function_descriptions = {c: [self.function_analyzer.analyze_class(c)] for c in self.classes}
+        self.functions = {f.__name__: f for f in functions} if functions else {}
+        self.function_descriptions = {f.__name__: self.function_analyzer.analyze_function(f) for f in functions} if functions else {}
+        self.classes = classes if classes else []
+        self.class_function_descriptions = {c: [self.function_analyzer.analyze_class(c)] for c in self.classes} if classes else {}
+
         # vector store
         self.chroma_client = chromadb.PersistentClient(path=chroma_dir)
         self.collection = self.chroma_client.get_or_create_collection(name="tulip")
-        self.collection.add(
-            documents=[json.dumps(fd, indent=4) for fd in self.function_descriptions.values()],
-            embeddings=[embed(fd["description"]) for fd in self.function_descriptions.values()],
-            metadatas=list(self.function_descriptions.values()),
-            ids=[fd["name"] for fd in self.function_descriptions]
-        )
-        # TODO: handle classes
+        if functions or classes:
+            self.collection.add(
+                documents=[json.dumps(fd, indent=4) for fd in self.function_descriptions.values()],
+                embeddings=[embed(fd["function"]["description"]) for fd in self.function_descriptions.values()],
+                metadatas=[{"description": str(d)} for d in self.function_descriptions.values()],
+                ids=[val["function"]["name"] for fd, val in self.function_descriptions.items()]
+            )
+            # TODO: handle classes
 
     def add_function(
         self,

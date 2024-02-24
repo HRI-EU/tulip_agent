@@ -38,8 +38,9 @@ if __name__ == "__main__":
     # TODO: check if function already loaded into vector store or lazy lookup during execution
     tulip_agent = TulipAgent(
         tool_library=tulip,
+        top_k_functions=3,
     )
-    query = "What is 45342 * 23487?"
+    query = "What is 45342 * 23487 + 32478?"
     print(query)
     res = tulip_agent.query(query)
     print(res)

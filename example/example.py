@@ -35,7 +35,6 @@ def init_tulip():
 
 if __name__ == "__main__":
     tulip = init_tulip()
-    # TODO: check if function already loaded into vector store or lazy lookup during execution
     tulip_agent = TulipAgent(
         tool_library=tulip,
         top_k_functions=3,

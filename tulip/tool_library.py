@@ -3,10 +3,16 @@
 The tool library (tulip) for the agent
 """
 import json
+import logging
 import chromadb
 
 from embed import embed
 from function_analyzer import FunctionAnalyzer
+
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.NullHandler())
 
 
 class ToolLibrary:
@@ -25,14 +31,19 @@ class ToolLibrary:
         # vector store
         self.chroma_client = chromadb.PersistentClient(path=chroma_dir)
         self.collection = self.chroma_client.get_or_create_collection(name="tulip")
-        if functions or classes:
-            self.collection.add(
-                documents=[json.dumps(fd, indent=4) for fd in self.function_descriptions.values()],
-                embeddings=[embed(fd["function"]["description"]) for fd in self.function_descriptions.values()],
-                metadatas=[{"description": str(d)} for d in self.function_descriptions.values()],
-                ids=[val["function"]["name"] for fd, val in self.function_descriptions.items()]
-            )
-            # TODO: handle classes
+        if functions:
+            embedded_functions = self.collection.get(include=[])["ids"]
+            new_functions = {n: d for n, d in self.functions.items() if n not in embedded_functions}
+            new_function_descriptions = {n: d for n, d in self.function_descriptions.items() if n not in embedded_functions}
+            if new_functions:
+                logging.info(f"Embedding new functions: {new_functions}")
+                self.collection.add(
+                    documents=[json.dumps(fd, indent=4) for fd in new_function_descriptions.values()],
+                    embeddings=[embed(fd["function"]["description"]) for fd in new_function_descriptions.values()],
+                    metadatas=[{"description": str(d)} for d in new_function_descriptions.values()],
+                    ids=[val["function"]["name"] for fd, val in new_function_descriptions.items()]
+                )
+        # TODO: handle classes
 
     def add_function(
         self,

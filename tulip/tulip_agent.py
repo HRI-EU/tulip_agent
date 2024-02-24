@@ -29,7 +29,7 @@ class TulipAgent:
         model: str = "gpt-4-0125-preview",
         temperature: float = 0.0,
         tool_library: ToolLibrary = None,
-        top_k_functions: int = 1,
+        top_k_functions: int = 3,
     ) -> None:
         self.model = model
         self.temperature = temperature
@@ -47,8 +47,7 @@ class TulipAgent:
             "function": {
                 "name": "search_tools",
                 "description": (
-                    "Search for appropriate tools and make them available. "
-                    "Note that you may run this function multiple times to search for various functions."
+                    "Search for tools in your tool library. "
                 ),
                 "parameters": {
                     "type": "object",
@@ -149,7 +148,7 @@ class TulipAgent:
                         "content": str(function_response),
                     }
                 )
-                logger.info(f"Function returned `{str(function_response)}`.")
+                logger.info(f"Function {func_name} returned `{str(function_response)}` for arguments {func_args}.")
 
             response = self.__get_response(
                 msgs=self.messages,

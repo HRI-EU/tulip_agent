@@ -14,7 +14,7 @@ import logging
 
 from openai import OpenAI, OpenAIError
 
-from prompts import BASE_PROMPT
+from prompts import TULIP_PROMPT
 from tool_library import ToolLibrary
 
 
@@ -33,7 +33,7 @@ class TulipAgent:
     ) -> None:
         self.model = model
         self.temperature = temperature
-        self.instructions = BASE_PROMPT
+        self.instructions = TULIP_PROMPT
         self.tool_library = tool_library
         self.top_k_functions = top_k_functions
         self.openai_client = OpenAI()

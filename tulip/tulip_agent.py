@@ -54,7 +54,7 @@ class TulipAgent:
                     "properties": {
                         "problem_description": {
                             "type": "string",
-                            "description": "A textual description of what you want to achieve.",
+                            "description": "A textual description of an action you want to perform.",
                         },
                     },
                     "required": ["problem_description"],

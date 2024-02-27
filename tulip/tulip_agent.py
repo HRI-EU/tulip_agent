@@ -47,14 +47,17 @@ class TulipAgent:
             "function": {
                 "name": "search_tools",
                 "description": (
-                    "Search for tools in your tool library. "
+                    "Search for tools in your tool library."
                 ),
                 "parameters": {
                     "type": "object",
                     "properties": {
-                        "problem_description": {
-                            "type": "string",
-                            "description": "A textual description of an action you want to perform.",
+                        "action_descriptions": {
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                            },
+                            "description": "A list of textual description for the actions you want to execute.",
                         },
                     },
                     "required": ["problem_description"],
@@ -62,13 +65,17 @@ class TulipAgent:
             }
         }
 
-    def search_tools(self, problem_description: str):
-        res = self.tool_library.search(
-            problem_description=problem_description,
-            top_k=self.top_k_functions
-        )["documents"][0]
-        json_res = [json.loads(e) for e in res]
-        logging.info(f"Functions for `{problem_description}`: {json.dumps(json_res)}")
+    def search_tools(self, action_descriptions: str):
+        json_res, hash_res = [], []
+        for action_description in action_descriptions:
+            res = self.tool_library.search(
+                problem_description=action_description,
+                top_k=self.top_k_functions
+            )["documents"][0]
+            json_res_ = [json.loads(e) for e in res if e not in hash_res]
+            hash_res.extend(res)
+            logging.info(f"Functions for `{action_description}`: {json.dumps(json_res_)}")
+            json_res.extend(json_res_)
         return json_res
 
     def __get_response(

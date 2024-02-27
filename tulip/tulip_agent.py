@@ -105,9 +105,33 @@ class TulipAgent:
         prompt: str,
     ) -> str:
         logging.info(f"Query: {prompt}")
-        self.messages.append({"role": "user", "content": prompt})
 
-        # get functions - note that this is not tracked in the message history
+        # Analyze user prompt
+        self.messages.append(
+            {
+                "role": "user",
+                "content": (
+                    f"Considering the following user request, what are the necessary atomic actions "
+                    f"you need to execute?\n `{prompt}`\nReturn a numbered list of steps."
+                )
+            }
+        )
+        actions_response = self.__get_response(
+            msgs=self.messages,
+            tool_choice="none",
+            tools=[self.search_tools_description],
+        )
+        actions_response_message = actions_response.choices[0].message
+        self.messages.append(actions_response_message)
+        logging.info(f"{actions_response_message=}")
+
+        # Search for suitable functions
+        self.messages.append(
+            {
+                "role": "user",
+                "content": "Now search for appropriate tools for each of these steps.",
+            }
+        )
         function_response = self.__get_response(
             msgs=self.messages,
             tools=[self.search_tools_description],
@@ -115,6 +139,8 @@ class TulipAgent:
         )
         response_message = function_response.choices[0].message
         tool_calls = response_message.tool_calls
+        self.messages.append(response_message)
+        assert (lntc := len(tool_calls)) == 1, f"Not exactly one tool search executed, but {lntc}."
 
         tools = []
         for tool_call in tool_calls:
@@ -127,8 +153,27 @@ class TulipAgent:
             tools_ = self.search_tools(**args)
             logging.info(f"Tools found: {str(tools_)}")
             tools.extend(tools_)
+            self.messages.append(
+                {
+                    "tool_call_id": tool_call.id,
+                    "role": "tool",
+                    "name": func,
+                    "content": "Successfully provided suitable tools.",
+                }
+            )
 
-        # run with relevant tools
+        # Run with suitable tools
+        self.messages.append(
+            {
+                "role": "user",
+                "content": (
+                    f"Now use the tools to fulfill the user request. "
+                    f"Adhere exactly to the following steps:\n"
+                    f"{actions_response_message.content}\n"
+                    f"Execute the tool calls one at a time."
+                ),
+            }
+        )
         response = self.__get_response(
             msgs=self.messages,
             tools=tools,

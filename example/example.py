@@ -52,7 +52,7 @@ def run_comparison():
     tulip = ToolLibrary(functions=FUNCTIONS)
     tulip_agent = TulipAgent(
         tool_library=tulip,
-        top_k_functions=3,
+        top_k_functions=1,
     )
     tulip_res = tulip_agent.query(query)
     print(f"{tulip_res=}")

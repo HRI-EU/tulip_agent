@@ -63,7 +63,9 @@ class FunctionAnalyzer:
         param_descriptions = {
             k: v
             for (k, v) in [
-                e.strip().split(": ") for e in param_description.split(":return:")[0].split(":param ") if e
+                e.strip().split(": ")
+                for e in param_description.split(":return:")[0].split(":param ")
+                if e
             ]
         }
         variable_descriptions = [

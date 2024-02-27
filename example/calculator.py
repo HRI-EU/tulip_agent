@@ -57,7 +57,7 @@ def square_root(x: float):
     """
     if x < 0:
         raise ValueError("Cannot calculate the square root of a negative number.")
-    return x ** 0.5
+    return x**0.5
 
 
 def exponent(x: float, y: float):
@@ -68,7 +68,7 @@ def exponent(x: float, y: float):
     :param y: The exponent.
     :return: x raised to the power of y.
     """
-    return x ** y
+    return x**y
 
 
 def modulus(x: float, y: float):

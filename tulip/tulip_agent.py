@@ -46,9 +46,7 @@ class TulipAgent:
             "type": "function",
             "function": {
                 "name": "search_tools",
-                "description": (
-                    "Search for tools in your tool library."
-                ),
+                "description": ("Search for tools in your tool library."),
                 "parameters": {
                     "type": "object",
                     "properties": {
@@ -62,19 +60,20 @@ class TulipAgent:
                     },
                     "required": ["problem_description"],
                 },
-            }
+            },
         }
 
     def search_tools(self, action_descriptions: str):
         json_res, hash_res = [], []
         for action_description in action_descriptions:
             res = self.tool_library.search(
-                problem_description=action_description,
-                top_k=self.top_k_functions
+                problem_description=action_description, top_k=self.top_k_functions
             )["documents"][0]
             json_res_ = [json.loads(e) for e in res if e not in hash_res]
             hash_res.extend(res)
-            logging.info(f"Functions for `{action_description}`: {json.dumps(json_res_)}")
+            logging.info(
+                f"Functions for `{action_description}`: {json.dumps(json_res_)}"
+            )
             json_res.extend(json_res_)
         return json_res
 
@@ -113,7 +112,7 @@ class TulipAgent:
                 "content": (
                     f"Considering the following user request, what are the necessary atomic actions "
                     f"you need to execute?\n `{prompt}`\nReturn a numbered list of steps."
-                )
+                ),
             }
         )
         actions_response = self.__get_response(
@@ -140,7 +139,9 @@ class TulipAgent:
         response_message = function_response.choices[0].message
         tool_calls = response_message.tool_calls
         self.messages.append(response_message)
-        assert (lntc := len(tool_calls)) == 1, f"Not exactly one tool search executed, but {lntc}."
+        assert (
+            lntc := len(tool_calls)
+        ) == 1, f"Not exactly one tool search executed, but {lntc}."
 
         tools = []
         for tool_call in tool_calls:
@@ -189,8 +190,7 @@ class TulipAgent:
                 func_name = tool_call.function.name
                 func_args = json.loads(tool_call.function.arguments)
                 function_response = self.tool_library.execute(
-                    function_name=func_name,
-                    function_args=func_args
+                    function_name=func_name, function_args=func_args
                 )
                 self.messages.append(
                     {
@@ -200,7 +200,9 @@ class TulipAgent:
                         "content": str(function_response),
                     }
                 )
-                logger.info(f"Function {func_name} returned `{str(function_response)}` for arguments {func_args}.")
+                logger.info(
+                    f"Function {func_name} returned `{str(function_response)}` for arguments {func_args}."
+                )
 
             response = self.__get_response(
                 msgs=self.messages,

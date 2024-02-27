@@ -24,24 +24,50 @@ class ToolLibrary:
     ) -> None:
         self.function_analyzer = FunctionAnalyzer()
         self.functions = {f.__name__: f for f in functions} if functions else {}
-        self.function_descriptions = {f.__name__: self.function_analyzer.analyze_function(f) for f in functions} if functions else {}
+        self.function_descriptions = (
+            {f.__name__: self.function_analyzer.analyze_function(f) for f in functions}
+            if functions
+            else {}
+        )
         self.classes = classes if classes else []
-        self.class_function_descriptions = {c: [self.function_analyzer.analyze_class(c)] for c in self.classes} if classes else {}
+        self.class_function_descriptions = (
+            {c: [self.function_analyzer.analyze_class(c)] for c in self.classes}
+            if classes
+            else {}
+        )
 
         # vector store
         self.chroma_client = chromadb.PersistentClient(path=chroma_dir)
         self.collection = self.chroma_client.get_or_create_collection(name="tulip")
         if functions:
             embedded_functions = self.collection.get(include=[])["ids"]
-            new_functions = {n: d for n, d in self.functions.items() if n not in embedded_functions}
-            new_function_descriptions = {n: d for n, d in self.function_descriptions.items() if n not in embedded_functions}
+            new_functions = {
+                n: d for n, d in self.functions.items() if n not in embedded_functions
+            }
+            new_function_descriptions = {
+                n: d
+                for n, d in self.function_descriptions.items()
+                if n not in embedded_functions
+            }
             if new_functions:
                 logging.info(f"Embedding new functions: {new_functions}")
                 self.collection.add(
-                    documents=[json.dumps(fd, indent=4) for fd in new_function_descriptions.values()],
-                    embeddings=[embed(fd["function"]["description"]) for fd in new_function_descriptions.values()],
-                    metadatas=[{"description": str(d)} for d in new_function_descriptions.values()],
-                    ids=[val["function"]["name"] for fd, val in new_function_descriptions.items()]
+                    documents=[
+                        json.dumps(fd, indent=4)
+                        for fd in new_function_descriptions.values()
+                    ],
+                    embeddings=[
+                        embed(fd["function"]["description"])
+                        for fd in new_function_descriptions.values()
+                    ],
+                    metadatas=[
+                        {"description": str(d)}
+                        for d in new_function_descriptions.values()
+                    ],
+                    ids=[
+                        val["function"]["name"]
+                        for fd, val in new_function_descriptions.items()
+                    ],
                 )
         # TODO: handle classes
 
@@ -56,7 +82,7 @@ class ToolLibrary:
             documents=json.dumps(function_data, indent=4),
             embeddings=[embed(function_data["description"])],
             metadatas=[function_data],
-            ids=[function_data["name"]]
+            ids=[function_data["name"]],
         )
 
     def add_class(
@@ -64,7 +90,9 @@ class ToolLibrary:
         function_class,
     ) -> None:
         self.classes.append(function_class)
-        self.class_function_descriptions[function_class] = [self.function_analyzer.analyze_class(function_class)]
+        self.class_function_descriptions[function_class] = [
+            self.function_analyzer.analyze_class(function_class)
+        ]
         # TODO: load into vector store
 
     def remove_function(

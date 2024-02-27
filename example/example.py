@@ -33,9 +33,7 @@ FUNCTIONS = [
 
 
 def init_base():
-    b = BaseAgent(
-        functions=FUNCTIONS
-    )
+    b = BaseAgent(functions=FUNCTIONS)
     return b
 
 
@@ -43,12 +41,12 @@ def run_comparison():
     query = "What is 45342 * 23487 + 32478?"
     print(query)
 
-    print("="*10 + "BASE" + "="*10)
+    print("=" * 10 + "BASE" + "=" * 10)
     base_agent = BaseAgent(functions=FUNCTIONS)
     base_res = base_agent.query(query)
     print(f"{base_res=}")
 
-    print("="*10 + "TULIP" + "="*10)
+    print("=" * 10 + "TULIP" + "=" * 10)
     tulip = ToolLibrary(functions=FUNCTIONS)
     tulip_agent = TulipAgent(
         tool_library=tulip,

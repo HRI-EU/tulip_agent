@@ -36,7 +36,9 @@ class BaseAgent:
             self.messages.append({"role": "system", "content": self.instructions})
 
         self.tools = {f.__name__: f for f in functions}
-        self.tool_descriptions = [self.function_analyzer.analyze_function(f) for f in functions]
+        self.tool_descriptions = [
+            self.function_analyzer.analyze_function(f) for f in functions
+        ]
 
     def __get_response(
         self,
@@ -85,7 +87,9 @@ class BaseAgent:
                         "content": str(function_response),
                     }
                 )
-                logger.info(f"Function {func_name} returned `{str(function_response)}` for arguments {func_args}.")
+                logger.info(
+                    f"Function {func_name} returned `{str(function_response)}` for arguments {func_args}."
+                )
 
             response = self.__get_response(
                 msgs=self.messages,

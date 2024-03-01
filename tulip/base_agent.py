@@ -96,4 +96,5 @@ class BaseAgent:
             )
             response_message = response.choices[0].message
             tool_calls = response_message.tool_calls
+        self.messages.append(response_message)
         return response_message.content

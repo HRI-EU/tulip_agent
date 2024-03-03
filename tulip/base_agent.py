@@ -40,7 +40,7 @@ class BaseAgent:
             self.function_analyzer.analyze_function(f) for f in functions
         ]
 
-    def __get_response(
+    def _get_response(
         self,
         msgs: list[dict[str, str]],
         model: str = None,
@@ -66,7 +66,7 @@ class BaseAgent:
     ) -> str:
         logging.info(f"Query: {prompt}")
         self.messages.append({"role": "user", "content": prompt})
-        response = self.__get_response(
+        response = self._get_response(
             msgs=self.messages,
         )
         response_message = response.choices[0].message
@@ -91,7 +91,7 @@ class BaseAgent:
                     f"Function {func_name} returned `{str(function_response)}` for arguments {func_args}."
                 )
 
-            response = self.__get_response(
+            response = self._get_response(
                 msgs=self.messages,
             )
             response_message = response.choices[0].message

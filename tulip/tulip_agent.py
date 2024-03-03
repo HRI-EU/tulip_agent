@@ -12,6 +12,8 @@ Process:
 import json
 import logging
 
+from abc import ABC, abstractmethod
+
 from openai import OpenAI, OpenAIError
 
 from prompts import TULIP_PROMPT
@@ -23,9 +25,10 @@ logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
 
 
-class TulipAgent:
+class TulipBaseAgent(ABC):
     def __init__(
         self,
+        instructions: str,
         model: str = "gpt-4-0125-preview",
         temperature: float = 0.0,
         tool_library: ToolLibrary = None,
@@ -33,7 +36,7 @@ class TulipAgent:
     ) -> None:
         self.model = model
         self.temperature = temperature
-        self.instructions = TULIP_PROMPT
+        self.instructions = instructions
         self.tool_library = tool_library
         self.top_k_functions = top_k_functions
         self.openai_client = OpenAI()
@@ -77,7 +80,7 @@ class TulipAgent:
             json_res.extend(json_res_)
         return json_res
 
-    def __get_response(
+    def _get_response(
         self,
         msgs: list[dict[str, str]],
         model: str = None,
@@ -99,6 +102,31 @@ class TulipAgent:
                 logger.error(e)
         return response
 
+    @abstractmethod
+    def query(
+        self,
+        prompt: str,
+    ) -> str:
+        pass
+
+
+class TulipAgent(TulipBaseAgent):
+    def __init__(
+        self,
+        instructions: str = TULIP_PROMPT,
+        model: str = "gpt-4-0125-preview",
+        temperature: float = 0.0,
+        tool_library: ToolLibrary = None,
+        top_k_functions: int = 3,
+    ) -> None:
+        super().__init__(
+            instructions=instructions,
+            model=model,
+            temperature=temperature,
+            tool_library=tool_library,
+            top_k_functions=top_k_functions,
+        )
+
     def query(
         self,
         prompt: str,
@@ -115,7 +143,7 @@ class TulipAgent:
                 ),
             }
         )
-        actions_response = self.__get_response(
+        actions_response = self._get_response(
             msgs=self.messages,
             tool_choice="none",
             tools=[self.search_tools_description],
@@ -131,7 +159,7 @@ class TulipAgent:
                 "content": "Now search for appropriate tools for each of these steps.",
             }
         )
-        function_response = self.__get_response(
+        function_response = self._get_response(
             msgs=self.messages,
             tools=[self.search_tools_description],
             tool_choice={"type": "function", "function": {"name": "search_tools"}},
@@ -175,7 +203,7 @@ class TulipAgent:
                 ),
             }
         )
-        response = self.__get_response(
+        response = self._get_response(
             msgs=self.messages,
             tools=tools,
             tool_choice="auto",
@@ -204,7 +232,7 @@ class TulipAgent:
                     f"Function {func_name} returned `{str(function_response)}` for arguments {func_args}."
                 )
 
-            response = self.__get_response(
+            response = self._get_response(
                 msgs=self.messages,
                 tools=tools,
                 tool_choice="auto",

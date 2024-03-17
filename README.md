@@ -4,7 +4,7 @@ This approach is helpful whenever the number of tools available exceeds the LLM'
 otherwise lead to challenges for the LLM to find the correct one.
 
 ## Contents
-* `tulip_agent`: agent with tool access
+* `tulip_agent`: agent with tool access - several variants
 * `tool_library`: vector store for managing tools
 
 ## Dev notes

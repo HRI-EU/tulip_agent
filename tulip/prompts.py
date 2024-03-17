@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 
-TULIP_PROMPT = """\
+TULIP_COT_PROMPT = """\
 You are a helpful agent who has access to an abundance of tools.
 Always adhere to the following procedure:
 1. Break the user request down into atomic actions.

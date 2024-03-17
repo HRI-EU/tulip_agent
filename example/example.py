@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 from tulip import (
     BaseAgent,
+    NaiveTulipAgent,
     ToolLibrary,
-    TulipAgent,
+    TulipCotAgent,
 )
 from calculator import (
     add,
@@ -46,13 +47,22 @@ def run_comparison():
     base_res = base_agent.query(query)
     print(f"{base_res=}")
 
-    print("=" * 10 + "TULIP" + "=" * 10)
     tulip = ToolLibrary(functions=FUNCTIONS)
-    tulip_agent = TulipAgent(
+
+    print("=" * 10 + "NAIVE TULIP" + "=" * 10)
+    naive_tulip_agent = NaiveTulipAgent(
+        tool_library=tulip,
+        top_k_functions=4,
+    )
+    tulip_res = naive_tulip_agent.query(query)
+    print(f"{tulip_res=}")
+
+    print("=" * 10 + "TULIP COT" + "=" * 10)
+    tulip_cot_agent = TulipCotAgent(
         tool_library=tulip,
         top_k_functions=1,
     )
-    tulip_res = tulip_agent.query(query)
+    tulip_res = tulip_cot_agent.query(query)
     print(f"{tulip_res=}")
 
 

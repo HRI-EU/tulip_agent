@@ -16,7 +16,7 @@ from abc import ABC, abstractmethod
 
 from openai import OpenAI, OpenAIError
 
-from prompts import TULIP_PROMPT
+from prompts import BASE_PROMPT, TULIP_COT_PROMPT
 from tool_library import ToolLibrary
 
 
@@ -49,7 +49,7 @@ class TulipBaseAgent(ABC):
             "type": "function",
             "function": {
                 "name": "search_tools",
-                "description": ("Search for tools in your tool library."),
+                "description": "Search for tools in your tool library.",
                 "parameters": {
                     "type": "object",
                     "properties": {
@@ -110,10 +110,112 @@ class TulipBaseAgent(ABC):
         pass
 
 
-class TulipAgent(TulipBaseAgent):
+class NaiveTulipAgent(TulipBaseAgent):
     def __init__(
         self,
-        instructions: str = TULIP_PROMPT,
+        instructions: str = BASE_PROMPT,
+        model: str = "gpt-4-0125-preview",
+        temperature: float = 0.0,
+        tool_library: ToolLibrary = None,
+        top_k_functions: int = 3,
+    ) -> None:
+        super().__init__(
+            instructions=instructions,
+            model=model,
+            temperature=temperature,
+            tool_library=tool_library,
+            top_k_functions=top_k_functions,
+        )
+
+    def query(
+        self,
+        prompt: str,
+    ) -> str:
+        # Search for tools, but do not track them
+        _msgs = [
+            {
+                "role": "system",
+                "content": self.instructions,
+            },
+            {
+                "role": "user",
+                "content": f"Search for appropriate tools for reacting to the following user request: {prompt}.",
+            }
+        ]
+        function_response = self._get_response(
+            msgs=_msgs,
+            tools=[self.search_tools_description],
+            tool_choice={"type": "function", "function": {"name": "search_tools"}},
+        )
+        response_message = function_response.choices[0].message
+        tool_calls = response_message.tool_calls
+        assert (
+            lntc := len(tool_calls)
+        ) == 1, f"Not exactly one tool search executed, but {lntc}."
+
+        tools = []
+        for tool_call in tool_calls:
+            func = tool_call.function.name
+            args = json.loads(tool_call.function.arguments)
+            assert func == "search_tools", f"Unexpected tool call: {func}"
+
+            # search tulip for function with args
+            logging.info(f"Tool search for: {str(args)}")
+            tools_ = self.search_tools(**args)
+            logging.info(f"Tools found: {str(tools_)}")
+            tools.extend(tools_)
+
+        # Run with tools
+        self.messages.append(
+            {
+                "role": "user",
+                "content": prompt,
+            }
+        )
+        response = self._get_response(
+            msgs=self.messages,
+            tools=tools,
+            tool_choice="auto",
+        )
+        response_message = response.choices[0].message
+        tool_calls = response_message.tool_calls
+
+        while tool_calls:
+            self.messages.append(response_message)
+
+            for tool_call in tool_calls:
+                func_name = tool_call.function.name
+                func_args = json.loads(tool_call.function.arguments)
+                function_response = self.tool_library.execute(
+                    function_name=func_name, function_args=func_args
+                )
+                self.messages.append(
+                    {
+                        "tool_call_id": tool_call.id,
+                        "role": "tool",
+                        "name": func_name,
+                        "content": str(function_response),
+                    }
+                )
+                logger.info(
+                    f"Function {func_name} returned `{str(function_response)}` for arguments {func_args}."
+                )
+
+            response = self._get_response(
+                msgs=self.messages,
+                tools=tools,
+                tool_choice="auto",
+            )
+            response_message = response.choices[0].message
+            tool_calls = response_message.tool_calls
+        self.messages.append(response_message)
+        return response_message.content
+
+
+class TulipCotAgent(TulipBaseAgent):
+    def __init__(
+        self,
+        instructions: str = TULIP_COT_PROMPT,
         model: str = "gpt-4-0125-preview",
         temperature: float = 0.0,
         tool_library: ToolLibrary = None,

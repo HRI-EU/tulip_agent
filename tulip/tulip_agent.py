@@ -17,7 +17,7 @@ from abc import ABC, abstractmethod
 from openai import OpenAI, OpenAIError
 
 from constants import BASE_LANGUAGE_MODEL, BASE_TEMPERATURE
-from prompts import BASE_PROMPT, TULIP_COT_PROMPT
+from prompts import AUTO_TULIP_PROMPT, BASE_PROMPT, TULIP_COT_PROMPT
 from tool_library import ToolLibrary
 
 
@@ -350,3 +350,89 @@ class TulipCotAgent(TulipBaseAgent):
             }
         )
         return self.run_with_tools(tools=tools)
+
+
+class AutoTulipAgent(TulipBaseAgent):
+    def __init__(
+        self,
+        instructions: str = AUTO_TULIP_PROMPT,
+        model: str = BASE_LANGUAGE_MODEL,
+        temperature: float = BASE_TEMPERATURE,
+        tool_library: ToolLibrary = None,
+        top_k_functions: int = 1,
+    ) -> None:
+        super().__init__(
+            instructions=instructions,
+            model=model,
+            temperature=temperature,
+            tool_library=tool_library,
+            top_k_functions=top_k_functions,
+        )
+        self.tools = [self.search_tools_description]
+
+    def query(
+        self,
+        prompt: str,
+    ) -> str:
+        logging.info(f"Query: {prompt}")
+        self.messages.append(
+            {
+                "role": "user",
+                "content": prompt,
+            }
+        )
+
+        response = self._get_response(
+            msgs=self.messages,
+            tools=self.tools,
+            tool_choice="auto",
+        )
+        response_message = response.choices[0].message
+        tool_calls = response_message.tool_calls
+
+        while tool_calls:
+            self.messages.append(response_message)
+
+            for tool_call in tool_calls:
+                func_name = tool_call.function.name
+                func_args = json.loads(tool_call.function.arguments)
+
+                if func_name == "search_tools":
+                    logging.info(f"Tool search for: {str(func_args)}")
+                    tools_ = self.search_tools(**func_args)
+                    logging.info(f"Tools found: {str(tools_)}")
+                    self.tools.extend(tools_)
+                    tool_names_ = [td["function"]["name"] for td in tools_]
+                    self.messages.append(
+                        {
+                            "tool_call_id": tool_call.id,
+                            "role": "tool",
+                            "name": func_name,
+                            "content": f"Successfully provided suitable tools: {tool_names_}.",
+                        }
+                    )
+                else:
+                    function_response = self.tool_library.execute(
+                        function_name=func_name, function_args=func_args
+                    )
+                    self.messages.append(
+                        {
+                            "tool_call_id": tool_call.id,
+                            "role": "tool",
+                            "name": func_name,
+                            "content": str(function_response),
+                        }
+                    )
+                    logger.info(
+                        f"Function {func_name} returned `{str(function_response)}` for arguments {func_args}."
+                    )
+
+            response = self._get_response(
+                msgs=self.messages,
+                tools=self.tools,
+                tool_choice="auto",
+            )
+            response_message = response.choices[0].message
+            tool_calls = response_message.tool_calls
+        self.messages.append(response_message)
+        return response_message.content

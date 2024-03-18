@@ -4,7 +4,7 @@ The TulipAgent core
 Process:
 1) Initialize agent with a vector store
 2) Take user request
-3) Check for suitable functions, note that this is not tracked in message history
+3) Find for suitable tools
 4) Run prompt with suitable tools
 5) If applicable, run tool calls
 6) Return response
@@ -16,6 +16,7 @@ from abc import ABC, abstractmethod
 
 from openai import OpenAI, OpenAIError
 
+from constants import BASE_LANGUAGE_MODEL, BASE_TEMPERATURE
 from prompts import BASE_PROMPT, TULIP_COT_PROMPT
 from tool_library import ToolLibrary
 
@@ -107,6 +108,13 @@ class TulipBaseAgent(ABC):
         self,
         prompt: str,
     ) -> str:
+        """
+        Query the tulip agent, which has to figure out which tools to use.
+        Includes two core steps: Identifying relevant tools and generating a response with these tools.
+
+        :param prompt: User prompt
+        :return: User-oriented final response
+        """
         pass
 
     def resolve_tool_calls(
@@ -181,8 +189,8 @@ class NaiveTulipAgent(TulipBaseAgent):
     def __init__(
         self,
         instructions: str = BASE_PROMPT,
-        model: str = "gpt-4-0125-preview",
-        temperature: float = 0.0,
+        model: str = BASE_LANGUAGE_MODEL,
+        temperature: float = BASE_TEMPERATURE,
         tool_library: ToolLibrary = None,
         top_k_functions: int = 3,
     ) -> None:
@@ -236,8 +244,8 @@ class TulipCotAgent(TulipBaseAgent):
     def __init__(
         self,
         instructions: str = TULIP_COT_PROMPT,
-        model: str = "gpt-4-0125-preview",
-        temperature: float = 0.0,
+        model: str = BASE_LANGUAGE_MODEL,
+        temperature: float = BASE_TEMPERATURE,
         tool_library: ToolLibrary = None,
         top_k_functions: int = 3,
     ) -> None:

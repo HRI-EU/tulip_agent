@@ -9,6 +9,7 @@ from typing import Callable
 
 from openai import OpenAI, OpenAIError
 
+from constants import BASE_LANGUAGE_MODEL, BASE_TEMPERATURE
 from function_analyzer import FunctionAnalyzer
 from prompts import BASE_PROMPT
 
@@ -22,8 +23,8 @@ class BaseAgent:
     def __init__(
         self,
         functions: list[Callable],
-        model: str = "gpt-4-0125-preview",
-        temperature: float = 0.0,
+        model: str = BASE_LANGUAGE_MODEL,
+        temperature: float = BASE_TEMPERATURE,
     ) -> None:
         self.model = model
         self.temperature = temperature

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from tulip import (
     BaseAgent,
+    MinimalTulipAgent,
     NaiveTulipAgent,
     ToolLibrary,
     TulipCotAgent,
@@ -33,23 +34,30 @@ FUNCTIONS = [
 ]
 
 
-def init_base():
-    b = BaseAgent(functions=FUNCTIONS)
-    return b
+def print_seperator(name: str) -> None:
+    print("=" * 10 + f" {name} " + "=" * 10)
 
 
 def run_comparison():
     query = "What is 45342 * 23487 + 32478?"
     print(query)
 
-    print("=" * 10 + "BASE" + "=" * 10)
+    print_seperator(name="BASE")
     base_agent = BaseAgent(functions=FUNCTIONS)
     base_res = base_agent.query(query)
     print(f"{base_res=}")
 
     tulip = ToolLibrary(functions=FUNCTIONS)
 
-    print("=" * 10 + "NAIVE TULIP" + "=" * 10)
+    print_seperator(name="MINIMAL TULIP")
+    minimal_tulip_agent = MinimalTulipAgent(
+        tool_library=tulip,
+        top_k_functions=2,
+    )
+    tulip_res = minimal_tulip_agent.query(query)
+    print(f"{tulip_res=}")
+
+    print_seperator(name="NAIVE TULIP")
     naive_tulip_agent = NaiveTulipAgent(
         tool_library=tulip,
         top_k_functions=4,
@@ -57,7 +65,7 @@ def run_comparison():
     tulip_res = naive_tulip_agent.query(query)
     print(f"{tulip_res=}")
 
-    print("=" * 10 + "TULIP COT" + "=" * 10)
+    print_seperator(name="TULIP COT")
     tulip_cot_agent = TulipCotAgent(
         tool_library=tulip,
         top_k_functions=1,

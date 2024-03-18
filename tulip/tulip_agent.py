@@ -109,50 +109,11 @@ class TulipBaseAgent(ABC):
     ) -> str:
         pass
 
-
-class NaiveTulipAgent(TulipBaseAgent):
-    def __init__(
+    def resolve_tool_calls(
         self,
-        instructions: str = BASE_PROMPT,
-        model: str = "gpt-4-0125-preview",
-        temperature: float = 0.0,
-        tool_library: ToolLibrary = None,
-        top_k_functions: int = 3,
-    ) -> None:
-        super().__init__(
-            instructions=instructions,
-            model=model,
-            temperature=temperature,
-            tool_library=tool_library,
-            top_k_functions=top_k_functions,
-        )
-
-    def query(
-        self,
-        prompt: str,
-    ) -> str:
-        # Search for tools, but do not track them
-        _msgs = [
-            {
-                "role": "system",
-                "content": self.instructions,
-            },
-            {
-                "role": "user",
-                "content": f"Search for appropriate tools for reacting to the following user request: {prompt}.",
-            }
-        ]
-        function_response = self._get_response(
-            msgs=_msgs,
-            tools=[self.search_tools_description],
-            tool_choice={"type": "function", "function": {"name": "search_tools"}},
-        )
-        response_message = function_response.choices[0].message
-        tool_calls = response_message.tool_calls
-        assert (
-            lntc := len(tool_calls)
-        ) == 1, f"Not exactly one tool search executed, but {lntc}."
-
+        tool_calls: list,
+        track_history: bool,
+    ) -> list:
         tools = []
         for tool_call in tool_calls:
             func = tool_call.function.name
@@ -164,14 +125,18 @@ class NaiveTulipAgent(TulipBaseAgent):
             tools_ = self.search_tools(**args)
             logging.info(f"Tools found: {str(tools_)}")
             tools.extend(tools_)
+            if track_history:
+                self.messages.append(
+                    {
+                        "tool_call_id": tool_call.id,
+                        "role": "tool",
+                        "name": func,
+                        "content": "Successfully provided suitable tools.",
+                    }
+                )
+        return tools
 
-        # Run with tools
-        self.messages.append(
-            {
-                "role": "user",
-                "content": prompt,
-            }
-        )
+    def run_with_tools(self, tools: list[dict]) -> str:
         response = self._get_response(
             msgs=self.messages,
             tools=tools,
@@ -210,6 +175,61 @@ class NaiveTulipAgent(TulipBaseAgent):
             tool_calls = response_message.tool_calls
         self.messages.append(response_message)
         return response_message.content
+
+
+class NaiveTulipAgent(TulipBaseAgent):
+    def __init__(
+        self,
+        instructions: str = BASE_PROMPT,
+        model: str = "gpt-4-0125-preview",
+        temperature: float = 0.0,
+        tool_library: ToolLibrary = None,
+        top_k_functions: int = 3,
+    ) -> None:
+        super().__init__(
+            instructions=instructions,
+            model=model,
+            temperature=temperature,
+            tool_library=tool_library,
+            top_k_functions=top_k_functions,
+        )
+
+    def query(
+        self,
+        prompt: str,
+    ) -> str:
+        # Search for tools, but do not track the search
+        _msgs = [
+            {
+                "role": "system",
+                "content": self.instructions,
+            },
+            {
+                "role": "user",
+                "content": f"Search for appropriate tools for reacting to the following user request: {prompt}.",
+            },
+        ]
+        function_response = self._get_response(
+            msgs=_msgs,
+            tools=[self.search_tools_description],
+            tool_choice={"type": "function", "function": {"name": "search_tools"}},
+        )
+        response_message = function_response.choices[0].message
+        tool_calls = response_message.tool_calls
+        assert (
+            lntc := len(tool_calls)
+        ) == 1, f"Not exactly one tool search executed, but {lntc}."
+
+        tools = self.resolve_tool_calls(tool_calls=tool_calls, track_history=False)
+
+        # Run with tools
+        self.messages.append(
+            {
+                "role": "user",
+                "content": prompt,
+            }
+        )
+        return self.run_with_tools(tools=tools)
 
 
 class TulipCotAgent(TulipBaseAgent):
@@ -254,7 +274,7 @@ class TulipCotAgent(TulipBaseAgent):
         self.messages.append(actions_response_message)
         logging.info(f"{actions_response_message=}")
 
-        # Search for suitable functions
+        # Search for suitable tools
         self.messages.append(
             {
                 "role": "user",
@@ -273,27 +293,9 @@ class TulipCotAgent(TulipBaseAgent):
             lntc := len(tool_calls)
         ) == 1, f"Not exactly one tool search executed, but {lntc}."
 
-        tools = []
-        for tool_call in tool_calls:
-            func = tool_call.function.name
-            args = json.loads(tool_call.function.arguments)
-            assert func == "search_tools", f"Unexpected tool call: {func}"
+        tools = self.resolve_tool_calls(tool_calls=tool_calls, track_history=True)
 
-            # search tulip for function with args
-            logging.info(f"Tool search for: {str(args)}")
-            tools_ = self.search_tools(**args)
-            logging.info(f"Tools found: {str(tools_)}")
-            tools.extend(tools_)
-            self.messages.append(
-                {
-                    "tool_call_id": tool_call.id,
-                    "role": "tool",
-                    "name": func,
-                    "content": "Successfully provided suitable tools.",
-                }
-            )
-
-        # Run with suitable tools
+        # Run with tools
         self.messages.append(
             {
                 "role": "user",
@@ -305,41 +307,4 @@ class TulipCotAgent(TulipBaseAgent):
                 ),
             }
         )
-        response = self._get_response(
-            msgs=self.messages,
-            tools=tools,
-            tool_choice="auto",
-        )
-        response_message = response.choices[0].message
-        tool_calls = response_message.tool_calls
-
-        while tool_calls:
-            self.messages.append(response_message)
-
-            for tool_call in tool_calls:
-                func_name = tool_call.function.name
-                func_args = json.loads(tool_call.function.arguments)
-                function_response = self.tool_library.execute(
-                    function_name=func_name, function_args=func_args
-                )
-                self.messages.append(
-                    {
-                        "tool_call_id": tool_call.id,
-                        "role": "tool",
-                        "name": func_name,
-                        "content": str(function_response),
-                    }
-                )
-                logger.info(
-                    f"Function {func_name} returned `{str(function_response)}` for arguments {func_args}."
-                )
-
-            response = self._get_response(
-                msgs=self.messages,
-                tools=tools,
-                tool_choice="auto",
-            )
-            response_message = response.choices[0].message
-            tool_calls = response_message.tool_calls
-        self.messages.append(response_message)
-        return response_message.content
+        return self.run_with_tools(tools=tools)

@@ -67,7 +67,7 @@ class TulipBaseAgent(ABC):
             },
         }
 
-    def search_tools(self, action_descriptions: str):
+    def search_tools(self, action_descriptions: list[str]):
         json_res, hash_res = [], []
         for action_description in action_descriptions:
             res = self.tool_library.search(
@@ -183,6 +183,40 @@ class TulipBaseAgent(ABC):
             tool_calls = response_message.tool_calls
         self.messages.append(response_message)
         return response_message.content
+
+
+class MinimalTulipAgent(TulipBaseAgent):
+    def __init__(
+        self,
+        instructions: str = BASE_PROMPT,
+        model: str = BASE_LANGUAGE_MODEL,
+        temperature: float = BASE_TEMPERATURE,
+        tool_library: ToolLibrary = None,
+        top_k_functions: int = 10,
+    ) -> None:
+        super().__init__(
+            instructions=instructions,
+            model=model,
+            temperature=temperature,
+            tool_library=tool_library,
+            top_k_functions=top_k_functions,
+        )
+
+    def query(
+        self,
+        prompt: str,
+    ) -> str:
+        # Search for tools directly with user prompt; do not track the search
+        tools = self.search_tools(action_descriptions=[prompt])
+
+        # Run with tools
+        self.messages.append(
+            {
+                "role": "user",
+                "content": prompt,
+            }
+        )
+        return self.run_with_tools(tools=tools)
 
 
 class NaiveTulipAgent(TulipBaseAgent):

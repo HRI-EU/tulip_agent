@@ -6,7 +6,14 @@ otherwise lead to challenges for the LLM to find the right tool for the task.
 ## Contents
 * `function_analyzer`: Python function introspection for generating tool descriptions
 * `tool_library`: Vector store for managing tools
-* `tulip_agent`: Agent with tool access - several variants
+* `tulip_agent`: Agents with tool access
+  * `MinimalTulipAgent`: Minimal implementation; searches for tools based on user input directly
+  * `NaiveTulipAgent`: Naive implementation; searches for tools with a separate tool call
+  * `TulipCotAgent`: COT implementation; derives a plan for the necessary steps and searches for dedicated tools
+  * `AutoTulipAgent`: Fully autonomous variant; may use the search tool at any time
+* `base_agent`: Conventional baseline
+  * `BaseAgent`: Uses regular tool descriptions in its system prompt
+
 
 ## Dev notes
 * Python v3.10.11 recommended, higher versions may lead to issues with chroma when installing via Poetry

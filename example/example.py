@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from tulip import (
+    AutoTulipAgent,
     BaseAgent,
     MinimalTulipAgent,
     NaiveTulipAgent,
@@ -71,6 +72,14 @@ def run_comparison():
         top_k_functions=1,
     )
     tulip_res = tulip_cot_agent.query(query)
+    print(f"{tulip_res=}")
+
+    print_seperator(name="AUTO TULIP")
+    auto_tulip_agent = AutoTulipAgent(
+        tool_library=tulip,
+        top_k_functions=1,
+    )
+    tulip_res = auto_tulip_agent.query(query)
     print(f"{tulip_res=}")
 
 

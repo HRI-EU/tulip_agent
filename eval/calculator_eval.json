@@ -1,0 +1,52 @@
+[
+  {
+    "name": "Combining Prime and Fibonacci Functions",
+    "task": "Find the 10th prime number and the 10th Fibonacci number, then calculate the sum of these two numbers.",
+    "solution": null
+  },
+  {
+    "name": "Using Arithmetic and Geometric Means",
+    "task": "Given the list of numbers [12, 15, 22, 29, 35], calculate both the arithmetic mean and the geometric mean, then find the difference between these two means.",
+    "solution": null
+  },
+  {
+    "name": "Sum and Prime Check",
+    "task": "Calculate the sum of the first 15 natural numbers. Check if the resulting sum is a prime number.",
+    "solution": null
+  },
+  {
+    "name": "Area Calculations with Perimeter",
+    "task": "Calculate the area of a square with side length 8, and then find the perimeter of the same square. Sum the area and perimeter to find the total.",
+    "solution": null
+  },
+  {
+    "name": "Interest Calculations",
+    "task": "Calculate the compound interest on an investment of $5,000 at an annual interest rate of 5% compounded quarterly for 10 years. After calculating the compound interest, determine the simple interest for the same amount, rate, and time period. Compare the results by finding the difference between the compound interest and simple interest amounts.",
+    "solution": null
+  },
+  {
+    "name": "Volume and Surface Area",
+    "task": "Find the volume and surface area of a sphere with a radius of 7 units. Sum the volume and surface area to get a combined measure.",
+    "solution": null
+  },
+  {
+    "name": "Temperature Conversions",
+    "task": "Convert 100 degrees Fahrenheit to Celsius. Then, convert 37 degrees Celsius to Fahrenheit. Calculate the difference between the two Fahrenheit temperatures.",
+    "solution": null
+  },
+  {
+    "name": "Prime Factors and Divisors",
+    "task": "Find all prime factors of the number 156. Then, calculate the sum of all divisors of 156, including 1 and the number itself. Compare the results by finding the difference between the sum of prime factors and the sum of divisors.",
+    "solution": null
+  },
+  {
+    "name": "Fibonacci and Digital Root",
+    "task": "Calculate the 15th Fibonacci number. Then, find the digital root of this Fibonacci number.",
+    "solution": null
+  },
+  {
+    "name": "Quadratic Equation and Roots",
+    "task": "Solve the quadratic equation 3x**2-4x+1=0. After finding the roots, calculate the arithmetic mean of these roots.",
+    "solution": null
+  }
+]

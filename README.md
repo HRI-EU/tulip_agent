@@ -20,3 +20,16 @@ otherwise lead to challenges for the LLM to find the right tool for the task.
 * [Pre-commit hooks](https://pre-commit.com/) - install with `(poetry run) pre-commit install`
 * Linting: [ruff](https://github.com/astral-sh/ruff)
 * Formatting: [black](https://github.com/psf/black)
+
+
+## Known issues
+
+### SQLite version incompatibility
+See these [troubleshooting instructions](https://docs.trychroma.com/troubleshooting#sqlite)
+1. On Linux install pysqlite3-binary: `poetry add pysqlite3-binary`
+2. Add the following to `lib/python3.10/site-packages/chromadb/__init__.py` in your venv
+```python
+__import__('pysqlite3')
+import sys
+sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
+```

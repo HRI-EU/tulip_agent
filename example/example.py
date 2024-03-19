@@ -48,7 +48,7 @@ def run_comparison():
     base_res = base_agent.query(query)
     print(f"{base_res=}")
 
-    tulip = ToolLibrary(functions=FUNCTIONS)
+    tulip = ToolLibrary(chroma_sub_dir="example/", functions=FUNCTIONS)
 
     print_seperator(name="MINIMAL TULIP")
     minimal_tulip_agent = MinimalTulipAgent(

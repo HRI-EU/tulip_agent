@@ -6,6 +6,8 @@ import json
 import logging
 import chromadb
 
+from pathlib import Path
+
 from embed import embed
 from function_analyzer import FunctionAnalyzer
 
@@ -18,9 +20,10 @@ logger.addHandler(logging.NullHandler())
 class ToolLibrary:
     def __init__(
         self,
+        chroma_sub_dir: str = "",
         functions: list = None,
         classes: list = None,
-        chroma_dir: str = "../data/chroma/",
+        chroma_base_dir: str = "../data/chroma/",
     ) -> None:
         self.function_analyzer = FunctionAnalyzer()
         self.functions = {f.__name__: f for f in functions} if functions else {}
@@ -35,6 +38,10 @@ class ToolLibrary:
             if classes
             else {}
         )
+
+        # set up directory
+        chroma_dir = chroma_base_dir + chroma_sub_dir
+        Path(chroma_dir).mkdir(parents=True, exist_ok=True)
 
         # vector store
         self.chroma_client = chromadb.PersistentClient(path=chroma_dir)

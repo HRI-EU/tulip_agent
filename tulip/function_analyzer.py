@@ -2,31 +2,63 @@
 """
 Analysis of Python functions and entire classes using introspection
 for creating descriptions usable with the OpenAI API
+
+Note: Only OPENAI_TYPES are supported as function inputs
 """
 import typing
 
 from dataclasses import dataclass
-from typing import Union
+
+
+OPENAI_BASE_TYPES = {
+    float: "number",
+    int: "number",
+    str: "string",
+}
+
+OPENAI_NESTED_TYPES = {
+    list: "array",
+}
 
 
 @dataclass
 class VariableDescription:
     name: str
-    type: str
+    type_: type
     description: str
 
+    def __post_init__(self):
+        if self.type_ in OPENAI_BASE_TYPES:
+            self.type_origin = OPENAI_BASE_TYPES[self.type_]
+            self.type_arg = None
+        elif typing.get_origin(self.type_) in OPENAI_NESTED_TYPES:
+            self.type_origin = OPENAI_NESTED_TYPES[typing.get_origin(self.type_)]
+            self.type_arg = OPENAI_BASE_TYPES[typing.get_args(self.type_)[0]]
+        else:
+            raise TypeError(f"Unexpected subtype for {self.name}: {str(self.type_)}.")
+
     def to_dict(self) -> dict:
-        return {self.name: {"type": self.type, "description": self.description}}
+        if self.type_arg is None:
+            return {
+                self.name: {
+                    "type": self.type_origin,
+                    "description": self.description,
+                }
+            }
+        else:
+            return {
+                self.name: {
+                    "type": self.type_origin,
+                    "description": self.description,
+                    "items": {"type": self.type_arg},
+                }
+            }
 
 
 class FunctionAnalyzer:
-    openai_types = {
-        float: "number",
-        int: "number",
-        str: "string",
-    }
 
-    def analyze_function(self, function_) -> dict:
+    @staticmethod
+    def analyze_function(function_) -> dict:
         """
         Analyzes a python function and returns a description compatible with the OpenAI API
         Assumptions:
@@ -43,7 +75,7 @@ class FunctionAnalyzer:
             th
             for th in type_hints
             if not (
-                typing.get_origin(type_hints[th]) is Union
+                typing.get_origin(type_hints[th]) is typing.Union
                 and type(None) in typing.get_args(type_hints[th])
             )
         ]
@@ -71,7 +103,7 @@ class FunctionAnalyzer:
         variable_descriptions = [
             VariableDescription(
                 name=v,
-                type=self.openai_types[type_hints_basic[v]],
+                type_=type_hints_basic[v],
                 description=param_descriptions[v],
             ).to_dict()
             for v in type_hints_basic

@@ -16,30 +16,34 @@ import calculator_extended
 
 
 def run_math_eval():
-    # TODO: support lists as input types in function descriptions
-
     functions = [
         getattr(calculator_extended, n)
-        for n, _ in getmembers(calculator_extended, isfunction)
-    ][:10]
+        for n, f in getmembers(calculator_extended, isfunction)
+        if f.__module__ == calculator_extended.__name__
+    ]
     print(functions)
 
-    query = "What is 45342 * 23487 + 32478?"
-    print(query)
+    queries = [
+        "What is 45342 * 23487 + 32478?",  # 1064980032
+        "What is the variation coefficient for 1, 2, and 3?",  # 0.408
+    ]
 
-    print("=" * 10 + " BASE " + "=" * 10)
-    base_agent = BaseAgent(functions=functions)
-    base_res = base_agent.query(query)
-    print(f"{base_res=}")
+    for query in queries:
+        print(query)
 
-    print("=" * 10 + " TULIP COT " + "=" * 10)
-    tulip = ToolLibrary(chroma_sub_dir="math_eval/", functions=functions)
-    tulip_cot_agent = TulipCotAgent(
-        tool_library=tulip,
-        top_k_functions=3,
-    )
-    tulip_res = tulip_cot_agent.query(query)
-    print(f"{tulip_res=}")
+        print("=" * 10 + " BASE " + "=" * 10)
+        base_agent = BaseAgent(functions=functions)
+        base_res = base_agent.query(query)
+        print(f"{base_res=}")
+
+        print("=" * 10 + " TULIP COT " + "=" * 10)
+        tulip = ToolLibrary(chroma_sub_dir="math_eval/", functions=functions)
+        tulip_cot_agent = TulipCotAgent(
+            tool_library=tulip,
+            top_k_functions=3,
+        )
+        tulip_res = tulip_cot_agent.query(query)
+        print(f"{tulip_res=}")
 
 
 if __name__ == "__main__":

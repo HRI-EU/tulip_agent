@@ -706,7 +706,7 @@ def surface_area_of_torus(major_radius: float, minor_radius: float) -> float:
     return 4 * math.pi
 
 
-def harmonic_mean(numbers: list) -> float:
+def harmonic_mean(numbers: list[float]) -> float:
     """
     Calculate the harmonic mean of a list of numbers.
 
@@ -716,7 +716,7 @@ def harmonic_mean(numbers: list) -> float:
     return len(numbers) / sum(1 / x for x in numbers)
 
 
-def geometric_mean(numbers: list) -> float:
+def geometric_mean(numbers: list[float]) -> float:
     """
     Calculate the geometric mean of a list of numbers.
 
@@ -800,7 +800,7 @@ def binomial_coefficient(n: int, k: int) -> int:
     return math.factorial(n) // (math.factorial(k) * math.factorial(n - k))
 
 
-def mean_absolute_deviation(numbers: list) -> float:
+def mean_absolute_deviation(numbers: list[float]) -> float:
     """
     Calculate the mean absolute deviation of a list of numbers.
 
@@ -811,21 +811,19 @@ def mean_absolute_deviation(numbers: list) -> float:
     return sum(abs(x - mean) for x in numbers) / len(numbers)
 
 
-def standard_deviation(numbers: list) -> float:
+def standard_deviation(numbers: list[float]) -> float:
     """
     Calculate the standard deviation of a list of numbers.
 
     :param numbers: A list of numbers.
     :return: The standard deviation.
     """
-    from math import sqrt
-
     mean = sum(numbers) / len(numbers)
     variance = sum((x - mean) ** 2 for x in numbers) / len(numbers)
-    return sqrt(variance)
+    return math.sqrt(variance)
 
 
-def variance(numbers: list) -> float:
+def variance(numbers: list[float]) -> float:
     """
     Calculate the variance of a list of numbers.
 
@@ -836,7 +834,7 @@ def variance(numbers: list) -> float:
     return sum((x - mean) ** 2 for x in numbers) / len(numbers)
 
 
-def coefficient_of_variation(numbers: list) -> float:
+def coefficient_of_variation(numbers: list[float]) -> float:
     """
     Calculate the coefficient of variation of a list of numbers.
 
@@ -848,7 +846,7 @@ def coefficient_of_variation(numbers: list) -> float:
     return stdev / mean
 
 
-def median(numbers: list) -> float:
+def median(numbers: list[float]) -> float:
     """
     Calculate the median of a list of numbers.
 
@@ -863,7 +861,7 @@ def median(numbers: list) -> float:
         return numbers[n // 2]
 
 
-def mode(numbers: list) -> list:
+def mode(numbers: list[float]) -> list:
     """
     Calculate the mode(s) of a list of numbers.
 
@@ -875,7 +873,7 @@ def mode(numbers: list) -> list:
     return [num for num, count in counts.items() if count == max_count]
 
 
-def interquartile_range(numbers: list) -> float:
+def interquartile_range(numbers: list[float]) -> float:
     """
     Calculate the interquartile range of a list of numbers.
 
@@ -894,7 +892,7 @@ def interquartile_range(numbers: list) -> float:
     return q3 - q1
 
 
-def range_of_numbers(numbers: list) -> float:
+def range_of_numbers(numbers: list[float]) -> float:
     """
     Calculate the range of a list of numbers.
 
@@ -937,9 +935,7 @@ def catalan_number(n: int) -> int:
     :param n: The position in the Catalan sequence.
     :return: The nth Catalan number.
     """
-    from math import factorial
-
-    return factorial(2 * n) // (factorial(n + 1) * factorial(n))
+    return math.factorial(2 * n) // (factorial(n + 1) * factorial(n))
 
 
 def is_palindrome(number: int) -> bool:
@@ -1074,7 +1070,7 @@ def euler_totient_function(n: int) -> int:
     return result
 
 
-def greatest_difference(numbers: list) -> int:
+def greatest_difference(numbers: list[float]) -> float:
     """
     Find the greatest difference between any two numbers in a list.
 
@@ -1084,7 +1080,7 @@ def greatest_difference(numbers: list) -> int:
     return max(numbers) - min(numbers)
 
 
-def sum_of_even_numbers(numbers: list) -> int:
+def sum_of_even_numbers(numbers: list[int]) -> int:
     """
     Calculate the sum of all even numbers in a list.
 
@@ -1094,7 +1090,7 @@ def sum_of_even_numbers(numbers: list) -> int:
     return sum(number for number in numbers if number % 2 == 0)
 
 
-def sum_of_odd_numbers(numbers: list) -> int:
+def sum_of_odd_numbers(numbers: list[int]) -> int:
     """
     Calculate the sum of all odd numbers in a list.
 
@@ -1104,7 +1100,7 @@ def sum_of_odd_numbers(numbers: list) -> int:
     return sum(number for number in numbers if number % 2 != 0)
 
 
-def product_of_numbers(numbers: list) -> int:
+def product_of_numbers(numbers: list[float]) -> float:
     """
     Calculate the product of all numbers in a list.
 
@@ -1175,7 +1171,20 @@ def sum_of_divisors(n: int) -> int:
 
 if __name__ == "__main__":
     current_module = sys.modules[__name__]
-    functions = getmembers(current_module, isfunction)
+    print(current_module)
+    functions = [
+        (n, f)
+        for n, f in getmembers(current_module, isfunction)
+        if f.__module__ == "__main__"
+    ]
     print(f"Number of functions: {len(functions)}")
     print(f"Functions: {functions}")
     print(f"Number of duplicate functions: {len(functions) - len(set(functions))}")
+
+    from tulip.function_analyzer import FunctionAnalyzer
+
+    fa = FunctionAnalyzer()
+    for name, function in functions:
+        print(name)
+        description = fa.analyze_function(function)
+        print(description)

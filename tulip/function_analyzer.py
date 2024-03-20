@@ -64,7 +64,10 @@ class FunctionAnalyzer:
         Assumptions:
         * docstring includes a function description and parameter descriptions separated by 2 linebreaks
         * docstring includes parameter descriptions indicated by :param x:
-        NOTE: for now, only simple file types are supported; they may be optional
+        NOTE:
+        * for now, only simple file types and lists thereof are supported
+        * inputs may be optional
+        * inputs that are unions default to the first type; [int, str] -> int (which is interpreted as number)
         """
         name = function_.__name__
 
@@ -75,15 +78,20 @@ class FunctionAnalyzer:
             th
             for th in type_hints
             if not (
-                typing.get_origin(type_hints[th]) is typing.Union
+                typing.get_origin(type_hints[th]) is typing.Optional
+                or typing.get_origin(type_hints[th]) is typing.Union
                 and type(None) in typing.get_args(type_hints[th])
             )
         ]
         type_hints_basic = {
             k: (
                 v
-                if k in required
-                else [t for t in typing.get_args(type_hints[k]) if t][0]
+                if typing.get_origin(v) is not typing.Union
+                else (
+                    typing.get_args(v)[0]
+                    if k in required
+                    else [t for t in typing.get_args(type_hints[k]) if t][0]
+                )
             )
             for k, v in type_hints.items()
         }

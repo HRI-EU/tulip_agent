@@ -97,14 +97,13 @@ class FunctionAnalyzer:
         }
 
         # analyze doc string
-        function_description, param_description = (
-            e.strip() for e in function_.__doc__.split("\n\n")
-        )
+        descriptions = [e.strip() for e in function_.__doc__.split(":param ")]
+        function_description, param_descriptions = descriptions[0], descriptions[1:]
         param_descriptions = {
             k: v
             for (k, v) in [
-                e.strip().split(": ")
-                for e in param_description.split(":return:")[0].split(":param ")
+                e.split(":return:")[0].strip().split(": ")
+                for e in param_descriptions
                 if e
             ]
         }

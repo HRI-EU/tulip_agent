@@ -14,6 +14,8 @@ def dummy_function(
     """
     Print some fine information.
 
+    Some more information.
+
     :param texts: A list of strings.
     :param number: Some number.
     :param str_one: An optional string.

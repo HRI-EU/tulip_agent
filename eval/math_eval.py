@@ -12,14 +12,14 @@ from tulip import (
     ToolLibrary,
     TulipCotAgent,
 )
-import calculator_extended
+import math_tools
 
 
 def run_math_eval():
     functions = [
-        getattr(calculator_extended, n)
-        for n, f in getmembers(calculator_extended, isfunction)
-        if f.__module__ == calculator_extended.__name__
+        getattr(math_tools, n)
+        for n, f in getmembers(math_tools, isfunction)
+        if f.__module__ == math_tools.__name__
     ]
     print(functions)
 

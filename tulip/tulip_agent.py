@@ -101,6 +101,10 @@ class TulipBaseAgent(ABC):
                 )
             except OpenAIError as e:
                 logger.error(e)
+        logger.info(
+            f"Usage for {response.id} in tokens: "
+            f"{response.usage.prompt_tokens} prompt and {response.usage.completion_tokens} completion."
+        )
         return response
 
     @abstractmethod

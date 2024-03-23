@@ -9,9 +9,9 @@ from typing import Callable
 
 from openai import OpenAI, OpenAIError
 
-from constants import BASE_LANGUAGE_MODEL, BASE_TEMPERATURE
-from function_analyzer import FunctionAnalyzer
-from prompts import BASE_PROMPT
+from .constants import BASE_LANGUAGE_MODEL, BASE_TEMPERATURE
+from .function_analyzer import FunctionAnalyzer
+from .prompts import BASE_PROMPT
 
 
 logger = logging.getLogger(__name__)

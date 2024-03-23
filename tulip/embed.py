@@ -3,7 +3,7 @@ import logging
 
 from openai import OpenAI
 
-from constants import BASE_EMBEDDING_MODEL
+from .constants import BASE_EMBEDDING_MODEL
 
 
 logger = logging.getLogger(__name__)

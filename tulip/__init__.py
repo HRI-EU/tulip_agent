@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 import logging
 
-from base_agent import BaseAgent
-from tulip_agent import (
+from .base_agent import BaseAgent
+from .tulip_agent import (
     AutoTulipAgent,
     MinimalTulipAgent,
     NaiveTulipAgent,
     TulipCotAgent,
 )
-from tool_library import ToolLibrary
+from .tool_library import ToolLibrary
 
 
 __all__ = [

@@ -16,9 +16,9 @@ from abc import ABC, abstractmethod
 
 from openai import OpenAI, OpenAIError
 
-from constants import BASE_LANGUAGE_MODEL, BASE_TEMPERATURE
-from prompts import AUTO_TULIP_PROMPT, BASE_PROMPT, TULIP_COT_PROMPT
-from tool_library import ToolLibrary
+from .constants import BASE_LANGUAGE_MODEL, BASE_TEMPERATURE
+from .prompts import AUTO_TULIP_PROMPT, BASE_PROMPT, TULIP_COT_PROMPT
+from .tool_library import ToolLibrary
 
 
 logger = logging.getLogger(__name__)

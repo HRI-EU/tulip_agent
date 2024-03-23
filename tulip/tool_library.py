@@ -8,8 +8,8 @@ import chromadb
 
 from pathlib import Path
 
-from embed import embed
-from function_analyzer import FunctionAnalyzer
+from .embed import embed
+from .function_analyzer import FunctionAnalyzer
 
 
 logger = logging.getLogger(__name__)

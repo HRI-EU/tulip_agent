@@ -85,9 +85,9 @@ class ToolLibrary:
         self.function_descriptions[function.__name__] = function_data
         self.collection.add(
             documents=json.dumps(function_data, indent=4),
-            embeddings=[embed(function_data["description"])],
-            metadatas=[function_data],
-            ids=[function_data["name"]],
+            embeddings=[embed(function_data["function"]["description"])],
+            metadatas=[{"description": str(function_data)}],
+            ids=[function_data["function"]["name"]],
         )
 
     def add_class(

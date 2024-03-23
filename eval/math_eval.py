@@ -5,6 +5,9 @@ TulipAgent evals
 * Datasets: use some Python lib from which I can extract functions? must adhere to Sphinx doc style; or generate
 * Several runs, with an increasing number of functions
 """
+import logging.config
+import yaml
+
 from inspect import getmembers, isfunction
 
 from tulip import (
@@ -13,6 +16,12 @@ from tulip import (
     TulipCotAgent,
 )
 import math_tools
+
+
+# Set up agent loggers to save logs to file for analysis
+with open("logging_config.yaml", "rt") as log_config:
+    config = yaml.safe_load(log_config.read())
+logging.config.dictConfig(config)
 
 
 def run_math_eval():

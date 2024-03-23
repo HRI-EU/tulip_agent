@@ -3,8 +3,9 @@
 Utility for generating Python math functions.
 Must run reset_temp.py to generate empty temp module
 """
-import logging
+import logging.config
 import os.path
+import yaml
 
 from black import format_str, FileMode
 import importlib
@@ -15,9 +16,11 @@ from constants import BASE_LANGUAGE_MODEL, BASE_TEMPERATURE
 import temp
 
 
-logging.basicConfig(level=logging.INFO)
+# Set up logger
+with open("logging_config.yaml", "rt") as log_config:
+    config = yaml.safe_load(log_config.read())
+logging.config.dictConfig(config)
 logger = logging.getLogger(__name__)
-logger.addHandler(logging.NullHandler())
 
 
 SYSTEM_PROMPT = """\
@@ -121,4 +124,4 @@ def generate(iterations: int) -> None:
 if __name__ == "__main__":
     modulename = "temp"
     filename = modulename + ".py"
-    generate(iterations=40)
+    generate(iterations=1)

@@ -23,6 +23,10 @@ handlers:
         mode: w
 
 loggers:
+    tool_generator:
+        level: INFO
+        handlers: [console]
+        propagate: no
     base_agent:
         level: INFO
         handlers: [console, file]

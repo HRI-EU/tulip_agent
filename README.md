@@ -17,9 +17,9 @@ otherwise lead to challenges for the LLM to find the right tool for the task.
     * `AutoTulipAgent`: Fully autonomous variant; may use the search tool at any time
   * `base_agent`: Conventional baseline
     * `BaseAgent`: Uses regular tool descriptions in its system prompt
-* `example`: a minimalistic application example with a calculator
-* `eval`: evaluation setup
-* `tests`: tests
+* `example`: A minimalistic application example with a calculator
+* `eval`: Evaluation setup
+* `tests`: Tests
 
 
 ## Dev notes
@@ -41,3 +41,7 @@ __import__('pysqlite3')
 import sys
 sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
 ```
+
+### Running the example results in a ModuleNotFoundError
+Make sure to install the package itself, e.g., with `poetry install` or `pip install -e .` \
+Then run the example with `poetry run python example/example.py`

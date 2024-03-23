@@ -6,9 +6,7 @@ from openai import OpenAI
 from constants import BASE_EMBEDDING_MODEL
 
 
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-logger.addHandler(logging.NullHandler())
 
 
 openai_client = OpenAI()

@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+import logging
+
 from tulip import (
     AutoTulipAgent,
     BaseAgent,
@@ -19,6 +21,11 @@ from calculator import (
     cosine,
     tangent,
 )
+
+
+# Set logger to INFO to show agents' internal steps
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 
 FUNCTIONS = [

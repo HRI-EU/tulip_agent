@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+import logging
+
 from base_agent import BaseAgent
 from tulip_agent import (
     AutoTulipAgent,
@@ -17,3 +19,7 @@ __all__ = [
     TulipCotAgent,
     ToolLibrary,
 ]
+
+
+# logger settings
+logging.getLogger("tulip").addHandler(logging.NullHandler())

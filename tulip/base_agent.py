@@ -14,9 +14,7 @@ from function_analyzer import FunctionAnalyzer
 from prompts import BASE_PROMPT
 
 
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-logger.addHandler(logging.NullHandler())
 
 
 class BaseAgent:

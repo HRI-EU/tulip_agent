@@ -21,9 +21,7 @@ from prompts import AUTO_TULIP_PROMPT, BASE_PROMPT, TULIP_COT_PROMPT
 from tool_library import ToolLibrary
 
 
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-logger.addHandler(logging.NullHandler())
 
 
 class TulipBaseAgent(ABC):

@@ -12,9 +12,7 @@ from embed import embed
 from function_analyzer import FunctionAnalyzer
 
 
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-logger.addHandler(logging.NullHandler())
 
 
 class ToolLibrary:

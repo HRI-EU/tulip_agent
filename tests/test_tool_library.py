@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-import shutil
-
-from pathlib import Path
+import unittest
 
 from tulip.tool_library import ToolLibrary
 
@@ -28,22 +26,37 @@ def subtract(a: float, b: float) -> float:
     return a - b
 
 
-dir_path = Path("../data/chroma/test")
-if dir_path.exists() and dir_path.is_dir():
-    shutil.rmtree(dir_path)
+class TestCore(unittest.TestCase):
+    def setUp(self):
+        tulip = ToolLibrary(chroma_sub_dir="test/")
+        tulip.chroma_client.delete_collection("tulip")
 
-tulip = ToolLibrary(chroma_sub_dir="test/", functions=[add, subtract])
+    def test_init(self):
+        tulip = ToolLibrary(chroma_sub_dir="test/", functions=[add, subtract])
+        functions = tulip.collection.get(include=[])["ids"]
+        self.assertEqual(
+            set(functions),
+            {"add", "subtract"},
+            "Initializing tool library with functions failed.",
+        )
 
-res = tulip.search(problem_description="add 4 and 5", top_k=1)
-assert res["ids"][0][0] == "add"
+    def test_search_function(self):
+        tulip = ToolLibrary(chroma_sub_dir="test/", functions=[add, subtract])
+        res = tulip.search(problem_description="add 4 and 5", top_k=1)
+        self.assertEqual(res["ids"][0][0], "add", "Searching for function failed.")
 
-functions = tulip.collection.get(include=[])["ids"]
-assert set(functions) == {"add", "subtract"}
+    def test_add_function(self):
+        tulip = ToolLibrary(chroma_sub_dir="test/", functions=[subtract])
+        tulip.add_function(function=add)
+        functions = tulip.collection.get(include=[])["ids"]
+        self.assertEqual(set(functions), {"add", "subtract"}, "Adding function failed.")
 
-tulip.remove_function(function_name="add")
-functions = tulip.collection.get(include=[])["ids"]
-assert set(functions) == {"subtract"}
+    def test_remove_function(self):
+        tulip = ToolLibrary(chroma_sub_dir="test/", functions=[add, subtract])
+        tulip.remove_function(function_name="add")
+        functions = tulip.collection.get(include=[])["ids"]
+        self.assertEqual(set(functions), {"subtract"}, "Removing function failed.")
 
-tulip.add_function(function=add)
-functions = tulip.collection.get(include=[])["ids"]
-assert set(functions) == {"add", "subtract"}
+
+if __name__ == "__main__":
+    unittest.main()

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-import json
+import unittest
+
 from typing import Optional, Union
 
 from tulip.function_analyzer import FunctionAnalyzer
@@ -29,17 +30,34 @@ def dummy_function(
     return None
 
 
-fa = FunctionAnalyzer()
-res = fa.analyze_function(dummy_function)
-print(json.dumps(res, indent=4))
+class TestCore(unittest.TestCase):
 
-assert res["function"]["parameters"]["required"] == [
-    "texts",
-    "number",
-], "Identifying optional parameters failed."
-assert [k for k, _ in res["function"]["parameters"]["properties"].items()] == [
-    "texts",
-    "number",
-    "str_one",
-    "str_two",
-], "Identifying parameters failed."
+    def setUp(self):
+        self.fa = FunctionAnalyzer()
+        self.res = self.fa.analyze_function(dummy_function)
+
+    def test_required_identification(self):
+        self.assertEqual(
+            self.res["function"]["parameters"]["required"],
+            [
+                "texts",
+                "number",
+            ],
+            "Identifying optional parameters failed.",
+        )
+
+    def test_parameter_identification(self):
+        self.assertEqual(
+            [k for k, _ in self.res["function"]["parameters"]["properties"].items()],
+            [
+                "texts",
+                "number",
+                "str_one",
+                "str_two",
+            ],
+            "Identifying parameters failed.",
+        )
+
+
+if __name__ == "__main__":
+    unittest.main()

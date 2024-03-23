@@ -89,6 +89,9 @@ class ToolLibrary:
             metadatas=[{"description": str(function_data)}],
             ids=[function_data["function"]["name"]],
         )
+        logger.info(
+            f"Added function {function.__name__} to collection {self.collection}."
+        )
 
     def add_class(
         self,
@@ -107,6 +110,9 @@ class ToolLibrary:
         self.collection.delete(ids=[function_name])
         self.functions.pop(function_name)
         self.function_descriptions.pop(function_name)
+        logger.info(
+            f"Removed function {function_name} from collection {self.collection}."
+        )
 
     def remove_class(
         self,

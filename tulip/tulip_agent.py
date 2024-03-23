@@ -208,6 +208,8 @@ class MinimalTulipAgent(TulipBaseAgent):
         self,
         prompt: str,
     ) -> str:
+        logging.info(f"{self.__class__.__name__} received query: {prompt}")
+
         # Search for tools directly with user prompt; do not track the search
         tools = self.search_tools(action_descriptions=[prompt])
 
@@ -242,6 +244,8 @@ class NaiveTulipAgent(TulipBaseAgent):
         self,
         prompt: str,
     ) -> str:
+        logging.info(f"{self.__class__.__name__} received query: {prompt}")
+
         # Search for tools, but do not track the search
         _msgs = [
             {
@@ -297,7 +301,7 @@ class TulipCotAgent(TulipBaseAgent):
         self,
         prompt: str,
     ) -> str:
-        logging.info(f"Query: {prompt}")
+        logging.info(f"{self.__class__.__name__} received query: {prompt}")
 
         # Analyze user prompt
         self.messages.append(
@@ -376,7 +380,7 @@ class AutoTulipAgent(TulipBaseAgent):
         self,
         prompt: str,
     ) -> str:
-        logging.info(f"Query: {prompt}")
+        logging.info(f"{self.__class__.__name__} received query: {prompt}")
         self.messages.append(
             {
                 "role": "user",

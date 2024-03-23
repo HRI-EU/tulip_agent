@@ -27,19 +27,7 @@ loggers:
         level: INFO
         handlers: [console]
         propagate: no
-    base_agent:
-        level: INFO
-        handlers: [console, file]
-        propagate: no
-    tulip_agent:
-        level: INFO
-        handlers: [console, file]
-        propagate: no
-    tool_library:
-        level: INFO
-        handlers: [console, file]
-        propagate: no
-    embed:
+    tulip:
         level: INFO
         handlers: [console, file]
         propagate: no

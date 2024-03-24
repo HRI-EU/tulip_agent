@@ -17,7 +17,7 @@ from abc import ABC, abstractmethod
 from openai import OpenAI, OpenAIError
 
 from .constants import BASE_LANGUAGE_MODEL, BASE_TEMPERATURE
-from .prompts import AUTO_TULIP_PROMPT, BASE_PROMPT, TULIP_COT_PROMPT
+from .prompts import AUTO_TULIP_PROMPT, TOOL_PROMPT, TULIP_COT_PROMPT
 from .tool_library import ToolLibrary
 
 
@@ -190,7 +190,7 @@ class TulipBaseAgent(ABC):
 class MinimalTulipAgent(TulipBaseAgent):
     def __init__(
         self,
-        instructions: str = BASE_PROMPT,
+        instructions: str = TOOL_PROMPT,
         model: str = BASE_LANGUAGE_MODEL,
         temperature: float = BASE_TEMPERATURE,
         tool_library: ToolLibrary = None,
@@ -226,7 +226,7 @@ class MinimalTulipAgent(TulipBaseAgent):
 class NaiveTulipAgent(TulipBaseAgent):
     def __init__(
         self,
-        instructions: str = BASE_PROMPT,
+        instructions: str = TOOL_PROMPT,
         model: str = BASE_LANGUAGE_MODEL,
         temperature: float = BASE_TEMPERATURE,
         tool_library: ToolLibrary = None,

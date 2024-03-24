@@ -11,7 +11,7 @@ from openai import OpenAI, OpenAIError
 
 from .constants import BASE_LANGUAGE_MODEL, BASE_TEMPERATURE
 from .function_analyzer import FunctionAnalyzer
-from .prompts import BASE_PROMPT
+from .prompts import BASE_PROMPT, TOOL_PROMPT
 
 
 logger = logging.getLogger(__name__)
@@ -20,13 +20,64 @@ logger = logging.getLogger(__name__)
 class BaseAgent:
     def __init__(
         self,
-        functions: list[Callable],
         model: str = BASE_LANGUAGE_MODEL,
         temperature: float = BASE_TEMPERATURE,
     ) -> None:
         self.model = model
         self.temperature = temperature
         self.instructions = BASE_PROMPT
+        self.openai_client = OpenAI()
+
+        self.messages = []
+        if self.instructions:
+            self.messages.append({"role": "system", "content": self.instructions})
+
+    def _get_response(
+        self,
+        msgs: list[dict[str, str]],
+        model: str = None,
+        temperature: float = None,
+    ):
+        response = None
+        while not response:
+            try:
+                response = self.openai_client.chat.completions.create(
+                    model=model if model else self.model,
+                    messages=msgs,
+                    temperature=temperature if temperature else self.temperature,
+                )
+            except OpenAIError as e:
+                logger.error(e)
+        logger.info(
+            f"Usage for {response.id} in tokens: "
+            f"{response.usage.prompt_tokens} prompt and {response.usage.completion_tokens} completion."
+        )
+        return response
+
+    def query(
+        self,
+        prompt: str,
+    ) -> str:
+        logger.info(f"{self.__class__.__name__} received query: {prompt}")
+        self.messages.append({"role": "user", "content": prompt})
+        response = self._get_response(
+            msgs=self.messages,
+        )
+        response_message = response.choices[0].message
+        self.messages.append(response_message)
+        return response_message.content
+
+
+class ToolAgent:
+    def __init__(
+        self,
+        functions: list[Callable],
+        model: str = BASE_LANGUAGE_MODEL,
+        temperature: float = BASE_TEMPERATURE,
+    ) -> None:
+        self.model = model
+        self.temperature = temperature
+        self.instructions = TOOL_PROMPT
         self.openai_client = OpenAI()
         self.function_analyzer = FunctionAnalyzer()
 

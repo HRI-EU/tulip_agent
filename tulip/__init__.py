@@ -1,23 +1,29 @@
 #!/usr/bin/env python3
 import logging
 
-from .base_agent import BaseAgent
+from .base_agent import (
+    BaseAgent,
+    ToolAgent,
+)
+from .function_analyzer import FunctionAnalyzer
+from .tool_library import ToolLibrary
 from .tulip_agent import (
     AutoTulipAgent,
     MinimalTulipAgent,
     NaiveTulipAgent,
     TulipCotAgent,
 )
-from .tool_library import ToolLibrary
 
 
 __all__ = [
     AutoTulipAgent,
     BaseAgent,
+    FunctionAnalyzer,
     MinimalTulipAgent,
     NaiveTulipAgent,
-    TulipCotAgent,
+    ToolAgent,
     ToolLibrary,
+    TulipCotAgent,
 ]
 
 

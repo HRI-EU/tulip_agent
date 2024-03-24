@@ -16,7 +16,8 @@ otherwise lead to challenges for the LLM to find the right tool for the task.
     * `TulipCotAgent`: COT implementation; derives a plan for the necessary steps and searches for dedicated tools
     * `AutoTulipAgent`: Fully autonomous variant; may use the search tool at any time
   * `base_agent`: Conventional baseline
-    * `BaseAgent`: Uses regular tool descriptions in its system prompt
+    * `BaseAgent`: LLM agent without tool access
+    * `ToolAgent`: Uses regular tool descriptions in its system prompt
 * `example`: A minimalistic application example with a calculator
 * `eval`: Evaluation setup
 * `tests`: Tests

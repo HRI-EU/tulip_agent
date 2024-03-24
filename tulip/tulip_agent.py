@@ -184,6 +184,9 @@ class TulipBaseAgent(ABC):
             response_message = response.choices[0].message
             tool_calls = response_message.tool_calls
         self.messages.append(response_message)
+        logger.info(
+            f"{self.__class__.__name__} returns response: {response_message.content}"
+        )
         return response_message.content
 
 
@@ -441,4 +444,7 @@ class AutoTulipAgent(TulipBaseAgent):
             response_message = response.choices[0].message
             tool_calls = response_message.tool_calls
         self.messages.append(response_message)
+        logger.info(
+            f"{self.__class__.__name__} returns response: {response_message.content}"
+        )
         return response_message.content

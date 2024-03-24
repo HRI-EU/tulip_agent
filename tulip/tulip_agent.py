@@ -73,7 +73,7 @@ class TulipBaseAgent(ABC):
             )["documents"][0]
             json_res_ = [json.loads(e) for e in res if e not in hash_res]
             hash_res.extend(res)
-            logging.info(
+            logger.info(
                 f"Functions for `{action_description}`: {json.dumps(json_res_)}"
             )
             json_res.extend(json_res_)
@@ -131,9 +131,9 @@ class TulipBaseAgent(ABC):
             assert func == "search_tools", f"Unexpected tool call: {func}"
 
             # search tulip for function with args
-            logging.info(f"Tool search for: {str(args)}")
+            logger.info(f"Tool search for: {str(args)}")
             tools_ = self.search_tools(**args)
-            logging.info(f"Tools found: {str(tools_)}")
+            logger.info(f"Tools found: {str(tools_)}")
             tools.extend(tools_)
             if track_history:
                 self.messages.append(
@@ -208,7 +208,7 @@ class MinimalTulipAgent(TulipBaseAgent):
         self,
         prompt: str,
     ) -> str:
-        logging.info(f"{self.__class__.__name__} received query: {prompt}")
+        logger.info(f"{self.__class__.__name__} received query: {prompt}")
 
         # Search for tools directly with user prompt; do not track the search
         tools = self.search_tools(action_descriptions=[prompt])
@@ -244,7 +244,7 @@ class NaiveTulipAgent(TulipBaseAgent):
         self,
         prompt: str,
     ) -> str:
-        logging.info(f"{self.__class__.__name__} received query: {prompt}")
+        logger.info(f"{self.__class__.__name__} received query: {prompt}")
 
         # Search for tools, but do not track the search
         _msgs = [
@@ -301,7 +301,7 @@ class TulipCotAgent(TulipBaseAgent):
         self,
         prompt: str,
     ) -> str:
-        logging.info(f"{self.__class__.__name__} received query: {prompt}")
+        logger.info(f"{self.__class__.__name__} received query: {prompt}")
 
         # Analyze user prompt
         self.messages.append(
@@ -320,7 +320,7 @@ class TulipCotAgent(TulipBaseAgent):
         )
         actions_response_message = actions_response.choices[0].message
         self.messages.append(actions_response_message)
-        logging.info(f"{actions_response_message=}")
+        logger.info(f"{actions_response_message=}")
 
         # Search for suitable tools
         self.messages.append(
@@ -380,7 +380,7 @@ class AutoTulipAgent(TulipBaseAgent):
         self,
         prompt: str,
     ) -> str:
-        logging.info(f"{self.__class__.__name__} received query: {prompt}")
+        logger.info(f"{self.__class__.__name__} received query: {prompt}")
         self.messages.append(
             {
                 "role": "user",
@@ -404,9 +404,9 @@ class AutoTulipAgent(TulipBaseAgent):
                 func_args = json.loads(tool_call.function.arguments)
 
                 if func_name == "search_tools":
-                    logging.info(f"Tool search for: {str(func_args)}")
+                    logger.info(f"Tool search for: {str(func_args)}")
                     tools_ = self.search_tools(**func_args)
-                    logging.info(f"Tools found: {str(tools_)}")
+                    logger.info(f"Tools found: {str(tools_)}")
                     self.tools.extend(tools_)
                     tool_names_ = [td["function"]["name"] for td in tools_]
                     self.messages.append(

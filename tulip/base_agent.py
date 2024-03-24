@@ -67,7 +67,7 @@ class BaseAgent:
         self,
         prompt: str,
     ) -> str:
-        logging.info(f"{self.__class__.__name__} received query: {prompt}")
+        logger.info(f"{self.__class__.__name__} received query: {prompt}")
         self.messages.append({"role": "user", "content": prompt})
         response = self._get_response(
             msgs=self.messages,

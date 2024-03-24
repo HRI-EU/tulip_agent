@@ -6,6 +6,7 @@ from tulip import (
     BaseAgent,
     MinimalTulipAgent,
     NaiveTulipAgent,
+    ToolAgent,
     ToolLibrary,
     TulipCotAgent,
 )
@@ -51,9 +52,14 @@ def run_comparison():
     print(query)
 
     print_seperator(name="BASE")
-    base_agent = BaseAgent(functions=FUNCTIONS)
+    base_agent = BaseAgent()
     base_res = base_agent.query(query)
     print(f"{base_res=}")
+
+    print_seperator(name="TOOL")
+    tool_agent = ToolAgent(functions=FUNCTIONS)
+    tool_res = tool_agent.query(query)
+    print(f"{tool_res=}")
 
     tulip = ToolLibrary(chroma_sub_dir="example/", functions=FUNCTIONS)
 

@@ -11,7 +11,7 @@ import yaml
 from inspect import getmembers, isfunction
 
 from tulip import (
-    BaseAgent,
+    ToolAgent,
     ToolLibrary,
     TulipCotAgent,
 )
@@ -40,10 +40,10 @@ def run_math_eval():
     for query in queries:
         print(query)
 
-        print("=" * 10 + " BASE " + "=" * 10)
-        base_agent = BaseAgent(functions=functions)
-        base_res = base_agent.query(query)
-        print(f"{base_res=}")
+        print("=" * 10 + " TOOL " + "=" * 10)
+        tool_agent = ToolAgent(functions=functions)
+        tool_res = tool_agent.query(query)
+        print(f"{tool_res=}")
 
         print("=" * 10 + " TULIP COT " + "=" * 10)
         tulip = ToolLibrary(chroma_sub_dir="math_eval/", functions=functions)

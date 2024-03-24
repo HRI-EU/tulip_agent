@@ -25,8 +25,7 @@ from calculator import (
 
 
 # Set logger to INFO to show agents' internal steps
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
+logging.basicConfig(level=logging.INFO)
 
 
 FUNCTIONS = [

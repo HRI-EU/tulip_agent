@@ -55,7 +55,7 @@ class ToolLibrary:
                 if n not in embedded_functions
             }
             if new_functions:
-                logging.info(f"Embedding new functions: {new_functions}")
+                logger.info(f"Embedding new functions: {new_functions}")
                 self.collection.add(
                     documents=[
                         json.dumps(fd, indent=4)

@@ -20,7 +20,7 @@ import temp
 with open("logging_config.yaml", "rt") as log_config:
     config = yaml.safe_load(log_config.read())
 logging.config.dictConfig(config)
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("tool_generator")
 
 
 SYSTEM_PROMPT = """\
@@ -124,4 +124,4 @@ def generate(iterations: int) -> None:
 if __name__ == "__main__":
     modulename = "temp"
     filename = modulename + ".py"
-    generate(iterations=1)
+    generate(iterations=20)

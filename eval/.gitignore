@@ -1,2 +1,5 @@
+# file types
+*.png
+
 # specific files
 temp.py

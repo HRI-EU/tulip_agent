@@ -27,6 +27,10 @@ loggers:
         level: INFO
         handlers: [console]
         propagate: no
+    result_analysis:
+        level: INFO
+        handlers: [console]
+        propagate: no
     tulip:
         level: INFO
         handlers: [console, file]

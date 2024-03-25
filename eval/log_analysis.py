@@ -219,7 +219,7 @@ if __name__ == "__main__":
         plot_file="math.eval.png",
         agents=["BaseAgent", "ToolAgent", "TulipCotAgent"],
         criteria={
-            "costs": "Costs",
+            "costs": "Costs [$]",
             "function_recall": "Recall",
             "function_precision": "Precision",
             "correctness": "Correct",

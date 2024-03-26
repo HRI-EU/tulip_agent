@@ -11,7 +11,10 @@ import yaml
 from inspect import getmembers, isfunction
 
 from tulip import (
+    AutoTulipAgent,
     BaseAgent,
+    MinimalTulipAgent,
+    NaiveTulipAgent,
     ToolAgent,
     ToolLibrary,
     TulipCotAgent,
@@ -41,23 +44,48 @@ def run_math_eval():
     for query in queries:
         print(query)
 
-        print("=" * 10 + " BASE " + "=" * 10)
+        print(" BASE ".center(40, "="))
         base_agent = BaseAgent()
         base_res = base_agent.query(query)
         print(f"{base_res=}")
 
-        print("=" * 10 + " TOOL " + "=" * 10)
+        print(" TOOL ".center(40, "="))
         tool_agent = ToolAgent(functions=functions)
         tool_res = tool_agent.query(query)
         print(f"{tool_res=}")
 
-        print("=" * 10 + " TULIP COT " + "=" * 10)
         tulip = ToolLibrary(chroma_sub_dir="math_eval/", functions=functions)
+
+        print(" MINIMAL TULIP ".center(40, "="))
+        minimal_tulip_agent = MinimalTulipAgent(
+            tool_library=tulip,
+            top_k_functions=2,
+        )
+        tulip_res = minimal_tulip_agent.query(query)
+        print(f"{tulip_res=}")
+
+        print(" NAIVE TULIP ".center(40, "="))
+        naive_tulip_agent = NaiveTulipAgent(
+            tool_library=tulip,
+            top_k_functions=4,
+        )
+        tulip_res = naive_tulip_agent.query(query)
+        print(f"{tulip_res=}")
+
+        print(" TULIP COT ".center(40, "="))
         tulip_cot_agent = TulipCotAgent(
             tool_library=tulip,
             top_k_functions=3,
         )
         tulip_res = tulip_cot_agent.query(query)
+        print(f"{tulip_res=}")
+
+        print(" AUTO TULIP ".center(40, "="))
+        auto_tulip_agent = AutoTulipAgent(
+            tool_library=tulip,
+            top_k_functions=1,
+        )
+        tulip_res = auto_tulip_agent.query(query)
         print(f"{tulip_res=}")
 
 

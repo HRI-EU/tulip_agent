@@ -21,5 +21,17 @@
     "functions": [
       "coefficient_of_variation"
     ]
+  },
+    {
+    "name": "M.T.003",
+    "task": "Find the 10th prime number and the 10th Fibonacci number, then calculate the sum of these two numbers.",
+    "valid_solutions": [
+      84
+    ],
+    "functions": [
+      "nth_prime",
+      "fibonacci_sequence",
+      "add"
+    ]
   }
 ]

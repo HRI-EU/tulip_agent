@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+  <meta charset="utf-8">
+  <meta name="description"
+        content="Enabling Large Language Models to Use Large Numbers of Tools.">
+  <meta name="keywords" content="Autonomous agent, LLM, tool library">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tulip Agent</title>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+        rel="stylesheet">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+  <!-- <link rel="icon" href="./static/images/favicon.svg"> -->
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/styles/default.min.css">
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/highlight.min.js"></script>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script src="./static/js/index.js"></script>
+</head>
+
+<body>
+
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-1 publication-title">🌷🤖 Tulip Agent – Enabling LLM-Based Agents to Use Large Tool Libraries</h1>
+          <div class="is-size-5 publication-authors">
+
+            <span class="author-block">
+              Felix Ocker,
+            </span>
+
+            <span class="author-block">
+              Michael Gienger
+            </span>
+          </div>
+
+          <div class="is-size-5 publication-authors">
+            <a class="author-block" href="https://www.honda-ri.de/" target="_blank">Honda Research Institute EU</a>
+          </div>
+
+          <div class="column has-text-centered">
+            <div class="publication-links">
+              <!-- PDF Link. -->
+              <!-- <span class="link-block">
+                <a href=""
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fas fa-file-pdf"></i>
+                  </span>
+                  <span>Paper</span>
+                </a>
+              </span> -->
+
+              <span class="link-block">
+                <a href="https://arxiv.org/abs/" target="_blank"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="ai ai-arxiv"></i>
+                  </span>
+                  <span>arXiv</span>
+                </a>
+              </span>
+
+              <!-- Video Link. -->
+              <!-- <span class="link-block">
+                <a href=""
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fab fa-youtube"></i>
+                  </span>
+                  <span>Video</span>
+                </a>
+              </span> -->
+
+              <!-- Code Link. -->
+              <span class="link-block">
+                <a href="https://github.com/felixocker/tulip"
+                   class="external-link button is-normal is-rounded is-dark" target="_blank">
+                  <span class="icon">
+                      <i class="fab fa-github"></i>
+                  </span>
+                  <span>GitHub</span>
+                </a>
+              </span>
+
+              <!-- Dataset Link. -->
+              <!-- <span class="link-block">
+                <a href=""
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="far fa-images"></i>
+                  </span>
+                  <span>Data</span>
+                </a> -->
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="hero body">
+  <div class="container is-max-desktop">
+    <img src="./static/images/graphical-abstract.png">
+    <h2 class="subtitle has-text-centered">
+      Example of the <tt>tulip agent</tt> solving a math task.
+    </h2>
+  </div>
+</section>
+
+
+
+<!-- Abstract. -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column">
+        <h2 class="title is-3">Abstract</h2>
+        <div class="content has-text-justified">
+          <p>
+            We introduce <tt>tulip agent</tt>, an architecture for autonomous agents with access to vast amounts of tools via a tool library.
+            In contrast to state-of-the-art implementations, descriptions of available tools are not encoded into the system prompt, as this counts against the model's context window, may lead to needle-in-the-haystack issues for large numbers of tools, and results in static capabilities.
+            Instead, the <tt>tulip agent</tt> can search for suitable tools in its extensible tool library, exemplarily implemented as a vector store.
+            The architecture is evaluated regarding scalability using mathematical tasks and tools, and its generalizability is demonstrated via an application to robotics.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <br>
+</section>
+
+
+
+<!-- System. -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column">
+        <h2 class="title is-3">System</h2>
+        <div class="content has-text-justified">
+          <p>
+            The <tt>tulip agent</tt> architecture includes several key components:
+            the language model, the tool library, the tools themselves, a search module, and the function execution module.
+          </p>
+        </div>
+      </div>
+    </div>
+    <div class="column">
+      <img src="./static/images/architecture.png">
+      <p class="subtitle has-text-centered">
+        The <tt>tulip agent</tt> architecture.
+      </p>
+    </div>
+  </div>
+</section>
+
+
+
+<!-- System. -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column">
+        <h2 class="title is-3">Evaluation</h2>
+        <div class="content has-text-justified">
+          <p>
+            Preliminary evaluation results on math tasks hint towards the following insights:
+            1) chain-of-thought reasoning significantly improves the results,
+            2) tools are a prerequisite for getting the final responses right, and
+            3) the <tt>tulip agent</tt> architecture significantly reduces costs, and the <tt>TulipCotAgent</tt> maintains correctness.
+          </p>
+        </div>
+      </div>
+    </div>
+    <div class="column">
+      <img src="./static/images/math.eval.png">
+      <p class="subtitle has-text-centered">
+        Preliminary evaluation results.
+      </p>
+    </div>
+  </div>
+</section>
+
+
+
+<!-- Evaluation. -->
+<footer class="footer">
+  <div class="container">
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content">
+          <p>This page was built using the <a href="https://github.com/eliahuhorwitz/Academic-project-page-template">Academic Project Page Template.
+          </p>
+          <p>
+            This website is licensed under a <a rel="license"
+                                                href="http://creativecommons.org/licenses/by-sa/4.0/">Creative
+            Commons Attribution-ShareAlike 4.0 International License</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+
+
+</body>
+</html>
+<script>hljs.highlightAll();</script>

@@ -21,6 +21,7 @@ otherwise lead to challenges for the LLM to find the right tool for the task.
 * `example`: A minimalistic application example with a calculator
 * `eval`: Evaluation setup
 * `tests`: Tests
+* `docs`: Project website sources - deployed via GitHub Pages
 
 
 ## Dev notes

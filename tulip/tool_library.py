@@ -140,4 +140,9 @@ class ToolLibrary:
         function_name: str,
         function_args: dict,
     ):
-        return self.functions[function_name](**function_args)
+        try:
+            res = self.functions[function_name](**function_args)
+        except Exception as e:
+            logger.error(e)
+            res = f"Invalid tool call for {function_name}. Continue without this information."
+        return res

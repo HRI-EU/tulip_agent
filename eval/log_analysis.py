@@ -192,7 +192,7 @@ def plot(
         axs[0].get_children(),
         labels=agents,
         loc="upper center",
-        ncol=len(agents),
+        ncol=number_agents,
         title="Frameworks",
         borderaxespad=0.2,
     )
@@ -217,7 +217,14 @@ if __name__ == "__main__":
         log_file="math.eval.2.log",
         ground_truth="math_tasks.json",
         plot_file="math.eval.png",
-        agents=["BaseAgent", "ToolAgent", "TulipCotAgent"],
+        agents=[
+            "BaseAgent",
+            "ToolAgent",
+            "MinimalTulipAgent",
+            "NaiveTulipAgent",
+            "TulipCotAgent",
+            "AutoTulipAgent",
+        ],
         criteria={
             "costs": "Costs [$]",
             "function_recall": "Recall",

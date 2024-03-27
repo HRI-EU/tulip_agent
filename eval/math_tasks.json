@@ -30,7 +30,7 @@
     ],
     "functions": [
       "nth_prime",
-      "fibonacci_sequence",
+      "fibonacci_recursive",
       "add"
     ]
   }

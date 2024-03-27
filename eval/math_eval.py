@@ -5,6 +5,7 @@ TulipAgent evals
 * Datasets: use some Python lib from which I can extract functions? must adhere to Sphinx doc style; or generate
 * Several runs, with an increasing number of functions
 """
+import json
 import logging.config
 import yaml
 
@@ -28,18 +29,17 @@ with open("logging_config.yaml", "rt") as log_config:
 logging.config.dictConfig(config)
 
 
-def run_math_eval():
+def run_math_eval(task_file: str):
     functions = [
         getattr(math_tools, n)
         for n, f in getmembers(math_tools, isfunction)
         if f.__module__ == math_tools.__name__
     ]
-    print(functions)
+    print(f"{functions=}")
 
-    queries = [
-        "What is 45342 * 23487 + 32478?",  # 1064980032
-        "What is the variation coefficient for 1, 2, and 3?",  # 0.408
-    ]
+    with open(task_file, "r") as gtf:
+        tasks_ = json.load(gtf)
+        queries = {e["task"]: e for e in tasks_}
 
     for query in queries:
         print(query)
@@ -90,4 +90,4 @@ def run_math_eval():
 
 
 if __name__ == "__main__":
-    run_math_eval()
+    run_math_eval(task_file="math_tasks.json")

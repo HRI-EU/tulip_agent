@@ -1,6 +1,8 @@
 # 🌷🤖 tulip agent
 
-[![Code Style](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+<img src="docs/tulip-banner.png" alt="tulip banner" width="800"/>
+
+[![Code Style](https://img.shields.io/badge/code_style-black-black?style=flat-square)](https://github.com/psf/black)
 
 A reference implementation for the `tulip agent`, an LLM-backed agent with access to a large number of tools via a tool library. \
 This approach is helpful whenever the number of tools available exceeds the LLM's context window or would

@@ -1,6 +1,6 @@
 # 🌷🤖 tulip agent
 
-<img src="docs/tulip-banner.png" alt="tulip banner" width="800"/>
+![tulip banner](docs/tulip-banner.png)
 
 [![Code Style](https://img.shields.io/badge/code_style-black-black?style=flat-square)](https://github.com/psf/black)
 

@@ -3,7 +3,7 @@
 
 def reset_temp(filename: str) -> None:
     with open(filename, "w") as f:
-        f.write("# !/usr/bin/env python3")
+        f.write("# !/usr/bin/env python3\n")
 
 
 if __name__ == "__main__":

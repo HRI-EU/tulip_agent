@@ -159,7 +159,7 @@ def plot(
     criteria: dict,
 ) -> None:
     number_agents = len(agents)
-    width = 0.12
+    width = 0.05
     color_dict = {
         "dark grey": "#999999",
         "lighter blue": "#98c6ea",

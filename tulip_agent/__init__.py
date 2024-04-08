@@ -4,6 +4,7 @@ import logging
 from .base_agent import (
     BaseAgent,
     ToolAgent,
+    ToolCotAgent,
 )
 from .function_analyzer import FunctionAnalyzer
 from .tool_library import ToolLibrary
@@ -22,6 +23,7 @@ __all__ = [
     MinimalTulipAgent,
     NaiveTulipAgent,
     ToolAgent,
+    ToolCotAgent,
     ToolLibrary,
     TulipCotAgent,
 ]

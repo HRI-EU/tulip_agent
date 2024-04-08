@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """
-A basic agent with function calling capabilities.
+Several agent variations as a baseline; with and without tool access.
 """
 import json
 import logging
 
+from abc import ABC, abstractmethod
 from typing import Callable
 
 from openai import OpenAI, OpenAIError
@@ -15,6 +16,67 @@ from .prompts import BASE_PROMPT, TOOL_PROMPT
 
 
 logger = logging.getLogger(__name__)
+
+
+class ToolBaseAgent(ABC):
+    def __init__(
+        self,
+        instructions: str,
+        functions: list[Callable],
+        model: str = BASE_LANGUAGE_MODEL,
+        temperature: float = BASE_TEMPERATURE,
+    ) -> None:
+        self.model = model
+        self.temperature = temperature
+        self.instructions = instructions
+        self.openai_client = OpenAI()
+        self.function_analyzer = FunctionAnalyzer()
+
+        self.messages = []
+        if self.instructions:
+            self.messages.append({"role": "system", "content": self.instructions})
+
+        self.tools = {f.__name__: f for f in functions}
+        self.tool_descriptions = [
+            self.function_analyzer.analyze_function(f) for f in functions
+        ]
+
+    def _get_response(
+        self,
+        msgs: list[dict[str, str]],
+        model: str = None,
+        temperature: float = None,
+    ):
+        response = None
+        while not response:
+            try:
+                response = self.openai_client.chat.completions.create(
+                    model=model if model else self.model,
+                    messages=msgs,
+                    tools=self.tool_descriptions,
+                    temperature=temperature if temperature else self.temperature,
+                    tool_choice="auto" if self.tools else "none",
+                )
+            except OpenAIError as e:
+                logger.error(e)
+        logger.info(
+            f"Usage for {response.id} in tokens: "
+            f"{response.usage.prompt_tokens} prompt and {response.usage.completion_tokens} completion."
+        )
+        return response
+
+    @abstractmethod
+    def query(
+        self,
+        prompt: str,
+    ) -> str:
+        """
+        Query the tool agent, which has to figure out which tools to use.
+
+        :param prompt: User prompt
+        :return: User-oriented final response
+        """
+        pass
 
 
 class BaseAgent:
@@ -71,51 +133,20 @@ class BaseAgent:
         return response_message.content
 
 
-class ToolAgent:
+class ToolAgent(ToolBaseAgent):
     def __init__(
         self,
         functions: list[Callable],
+        instructions: str = TOOL_PROMPT,
         model: str = BASE_LANGUAGE_MODEL,
         temperature: float = BASE_TEMPERATURE,
     ) -> None:
-        self.model = model
-        self.temperature = temperature
-        self.instructions = TOOL_PROMPT
-        self.openai_client = OpenAI()
-        self.function_analyzer = FunctionAnalyzer()
-
-        self.messages = []
-        if self.instructions:
-            self.messages.append({"role": "system", "content": self.instructions})
-
-        self.tools = {f.__name__: f for f in functions}
-        self.tool_descriptions = [
-            self.function_analyzer.analyze_function(f) for f in functions
-        ]
-
-    def _get_response(
-        self,
-        msgs: list[dict[str, str]],
-        model: str = None,
-        temperature: float = None,
-    ):
-        response = None
-        while not response:
-            try:
-                response = self.openai_client.chat.completions.create(
-                    model=model if model else self.model,
-                    messages=msgs,
-                    tools=self.tool_descriptions,
-                    temperature=temperature if temperature else self.temperature,
-                    tool_choice="auto" if self.tools else "none",
-                )
-            except OpenAIError as e:
-                logger.error(e)
-        logger.info(
-            f"Usage for {response.id} in tokens: "
-            f"{response.usage.prompt_tokens} prompt and {response.usage.completion_tokens} completion."
+        super().__init__(
+            instructions=instructions,
+            functions=functions,
+            model=model,
+            temperature=temperature,
         )
-        return response
 
     def query(
         self,

@@ -31,7 +31,7 @@ loggers:
         level: INFO
         handlers: [console]
         propagate: no
-    tulip:
+    tulip_agent:
         level: INFO
         handlers: [console, file]
         propagate: no

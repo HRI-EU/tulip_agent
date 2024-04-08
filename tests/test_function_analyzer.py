@@ -3,7 +3,7 @@ import unittest
 
 from typing import Optional, Union
 
-from tulip.function_analyzer import FunctionAnalyzer
+from tulip_agent.function_analyzer import FunctionAnalyzer
 
 
 def dummy_function(

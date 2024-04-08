@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "tulip"
+name = "tulip_agent"
 version = "0.1.0"
 description = ""
 authors = ["Felix Ocker <felix.ocker@googlemail.com>"]

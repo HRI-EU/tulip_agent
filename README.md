@@ -9,7 +9,7 @@ This approach is helpful whenever the number of tools available exceeds the LLM'
 otherwise lead to challenges for the LLM to find the right tool for the task.
 
 ## Contents
-* `tulip`
+* `tulip_agent`
   * `function_analyzer`: Python function introspection for generating tool descriptions
   * `tool_library`: Vector store for managing tools
   * `tulip_agent`: Agents with tool access

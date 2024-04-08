@@ -1181,7 +1181,7 @@ if __name__ == "__main__":
     print(f"Functions: {functions}")
     print(f"Number of duplicate functions: {len(functions) - len(set(functions))}")
 
-    from tulip.function_analyzer import FunctionAnalyzer
+    from tulip_agent.function_analyzer import FunctionAnalyzer
 
     fa = FunctionAnalyzer()
     for name, function in functions:

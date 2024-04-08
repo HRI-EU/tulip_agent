@@ -11,7 +11,7 @@ import yaml
 
 from inspect import getmembers, isfunction
 
-from tulip import (
+from tulip_agent import (
     AutoTulipAgent,
     BaseAgent,
     MinimalTulipAgent,

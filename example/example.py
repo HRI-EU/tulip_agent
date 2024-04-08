@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import logging
 
-from tulip import (
+from tulip_agent import (
     AutoTulipAgent,
     BaseAgent,
     MinimalTulipAgent,

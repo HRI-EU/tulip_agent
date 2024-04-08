@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import unittest
 
-from tulip.tool_library import ToolLibrary
+from tulip_agent.tool_library import ToolLibrary
 
 
 def add(a: float, b: float) -> float:

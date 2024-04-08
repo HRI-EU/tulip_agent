@@ -17,6 +17,7 @@ from tulip_agent import (
     MinimalTulipAgent,
     NaiveTulipAgent,
     ToolAgent,
+    ToolCotAgent,
     ToolLibrary,
     TulipCotAgent,
 )
@@ -54,7 +55,16 @@ def run_math_eval(task_file: str):
         tool_res = tool_agent.query(query)
         print(f"{tool_res=}")
 
-        tulip = ToolLibrary(chroma_sub_dir="math_eval/", functions=functions)
+        print(" TOOL COT ".center(40, "="))
+        tool_cot_agent = ToolCotAgent(functions=functions)
+        tool_cot_res = tool_cot_agent.query(query)
+        print(f"{tool_cot_res=}")
+
+        tulip = ToolLibrary(
+            chroma_sub_dir="math_eval/",
+            functions=functions,
+            chroma_base_dir="../../data/chroma/",
+        )
 
         print(" MINIMAL TULIP ".center(40, "="))
         minimal_tulip_agent = MinimalTulipAgent(

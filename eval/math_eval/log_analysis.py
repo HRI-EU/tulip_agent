@@ -220,6 +220,7 @@ if __name__ == "__main__":
         agents=[
             "BaseAgent",
             "ToolAgent",
+            "ToolCotAgent",
             "MinimalTulipAgent",
             "NaiveTulipAgent",
             "TulipCotAgent",

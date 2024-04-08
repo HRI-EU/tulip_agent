@@ -1,13 +1,6 @@
 #!/usr/bin/env python3
 """
-The TulipAgent core
-Process:
-1) Initialize agent with a vector store
-2) Take user request
-3) Find for suitable tools
-4) Run prompt with suitable tools
-5) If applicable, run tool calls
-6) Return response
+TulipAgent variations; use a vector store for narrowing down tool search.
 """
 import json
 import logging
@@ -28,8 +21,8 @@ class TulipBaseAgent(ABC):
     def __init__(
         self,
         instructions: str,
-        model: str = "gpt-4-0125-preview",
-        temperature: float = 0.0,
+        model: str = BASE_LANGUAGE_MODEL,
+        temperature: float = BASE_TEMPERATURE,
         tool_library: ToolLibrary = None,
         top_k_functions: int = 3,
     ) -> None:

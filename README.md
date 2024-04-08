@@ -21,8 +21,9 @@ otherwise lead to challenges for the LLM to find the right tool for the task.
     * `BaseAgent`: LLM agent without tool access
     * `ToolAgent`: Uses regular tool descriptions in its system prompt
 * `example`: A minimalistic application example with a calculator
-* `eval`: Evaluation setup
-* `tests`: Tests
+* `eval`
+  * `math_eval`: Math evaluation
+* `tests`: Unit tests
 * `docs`: Project website sources - deployed via GitHub Pages
 
 

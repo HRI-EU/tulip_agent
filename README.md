@@ -20,6 +20,7 @@ otherwise lead to challenges for the LLM to find the right tool for the task.
   * `base_agent`: Conventional baseline
     * `BaseAgent`: LLM agent without tool access
     * `ToolAgent`: Uses regular tool descriptions in its system prompt
+    * `ToolCotAgent`: Analogous to `TulipCotAgent`, but with regular tool use instead of tool library
 * `example`: A minimalistic application example with a calculator
 * `eval`
   * `math_eval`: Math evaluation

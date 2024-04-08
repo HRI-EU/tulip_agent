@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 
+
+# System prompts
+
+
 AUTO_TULIP_PROMPT = """\
 You are a helpful agent who has access to an abundance of tools.
 Always adhere to the following procedure:
@@ -35,4 +39,21 @@ Always adhere to the following procedure:
 1. Identify all individual steps mentioned in the user request.
 2. Solve these individual steps.
 3. Respond to the user with the final result.
+"""
+
+
+# Auxiliary prompts
+
+
+TASK_DECOMPOSITION = """\
+Considering the following user request, what are the necessary atomic actions you need to execute?
+`{prompt}`
+Return a numbered list of steps.
+"""
+
+
+SOLVE_WITH_TOOLS = """\
+Now use the tools to fulfill the user request. Adhere exactly to the following steps:
+{steps}
+Execute the tool calls one at a time.
 """

@@ -10,7 +10,13 @@ from abc import ABC, abstractmethod
 from openai import OpenAI, OpenAIError
 
 from .constants import BASE_LANGUAGE_MODEL, BASE_TEMPERATURE
-from .prompts import AUTO_TULIP_PROMPT, TOOL_PROMPT, TULIP_COT_PROMPT
+from .prompts import (
+    AUTO_TULIP_PROMPT,
+    SOLVE_WITH_TOOLS,
+    TASK_DECOMPOSITION,
+    TOOL_PROMPT,
+    TULIP_COT_PROMPT,
+)
 from .tool_library import ToolLibrary
 
 
@@ -303,10 +309,7 @@ class TulipCotAgent(TulipBaseAgent):
         self.messages.append(
             {
                 "role": "user",
-                "content": (
-                    f"Considering the following user request, what are the necessary atomic actions "
-                    f"you need to execute?\n `{prompt}`\nReturn a numbered list of steps."
-                ),
+                "content": TASK_DECOMPOSITION.format(prompt=prompt),
             }
         )
         actions_response = self._get_response(
@@ -343,11 +346,8 @@ class TulipCotAgent(TulipBaseAgent):
         self.messages.append(
             {
                 "role": "user",
-                "content": (
-                    f"Now use the tools to fulfill the user request. "
-                    f"Adhere exactly to the following steps:\n"
-                    f"{actions_response_message.content}\n"
-                    f"Execute the tool calls one at a time."
+                "content": SOLVE_WITH_TOOLS.format(
+                    steps=actions_response_message.content
                 ),
             }
         )

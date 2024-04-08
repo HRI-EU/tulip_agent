@@ -14,7 +14,7 @@ from inspect import getmembers, isfunction
 from openai import OpenAI, OpenAIError
 
 
-from constants import BASE_LANGUAGE_MODEL, BASE_TEMPERATURE
+from tulip_agent.constants import BASE_LANGUAGE_MODEL, BASE_TEMPERATURE
 import temp
 
 

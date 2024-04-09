@@ -57,6 +57,36 @@ class TestCore(unittest.TestCase):
         functions = tulip.collection.get(include=[])["ids"]
         self.assertEqual(set(functions), {"subtract"}, "Removing function failed.")
 
+    def test_load_all_from_file(self):
+        tulip = ToolLibrary(
+            chroma_sub_dir="test/", file_imports=[("example_tools", [])]
+        )
+        functions = tulip.collection.get(include=[])["ids"]
+        self.assertEqual(
+            set(functions),
+            {"divide", "multiply"},
+            "Loading all functions from file failed.",
+        )
+
+    def test_load_names_from_file(self):
+        tulip = ToolLibrary(
+            chroma_sub_dir="test/", file_imports=[("example_tools", ["multiply"])]
+        )
+        functions = tulip.collection.get(include=[])["ids"]
+        self.assertEqual(
+            set(functions), {"multiply"}, "Loading selected functions from file failed."
+        )
+
+    def test_load_functions_from_file(self):
+        tulip = ToolLibrary(chroma_sub_dir="test/")
+        tulip.load_functions_from_file(
+            modulename="example_tools", function_names=["multiply"]
+        )
+        functions = tulip.collection.get(include=[])["ids"]
+        self.assertEqual(
+            set(functions), {"multiply"}, "Loading selected functions from file failed."
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

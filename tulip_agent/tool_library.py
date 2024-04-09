@@ -2,10 +2,12 @@
 """
 The tool library (tulip) for the agent
 """
+import importlib
 import json
 import logging
 import chromadb
 
+from inspect import getmembers, isfunction
 from pathlib import Path
 
 from .embed import embed
@@ -21,6 +23,7 @@ class ToolLibrary:
         chroma_sub_dir: str = "",
         functions: list = None,
         classes: list = None,
+        file_imports: list[tuple[str, list[str]]] = None,
         chroma_base_dir: str = "../data/chroma/",
     ) -> None:
         self.function_analyzer = FunctionAnalyzer()
@@ -37,6 +40,29 @@ class ToolLibrary:
             else {}
         )
 
+        # import tools from file
+        if file_imports:
+            for file_import in file_imports:
+                modulename, function_names = file_import
+                module = importlib.import_module(modulename)
+                if function_names:
+                    functions_ = [
+                        f
+                        for n, f in getmembers(module, isfunction)
+                        if f.__module__ == modulename and n in function_names
+                    ]
+                else:
+                    functions_ = [
+                        f
+                        for _, f in getmembers(module, isfunction)
+                        if f.__module__ == modulename
+                    ]
+                for f_ in functions_:
+                    self.functions[f_.__name__] = f_
+                    self.function_descriptions[f_.__name__] = (
+                        self.function_analyzer.analyze_function(f_)
+                    )
+
         # set up directory
         chroma_dir = chroma_base_dir + chroma_sub_dir
         Path(chroma_dir).mkdir(parents=True, exist_ok=True)
@@ -44,7 +70,7 @@ class ToolLibrary:
         # vector store
         self.chroma_client = chromadb.PersistentClient(path=chroma_dir)
         self.collection = self.chroma_client.get_or_create_collection(name="tulip")
-        if functions:
+        if self.functions:
             embedded_functions = self.collection.get(include=[])["ids"]
             new_functions = {
                 n: d for n, d in self.functions.items() if n not in embedded_functions
@@ -102,6 +128,27 @@ class ToolLibrary:
             self.function_analyzer.analyze_class(function_class)
         ]
         # TODO: load into vector store
+
+    def load_functions_from_file(
+        self,
+        modulename: str,
+        function_names: list[str] = None,
+    ) -> None:
+        module = importlib.import_module(modulename)
+        if function_names:
+            functions = [
+                f
+                for n, f in getmembers(module, isfunction)
+                if f.__module__ == modulename and n in function_names
+            ]
+        else:
+            functions = [
+                f
+                for _, f in getmembers(module, isfunction)
+                if f.__module__ == modulename
+            ]
+        for f in functions:
+            self.add_function(f)
 
     def remove_function(
         self,

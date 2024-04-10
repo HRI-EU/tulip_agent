@@ -41,6 +41,7 @@ class ToolLibrary:
         )
 
         # import tools from file
+        self.file_imports = file_imports if file_imports else []
         if file_imports:
             for file_import in file_imports:
                 modulename, function_names = file_import
@@ -134,6 +135,7 @@ class ToolLibrary:
         modulename: str,
         function_names: list[str] = None,
     ) -> None:
+        self.file_imports.append((modulename, function_names))
         module = importlib.import_module(modulename)
         if function_names:
             functions = [

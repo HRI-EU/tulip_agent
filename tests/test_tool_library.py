@@ -64,7 +64,7 @@ class TestCore(unittest.TestCase):
         functions = tulip.collection.get(include=[])["ids"]
         self.assertEqual(
             set(functions),
-            {"divide", "multiply"},
+            {"example_tools.divide", "example_tools.multiply"},
             "Loading all functions from file failed.",
         )
 
@@ -74,7 +74,9 @@ class TestCore(unittest.TestCase):
         )
         functions = tulip.collection.get(include=[])["ids"]
         self.assertEqual(
-            set(functions), {"multiply"}, "Loading selected functions from file failed."
+            set(functions),
+            {"example_tools.multiply"},
+            "Loading selected functions from file failed.",
         )
 
     def test_load_functions_from_file(self):
@@ -84,7 +86,9 @@ class TestCore(unittest.TestCase):
         )
         functions = tulip.collection.get(include=[])["ids"]
         self.assertEqual(
-            set(functions), {"multiply"}, "Loading selected functions from file failed."
+            set(functions),
+            {"example_tools.multiply"},
+            "Loading selected functions from file failed.",
         )
 
 

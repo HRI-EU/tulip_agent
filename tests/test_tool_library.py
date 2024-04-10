@@ -91,6 +91,19 @@ class TestCore(unittest.TestCase):
             "Loading selected functions from file failed.",
         )
 
+    def test_execute(self):
+        tulip = ToolLibrary(
+            chroma_sub_dir="test/", file_imports=[("example_tools", ["multiply"])]
+        )
+        res = tulip.execute(
+            function_name="example_tools.multiply", function_args={"a": 2.0, "b": 2.0}
+        )
+        self.assertEqual(
+            res,
+            4.0,
+            "Function execution via tool library failed.",
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

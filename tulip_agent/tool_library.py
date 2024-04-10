@@ -59,9 +59,11 @@ class ToolLibrary:
                         if f.__module__ == modulename
                     ]
                 for f_ in functions_:
-                    self.functions[f_.__name__] = f_
-                    self.function_descriptions[f_.__name__] = (
-                        self.function_analyzer.analyze_function(f_)
+                    self.functions[f"{modulename}.{f_.__name__}"] = f_
+                    f_description = self.function_analyzer.analyze_function(f_)
+                    f_description["function"]["name"] = f"{modulename}.{f_.__name__}"
+                    self.function_descriptions[f"{modulename}.{f_.__name__}"] = (
+                        f_description
                     )
 
         # set up directory
@@ -106,19 +108,22 @@ class ToolLibrary:
     def add_function(
         self,
         function,
+        modulename: str = None,
     ) -> None:
-        self.functions[function.__name__] = function
+        function_name = (
+            f"{modulename}.{function.__name__}" if modulename else function.__name__
+        )
+        self.functions[function_name] = function
         function_data = self.function_analyzer.analyze_function(function)
-        self.function_descriptions[function.__name__] = function_data
+        function_data["function"]["name"] = function_name
+        self.function_descriptions[function_name] = function_data
         self.collection.add(
             documents=json.dumps(function_data, indent=4),
             embeddings=[embed(function_data["function"]["description"])],
             metadatas=[{"description": str(function_data)}],
-            ids=[function_data["function"]["name"]],
+            ids=[function_name],
         )
-        logger.info(
-            f"Added function {function.__name__} to collection {self.collection}."
-        )
+        logger.info(f"Added function {function_name} to collection {self.collection}.")
 
     def add_class(
         self,
@@ -150,7 +155,7 @@ class ToolLibrary:
                 if f.__module__ == modulename
             ]
         for f in functions:
-            self.add_function(f)
+            self.add_function(function=f, modulename=modulename)
 
     def remove_function(
         self,

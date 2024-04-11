@@ -59,10 +59,10 @@ class ToolLibrary:
                         if f.__module__ == modulename
                     ]
                 for f_ in functions_:
-                    self.functions[f"{modulename}.{f_.__name__}"] = f_
+                    self.functions[f"{modulename}__{f_.__name__}"] = f_
                     f_description = self.function_analyzer.analyze_function(f_)
-                    f_description["function"]["name"] = f"{modulename}.{f_.__name__}"
-                    self.function_descriptions[f"{modulename}.{f_.__name__}"] = (
+                    f_description["function"]["name"] = f"{modulename}__{f_.__name__}"
+                    self.function_descriptions[f"{modulename}__{f_.__name__}"] = (
                         f_description
                     )
 
@@ -111,7 +111,7 @@ class ToolLibrary:
         modulename: str = None,
     ) -> None:
         function_name = (
-            f"{modulename}.{function.__name__}" if modulename else function.__name__
+            f"{modulename}__{function.__name__}" if modulename else function.__name__
         )
         self.functions[function_name] = function
         function_data = self.function_analyzer.analyze_function(function)

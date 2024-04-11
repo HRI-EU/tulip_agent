@@ -16,12 +16,14 @@ otherwise lead to challenges for the LLM to find the right tool for the task.
     * `MinimalTulipAgent`: Minimal implementation; searches for tools based on user input directly
     * `NaiveTulipAgent`: Naive implementation; searches for tools with a separate tool call
     * `TulipCotAgent`: COT implementation; derives a plan for the necessary steps and searches for dedicated tools
-    * `AutoTulipAgent`: Fully autonomous variant; may use the search tool at any time
+    * `AutoTulipAgent`: Fully autonomous variant; may use the search tool at any time and generate new tools
   * `base_agent`: Conventional baseline
     * `BaseAgent`: LLM agent without tool access
     * `ToolAgent`: Uses regular tool descriptions in its system prompt
     * `ToolCotAgent`: Analogous to `TulipCotAgent`, but with regular tool use instead of tool library
-* `example`: A minimalistic application example with a calculator
+* `example`:
+  * `calculator_example` and `calculator`: A minimalistic application example with a calculator
+  * `auto_example`: Demo for `AutoTulipAgent` generating new tools
 * `eval`
   * `math_eval`: Math evaluation
 * `tests`: Unit tests

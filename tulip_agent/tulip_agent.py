@@ -88,14 +88,16 @@ class TulipBaseAgent(ABC):
     ):
         response = None
         while not response:
+            params = {
+                "model": model if model else self.model,
+                "messages": msgs,
+                "temperature": temperature if temperature else self.temperature,
+            }
+            if tools:
+                params["tools"] = tools
+                params["tool_choice"] = tool_choice if tools else "none"
             try:
-                response = self.openai_client.chat.completions.create(
-                    model=model if model else self.model,
-                    messages=msgs,
-                    tools=tools,
-                    temperature=temperature if temperature else self.temperature,
-                    tool_choice=tool_choice if tools else "none",
-                )
+                response = self.openai_client.chat.completions.create(**params)
             except OpenAIError as e:
                 logger.error(e)
         logger.info(

@@ -2,6 +2,7 @@
 """
 TulipAgent variations; use a vector store for narrowing down tool search.
 """
+import ast
 import json
 import logging
 
@@ -14,6 +15,7 @@ from .prompts import (
     AUTO_TULIP_PROMPT,
     SOLVE_WITH_TOOLS,
     TASK_DECOMPOSITION,
+    TECH_LEAD,
     TOOL_PROMPT,
     TULIP_COT_PROMPT,
 )
@@ -372,7 +374,77 @@ class AutoTulipAgent(TulipBaseAgent):
             tool_library=tool_library,
             top_k_functions=top_k_functions,
         )
-        self.tools = [self.search_tools_description]
+        self.create_tool_description = {
+            "type": "function",
+            "function": {
+                "name": "create_tool",
+                "description": "Generate a tool and add it to your tool library.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "task_description": {
+                            "type": "string",
+                            "description": "A textual description of the task to be solved with a Python function.",
+                        },
+                    },
+                    "required": ["task_descriptions"],
+                },
+            },
+        }
+        self.tools = [self.search_tools_description, self.create_tool_description]
+
+    def create_tool(self, task_description: str) -> str:
+        # generate code
+        _msgs = [
+            {
+                "role": "system",
+                "content": TECH_LEAD,
+            },
+            {
+                "role": "user",
+                "content": f"Generate a Python function for the following task `{task_description}`.",
+            },
+        ]
+        response = self._get_response(msgs=_msgs)
+        code = response.choices[0].message.content
+        gen_attempts = 0
+        failure_message = (
+            f"Failed generating a function for the task `{task_description}`. Aborting."
+        )
+        while True:
+            if gen_attempts > 3:
+                logger.info(failure_message)
+                return failure_message
+            try:
+                ast.parse(code)
+            except SyntaxError:
+                logger.info(f"Attempt {gen_attempts} failed.")
+                gen_attempts += 1
+                _msgs.append(
+                    {
+                        "role": "user",
+                        "content": (
+                            "The code was not executable. "
+                            "Try again and write it in a way so that I can copy paste it."
+                        ),
+                    }
+                )
+                response = self._get_response(msgs=_msgs)
+                code = response.choices[0].message.content
+                continue
+            break
+        # write code to file
+        function_name = code.split("def ")[1].split("(")[0]
+        module_name = f"{function_name}_module"
+        with open(f"{module_name}.py", "w") as f:
+            f.write(code)
+        # add module to tool library
+        self.tool_library.load_functions_from_file(
+            modulename=module_name, function_names=[f"{function_name}"]
+        )
+        success_msg = f"Made function `{module_name}__{function_name}` available via the tool library."
+        logger.info(success_msg)
+        return success_msg
 
     def query(
         self,
@@ -413,6 +485,17 @@ class AutoTulipAgent(TulipBaseAgent):
                             "role": "tool",
                             "name": func_name,
                             "content": f"Successfully provided suitable tools: {tool_names_}.",
+                        }
+                    )
+                elif func_name == "create_tool":
+                    logger.info(f"Creating tool for: {str(func_args)}")
+                    status = self.create_tool(**func_args)
+                    self.messages.append(
+                        {
+                            "tool_call_id": tool_call.id,
+                            "role": "tool",
+                            "name": func_name,
+                            "content": f"{status}",
                         }
                     )
                 else:

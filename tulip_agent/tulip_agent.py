@@ -97,7 +97,7 @@ class TulipBaseAgent(ABC):
             }
             if tools:
                 params["tools"] = tools
-                params["tool_choice"] = tool_choice if tools else "none"
+                params["tool_choice"] = tool_choice
             try:
                 response = self.openai_client.chat.completions.create(**params)
             except OpenAIError as e:

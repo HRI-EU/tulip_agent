@@ -5,6 +5,8 @@ The tool library (tulip) for the agent
 import importlib
 import json
 import logging
+import sys
+
 import chromadb
 
 from inspect import getmembers, isfunction
@@ -35,6 +37,7 @@ class ToolLibrary:
 
         # import tools from file
         self.file_imports = file_imports if file_imports else []
+        self.function_origins = {}
         if file_imports:
             for file_import in file_imports:
                 modulename, function_names = file_import
@@ -52,12 +55,15 @@ class ToolLibrary:
                         if f.__module__ == modulename
                     ]
                 for f_ in functions_:
-                    self.functions[f"{modulename}__{f_.__name__}"] = f_
+                    function_id = f"{modulename}__{f_.__name__}"
+                    self.functions[function_id] = f_
                     f_description = self.function_analyzer.analyze_function(f_)
-                    f_description["function"]["name"] = f"{modulename}__{f_.__name__}"
-                    self.function_descriptions[f"{modulename}__{f_.__name__}"] = (
-                        f_description
-                    )
+                    f_description["function"]["name"] = function_id
+                    self.function_descriptions[function_id] = f_description
+                    self.function_origins[function_id] = {
+                        "module_name": modulename,
+                        "function_name": f_.__name__,
+                    }
 
         # set up directory
         chroma_dir = chroma_base_dir + chroma_sub_dir
@@ -66,15 +72,53 @@ class ToolLibrary:
         # vector store
         self.chroma_client = chromadb.PersistentClient(path=chroma_dir)
         self.collection = self.chroma_client.get_or_create_collection(name="tulip")
+        embedded_functions = self.collection.get(include=["metadatas"])
+        embedded_functions_ids = embedded_functions["ids"]
+
+        # load functions as available in vector store
+        _local_functions = {
+            name: f for name, f in getmembers(sys.modules[__name__]) if isfunction(f)
+        }
+        for md in embedded_functions["metadatas"]:
+            module_name = md["module"]
+            function_name = md["name"]
+            identifier = md["identifier"]
+            if identifier not in self.function_origins:
+                self.function_origins[identifier] = {
+                    "module_name": module_name,
+                    "function_name": function_name,
+                }
+            if module_name:
+                if module_name not in sys.modules:
+                    try:
+                        module = importlib.import_module(module_name)
+                    except ModuleNotFoundError:
+                        logger.error(f"No module found for {module_name}.")
+                        self.remove_function(identifier)
+                        continue
+                else:
+                    module = sys.modules[module_name]
+                try:
+                    self.functions[identifier] = getattr(module, function_name)
+                except AttributeError:
+                    logger.error(
+                        f"No function found for {function_name} in {module_name}."
+                    )
+                    self.remove_function(identifier)
+                    continue
+            else:
+                self.functions[identifier] = _local_functions["identifier"]
+
         if self.functions:
-            embedded_functions = self.collection.get(include=[])["ids"]
             new_functions = {
-                n: d for n, d in self.functions.items() if n not in embedded_functions
+                n: d
+                for n, d in self.functions.items()
+                if n not in embedded_functions_ids
             }
             new_function_descriptions = {
                 n: d
                 for n, d in self.function_descriptions.items()
-                if n not in embedded_functions
+                if n not in embedded_functions_ids
             }
             if new_functions:
                 logger.info(f"Embedding new functions: {new_functions}")
@@ -88,8 +132,21 @@ class ToolLibrary:
                         for fd in new_function_descriptions.values()
                     ],
                     metadatas=[
-                        {"description": str(d)}
-                        for d in new_function_descriptions.values()
+                        {
+                            "description": str(new_function_descriptions[f]),
+                            "identifier": f,
+                            "module": (
+                                self.function_origins[f]["module_name"]
+                                if f in self.function_origins
+                                else ""
+                            ),
+                            "name": (
+                                self.function_origins[f]["function_name"]
+                                if f in self.function_origins
+                                else ""
+                            ),
+                        }
+                        for f in new_function_descriptions
                     ],
                     ids=[
                         val["function"]["name"]
@@ -102,20 +159,31 @@ class ToolLibrary:
         function,
         modulename: str = None,
     ) -> None:
-        function_name = (
+        function_id = (
             f"{modulename}__{function.__name__}" if modulename else function.__name__
         )
-        self.functions[function_name] = function
+        self.functions[function_id] = function
         function_data = self.function_analyzer.analyze_function(function)
-        function_data["function"]["name"] = function_name
-        self.function_descriptions[function_name] = function_data
+        function_data["function"]["name"] = function_id
+        self.function_descriptions[function_id] = function_data
         self.collection.add(
             documents=json.dumps(function_data, indent=4),
             embeddings=[embed(function_data["function"]["description"])],
-            metadatas=[{"description": str(function_data)}],
-            ids=[function_name],
+            metadatas=[
+                {
+                    "description": str(function_data),
+                    "identifier": function_id,
+                    "module": modulename,
+                    "name": function.__name__,
+                }
+            ],
+            ids=[function_id],
         )
-        logger.info(f"Added function {function_name} to collection {self.collection}.")
+        self.function_origins[function_id] = {
+            "module_name": modulename,
+            "function_name": function.__name__,
+        }
+        logger.info(f"Added function {function_id} to collection {self.collection}.")
 
     def load_functions_from_file(
         self,

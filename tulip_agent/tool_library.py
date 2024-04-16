@@ -22,7 +22,6 @@ class ToolLibrary:
         self,
         chroma_sub_dir: str = "",
         functions: list = None,
-        classes: list = None,
         file_imports: list[tuple[str, list[str]]] = None,
         chroma_base_dir: str = "../data/chroma/",
     ) -> None:
@@ -31,12 +30,6 @@ class ToolLibrary:
         self.function_descriptions = (
             {f.__name__: self.function_analyzer.analyze_function(f) for f in functions}
             if functions
-            else {}
-        )
-        self.classes = classes if classes else []
-        self.class_function_descriptions = (
-            {c: [self.function_analyzer.analyze_class(c)] for c in self.classes}
-            if classes
             else {}
         )
 
@@ -103,7 +96,6 @@ class ToolLibrary:
                         for fd, val in new_function_descriptions.items()
                     ],
                 )
-        # TODO: handle classes
 
     def add_function(
         self,
@@ -124,16 +116,6 @@ class ToolLibrary:
             ids=[function_name],
         )
         logger.info(f"Added function {function_name} to collection {self.collection}.")
-
-    def add_class(
-        self,
-        function_class,
-    ) -> None:
-        self.classes.append(function_class)
-        self.class_function_descriptions[function_class] = [
-            self.function_analyzer.analyze_class(function_class)
-        ]
-        # TODO: load into vector store
 
     def load_functions_from_file(
         self,
@@ -167,13 +149,6 @@ class ToolLibrary:
         logger.info(
             f"Removed function {function_name} from collection {self.collection}."
         )
-
-    def remove_class(
-        self,
-        class_name: str,
-    ) -> None:
-        # TODO
-        pass
 
     def search(
         self,

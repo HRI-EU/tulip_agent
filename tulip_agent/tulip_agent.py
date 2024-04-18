@@ -391,7 +391,31 @@ class AutoTulipAgent(TulipBaseAgent):
                 },
             },
         }
-        self.tools = [self.search_tools_description, self.create_tool_description]
+        self.delete_tool_description = {
+            "type": "function",
+            "function": {
+                "name": "delete_tool",
+                "description": (
+                    "Delete a tool from your tool library. "
+                    "You may have to look up the exact name using the search_tools tool."
+                ),
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "tool_name": {
+                            "type": "string",
+                            "description": "The tools unique name, as returned by the tool search.",
+                        },
+                    },
+                    "required": ["tool_name"],
+                },
+            },
+        }
+        self.tools = [
+            self.search_tools_description,
+            self.create_tool_description,
+            self.delete_tool_description,
+        ]
 
     def create_tool(self, task_description: str) -> str:
         # generate code
@@ -446,6 +470,10 @@ class AutoTulipAgent(TulipBaseAgent):
         logger.info(success_msg)
         return success_msg
 
+    def delete_tool(self, tool_name: str) -> str:
+        self.tool_library.remove_function(function_id=tool_name)
+        return f"Removed tool {tool_name} from the tool library."
+
     def query(
         self,
         prompt: str,
@@ -490,6 +518,17 @@ class AutoTulipAgent(TulipBaseAgent):
                 elif func_name == "create_tool":
                     logger.info(f"Creating tool for: {str(func_args)}")
                     status = self.create_tool(**func_args)
+                    self.messages.append(
+                        {
+                            "tool_call_id": tool_call.id,
+                            "role": "tool",
+                            "name": func_name,
+                            "content": f"{status}",
+                        }
+                    )
+                elif func_name == "delete_tool":
+                    logger.info(f"Deleting tool: {str(func_args)}")
+                    status = self.delete_tool(**func_args)
                     self.messages.append(
                         {
                             "tool_call_id": tool_call.id,

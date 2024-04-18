@@ -10,7 +10,9 @@ import sys
 import chromadb
 
 from inspect import getmembers, isfunction
+from os.path import dirname, abspath
 from pathlib import Path
+from typing import Callable, Optional
 
 from .embed import embed
 from .function_analyzer import FunctionAnalyzer
@@ -23,45 +25,39 @@ class ToolLibrary:
     def __init__(
         self,
         chroma_sub_dir: str = "",
-        functions: list = None,
-        file_imports: list[tuple[str, list[str]]] = None,
-        chroma_base_dir: str = "../data/chroma/",
+        file_imports: list[tuple[str, Optional[list[str]]]] = None,
+        chroma_base_dir: str = dirname(dirname(abspath(__file__))) + "/data/chroma/",
     ) -> None:
         self.function_analyzer = FunctionAnalyzer()
-        self.functions = {f.__name__: f for f in functions} if functions else {}
-        self.function_descriptions = (
-            {f.__name__: self.function_analyzer.analyze_function(f) for f in functions}
-            if functions
-            else {}
-        )
+        self.functions = {}
+        self.function_descriptions = {}
+        self.function_origins = {}
 
         # import tools from file
-        self.file_imports = file_imports if file_imports else []
-        self.function_origins = {}
         if file_imports:
             for file_import in file_imports:
-                modulename, function_names = file_import
-                module = importlib.import_module(modulename)
+                module_name, function_names = file_import
+                module = importlib.import_module(module_name)
                 if function_names:
                     functions_ = [
                         f
                         for n, f in getmembers(module, isfunction)
-                        if f.__module__ == modulename and n in function_names
+                        if f.__module__ == module_name and n in function_names
                     ]
                 else:
                     functions_ = [
                         f
                         for _, f in getmembers(module, isfunction)
-                        if f.__module__ == modulename
+                        if f.__module__ == module_name
                     ]
                 for f_ in functions_:
-                    function_id = f"{modulename}__{f_.__name__}"
+                    function_id = f"{module_name}__{f_.__name__}"
                     self.functions[function_id] = f_
                     f_description = self.function_analyzer.analyze_function(f_)
                     f_description["function"]["name"] = function_id
                     self.function_descriptions[function_id] = f_description
                     self.function_origins[function_id] = {
-                        "module_name": modulename,
+                        "module_name": module_name,
                         "function_name": f_.__name__,
                     }
 
@@ -72,14 +68,11 @@ class ToolLibrary:
         # vector store
         self.chroma_client = chromadb.PersistentClient(path=chroma_dir)
         self.collection = self.chroma_client.get_or_create_collection(name="tulip")
-        embedded_functions = self.collection.get(include=["metadatas"])
-        embedded_functions_ids = embedded_functions["ids"]
+        loaded_functions = self.collection.get(include=["metadatas"])
+        loaded_functions_ids = loaded_functions["ids"]
 
-        # load functions as available in vector store
-        _local_functions = {
-            name: f for name, f in getmembers(sys.modules[__name__]) if isfunction(f)
-        }
-        for md in embedded_functions["metadatas"]:
+        # load functions available in vector store
+        for md in loaded_functions["metadatas"]:
             module_name = md["module"]
             function_name = md["name"]
             identifier = md["identifier"]
@@ -107,18 +100,16 @@ class ToolLibrary:
                     self.remove_function(identifier)
                     continue
             else:
-                self.functions[identifier] = _local_functions["identifier"]
+                self.functions[identifier] = self.functions[identifier]
 
         if self.functions:
             new_functions = {
-                n: d
-                for n, d in self.functions.items()
-                if n not in embedded_functions_ids
+                n: d for n, d in self.functions.items() if n not in loaded_functions_ids
             }
             new_function_descriptions = {
                 n: d
                 for n, d in self.function_descriptions.items()
-                if n not in embedded_functions_ids
+                if n not in loaded_functions_ids
             }
             if new_functions:
                 logger.info(f"Embedding new functions: {new_functions}")
@@ -135,16 +126,8 @@ class ToolLibrary:
                         {
                             "description": str(new_function_descriptions[f]),
                             "identifier": f,
-                            "module": (
-                                self.function_origins[f]["module_name"]
-                                if f in self.function_origins
-                                else ""
-                            ),
-                            "name": (
-                                self.function_origins[f]["function_name"]
-                                if f in self.function_origins
-                                else ""
-                            ),
+                            "module": self.function_origins[f]["module_name"],
+                            "name": self.function_origins[f]["function_name"],
                         }
                         for f in new_function_descriptions
                     ],
@@ -154,14 +137,12 @@ class ToolLibrary:
                     ],
                 )
 
-    def add_function(
+    def _add_function(
         self,
-        function,
-        modulename: str = None,
+        function: Callable,
+        module_name: str,
     ) -> None:
-        function_id = (
-            f"{modulename}__{function.__name__}" if modulename else function.__name__
-        )
+        function_id = f"{module_name}__{function.__name__}"
         self.functions[function_id] = function
         function_data = self.function_analyzer.analyze_function(function)
         function_data["function"]["name"] = function_id
@@ -173,49 +154,48 @@ class ToolLibrary:
                 {
                     "description": str(function_data),
                     "identifier": function_id,
-                    "module": modulename,
+                    "module": module_name,
                     "name": function.__name__,
                 }
             ],
             ids=[function_id],
         )
         self.function_origins[function_id] = {
-            "module_name": modulename,
+            "module_name": module_name,
             "function_name": function.__name__,
         }
         logger.info(f"Added function {function_id} to collection {self.collection}.")
 
     def load_functions_from_file(
         self,
-        modulename: str,
-        function_names: list[str] = None,
+        module_name: str,
+        function_names: Optional[list[str]] = None,
     ) -> None:
-        self.file_imports.append((modulename, function_names))
-        module = importlib.import_module(modulename)
+        module = importlib.import_module(module_name)
         if function_names:
             functions = [
                 f
                 for n, f in getmembers(module, isfunction)
-                if f.__module__ == modulename and n in function_names
+                if f.__module__ == module_name and n in function_names
             ]
         else:
             functions = [
                 f
                 for _, f in getmembers(module, isfunction)
-                if f.__module__ == modulename
+                if f.__module__ == module_name
             ]
         for f in functions:
-            self.add_function(function=f, modulename=modulename)
+            self._add_function(function=f, module_name=module_name)
 
     def remove_function(
         self,
-        function_name: str,
+        function_id: str,
     ) -> None:
-        self.collection.delete(ids=[function_name])
-        self.functions.pop(function_name)
-        self.function_descriptions.pop(function_name)
+        self.collection.delete(ids=[function_id])
+        self.functions.pop(function_id)
+        self.function_descriptions.pop(function_id)
         logger.info(
-            f"Removed function {function_name} from collection {self.collection}."
+            f"Removed function {function_id} from collection {self.collection}."
         )
 
     def search(
@@ -234,12 +214,12 @@ class ToolLibrary:
 
     def execute(
         self,
-        function_name: str,
+        function_id: str,
         function_args: dict,
     ):
         try:
-            res = self.functions[function_name](**function_args)
+            res = self.functions[function_id](**function_args)
         except Exception as e:
             logger.error(e)
-            res = f"Invalid tool call for {function_name}. Continue without this information."
+            res = f"Invalid tool call for {function_id}. Continue without this information."
         return res

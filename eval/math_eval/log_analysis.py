@@ -89,7 +89,9 @@ def extract_data_from_log(log_file: str) -> list[Result]:
                     )[0]
                 )
             elif all(w in log_line for w in ("Function", "returned", "for arguments")):
-                tool_name = log_line.split(" - INFO - Function ")[-1].split()[0]
+                tool_name = (
+                    log_line.split(" - INFO - Function ")[-1].split()[0].split("__")[-1]
+                )
                 tool_result = (
                     log_line.split(" - INFO - Function ")[-1]
                     .split()[2]

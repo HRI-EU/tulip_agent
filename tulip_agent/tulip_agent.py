@@ -165,7 +165,7 @@ class TulipBaseAgent(ABC):
                 func_name = tool_call.function.name
                 func_args = json.loads(tool_call.function.arguments)
                 function_response = self.tool_library.execute(
-                    function_name=func_name, function_args=func_args
+                    function_id=func_name, function_args=func_args
                 )
                 self.messages.append(
                     {
@@ -440,7 +440,7 @@ class AutoTulipAgent(TulipBaseAgent):
             f.write(code)
         # add module to tool library
         self.tool_library.load_functions_from_file(
-            modulename=module_name, function_names=[f"{function_name}"]
+            module_name=module_name, function_names=[f"{function_name}"]
         )
         success_msg = f"Made function `{module_name}__{function_name}` available via the tool library."
         logger.info(success_msg)
@@ -500,7 +500,7 @@ class AutoTulipAgent(TulipBaseAgent):
                     )
                 else:
                     function_response = self.tool_library.execute(
-                        function_name=func_name, function_args=func_args
+                        function_id=func_name, function_args=func_args
                     )
                     self.messages.append(
                         {

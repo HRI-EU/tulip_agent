@@ -62,7 +62,7 @@ def run_comparison():
         res = agent.query(query)
         print(f"{res=}")
 
-    tulip = ToolLibrary(chroma_sub_dir="example/", functions=FUNCTIONS)
+    tulip = ToolLibrary(chroma_sub_dir="example/", file_imports=[("calculator", [])])
 
     type_k_combinations = (
         (MinimalTulipAgent, 2),

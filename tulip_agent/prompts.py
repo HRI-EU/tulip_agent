@@ -66,10 +66,23 @@ Return a numbered list of steps.
 """
 
 
+RECURSIVE_TASK_DECOMPOSITION = """\
+Considering the following task, what are the necessary steps you need to execute?
+`{prompt}`
+Return a numbered list of steps.
+"""
+
+
 SOLVE_WITH_TOOLS = """\
 Now use the tools to fulfill the user request. Adhere exactly to the following steps:
 {steps}
 Execute the tool calls one at a time.
+"""
+
+
+TOOL_SEARCH = """\
+Search for suitable tools for each of the following tasks:
+{tasks}
 """
 
 

@@ -226,6 +226,38 @@ class ToolLibrary:
             f"Removed function {function_id} from collection {self.collection}."
         )
 
+    def update_function(
+        self,
+        function_id: str,
+        code: str,
+    ) -> None:
+        module_name = self.function_origins[function_id]["module_name"]
+        module = sys.modules[module_name]
+        function_name = self.function_origins[function_id]["function_name"]
+
+        module_occurrences = len(
+            [
+                e
+                for e in self.function_origins
+                if self.function_origins[e]["module_name"] == module_name
+            ]
+        )
+        if module_occurrences != 1:
+            raise ValueError(
+                f"Update operation is only supported for modules with exactly one function. "
+                f"{module_name} includes {module_occurrences}."
+            )
+
+        with open(f"{module_name}.py", "w") as m:
+            m.write(code)
+        module = importlib.reload(module)
+        f_ = getattr(module, function_name)
+
+        self.functions[function_id] = f_
+        f_description = self.function_analyzer.analyze_function(f_)
+        f_description["function"]["name"] = function_id
+        self.function_descriptions[function_id] = f_description
+
     def search(
         self,
         problem_description: str,

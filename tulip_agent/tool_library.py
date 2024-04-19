@@ -33,6 +33,7 @@ The tool library (tulip) for the agent
 import importlib
 import json
 import logging
+import os
 import sys
 
 import chromadb
@@ -87,6 +88,7 @@ class ToolLibrary:
                     self.function_origins[function_id] = {
                         "module_name": module_name,
                         "function_name": f_.__name__,
+                        "module_path": os.path.abspath(module.__file__),
                     }
 
         # set up directory
@@ -102,12 +104,14 @@ class ToolLibrary:
         # load functions available in vector store
         for md in loaded_functions["metadatas"]:
             module_name = md["module"]
+            module_path = md["path"]
             function_name = md["name"]
             identifier = md["identifier"]
             if identifier not in self.function_origins:
                 self.function_origins[identifier] = {
                     "module_name": module_name,
                     "function_name": function_name,
+                    "module_path": module_path,
                 }
             if module_name:
                 if module_name not in sys.modules:
@@ -155,6 +159,7 @@ class ToolLibrary:
                             "description": str(new_function_descriptions[f]),
                             "identifier": f,
                             "module": self.function_origins[f]["module_name"],
+                            "path": self.function_origins[f]["module_path"],
                             "name": self.function_origins[f]["function_name"],
                         }
                         for f in new_function_descriptions
@@ -170,6 +175,7 @@ class ToolLibrary:
         function: Callable,
         module_name: str,
     ) -> None:
+        module_path = os.path.abspath(sys.modules[module_name].__file__)
         function_id = f"{module_name}__{function.__name__}"
         self.functions[function_id] = function
         function_data = self.function_analyzer.analyze_function(function)
@@ -183,6 +189,7 @@ class ToolLibrary:
                     "description": str(function_data),
                     "identifier": function_id,
                     "module": module_name,
+                    "path": module_path,
                     "name": function.__name__,
                 }
             ],
@@ -190,6 +197,7 @@ class ToolLibrary:
         )
         self.function_origins[function_id] = {
             "module_name": module_name,
+            "module_path": module_path,
             "function_name": function.__name__,
         }
         logger.info(f"Added function {function_id} to collection {self.collection}.")
@@ -199,7 +207,10 @@ class ToolLibrary:
         module_name: str,
         function_names: Optional[list[str]] = None,
     ) -> None:
-        module = importlib.import_module(module_name)
+        if module_name in sys.modules:
+            module = importlib.reload(sys.modules[module_name])
+        else:
+            module = importlib.import_module(module_name)
         if function_names:
             functions = [
                 f
@@ -233,6 +244,7 @@ class ToolLibrary:
     ) -> None:
         module_name = self.function_origins[function_id]["module_name"]
         module = sys.modules[module_name]
+        module_path = self.function_origins[function_id]["module_path"]
         function_name = self.function_origins[function_id]["function_name"]
 
         module_occurrences = len(
@@ -248,7 +260,7 @@ class ToolLibrary:
                 f"{module_name} includes {module_occurrences}."
             )
 
-        with open(f"{module_name}.py", "w") as m:
+        with open(module_path, "w") as m:
             m.write(code)
         module = importlib.reload(module)
         f_ = getattr(module, function_name)

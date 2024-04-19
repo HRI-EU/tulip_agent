@@ -27,7 +27,6 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
-import pathlib
 import subprocess
 import unittest
 
@@ -144,16 +143,13 @@ class TestCore(unittest.TestCase):
             '    """\n'
             '    return "success"\n'
         )
-        tulip.update_function(function_id="example_module__example", code=code)
-        res = tulip.execute(
-            function_id="example_module__example", function_args={"text": "failure"}
-        )
+        function_id = "example_module__example"
+        tulip.update_function(function_id=function_id, code=code)
+        res = tulip.execute(function_id=function_id, function_args={"text": "failure"})
         self.assertEqual(
             res, "success", "Executing the function after updating the module failed."
         )
-        example_module_path = (
-            pathlib.Path(__file__).parent.resolve() / "example_module.py"
-        )
+        example_module_path = tulip.function_origins[function_id]["module_path"]
         subprocess.run(["git", "checkout", "HEAD", "--", example_module_path])
 
 

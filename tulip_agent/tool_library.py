@@ -208,8 +208,20 @@ class ToolLibrary:
         res = self.collection.query(
             query_embeddings=[query_embedding],
             n_results=top_k,
-            include=["documents", "distances"],
+            include=["distances", "documents", "metadatas"],
         )
+        cutoff = top_k
+        if similarity_threshold:
+            for c, distance in enumerate(res["distances"][0]):
+                if distance >= similarity_threshold:
+                    cutoff = c
+                    break
+        res = {
+            "ids": [res["ids"][0][:cutoff]],
+            "distances": [res["distances"][0][:cutoff]],
+            "documents": [res["documents"][0][:cutoff]],
+            "metadatas": [res["metadatas"][0][:cutoff]],
+        }
         return res
 
     def execute(

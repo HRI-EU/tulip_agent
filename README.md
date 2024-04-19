@@ -2,6 +2,7 @@
 
 ![tulip banner](docs/tulip-banner.png)
 
+[![License](https://img.shields.io/pypi/l/cobras?style=flat-square)](https://opensource.org/license/bsd-3-clause)
 [![Code Style](https://img.shields.io/badge/code_style-black-black?style=flat-square)](https://github.com/psf/black)
 
 A reference implementation for the `tulip agent`, an LLM-backed agent with access to a large number of tools via a tool library. \
@@ -12,18 +13,19 @@ otherwise lead to challenges for the LLM to find the right tool for the task.
 * `tulip_agent`
   * `function_analyzer`: Python function introspection for generating tool descriptions
   * `tool_library`: Vector store for managing tools
-  * `tulip_agent`: Agents with tool access
-    * `MinimalTulipAgent`: Minimal implementation; searches for tools based on user input directly
-    * `NaiveTulipAgent`: Naive implementation; searches for tools with a separate tool call
-    * `TulipCotAgent`: COT implementation; derives a plan for the necessary steps and searches for dedicated tools
-    * `AutoTulipAgent`: Fully autonomous variant; may use the search tool at any time and generate new tools
-  * `base_agent`: Conventional baseline
+  * `prompts`: Collection of the prompts used
+  * `base_agent`: Conventional baseline agents
     * `BaseAgent`: LLM agent without tool access
     * `ToolAgent`: Uses regular tool descriptions in its system prompt
-    * `ToolCotAgent`: Analogous to `TulipCotAgent`, but with regular tool use instead of tool library
+    * `ToolCotAgent`: Extends the `ToolAgent` with a planning step that decomposes the user input into subtasks
+  * `tulip_agent`: Agents with access to a tool library
+    * `MinimalTulipAgent`: Minimal implementation; searches for tools based on user input directly
+    * `NaiveTulipAgent`: Naive implementation; searches for tools with a separate tool call
+    * `TulipCotAgent`: COT implementation; derives a plan for the necessary steps and searches for suitable tools
+    * `AutoTulipAgent`: Fully autonomous variant; can use the search tool at any time and modify its tool library with CRUD operations
 * `example`:
   * `calculator_example` and `calculator`: A minimalistic application example with a calculator
-  * `auto_example`: Demo for `AutoTulipAgent` generating new tools
+  * `auto_example`: Demo for the `AutoTulipAgent` editing its own tool library
 * `eval`
   * `math_eval`: Math evaluation
 * `tests`: Unit tests

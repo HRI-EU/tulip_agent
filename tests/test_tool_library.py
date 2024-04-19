@@ -27,6 +27,7 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
+import subprocess
 import unittest
 
 from tulip_agent.tool_library import ToolLibrary
@@ -127,6 +128,29 @@ class TestCore(unittest.TestCase):
             4.0,
             "Function execution via tool library failed.",
         )
+
+    def test_update_function(self):
+        tulip = ToolLibrary(
+            chroma_sub_dir="test/", file_imports=[("example_module", [])]
+        )
+        code = (
+            "def example(text: str) -> str:\n"
+            '    """\n'
+            "    Returns the input.\n"
+            "\n"
+            "    :param text: Input text.\n"
+            "    :return: The input text.\n"
+            '    """\n'
+            '    return "success"\n'
+        )
+        tulip.update_function(function_id="example_module__example", code=code)
+        res = tulip.execute(
+            function_id="example_module__example", function_args={"text": "failure"}
+        )
+        self.assertEqual(
+            res, "success", "Executing the function after updating the module failed."
+        )
+        subprocess.run(["git", "checkout", "origin/main", "example_module.py"])
 
 
 if __name__ == "__main__":

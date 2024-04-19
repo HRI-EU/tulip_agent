@@ -319,21 +319,16 @@ class TulipCotAgent(TulipBaseAgent):
         tool_calls: list,
         depth: int,
         max_depth: int = 2,
-    ) -> tuple[list, list]:
+    ) -> list:
         new_tools = []
-        new_descriptions = []
         for tc in tool_calls:
             tools_ = self.execute_search_tool_call(tool_calls=[tc], track_history=True)
-            if tools_:
-                new_descriptions_ = [tc]
-            elif depth >= max_depth:
-                new_descriptions_ = [tc]
-            else:
+            if not tools_ and depth < max_depth:
                 subtasks = self.decompose_task(
                     task=tc, base_prompt=RECURSIVE_TASK_DECOMPOSITION
                 )
                 tool_calls = self.get_search_tool_calls(tasks=subtasks)
-                tools_, new_descriptions_ = self.recursively_search_tool(
+                tools_ = self.recursively_search_tool(
                     tool_calls=tool_calls,
                     depth=depth + 1,
                     max_depth=max_depth,
@@ -341,8 +336,7 @@ class TulipCotAgent(TulipBaseAgent):
             for t in tools_:
                 if t not in new_tools:
                     new_tools.append(t)
-            new_descriptions.extend(new_descriptions_)
-        return new_tools, new_descriptions
+        return new_tools
 
     def decompose_task(
         self,
@@ -390,12 +384,7 @@ class TulipCotAgent(TulipBaseAgent):
         # Get tasks from user input and initiate recursive tool search
         tasks = self.decompose_task(task=prompt, base_prompt=TASK_DECOMPOSITION)
         tool_calls = self.get_search_tool_calls(tasks)
-        tools_, tasklist_ = self.recursively_search_tool(tool_calls=tool_calls, depth=0)
-        tools = tools_
-        tasklist = ""
-        for c, t in enumerate(tasklist_):
-            tasklist += f"{c}. {t}"
-        logger.info(f"Complete tasklist: {tasklist}")
+        tools = self.recursively_search_tool(tool_calls=tool_calls, depth=0)
 
         # Run with tools
         self.messages.append(

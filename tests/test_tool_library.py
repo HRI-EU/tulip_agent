@@ -133,6 +133,12 @@ class TestCore(unittest.TestCase):
         tulip = ToolLibrary(
             chroma_sub_dir="test/", file_imports=[("example_module", [])]
         )
+        function_id = "example_module__example"
+        res = tulip.execute(
+            function_id=function_id, function_args={"text": "unchanged"}
+        )
+        self.assertEqual(res, "unchanged", "Initial function execution failed.")
+        # overwrite function
         code = (
             "def example(text: str) -> str:\n"
             '    """\n'
@@ -143,8 +149,10 @@ class TestCore(unittest.TestCase):
             '    """\n'
             '    return "success"\n'
         )
-        function_id = "example_module__example"
-        tulip.update_function(function_id=function_id, code=code)
+        module_path = tulip.function_origins[function_id]["module_path"]
+        with open(module_path, "w") as m:
+            m.write(code)
+        tulip.update_function(function_id=function_id)
         res = tulip.execute(function_id=function_id, function_args={"text": "failure"})
         self.assertEqual(
             res, "success", "Executing the function after updating the module failed."

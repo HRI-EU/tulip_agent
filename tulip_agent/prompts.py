@@ -43,7 +43,7 @@ b) generate a Python function using the `create_tool` function; the function wil
 4. Use the possibly extended tools to fulfill the user request.
 5. Respond to the user with the final result.
 Make use of your capabilities to search and generate tools.
-ALWAYS execute the search for tools again after creating new tools.
+ALWAYS search for tools first and ALWAYS search for tools again after creating new tools.
 """
 
 
@@ -84,7 +84,7 @@ Always adhere to the following procedure:
 """
 
 
-# Auxiliary prompts
+# Task decomposition and execution
 
 
 TASK_DECOMPOSITION = """\
@@ -108,6 +108,9 @@ Execute the tool calls one at a time.
 """
 
 
+# For CRUD operations on tool library
+
+
 TOOL_SEARCH = """\
 Search for suitable tools for each of the following tasks:
 {tasks}
@@ -123,4 +126,22 @@ Always adhere to the following rules:
 3. Use python type hints
 4. Return only valid code and avoid Markdown syntax for code blocks
 5. Avoid adding examples to the docstring
+"""
+
+
+TOOL_CREATE = """\
+Generate a Python function for the following task:
+{task_description}
+"""
+
+
+TOOL_UPDATE = """\
+Edit the following Python code according to the instruction.
+Make sure to not change function names in the process.
+
+Code:
+{code}
+
+Instruction:
+{instruction}
 """

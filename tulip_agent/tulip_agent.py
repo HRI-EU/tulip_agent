@@ -45,8 +45,10 @@ from .prompts import (
     SOLVE_WITH_TOOLS,
     TASK_DECOMPOSITION,
     TECH_LEAD,
+    TOOL_CREATE,
     TOOL_PROMPT,
     TOOL_SEARCH,
+    TOOL_UPDATE,
     TULIP_COT_PROMPT,
 )
 from .tool_library import ToolLibrary
@@ -457,6 +459,27 @@ class AutoTulipAgent(TulipBaseAgent):
                 },
             },
         }
+        self.update_tool_description = {
+            "type": "function",
+            "function": {
+                "name": "update_tool",
+                "description": "Update a tool in your tool library.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "tool_name": {
+                            "type": "string",
+                            "description": "The tool's unique name, as returned by the tool search.",
+                        },
+                        "instruction": {
+                            "type": "string",
+                            "description": "A textual description of the changes to be made to the tool.",
+                        },
+                    },
+                    "required": ["tool_name", "instruction"],
+                },
+            },
+        }
         self.delete_tool_description = {
             "type": "function",
             "function": {
@@ -470,7 +493,7 @@ class AutoTulipAgent(TulipBaseAgent):
                     "properties": {
                         "tool_name": {
                             "type": "string",
-                            "description": "The tools unique name, as returned by the tool search.",
+                            "description": "The tool's unique name, as returned by the tool search.",
                         },
                     },
                     "required": ["tool_name"],
@@ -480,11 +503,13 @@ class AutoTulipAgent(TulipBaseAgent):
         self.tools = [
             self.search_tools_description,
             self.create_tool_description,
+            self.update_tool_description,
             self.delete_tool_description,
         ]
 
-    def create_tool(self, task_description: str) -> str:
-        # generate code
+    def _generate_code(
+        self, task_description: str, gen_attempts: int = 0
+    ) -> str | None:
         _msgs = [
             {
                 "role": "system",
@@ -492,19 +517,17 @@ class AutoTulipAgent(TulipBaseAgent):
             },
             {
                 "role": "user",
-                "content": f"Generate a Python function for the following task `{task_description}`.",
+                "content": task_description,
             },
         ]
         response = self._get_response(msgs=_msgs)
         code = response.choices[0].message.content
-        gen_attempts = 0
-        failure_message = (
-            f"Failed generating a function for the task `{task_description}`. Aborting."
-        )
         while True:
             if gen_attempts > 3:
-                logger.info(failure_message)
-                return failure_message
+                logger.info(
+                    f"Failed generating code for the task `{task_description}`. Aborting."
+                )
+                return None
             try:
                 ast.parse(code)
             except SyntaxError:
@@ -523,7 +546,20 @@ class AutoTulipAgent(TulipBaseAgent):
                 code = response.choices[0].message.content
                 continue
             break
-        # write code to file
+        logger.info(f"Successfully generated code for the task `{task_description}`.")
+        return code
+
+    def create_tool(self, task_description: str) -> str:
+        # gen code
+        task_description_ = TOOL_CREATE.format(task_description=task_description)
+        code = self._generate_code(task_description=task_description_)
+        if code is None:
+            failure_msg = (
+                f"Failed generating a function for the task `{task_description}`."
+            )
+            logger.info(failure_msg)
+            return failure_msg
+        # write to file
         function_name = code.split("def ")[1].split("(")[0]
         module_name = f"{function_name}_module"
         with open(f"{module_name}.py", "w") as f:
@@ -533,6 +569,27 @@ class AutoTulipAgent(TulipBaseAgent):
             module_name=module_name, function_names=[f"{function_name}"]
         )
         success_msg = f"Made function `{module_name}__{function_name}` available via the tool library."
+        logger.info(success_msg)
+        return success_msg
+
+    def update_tool(self, tool_name: str, instruction: str) -> str:
+        # NOTE: updating is currently only supported for modules with single functions
+        # retrieve old code
+        module_path = self.tool_library.function_origins[tool_name]["module_path"]
+        with open(module_path, "r") as m:
+            old_code = m.read()
+        # generate replacement
+        task_description = TOOL_UPDATE.format(code=old_code, instruction=instruction)
+        code = self._generate_code(task_description=task_description)
+        if code is None:
+            failure_msg = f"Failed updating the code for {tool_name}."
+            logger.info(failure_msg)
+            return failure_msg
+        # reload tool library
+        with open(module_path, "w") as m:
+            m.write(code)
+        self.tool_library.update_function(function_id=tool_name)
+        success_msg = f"Successfully updated `{tool_name}`."
         logger.info(success_msg)
         return success_msg
 
@@ -588,6 +645,17 @@ class AutoTulipAgent(TulipBaseAgent):
                 elif func_name == "create_tool":
                     logger.info(f"Creating tool for: {str(func_args)}")
                     status = self.create_tool(**func_args)
+                    self.messages.append(
+                        {
+                            "tool_call_id": tool_call.id,
+                            "role": "tool",
+                            "name": func_name,
+                            "content": f"{status}",
+                        }
+                    )
+                elif func_name == "update_tool":
+                    logger.info(f"Updating tool: {str(func_args)}")
+                    status = self.update_tool(**func_args)
                     self.messages.append(
                         {
                             "tool_call_id": tool_call.id,

@@ -240,11 +240,9 @@ class ToolLibrary:
     def update_function(
         self,
         function_id: str,
-        code: str,
     ) -> None:
         module_name = self.function_origins[function_id]["module_name"]
         module = sys.modules[module_name]
-        module_path = self.function_origins[function_id]["module_path"]
         function_name = self.function_origins[function_id]["function_name"]
 
         module_occurrences = len(
@@ -260,8 +258,6 @@ class ToolLibrary:
                 f"{module_name} includes {module_occurrences}."
             )
 
-        with open(module_path, "w") as m:
-            m.write(code)
         module = importlib.reload(module)
         f_ = getattr(module, function_name)
 

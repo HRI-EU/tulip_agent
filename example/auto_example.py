@@ -38,6 +38,8 @@ logging.basicConfig(level=logging.INFO)
 
 tasks = [
     """What is the square root of 23456789?""",
+    """Change the square root function to correctly work for negative numbers.""",
+    """Calculate the square root of -200.""",
     """Delete the square root function.""",
 ]
 

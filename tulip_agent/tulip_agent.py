@@ -623,6 +623,20 @@ class AutoTulipAgent(TulipBaseAgent):
             for tool_call in tool_calls:
                 func_name = tool_call.function.name
                 func_args = json.loads(tool_call.function.arguments)
+                cud_lookup = {
+                    "create_tool": {
+                        "log_message": f"Creating tool: {str(func_args)}",
+                        "function": self.create_tool,
+                    },
+                    "update_tool": {
+                        "log_message": f"Updating tool: {str(func_args)}",
+                        "function": self.update_tool,
+                    },
+                    "delete_tool": {
+                        "log_message": f"Deleting tool: {str(func_args)}",
+                        "function": self.delete_tool,
+                    },
+                }
 
                 if func_name == "search_tools":
                     logger.info(f"Tool search for: {str(func_args)}")
@@ -642,31 +656,10 @@ class AutoTulipAgent(TulipBaseAgent):
                             "content": status,
                         }
                     )
-                elif func_name == "create_tool":
-                    logger.info(f"Creating tool for: {str(func_args)}")
-                    status = self.create_tool(**func_args)
-                    self.messages.append(
-                        {
-                            "tool_call_id": tool_call.id,
-                            "role": "tool",
-                            "name": func_name,
-                            "content": f"{status}",
-                        }
-                    )
-                elif func_name == "update_tool":
-                    logger.info(f"Updating tool: {str(func_args)}")
-                    status = self.update_tool(**func_args)
-                    self.messages.append(
-                        {
-                            "tool_call_id": tool_call.id,
-                            "role": "tool",
-                            "name": func_name,
-                            "content": f"{status}",
-                        }
-                    )
-                elif func_name == "delete_tool":
-                    logger.info(f"Deleting tool: {str(func_args)}")
-                    status = self.delete_tool(**func_args)
+                elif func_name in cud_lookup.keys():
+                    logger.info(cud_lookup[func_name]["log_message"])
+                    status = cud_lookup[func_name]["function"](**func_args)
+                    logger.info(status)
                     self.messages.append(
                         {
                             "tool_call_id": tool_call.id,

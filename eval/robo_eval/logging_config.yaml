@@ -1,0 +1,37 @@
+# Logger settings for evaluation
+# Set console handler stream to ext://sys.stdout to just print to console
+
+version: 1
+disable_existing_loggers: False
+
+formatters:
+    default:
+        format: '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        datefmt: '%Y-%m-%d %H:%M:%S'
+
+handlers:
+    console:
+        class: logging.StreamHandler
+        level: INFO
+        formatter: default
+        stream: ext://sys.stderr
+    file:
+        class: logging.FileHandler
+        level: INFO
+        formatter: default
+        filename: robo.eval.log
+        mode: w
+
+loggers:
+    result_analysis:
+        level: INFO
+        handlers: [console]
+        propagate: no
+    tulip_agent:
+        level: INFO
+        handlers: [console, file]
+        propagate: no
+
+root:
+    level: INFO
+    handlers: [console]

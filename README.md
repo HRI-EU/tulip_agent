@@ -28,6 +28,7 @@ otherwise lead to challenges for the LLM to find the right tool for the task.
   * `auto_example`: Demo for the `AutoTulipAgent` editing its own tool library
 * `eval`
   * `math_eval`: Math evaluation
+  * `robo_eval`: Robotics evaluation using tools created for [AttentiveSupport](https://github.com/HRI-EU/AttentiveSupport)
 * `tests`: Unit tests
 * `docs`: Project website sources - deployed via GitHub Pages
 

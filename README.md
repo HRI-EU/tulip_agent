@@ -23,7 +23,7 @@ otherwise lead to challenges for the LLM to find the right tool for the task.
     * `NaiveTulipAgent`: Naive implementation; searches for tools with a separate tool call
     * `TulipCotAgent`: COT implementation; derives a plan for the necessary steps and searches for suitable tools
     * `AutoTulipAgent`: Fully autonomous variant; can use the search tool at any time and modify its tool library with CRUD operations
-* `example`:
+* `examples`:
   * `calculator_example` and `calculator`: A minimalistic application example with a calculator
   * `auto_example`: Demo for the `AutoTulipAgent` editing its own tool library
 * `eval`

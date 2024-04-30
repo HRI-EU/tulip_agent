@@ -35,6 +35,7 @@ import json
 import logging
 
 from abc import ABC, abstractmethod
+from typing import Optional
 
 from openai import OpenAI, OpenAIError
 
@@ -233,14 +234,16 @@ class TulipBaseAgent(ABC):
 class MinimalTulipAgent(TulipBaseAgent):
     def __init__(
         self,
-        instructions: str = TOOL_PROMPT,
         model: str = BASE_LANGUAGE_MODEL,
         temperature: float = BASE_TEMPERATURE,
         tool_library: ToolLibrary = None,
         top_k_functions: int = 10,
+        instructions: Optional[str] = None,
     ) -> None:
         super().__init__(
-            instructions=instructions,
+            instructions=(
+                TOOL_PROMPT + "\n\n" + instructions if instructions else TOOL_PROMPT
+            ),
             model=model,
             temperature=temperature,
             tool_library=tool_library,
@@ -269,14 +272,16 @@ class MinimalTulipAgent(TulipBaseAgent):
 class NaiveTulipAgent(TulipBaseAgent):
     def __init__(
         self,
-        instructions: str = TOOL_PROMPT,
         model: str = BASE_LANGUAGE_MODEL,
         temperature: float = BASE_TEMPERATURE,
         tool_library: ToolLibrary = None,
         top_k_functions: int = 3,
+        instructions: Optional[str] = None,
     ) -> None:
         super().__init__(
-            instructions=instructions,
+            instructions=(
+                TOOL_PROMPT + "\n\n" + instructions if instructions else TOOL_PROMPT
+            ),
             model=model,
             temperature=temperature,
             tool_library=tool_library,
@@ -328,15 +333,19 @@ class NaiveTulipAgent(TulipBaseAgent):
 class TulipCotAgent(TulipBaseAgent):
     def __init__(
         self,
-        instructions: str = TULIP_COT_PROMPT,
         model: str = BASE_LANGUAGE_MODEL,
         temperature: float = BASE_TEMPERATURE,
         tool_library: ToolLibrary = None,
         top_k_functions: int = 3,
         search_similarity_threshold: float = 0.35,
+        instructions: Optional[str] = None,
     ) -> None:
         super().__init__(
-            instructions=instructions,
+            instructions=(
+                TULIP_COT_PROMPT + "\n\n" + instructions
+                if instructions
+                else TULIP_COT_PROMPT
+            ),
             model=model,
             temperature=temperature,
             tool_library=tool_library,
@@ -429,14 +438,18 @@ class TulipCotAgent(TulipBaseAgent):
 class AutoTulipAgent(TulipBaseAgent):
     def __init__(
         self,
-        instructions: str = AUTO_TULIP_PROMPT,
         model: str = BASE_LANGUAGE_MODEL,
         temperature: float = BASE_TEMPERATURE,
         tool_library: ToolLibrary = None,
         top_k_functions: int = 1,
+        instructions: Optional[str] = None,
     ) -> None:
         super().__init__(
-            instructions=instructions,
+            instructions=(
+                AUTO_TULIP_PROMPT + "\n\n" + instructions
+                if instructions
+                else AUTO_TULIP_PROMPT
+            ),
             model=model,
             temperature=temperature,
             tool_library=tool_library,

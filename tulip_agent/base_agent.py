@@ -34,7 +34,7 @@ import json
 import logging
 
 from abc import ABC, abstractmethod
-from typing import Callable
+from typing import Callable, Optional
 
 from openai import OpenAI, OpenAIError
 
@@ -162,10 +162,13 @@ class BaseAgent:
         self,
         model: str = BASE_LANGUAGE_MODEL,
         temperature: float = BASE_TEMPERATURE,
+        instructions: Optional[str] = None,
     ) -> None:
         self.model = model
         self.temperature = temperature
-        self.instructions = BASE_PROMPT
+        self.instructions = (
+            BASE_PROMPT + "\n\n" + instructions if instructions else BASE_PROMPT
+        )
         self.openai_client = OpenAI()
 
         self.messages = []
@@ -215,12 +218,14 @@ class ToolAgent(ToolBaseAgent):
     def __init__(
         self,
         functions: list[Callable],
-        instructions: str = TOOL_PROMPT,
         model: str = BASE_LANGUAGE_MODEL,
         temperature: float = BASE_TEMPERATURE,
+        instructions: Optional[str] = None,
     ) -> None:
         super().__init__(
-            instructions=instructions,
+            instructions=(
+                TOOL_PROMPT + "\n\n" + instructions if instructions else TOOL_PROMPT
+            ),
             functions=functions,
             model=model,
             temperature=temperature,
@@ -239,12 +244,16 @@ class ToolCotAgent(ToolBaseAgent):
     def __init__(
         self,
         functions: list[Callable],
-        instructions: str = TOOL_COT_PROMPT,
         model: str = BASE_LANGUAGE_MODEL,
         temperature: float = BASE_TEMPERATURE,
+        instructions: Optional[str] = None,
     ) -> None:
         super().__init__(
-            instructions=instructions,
+            instructions=(
+                TOOL_COT_PROMPT + "\n\n" + instructions
+                if instructions
+                else TOOL_COT_PROMPT
+            ),
             functions=functions,
             model=model,
             temperature=temperature,

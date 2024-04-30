@@ -38,6 +38,7 @@ from tulip_agent import (
     ToolLibrary,
 )
 import tools
+from AttentiveSupport.src.gpt_config import system_prompt
 
 
 # Set up agent loggers to save logs to file for analysis
@@ -59,6 +60,8 @@ if __name__ == "__main__":
     auto_tulip_agent = AutoTulipAgent(
         tool_library=tulip,
         top_k_functions=1,
+        instructions=system_prompt,
     )
+    print(f"📝 Instructions: \n{auto_tulip_agent.instructions}")
     # tulip_res = auto_tulip_agent.query("hand the glass_blue over to Felix")
     # print(f"{tulip_res=}")

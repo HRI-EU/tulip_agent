@@ -10,25 +10,26 @@ This approach is helpful whenever the number of tools available exceeds the LLM'
 otherwise lead to challenges for the LLM to find the right tool for the task.
 
 ## Contents
-* `tulip_agent`
-  * `function_analyzer`: Python function introspection for generating tool descriptions
-  * `tool_library`: Vector store for managing tools
-  * `prompts`: Collection of the prompts used
-  * `base_agent`: Conventional baseline agents
-    * `BaseAgent`: LLM agent without tool access
-    * `ToolAgent`: Uses regular tool descriptions in its system prompt
-    * `ToolCotAgent`: Extends the `ToolAgent` with a planning step that decomposes the user input into subtasks
-  * `tulip_agent`: Agents with access to a tool library
-    * `MinimalTulipAgent`: Minimal implementation; searches for tools based on user input directly
-    * `NaiveTulipAgent`: Naive implementation; searches for tools with a separate tool call
-    * `TulipCotAgent`: COT implementation; derives a plan for the necessary steps and searches for suitable tools
-    * `AutoTulipAgent`: Fully autonomous variant; can use the search tool at any time and modify its tool library with CRUD operations
+* `src`
+  * `tulip_agent`
+    * `function_analyzer`: Python function introspection for generating tool descriptions
+    * `tool_library`: Vector store for managing tools
+    * `prompts`: Collection of the prompts used
+    * `base_agent`: Conventional baseline agents
+      * `BaseAgent`: LLM agent without tool access
+      * `ToolAgent`: Uses regular tool descriptions in its system prompt
+      * `ToolCotAgent`: Extends the `ToolAgent` with a planning step that decomposes the user input into subtasks
+    * `tulip_agent`: Agents with access to a tool library
+      * `MinimalTulipAgent`: Minimal implementation; searches for tools based on user input directly
+      * `NaiveTulipAgent`: Naive implementation; searches for tools with a separate tool call
+      * `TulipCotAgent`: COT implementation; derives a plan for the necessary steps and searches for suitable tools
+      * `AutoTulipAgent`: Fully autonomous variant; can use the search tool at any time and modify its tool library with CRUD operations
+  * `eval`
+    * `math_eval`: Math evaluation
+    * `robo_eval`: Robotics evaluation using tools created for [AttentiveSupport](https://github.com/HRI-EU/AttentiveSupport)
 * `examples`:
   * `calculator_example` and `calculator`: A minimalistic application example with a calculator
   * `auto_example`: Demo for the `AutoTulipAgent` editing its own tool library
-* `eval`
-  * `math_eval`: Math evaluation
-  * `robo_eval`: Robotics evaluation using tools created for [AttentiveSupport](https://github.com/HRI-EU/AttentiveSupport)
 * `tests`: Unit tests
 * `docs`: Project website sources - deployed via GitHub Pages
 

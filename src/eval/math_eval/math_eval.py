@@ -91,7 +91,7 @@ def run_math_eval(task_file: str):
         tulip = ToolLibrary(
             chroma_sub_dir="math_eval/",
             file_imports=[("math_tools", [])],
-            chroma_base_dir="../../data/chroma/",
+            chroma_base_dir="../../../data/chroma/",
         )
 
         print(" MINIMAL TULIP ".center(40, "="))

@@ -4,6 +4,10 @@ version = "0.1.0"
 description = ""
 authors = ["Felix Ocker <felix.ocker@googlemail.com>"]
 readme = "README.md"
+packages = [
+    { include = "tulip_agent", from="src" },
+    { include = "eval", from="src" },
+]
 
 [tool.poetry.dependencies]
 python = "^3.10.11"

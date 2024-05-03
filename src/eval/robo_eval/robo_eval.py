@@ -53,7 +53,7 @@ if __name__ == "__main__":
     tulip = ToolLibrary(
         chroma_sub_dir="robo_eval/",
         file_imports=[("tools", [])],
-        chroma_base_dir="../../data/chroma/",
+        chroma_base_dir="../../../data/chroma/",
     )
 
     print(" AUTO TULIP ".center(40, "="))

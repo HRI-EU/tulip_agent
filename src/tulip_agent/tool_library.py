@@ -55,7 +55,8 @@ class ToolLibrary:
         self,
         chroma_sub_dir: str = "",
         file_imports: list[tuple[str, Optional[list[str]]]] = None,
-        chroma_base_dir: str = dirname(dirname(abspath(__file__))) + "/data/chroma/",
+        chroma_base_dir: str = dirname(dirname(dirname(abspath(__file__))))
+        + "/data/chroma/",
     ) -> None:
         self.function_analyzer = FunctionAnalyzer()
         self.functions = {}

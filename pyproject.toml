@@ -1,9 +1,13 @@
 [tool.poetry]
 name = "tulip_agent"
 version = "0.1.0"
-description = ""
-authors = ["Felix Ocker <felix.ocker@googlemail.com>"]
+description = "autonomous agent with access to a tool library"
+license = "BSD-3-Clause"
+authors = ["Felix Ocker <felix.ocker@honda-ri.de>"]
 readme = "README.md"
+homepage = "https://hri-eu.github.io/tulip_agent/"
+repository = "https://github.com/HRI-EU/tulip_agent"
+keywords = ["autonomous agent", "agent", "tool use", "llm"]
 packages = [
     { include = "tulip_agent", from="src" },
     { include = "eval", from="src" },

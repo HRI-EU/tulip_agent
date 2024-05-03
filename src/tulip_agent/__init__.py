@@ -29,31 +29,31 @@
 #
 import logging
 
-from .base_agent import (
-    BaseAgent,
-    ToolAgent,
-    ToolCotAgent,
-)
+from .base_agent import BaseAgent
 from .function_analyzer import FunctionAnalyzer
+from .tool_agent import (
+    CotToolAgent,
+    NaiveToolAgent,
+)
 from .tool_library import ToolLibrary
 from .tulip_agent import (
     AutoTulipAgent,
+    CotTulipAgent,
     MinimalTulipAgent,
     NaiveTulipAgent,
-    TulipCotAgent,
 )
 
 
 __all__ = [
     AutoTulipAgent,
     BaseAgent,
+    CotToolAgent,
+    CotTulipAgent,
     FunctionAnalyzer,
     MinimalTulipAgent,
+    NaiveToolAgent,
     NaiveTulipAgent,
-    ToolAgent,
-    ToolCotAgent,
     ToolLibrary,
-    TulipCotAgent,
 ]
 
 

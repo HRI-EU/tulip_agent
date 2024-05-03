@@ -44,10 +44,10 @@ from tulip_agent import (
     BaseAgent,
     MinimalTulipAgent,
     NaiveTulipAgent,
-    ToolAgent,
-    ToolCotAgent,
+    NaiveToolAgent,
+    CotToolAgent,
     ToolLibrary,
-    TulipCotAgent,
+    CotTulipAgent,
 )
 import math_tools
 
@@ -79,12 +79,12 @@ def run_math_eval(task_file: str):
         print(f"{base_res=}")
 
         print(" TOOL ".center(40, "="))
-        tool_agent = ToolAgent(functions=functions)
+        tool_agent = NaiveToolAgent(functions=functions)
         tool_res = tool_agent.query(query)
         print(f"{tool_res=}")
 
         print(" TOOL COT ".center(40, "="))
-        tool_cot_agent = ToolCotAgent(functions=functions)
+        tool_cot_agent = CotToolAgent(functions=functions)
         tool_cot_res = tool_cot_agent.query(query)
         print(f"{tool_cot_res=}")
 
@@ -111,7 +111,7 @@ def run_math_eval(task_file: str):
         print(f"{tulip_res=}")
 
         print(" TULIP COT ".center(40, "="))
-        tulip_cot_agent = TulipCotAgent(
+        tulip_cot_agent = CotTulipAgent(
             tool_library=tulip,
             top_k_functions=3,
         )

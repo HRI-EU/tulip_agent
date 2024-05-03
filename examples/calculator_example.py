@@ -32,12 +32,12 @@ import logging
 from tulip_agent import (
     AutoTulipAgent,
     BaseAgent,
+    CotToolAgent,
+    CotTulipAgent,
     MinimalTulipAgent,
+    NaiveToolAgent,
     NaiveTulipAgent,
-    ToolAgent,
-    ToolCotAgent,
     ToolLibrary,
-    TulipCotAgent,
 )
 from calculator import (
     add,
@@ -84,7 +84,7 @@ def run_comparison():
     base_res = base_agent.query(query)
     print(f"{base_res=}")
 
-    for agent_type in (ToolAgent, ToolCotAgent):
+    for agent_type in (NaiveToolAgent, CotToolAgent):
         print_seperator(name=agent_type.__name__)
         agent = agent_type(functions=FUNCTIONS)
         res = agent.query(query)
@@ -95,7 +95,7 @@ def run_comparison():
     type_k_combinations = (
         (MinimalTulipAgent, 2),
         (NaiveTulipAgent, 4),
-        (TulipCotAgent, 1),
+        (CotTulipAgent, 1),
         (AutoTulipAgent, 1),
     )
     for agent_type, top_k in type_k_combinations:

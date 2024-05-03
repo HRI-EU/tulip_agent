@@ -249,11 +249,11 @@ if __name__ == "__main__":
         plot_file="math.eval.png",
         agents=[
             "BaseAgent",
-            "ToolAgent",
-            "ToolCotAgent",
+            "NaiveToolAgent",
+            "CotToolAgent",
             "MinimalTulipAgent",
             "NaiveTulipAgent",
-            "TulipCotAgent",
+            "CotTulipAgent",
             "AutoTulipAgent",
         ],
         criteria={

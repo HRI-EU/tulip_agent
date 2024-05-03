@@ -28,17 +28,16 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 """
-TulipAgent variations; use a vector store for narrowing down tool search.
+TulipAgent variations; use a vector store as a tool library.
 """
 import ast
 import json
 import logging
 
-from abc import ABC, abstractmethod
+from abc import ABC
 from typing import Optional
 
-from openai import OpenAI, OpenAIError
-
+from .base_agent import LlmAgent
 from .constants import BASE_LANGUAGE_MODEL, BASE_TEMPERATURE
 from .prompts import (
     AUTO_TULIP_PROMPT,
@@ -58,7 +57,7 @@ from .tool_library import ToolLibrary
 logger = logging.getLogger(__name__)
 
 
-class TulipBaseAgent(ABC):
+class TulipAgent(LlmAgent, ABC):
     def __init__(
         self,
         instructions: str,
@@ -68,17 +67,14 @@ class TulipBaseAgent(ABC):
         top_k_functions: int = 3,
         search_similarity_threshold: float = None,
     ) -> None:
-        self.model = model
-        self.temperature = temperature
-        self.instructions = instructions
+        super().__init__(
+            instructions=instructions,
+            model=model,
+            temperature=temperature,
+        )
         self.tool_library = tool_library
         self.top_k_functions = top_k_functions
-        self.openai_client = OpenAI()
         self.search_similarity_threshold = search_similarity_threshold
-
-        self.messages = []
-        if self.instructions:
-            self.messages.append({"role": "system", "content": self.instructions})
 
         self.search_tools_description = {
             "type": "function",
@@ -117,48 +113,6 @@ class TulipBaseAgent(ABC):
                 )
                 json_res.extend(json_res_)
         return json_res
-
-    def _get_response(
-        self,
-        msgs: list[dict[str, str]],
-        model: str = None,
-        temperature: float = None,
-        tools: list = None,
-        tool_choice: str = "auto",
-    ):
-        response = None
-        while not response:
-            params = {
-                "model": model if model else self.model,
-                "messages": msgs,
-                "temperature": temperature if temperature else self.temperature,
-            }
-            if tools:
-                params["tools"] = tools
-                params["tool_choice"] = tool_choice
-            try:
-                response = self.openai_client.chat.completions.create(**params)
-            except OpenAIError as e:
-                logger.error(e)
-        logger.info(
-            f"Usage for {response.id} in tokens: "
-            f"{response.usage.prompt_tokens} prompt and {response.usage.completion_tokens} completion."
-        )
-        return response
-
-    @abstractmethod
-    def query(
-        self,
-        prompt: str,
-    ) -> str:
-        """
-        Query the tulip agent, which has to figure out which tools to use.
-        Includes two core steps: Identifying relevant tools and generating a response with these tools.
-
-        :param prompt: User prompt
-        :return: User-oriented final response
-        """
-        pass
 
     def execute_search_tool_call(
         self,
@@ -231,7 +185,7 @@ class TulipBaseAgent(ABC):
         return response_message.content
 
 
-class MinimalTulipAgent(TulipBaseAgent):
+class MinimalTulipAgent(TulipAgent):
     def __init__(
         self,
         model: str = BASE_LANGUAGE_MODEL,
@@ -269,7 +223,7 @@ class MinimalTulipAgent(TulipBaseAgent):
         return self.run_with_tools(tools=tools)
 
 
-class NaiveTulipAgent(TulipBaseAgent):
+class NaiveTulipAgent(TulipAgent):
     def __init__(
         self,
         model: str = BASE_LANGUAGE_MODEL,
@@ -330,7 +284,7 @@ class NaiveTulipAgent(TulipBaseAgent):
         return self.run_with_tools(tools=tools)
 
 
-class TulipCotAgent(TulipBaseAgent):
+class CotTulipAgent(TulipAgent):
     def __init__(
         self,
         model: str = BASE_LANGUAGE_MODEL,
@@ -435,7 +389,7 @@ class TulipCotAgent(TulipBaseAgent):
         return self.run_with_tools(tools=tools)
 
 
-class AutoTulipAgent(TulipBaseAgent):
+class AutoTulipAgent(TulipAgent):
     def __init__(
         self,
         model: str = BASE_LANGUAGE_MODEL,

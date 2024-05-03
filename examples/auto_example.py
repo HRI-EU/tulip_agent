@@ -37,6 +37,7 @@ from tulip_agent import AutoTulipAgent, ToolLibrary
 logging.basicConfig(level=logging.INFO)
 
 tasks = [
+    """What is 765*19**3?""",
     """What is the square root of 23456789?""",
     """Change the square root function to correctly work for negative numbers.""",
     """Calculate the square root of -200.""",
@@ -54,3 +55,4 @@ for task in tasks:
 # cleanup
 for m in {e["module_name"] for e in tulip.function_origins.values()}:
     os.remove(m + ".py")
+tulip.chroma_client.delete_collection("tulip")

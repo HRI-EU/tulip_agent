@@ -467,11 +467,29 @@ class AutoTulipAgent(TulipAgent):
                 },
             },
         }
+        self.decompose_task_description = {
+            "type": "function",
+            "function": {
+                "name": "decompose_task",
+                "description": "Decompose a task into its subtasks.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "task": {
+                            "type": "string",
+                            "description": "A description of the task that should be decomposed into steps.",
+                        },
+                    },
+                    "required": ["task"],
+                },
+            },
+        }
         self.tools = [
             self.search_tools_description,
             self.create_tool_description,
             self.update_tool_description,
             self.delete_tool_description,
+            self.decompose_task_description,
         ]
 
     def _generate_code(
@@ -564,6 +582,22 @@ class AutoTulipAgent(TulipAgent):
         self.tool_library.remove_function(function_id=tool_name)
         return f"Removed tool {tool_name} from the tool library."
 
+    def decompose_task(self, task: str) -> str:
+        messages = [
+            {
+                "role": "system",
+                "content": "You are an expert in planning and task decomposition.",
+            },
+            {
+                "role": "user",
+                "content": TASK_DECOMPOSITION.format(prompt=task),
+            },
+        ]
+        decomposition_response = self._get_response(msgs=messages)
+        decomposed_tasks = decomposition_response.choices[0].message
+        logger.info(f"{decomposed_tasks=}")
+        return decomposed_tasks.content
+
     def query(
         self,
         prompt: str,
@@ -605,7 +639,19 @@ class AutoTulipAgent(TulipAgent):
                     },
                 }
 
-                if func_name == "search_tools":
+                if func_name == "decompose_task":
+                    logger.info(f"Task decomposition for: {func_args['task']}")
+                    subtasks = self.decompose_task(**func_args)
+                    logger.info(f"Subtasks: {str(subtasks)}")
+                    self.messages.append(
+                        {
+                            "tool_call_id": tool_call.id,
+                            "role": "tool",
+                            "name": func_name,
+                            "content": f"Subtasks for `{func_args['task']}` are: {subtasks}",
+                        }
+                    )
+                elif func_name == "search_tools":
                     logger.info(f"Tool search for: {str(func_args)}")
                     tools_ = self.search_tools(**func_args)
                     logger.info(f"Tools found: {str(tools_)}")
@@ -626,7 +672,6 @@ class AutoTulipAgent(TulipAgent):
                 elif func_name in cud_lookup.keys():
                     logger.info(cud_lookup[func_name]["log_message"])
                     status = cud_lookup[func_name]["function"](**func_args)
-                    logger.info(status)
                     self.messages.append(
                         {
                             "tool_call_id": tool_call.id,

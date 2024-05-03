@@ -35,6 +35,12 @@ otherwise lead to challenges for the LLM to find the right tool for the task.
 * `docs`: Project website sources - deployed via GitHub Pages
 
 
+## Setup
+* Make sure you have an OpenAI API key set up, see the [official instructions](https://help.openai.com/en/articles/5112595-best-practices-for-api-key-safety)
+* Install with `poetry install` or `pip install -e .`
+* Check out the `examples` and the robot evaluation in `src/robo_eval`
+
+
 ## Dev notes
 * Python v3.10.11 recommended, higher versions may lead to issues with chroma when installing via Poetry
 * [Pre-commit hooks](https://pre-commit.com/) - install with `(poetry run) pre-commit install`
@@ -57,4 +63,4 @@ sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
 
 ### Running the example results in a ModuleNotFoundError
 Make sure to install the package itself, e.g., with `poetry install` or `pip install -e .` \
-Then run the example with `poetry run python example/example.py`
+Then run the example with `poetry run python examples/calculator_example.py`

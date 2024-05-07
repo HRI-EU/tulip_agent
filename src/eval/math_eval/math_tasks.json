@@ -1,38 +1,208 @@
 [
-  {
-    "name": "M.T.001",
-    "task": "What is 45342 * 23487 + 32478?",
-    "valid_solutions": [
-      1064980032,
-      "1,064,980,032"
-    ],
-    "functions": [
-      "add",
-      "multiply"
-    ]
-  },
-  {
-    "name": "M.T.002",
-    "task": "What is the variation coefficient for 1, 2, and 3?",
-    "valid_solutions": [
-      0.408,
-      "40.8%",
-      "40.82%"
-    ],
-    "functions": [
-      "coefficient_of_variation"
-    ]
-  },
     {
-    "name": "M.T.003",
-    "task": "Find the 10th prime number and the 10th Fibonacci number, then calculate the sum of these two numbers.",
-    "valid_solutions": [
-      84
-    ],
-    "functions": [
-      "nth_prime",
-      "fibonacci_recursive",
-      "add"
-    ]
-  }
+        "task": "Calculate the area of a rectangle with a length of 8 meters and a width of 5 meters.",
+        "functions": [
+            "area_rectangle"
+        ],
+        "name": "M.T.E.000",
+        "valid_solutions": [
+            40
+        ]
+    },
+    {
+        "task": "Find the circumference of a circle with a radius of 7 centimeters.",
+        "functions": [
+            "circumference_circle"
+        ],
+        "name": "M.T.E.001",
+        "valid_solutions": [
+            43.98,
+            44
+        ]
+    },
+    {
+        "task": "Determine the volume of a sphere with a radius of 6 meters.",
+        "functions": [
+            "volume_sphere"
+        ],
+        "name": "M.T.E.002",
+        "valid_solutions": [
+            904.78,
+            905
+        ]
+    },
+    {
+        "task": "Compute the hypotenuse of a right triangle with legs of lengths 9 meters and 12 meters.",
+        "functions": [
+            "hypotenuse"
+        ],
+        "name": "M.T.E.003",
+        "valid_solutions": [
+            15
+        ]
+    },
+    {
+        "task": "Calculate the area of a parallelogram with a base of 10 meters and a height of 7 meters.",
+        "functions": [
+            "area_parallelogram"
+        ],
+        "name": "M.T.E.004",
+        "valid_solutions": [
+            70
+        ]
+    },
+    {
+        "task": "Calculate the area of a hexagon with a side length of 4 meters.",
+        "functions": [
+            "area_of_hexagon"
+        ],
+        "name": "M.T.E.005",
+        "valid_solutions": [
+            41.57,
+            42
+        ]
+    },
+    {
+        "task": "Calculate the area of an ellipse with a major axis of 10 meters and a minor axis of 5 meters.",
+        "functions": [
+            "area_of_ellipse"
+        ],
+        "name": "M.T.E.006",
+        "valid_solutions": [
+            157
+        ]
+    },
+    {
+        "task": "Calculate the area of a square with a side length of 15 meters.",
+        "functions": [
+            "area_square"
+        ],
+        "name": "M.T.E.007",
+        "valid_solutions": [
+            225
+        ]
+    },
+    {
+        "task": "Calculate the area of a rhombus with diagonals of lengths 10 meters and 8 meters.",
+        "functions": [
+            "area_of_rhombus"
+        ],
+        "name": "M.T.E.008",
+        "valid_solutions": [
+            40
+        ]
+    },
+    {
+        "task": "Calculate the area of a triangle with a base of 12 meters and a height of 9 meters.",
+        "functions": [
+            "area_triangle"
+        ],
+        "name": "M.T.E.009",
+        "valid_solutions": [
+            54
+        ]
+    },
+    {
+        "task": "Calculate the simple interest on a loan of $5000 with an annual interest rate of 5% over a period of 3 years.",
+        "functions": [
+            "simple_interest"
+        ],
+        "name": "M.T.E.010",
+        "valid_solutions": [
+            750
+        ]
+    },
+    {
+        "task": "Calculate the factorial of the number 7.",
+        "functions": [
+            "factorial"
+        ],
+        "name": "M.T.E.011",
+        "valid_solutions": [
+            5040
+        ]
+    },
+    {
+        "task": "Calculate the sum of the first 100 natural numbers.",
+        "functions": [
+            "sum_of_natural_numbers"
+        ],
+        "name": "M.T.E.012",
+        "valid_solutions": [
+            5050
+        ]
+    },
+    {
+        "task": "Calculate the volume of a cone with a radius of 3 meters and a height of 5 meters.",
+        "functions": [
+            "volume_cone"
+        ],
+        "name": "M.T.E.013",
+        "valid_solutions": [
+            47.12,
+            47
+        ]
+    },
+    {
+        "task": "Calculate the compound interest on an investment of $2000 with an annual interest rate of 4% compounded annually over a period of 5 years.",
+        "functions": [
+            "compound_interest"
+        ],
+        "name": "M.T.E.014",
+        "valid_solutions": [
+            433.31,
+            433
+        ]
+    },
+    {
+        "task": "Calculate the digital root of the number 98765.",
+        "functions": [
+            "digital_root"
+        ],
+        "name": "M.T.E.015",
+        "valid_solutions": [
+            8
+        ]
+    },
+    {
+        "task": "Calculate the surface area of a cube with an edge length of 4 meters.",
+        "functions": [
+            "surface_area_cube"
+        ],
+        "name": "M.T.E.016",
+        "valid_solutions": [
+            96
+        ]
+    },
+    {
+        "task": "Calculate the perimeter of a square with a side length of 10 meters.",
+        "functions": [
+            "perimeter_square"
+        ],
+        "name": "M.T.E.017",
+        "valid_solutions": [
+            40
+        ]
+    },
+    {
+        "task": "Calculate the volume of a cylinder with a radius of 5 meters and a height of 10 meters.",
+        "functions": [
+            "volume_cylinder"
+        ],
+        "name": "M.T.E.018",
+        "valid_solutions": [
+            785.40,
+            785
+        ]
+    },
+    {
+        "task": "Calculate the sum of the first 50 odd numbers.",
+        "functions": [
+            "sum_of_odd_numbers"
+        ],
+        "name": "M.T.E.019",
+        "valid_solutions": [
+            2500
+        ]
+    }
 ]

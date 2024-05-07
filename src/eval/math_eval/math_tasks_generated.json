@@ -1,0 +1,692 @@
+[
+    {
+        "task": "Calculate the area of a rectangle with a length of 8 meters and a width of 5 meters.",
+        "functions": [
+            "area_rectangle"
+        ],
+        "name": "M.T.E.000",
+        "valid_solutions": [
+            ""
+        ]
+    },
+    {
+        "task": "Find the circumference of a circle with a radius of 7 centimeters.",
+        "functions": [
+            "circumference_circle"
+        ],
+        "name": "M.T.E.001",
+        "valid_solutions": [
+            ""
+        ]
+    },
+    {
+        "task": "Determine the volume of a sphere with a radius of 6 meters.",
+        "functions": [
+            "volume_sphere"
+        ],
+        "name": "M.T.E.002",
+        "valid_solutions": [
+            ""
+        ]
+    },
+    {
+        "task": "Compute the hypotenuse of a right triangle with legs of lengths 9 meters and 12 meters.",
+        "functions": [
+            "hypotenuse"
+        ],
+        "name": "M.T.E.003",
+        "valid_solutions": [
+            ""
+        ]
+    },
+    {
+        "task": "Calculate the area of a parallelogram with a base of 10 meters and a height of 7 meters.",
+        "functions": [
+            "area_parallelogram"
+        ],
+        "name": "M.T.E.004",
+        "valid_solutions": [
+            ""
+        ]
+    },
+    {
+        "task": "Calculate the area of a hexagon with a side length of 4 meters.",
+        "functions": [
+            "area_of_hexagon"
+        ],
+        "name": "M.T.E.005",
+        "valid_solutions": [
+            ""
+        ]
+    },
+    {
+        "task": "Calculate the area of an ellipse with a major axis of 10 meters and a minor axis of 5 meters.",
+        "functions": [
+            "area_of_ellipse"
+        ],
+        "name": "M.T.E.006",
+        "valid_solutions": [
+            ""
+        ]
+    },
+    {
+        "task": "Calculate the area of a square with a side length of 15 meters.",
+        "functions": [
+            "area_square"
+        ],
+        "name": "M.T.E.007",
+        "valid_solutions": [
+            ""
+        ]
+    },
+    {
+        "task": "Calculate the area of a rhombus with diagonals of lengths 10 meters and 8 meters.",
+        "functions": [
+            "area_of_rhombus"
+        ],
+        "name": "M.T.E.008",
+        "valid_solutions": [
+            ""
+        ]
+    },
+    {
+        "task": "Calculate the area of a triangle with a base of 12 meters and a height of 9 meters.",
+        "functions": [
+            "area_triangle"
+        ],
+        "name": "M.T.E.009",
+        "valid_solutions": [
+            ""
+        ]
+    },
+    {
+        "task": "Calculate the simple interest on a loan of $5000 with an annual interest rate of 5% over a period of 3 years.",
+        "functions": [
+            "simple_interest"
+        ],
+        "name": "M.T.E.010",
+        "valid_solutions": [
+            ""
+        ]
+    },
+    {
+        "task": "Calculate the factorial of the number 7.",
+        "functions": [
+            "factorial"
+        ],
+        "name": "M.T.E.011",
+        "valid_solutions": [
+            ""
+        ]
+    },
+    {
+        "task": "Calculate the sum of the first 100 natural numbers.",
+        "functions": [
+            "sum_of_natural_numbers"
+        ],
+        "name": "M.T.E.012",
+        "valid_solutions": [
+            ""
+        ]
+    },
+    {
+        "task": "Calculate the volume of a cone with a radius of 3 meters and a height of 5 meters.",
+        "functions": [
+            "volume_cone"
+        ],
+        "name": "M.T.E.013",
+        "valid_solutions": [
+            ""
+        ]
+    },
+    {
+        "task": "Calculate the compound interest on an investment of $2000 with an annual interest rate of 4% compounded annually over a period of 5 years.",
+        "functions": [
+            "compound_interest"
+        ],
+        "name": "M.T.E.014",
+        "valid_solutions": [
+            ""
+        ]
+    },
+    {
+        "task": "Calculate the digital root of the number 98765.",
+        "functions": [
+            "digital_root"
+        ],
+        "name": "M.T.E.015",
+        "valid_solutions": [
+            ""
+        ]
+    },
+    {
+        "task": "Calculate the surface area of a cube with an edge length of 4 meters.",
+        "functions": [
+            "surface_area_cube"
+        ],
+        "name": "M.T.E.016",
+        "valid_solutions": [
+            ""
+        ]
+    },
+    {
+        "task": "Calculate the perimeter of a square with a side length of 10 meters.",
+        "functions": [
+            "perimeter_square"
+        ],
+        "name": "M.T.E.017",
+        "valid_solutions": [
+            ""
+        ]
+    },
+    {
+        "task": "Calculate the volume of a cylinder with a radius of 5 meters and a height of 10 meters.",
+        "functions": [
+            "volume_cylinder"
+        ],
+        "name": "M.T.E.018",
+        "valid_solutions": [
+            ""
+        ]
+    },
+    {
+        "task": "Calculate the sum of the first 50 odd numbers.",
+        "functions": [
+            "sum_of_odd_numbers"
+        ],
+        "name": "M.T.E.019",
+        "valid_solutions": [
+            ""
+        ]
+    },
+    {
+        "task": "Calculate the area of a rhombus given its diagonals of lengths 8 cm and 6 cm, and then find the perimeter of a square whose side is equal to the longer diagonal of the rhombus.",
+        "functions": [
+            "area_of_rhombus",
+            "perimeter_square"
+        ],
+        "name": "M.T.M.000",
+        "valid_solutions": [
+            ""
+        ]
+    },
+    {
+        "task": "Determine the volume of a cylinder with a radius of 5 cm and a height of 10 cm, then calculate the surface area of a sphere with the same radius.",
+        "functions": [
+            "volume_cylinder",
+            "surface_area_sphere"
+        ],
+        "name": "M.T.M.001",
+        "valid_solutions": [
+            ""
+        ]
+    },
+    {
+        "task": "Calculate the area of an ellipse with semi-major axis 10 cm and semi-minor axis 5 cm, then find the circumference of a circle with the same radius as the semi-major axis of the ellipse.",
+        "functions": [
+            "area_of_ellipse",
+            "circumference_circle"
+        ],
+        "name": "M.T.M.002",
+        "valid_solutions": [
+            ""
+        ]
+    },
+    {
+        "task": "Calculate the sum of the first 10 terms of an arithmetic sequence starting with 5 and having a common difference of 3, then find the sum of the squares of these 10 terms.",
+        "functions": [
+            "sum_of_arithmetic_sequence",
+            "sum_of_squares"
+        ],
+        "name": "M.T.M.003",
+        "valid_solutions": [
+            ""
+        ]
+    },
+    {
+        "task": "Calculate the area of a hexagon with a side length of 4 cm, then find the volume of a cube where each side is equal to the diameter of a circle that has the same perimeter as the hexagon.",
+        "functions": [
+            "area_of_hexagon",
+            "perimeter_of_hexagon",
+            "circumference_circle",
+            "volume_cube"
+        ],
+        "name": "M.T.M.004",
+        "valid_solutions": [
+            ""
+        ]
+    },
+    {
+        "task": "Calculate the compound interest on an investment of $1000 at an annual interest rate of 5% compounded annually for 3 years, then determine the sum of the digits of the resulting total amount.",
+        "functions": [
+            "compound_interest",
+            "sum_of_digits"
+        ],
+        "name": "M.T.M.005",
+        "valid_solutions": [
+            ""
+        ]
+    },
+    {
+        "task": "Calculate the area of a triangle with base 6 cm and height 8 cm, then find the hypotenuse of a right triangle where the other two sides are equal to the base and height of the triangle.",
+        "functions": [
+            "area_triangle",
+            "hypotenuse"
+        ],
+        "name": "M.T.M.006",
+        "valid_solutions": [
+            ""
+        ]
+    },
+    {
+        "task": "Calculate the area of a parallelogram with a base of 10 cm and a height of 7 cm, then find the volume of a prism where the base of the prism is the same as the area of the parallelogram and the height of the prism is 15 cm.",
+        "functions": [
+            "area_parallelogram",
+            "volume_of_prism"
+        ],
+        "name": "M.T.M.007",
+        "valid_solutions": [
+            ""
+        ]
+    },
+    {
+        "task": "Calculate the area of a square with a side length of 7 cm, then find the volume of a cube where each side is equal to the diagonal of the square.",
+        "functions": [
+            "area_square",
+            "sqrt",
+            "volume_cube"
+        ],
+        "name": "M.T.M.008",
+        "valid_solutions": [
+            ""
+        ]
+    },
+    {
+        "task": "Calculate the circumference of a circle with a radius of 8 cm, then use this circumference as the side length to calculate the area of a hexagon.",
+        "functions": [
+            "circumference_circle",
+            "area_of_hexagon"
+        ],
+        "name": "M.T.M.009",
+        "valid_solutions": [
+            ""
+        ]
+    },
+    {
+        "task": "Calculate the area of a rectangle with a length of 12 cm and a width of 5 cm, then find the perimeter of a hexagon where each side is equal to the width of the rectangle.",
+        "functions": [
+            "area_rectangle",
+            "perimeter_of_hexagon"
+        ],
+        "name": "M.T.M.010",
+        "valid_solutions": [
+            ""
+        ]
+    },
+    {
+        "task": "Calculate the volume of a pyramid with a square base where each side of the base is 6 cm and the height is 10 cm, then find the surface area of a cube where each side is equal to the height of the pyramid.",
+        "functions": [
+            "volume_of_pyramid",
+            "surface_area_cube"
+        ],
+        "name": "M.T.M.011",
+        "valid_solutions": [
+            ""
+        ]
+    },
+    {
+        "task": "Calculate the area of a circle with a radius of 7 cm, then find the volume of a sphere with the same radius.",
+        "functions": [
+            "area_circle",
+            "volume_sphere"
+        ],
+        "name": "M.T.M.012",
+        "valid_solutions": [
+            ""
+        ]
+    },
+    {
+        "task": "Calculate the sum of the first 15 terms of a geometric sequence with a first term of 2 and a common ratio of 3, then find the product of the numbers in this sequence.",
+        "functions": [
+            "sum_of_geometric_sequence",
+            "product_of_numbers"
+        ],
+        "name": "M.T.M.013",
+        "valid_solutions": [
+            ""
+        ]
+    },
+    {
+        "task": "Calculate the volume of a cone with a radius of 4 cm and a height of 9 cm, then find the surface area of a sphere where the radius is equal to the height of the cone.",
+        "functions": [
+            "volume_cone",
+            "surface_area_sphere"
+        ],
+        "name": "M.T.M.014",
+        "valid_solutions": [
+            ""
+        ]
+    },
+    {
+        "task": "Calculate the area of a rectangle with a length of 15 cm and a width of 10 cm, then find the volume of a prism where the base of the prism is the same as the area of the rectangle and the height of the prism is 20 cm.",
+        "functions": [
+            "area_rectangle",
+            "volume_of_prism"
+        ],
+        "name": "M.T.M.015",
+        "valid_solutions": [
+            ""
+        ]
+    },
+    {
+        "task": "Calculate the area of a triangle with sides 5 cm, 6 cm, and 7 cm using Heron's formula, then find the volume of a pyramid where the base is the same as the area of the triangle and the height of the pyramid is 9 cm.",
+        "functions": [
+            "area_triangle",
+            "volume_of_pyramid"
+        ],
+        "name": "M.T.M.016",
+        "valid_solutions": [
+            ""
+        ]
+    },
+    {
+        "task": "Calculate the area of a square with a side length of 9 cm, then find the sum of the cubes of the numbers from 1 to the side length of the square.",
+        "functions": [
+            "area_square",
+            "sum_of_cubes"
+        ],
+        "name": "M.T.M.017",
+        "valid_solutions": [
+            ""
+        ]
+    },
+    {
+        "task": "Calculate the area of a parallelogram with a base of 12 cm and a height of 5 cm, then find the sum of the digits of the resulting area.",
+        "functions": [
+            "area_parallelogram",
+            "sum_of_digits"
+        ],
+        "name": "M.T.M.018",
+        "valid_solutions": [
+            ""
+        ]
+    },
+    {
+        "task": "Calculate the volume of a torus with a major radius of 7 cm and a minor radius of 2 cm, then find the surface area of a sphere where the radius is equal to the minor radius of the torus.",
+        "functions": [
+            "volume_of_torus",
+            "surface_area_sphere"
+        ],
+        "name": "M.T.M.019",
+        "valid_solutions": [
+            ""
+        ]
+    },
+    {
+        "task": "Calculate the total surface area of a cylindrical can (including the top and bottom) with a radius of 5 cm and a height of 10 cm. Then, find the volume of the same cylinder. Finally, convert the volume from cubic centimeters to liters (1 liter = 1000 cubic centimeters).",
+        "functions": [
+            "circumference_circle",
+            "area_circle",
+            "volume_cylinder",
+            "multiply",
+            "divide"
+        ],
+        "name": "M.T.H.000",
+        "valid_solutions": [
+            ""
+        ]
+    },
+    {
+        "task": "A farmer wants to fence a rectangular field that is twice as long as it is wide. The area of the field is 800 square meters. Calculate the dimensions of the field, the perimeter of the field, and then determine the cost of fencing the field if the price per meter of the fence is $3. Finally, calculate the diagonal length of the field to ensure the fence covers the correct area.",
+        "functions": [
+            "area_rectangle",
+            "perimeter_rectangle",
+            "multiply",
+            "hypotenuse"
+        ],
+        "name": "M.T.H.001",
+        "valid_solutions": [
+            ""
+        ]
+    },
+    {
+        "task": "A landscaper is designing a garden that includes a circular flower bed and an elliptical lawn around it. The radius of the circular flower bed is 4 meters. The ellipse has a major axis of 10 meters and a minor axis of 6 meters, with the circular flower bed at one of the foci. Calculate the area of the circular flower bed, the area of the elliptical lawn, and then find the total area of the garden by adding these two areas together. Finally, calculate the perimeter of the elliptical lawn.",
+        "functions": [
+            "area_circle",
+            "area_of_ellipse",
+            "add",
+            "perimeter_of_ellipse"
+        ],
+        "name": "M.T.H.002",
+        "valid_solutions": [
+            ""
+        ]
+    },
+    {
+        "task": "A scientist is studying the growth pattern of a bacterial colony. The initial population of the colony is 100 bacteria. The population doubles every hour. Calculate the population of the bacteria after 5 hours using the geometric sequence formula. Then, find the sum of the populations at the end of each hour up to 5 hours using the sum of geometric sequence formula. Finally, calculate the mean population over these 5 hours and determine the standard deviation of the populations.",
+        "functions": [
+            "nth_term_geometric_sequence",
+            "sum_of_geometric_sequence",
+            "mean_absolute_deviation",
+            "standard_deviation"
+        ],
+        "name": "M.T.H.003",
+        "valid_solutions": [
+            ""
+        ]
+    },
+    {
+        "task": "A student is planning to build a hexagonal sandbox with each side measuring 2 meters. Calculate the area of the hexagonal sandbox. Then, the student wants to fill the sandbox with sand to a depth of 0.5 meters. Calculate the volume of sand needed. After filling the sandbox, the student measures the temperature of the sand at 35 degrees Celsius and wants to know what this temperature is in Fahrenheit. Finally, calculate the perimeter of the sandbox to determine how much edging material is needed.",
+        "functions": [
+            "area_of_hexagon",
+            "volume_of_prism",
+            "convert_celsius_to_fahrenheit",
+            "perimeter_of_hexagon"
+        ],
+        "name": "M.T.H.004",
+        "valid_solutions": [
+            ""
+        ]
+    },
+    {
+        "task": "A mathematician is designing a unique garden that includes a rhombus-shaped flower bed and a hexagonal walkway surrounding it. The diagonals of the rhombus are 10 meters and 14 meters. Each side of the hexagonal walkway is 5 meters. Calculate the area of the rhombus-shaped flower bed, the area of the hexagonal walkway, and then find the total area of the garden by adding these two areas together. Finally, calculate the perimeter of the hexagonal walkway.",
+        "functions": [
+            "area_of_rhombus",
+            "area_of_hexagon",
+            "add",
+            "perimeter_of_hexagon"
+        ],
+        "name": "M.T.H.005",
+        "valid_solutions": [
+            ""
+        ]
+    },
+    {
+        "task": "A chef is preparing a special pie with a circular base and needs to calculate the amount of dough needed. The pie has a diameter of 12 inches. Calculate the area of the pie's base using the area_circle function. Then, the chef rolls out additional dough into a rectangular shape for decorations, which measures 15 inches by 10 inches. Calculate the area of this rectangle using the area_rectangle function. Add the two areas together to find the total amount of dough used. Finally, the chef cuts small circular pieces of 2 inches diameter from the leftover dough for additional toppings. Calculate the area of one such small circle and determine how many such pieces can be cut from the leftover dough by dividing the leftover area by the area of one small piece using the divide function.",
+        "functions": [
+            "area_circle",
+            "area_rectangle",
+            "divide"
+        ],
+        "name": "M.T.H.006",
+        "valid_solutions": [
+            ""
+        ]
+    },
+    {
+        "task": "A physics student is conducting an experiment to measure the acceleration due to gravity using a pendulum. The length of the pendulum is 0.5 meters. First, calculate the period of the pendulum using the formula T = 2*pi*sqrt(L/g), where L is the length and g is the acceleration due to gravity (approximately 9.8 m/s^2). Then, convert the period from seconds to milliseconds. After recording the period, the student uses this value to calculate the frequency of the pendulum's oscillation using the formula f = 1/T. Finally, the student wants to compare the experimental value of g calculated using the rearranged pendulum formula g = (4*pi^2*L)/(T^2) with the theoretical value, and find the absolute difference between these two values.",
+        "functions": [
+            "sqrt",
+            "power",
+            "multiply",
+            "divide",
+            "absolute"
+        ],
+        "name": "M.T.H.007",
+        "valid_solutions": [
+            ""
+        ]
+    },
+    {
+        "task": "A student is studying the properties of different geometric shapes for a school project. First, calculate the area of a square with a side length of 6 cm using the area_square function. Next, calculate the area of a circle with a radius of 3 cm using the area_circle function. Then, find the sum of these two areas to determine the total area covered by both shapes. Finally, calculate the perimeter of the square using the perimeter_square function and the circumference of the circle using the circumference_circle function, and add these two values to find the total perimeter.",
+        "functions": [
+            "area_square",
+            "area_circle",
+            "sum",
+            "perimeter_square",
+            "circumference_circle"
+        ],
+        "name": "M.T.H.008",
+        "valid_solutions": [
+            ""
+        ]
+    },
+    {
+        "task": "A meteorologist is analyzing temperature data to study climate patterns. The highest recorded temperature in a week was 102 degrees Fahrenheit. Convert this temperature to Celsius. Then, calculate the mean temperature of the week given the temperatures in Celsius: 25, 30, 22, 28, 35, 27, and the converted temperature. After finding the mean, determine the variance of these temperatures to understand the temperature fluctuation throughout the week. Finally, calculate the coefficient of variation to measure the dispersion of temperature data relative to the mean.",
+        "functions": [
+            "convert_fahrenheit_to_celsius",
+            "mean",
+            "variance",
+            "coefficient_of_variation"
+        ],
+        "name": "M.T.H.009",
+        "valid_solutions": [
+            ""
+        ]
+    },
+    {
+        "task": "A student is working on a project to compare the growth rates of two types of plants over a period of 10 days. The first plant's height follows an arithmetic sequence starting at 10 cm with a common difference of 2 cm per day. The second plant's height follows a geometric sequence starting at 8 cm with a common ratio of 1.1 per day. Calculate the height of each plant at the end of 10 days using the nth_term_arithmetic_sequence and nth_term_geometric_sequence functions respectively. Then, find the total growth for each plant over the 10 days using the sum_of_arithmetic_sequence and sum_of_geometric_sequence functions. Finally, determine which plant grew more in total over the 10 days by subtracting the total growth of the first plant from the second plant using the subtract function.",
+        "functions": [
+            "nth_term_arithmetic_sequence",
+            "nth_term_geometric_sequence",
+            "sum_of_arithmetic_sequence",
+            "sum_of_geometric_sequence",
+            "subtract"
+        ],
+        "name": "M.T.H.010",
+        "valid_solutions": [
+            ""
+        ]
+    },
+    {
+        "task": "A student is conducting a science experiment to measure the growth of a crystal over a period of 7 days. The crystal's volume increases following a geometric sequence starting at 1 cubic centimeter with a common ratio of 1.5 per day. Calculate the volume of the crystal at the end of 7 days using the nth_term_geometric_sequence function. Then, find the total volume increase over the 7 days using the sum_of_geometric_sequence function. After that, calculate the average volume increase per day using the mean function. Finally, determine the standard deviation of the volumes over the 7 days to analyze the variability in growth using the standard_deviation function.",
+        "functions": [
+            "nth_term_geometric_sequence",
+            "sum_of_geometric_sequence",
+            "mean",
+            "standard_deviation"
+        ],
+        "name": "M.T.H.011",
+        "valid_solutions": [
+            ""
+        ]
+    },
+    {
+        "task": "A construction company is planning to build a new park that includes a large rectangular playground and a square garden. The length of the playground is 50 meters and the width is 30 meters. Calculate the area of the playground using the area_rectangle function. The side of the square garden is 20 meters. Calculate the area of the garden using the area_square function. Then, find the total area of the park by adding the area of the playground and the garden together using the add function. Finally, calculate the perimeter of the playground using the perimeter_rectangle function and the perimeter of the garden using the perimeter_square function, and find the total perimeter of the park by adding these two perimeters together using the add function.",
+        "functions": [
+            "area_rectangle",
+            "area_square",
+            "add",
+            "perimeter_rectangle",
+            "perimeter_square"
+        ],
+        "name": "M.T.H.012",
+        "valid_solutions": [
+            ""
+        ]
+    },
+    {
+        "task": "A student is designing a garden that includes a triangular flower bed and a circular pond. The sides of the triangular flower bed are 6 meters, 8 meters, and 10 meters. Calculate the area of the triangular flower bed using Heron's formula. Then, calculate the circumference of the circular pond with a radius of 3 meters. After that, find the total area of the garden by adding the area of the triangular flower bed and the area of the circular pond together. Finally, calculate the sum of the perimeter of the triangular flower bed and the circumference of the pond to determine the total boundary length of the garden.",
+        "functions": [
+            "area_triangle",
+            "circumference_circle",
+            "add",
+            "sum_of_squares"
+        ],
+        "name": "M.T.H.013",
+        "valid_solutions": [
+            ""
+        ]
+    },
+    {
+        "task": "A student is working on a physics project to calculate the potential energy of a ball at different heights using the formula PE = mgh, where m is mass, g is the acceleration due to gravity (9.8 m/s^2), and h is the height. The ball has a mass of 2 kg. Calculate the potential energy at heights of 5, 10, and 15 meters. Then, find the sum of these potential energies. After that, calculate the average potential energy and determine the standard deviation of these potential energies.",
+        "functions": [
+            "multiply",
+            "sum_of_numbers",
+            "mean",
+            "standard_deviation"
+        ],
+        "name": "M.T.H.014",
+        "valid_solutions": [
+            ""
+        ]
+    },
+    {
+        "task": "A chef is preparing a special dessert that involves a square base cake and a circular topping. The side of the square cake is 8 inches. Calculate the area of the square base using the area_square function. Then, the chef places a circular topping with a diameter of 6 inches on the cake. Calculate the area of this circle using the area_circle function. Add the two areas together to find the total area covered by the cake and the topping. Finally, calculate the perimeter of the square base using the perimeter_square function and the circumference of the circle using the circumference_circle function, and add these two values to find the total perimeter.",
+        "functions": [
+            "area_square",
+            "area_circle",
+            "add",
+            "perimeter_square",
+            "circumference_circle"
+        ],
+        "name": "M.T.H.015",
+        "valid_solutions": [
+            ""
+        ]
+    },
+    {
+        "task": "A student is analyzing the growth of a plant over a period of 20 days. The plant's height follows a geometric sequence starting at 15 cm with a common ratio of 1.05 per day. Calculate the height of the plant at the end of 20 days using the nth_term_geometric_sequence function. Then, find the total growth over the 20 days using the sum_of_geometric_sequence function. After that, calculate the average growth per day using the mean function. Finally, determine the standard deviation of the heights over the 20 days to analyze the variability in growth using the standard_deviation function.",
+        "functions": [
+            "nth_term_geometric_sequence",
+            "sum_of_geometric_sequence",
+            "mean",
+            "standard_deviation"
+        ],
+        "name": "M.T.H.016",
+        "valid_solutions": [
+            ""
+        ]
+    },
+    {
+        "task": "A student is planning a science project to study the cooling effect of different materials on a heated metal rod. The initial temperature of the rod is 150 degrees Fahrenheit. First, convert this temperature to Celsius. Then, after placing the rod in a material, the temperature drops following an exponential decay modeled by the formula T(t) = T0 * e^(-kt), where T0 is the initial temperature in Celsius, k is the decay constant (0.1 per minute), and t is the time in minutes. Calculate the temperature of the rod after 10 minutes. Finally, convert this temperature back to Fahrenheit to report the results.",
+        "functions": [
+            "convert_fahrenheit_to_celsius",
+            "power",
+            "multiply",
+            "euler_number_approximation",
+            "convert_celsius_to_fahrenheit"
+        ],
+        "name": "M.T.H.017",
+        "valid_solutions": [
+            ""
+        ]
+    },
+    {
+        "task": "A student is designing a garden that includes a rectangular vegetable patch and a circular flower bed. The length of the vegetable patch is 10 meters and the width is 6 meters. Calculate the area of the vegetable patch using the area_rectangle function. The radius of the circular flower bed is 4 meters. Calculate the area of the flower bed using the area_circle function. Then, find the total area of the garden by adding the area of the vegetable patch and the area of the flower bed together using the add function. Finally, calculate the perimeter of the vegetable patch using the perimeter_rectangle function and the circumference of the flower bed using the circumference_circle function, and add these two values to find the total perimeter of the garden.",
+        "functions": [
+            "area_rectangle",
+            "area_circle",
+            "add",
+            "perimeter_rectangle",
+            "circumference_circle"
+        ],
+        "name": "M.T.H.018",
+        "valid_solutions": [
+            ""
+        ]
+    },
+    {
+        "task": "A student is working on a project to analyze the growth of a population of yeast cells in a laboratory setting. The initial population of the yeast is 200 cells. The population triples every day. Calculate the population of the yeast after 7 days using the nth_term_geometric_sequence function. Then, find the total population over the 7 days using the sum_of_geometric_sequence function. After that, calculate the average population over these 7 days using the mean function. Finally, determine the standard deviation of the populations over these 7 days using the standard_deviation function.",
+        "functions": [
+            "nth_term_geometric_sequence",
+            "sum_of_geometric_sequence",
+            "mean",
+            "standard_deviation"
+        ],
+        "name": "M.T.H.019",
+        "valid_solutions": [
+            ""
+        ]
+    }
+]

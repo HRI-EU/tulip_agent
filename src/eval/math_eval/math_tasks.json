@@ -320,5 +320,129 @@
         "valid_solutions": [
             4.16
         ]
+    },
+    {
+        "task": "Calculate the area of a rectangle with length 8 units and width 5 units, then find the sum of squares of the area and the perimeter of the rectangle.",
+        "functions": [
+            "area_rectangle",
+            "perimeter_rectangle",
+            "sum_of_squares"
+        ],
+        "name": "M.T.M.010",
+        "valid_solutions": [
+            2276
+        ]
+    },
+    {
+        "task": "Calculate the volume of a cylinder with a radius of 4 units and a height of 10 units, then find the sum of the volume and the surface area of the cylinder.",
+        "functions": [
+            "volume_cylinder",
+            "surface_area_of_cylinder",
+            "add"
+        ],
+        "name": "M.T.M.011",
+        "valid_solutions": [
+            854.5,
+            855
+        ]
+    },
+    {
+        "task": "Calculate the perimeter of a square with a side length of 7 units and then find the sum of the digits of the resulting circumference value.",
+        "functions": [
+            "perimeter_rectangle",
+            "sum_of_digits"
+        ],
+        "name": "M.T.M.012",
+        "valid_solutions": [
+            10
+        ]
+    },
+    {
+        "task": "Calculate the product of the area and the perimeter of an ellipse with semi-major axis 10 units and semi-minor axis 5 units.",
+        "functions": [
+            "area_of_ellipse",
+            "perimeter_of_ellipse",
+            "multiply"
+        ],
+        "name": "M.T.M.013",
+        "valid_solutions": [
+            1902
+        ]
+    },
+    {
+        "task": "Find the sum of the area and the perimeter of a square with side length 6.",
+        "functions": [
+            "area_square",
+            "perimeter_square",
+            "add"
+        ],
+        "name": "M.T.M.014",
+        "valid_solutions": [
+            60
+        ]
+    },
+    {
+        "task": "Calculate the area of a triangle with base 12 units and height 5 units, then find the nth root where n is the perimeter of the triangle with sides 2, 3, and 4 units.",
+        "functions": [
+            "area_triangle",
+            "perimeter_triangle",
+            "nth_root"
+        ],
+        "name": "M.T.M.015",
+        "valid_solutions": [
+            1.459,
+            1.5
+        ]
+    },
+    {
+        "task": "Find the difference between the area of a square with side length 20 and a the area of a circle with radius 10.",
+        "functions": [
+            "area_rectangle",
+            "area_circle",
+            "subtract"
+        ],
+        "name": "M.T.M.016",
+        "valid_solutions": [
+            85.8,
+            86
+        ]
+    },
+    {
+        "task": "Calculate the `sum of squares` of the area and the perimeter of the hexagon with a side length of 9 units.",
+        "functions": [
+            "area_of_hexagon",
+            "perimeter_of_hexagon",
+            "sum_of_squares"
+        ],
+        "name": "M.T.M.017",
+        "valid_solutions": [
+            47202.75,
+            47203
+        ]
+    },
+    {
+        "task": "Calculate the area of a circle with a radius of 5 units, then find the nth root where n is the circumference of the circle.",
+        "functions": [
+            "area_circle",
+            "circumference_circle",
+            "nth_root"
+        ],
+        "name": "M.T.M.018",
+        "valid_solutions": [
+            1.149,
+            1.15
+        ]
+    },
+    {
+        "task": "Calculate the ratio of the surface area of a sphere with a radius of 6 units to its volume.",
+        "functions": [
+            "volume_sphere",
+            "surface_area_sphere",
+            "divide"
+        ],
+        "name": "M.T.M.019",
+        "valid_solutions": [
+            0.5
+        ]
     }
 ]

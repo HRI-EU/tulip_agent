@@ -340,6 +340,16 @@ def area_triangle(base: float, height: float) -> float:
     return 0.5 * base * height
 
 
+def perimeter_triangle(sides: list[float]) -> float:
+    """
+    Calculate the perimeter of a triange.
+
+    :param sides: List of the lengths of the triangle's sides.
+    :return: The perimeter of the triangle.
+    """
+    return sum(sides)
+
+
 def quadratic_formula(a: float, b: float, c: float) -> tuple:
     """
     Solve a quadratic equation using the quadratic formula.
@@ -415,6 +425,17 @@ def volume_cylinder(radius: float, height: float) -> float:
     :return: The volume of the cylinder.
     """
     return math.pi * (radius**2) * height
+
+
+def surface_area_of_cylinder(radius: float, height: float) -> float:
+    """
+    Calculate the surface area of a cylinder.
+
+    :param radius: The radius of the cylinder's base.
+    :param height: The height of the cylinder.
+    :return: The surface area of the cylinder.
+    """
+    return 2 * radius**2 * math.pi + 2 * radius * math.pi * height
 
 
 def volume_cone(radius: float, height: float) -> float:
@@ -731,7 +752,7 @@ def surface_area_of_torus(major_radius: float, minor_radius: float) -> float:
     :param minor_radius: The minor radius of the torus.
     :return: The surface area of the torus.
     """
-    return 4 * math.pi
+    return 4 * math.pi**2 * major_radius * minor_radius
 
 
 def harmonic_mean(numbers: list[float]) -> float:

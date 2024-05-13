@@ -204,5 +204,121 @@
         "valid_solutions": [
             2500
         ]
+    },
+    {
+        "task": "Calculate the area of a rectangle with length 8 units and width 5 units, then find the circumference of a circle with a radius equal to the square root of the rectangle's area.",
+        "functions": [
+            "area_rectangle",
+            "sqrt",
+            "circumference_circle"
+        ],
+        "name": "M.T.M.000",
+        "valid_solutions": [
+            39.74,
+            40
+        ]
+    },
+    {
+        "task": "Compute the volume of a cylinder with a height of 10 units and a base radius of 3 units, then find the surface area of a sphere with a radius equal to the height of the cylinder.",
+        "functions": [
+            "volume_cylinder",
+            "surface_area_sphere"
+        ],
+        "name": "M.T.M.001",
+        "valid_solutions": [
+            1256.64,
+            1257
+        ]
+    },
+    {
+        "task": "Find the area of a triangle with a base of 6 units and a height of 9 units, then calculate the volume of a cone with a height equal to the triangle's area and a base radius of 4 units.",
+        "functions": [
+            "area_triangle",
+            "volume_cone"
+        ],
+        "name": "M.T.M.002",
+        "valid_solutions": [
+            452
+        ]
+    },
+    {
+        "task": "Calculate 10th Fibonacci number and add it to the factorial of 10.",
+        "functions": [
+            "fibonacci_recursive",
+            "factorial"
+        ],
+        "name": "M.T.M.003",
+        "valid_solutions": [
+            3628855,
+            "3,628,855"
+        ]
+    },
+    {
+        "task": "Calculate the area of an ellipse with semi-major axis 7 units and semi-minor axis 4 units, then find the perimeter of a hexagon with a side length equal to the square root of the ellipse's area.",
+        "functions": [
+            "area_of_ellipse",
+            "sqrt",
+            "perimeter_of_hexagon"
+        ],
+        "name": "M.T.M.004",
+        "valid_solutions": [
+            28.14
+        ]
+    },
+    {
+        "task": "Calculate the area of a square with a side length of 6 units, then find the volume of a cube with a side length equal to the square root of the square's area.",
+        "functions": [
+            "area_square",
+            "sqrt",
+            "volume_cube"
+        ],
+        "name": "M.T.M.005",
+        "valid_solutions": [
+            216
+        ]
+    },
+    {
+        "task": "Calculate the area of a parallelogram with a base of 12 units and a height of 5 units, then find the sum of the digits of the area.",
+        "functions": [
+            "area_parallelogram",
+            "sum_of_digits"
+        ],
+        "name": "M.T.M.006",
+        "valid_solutions": [
+            6
+        ]
+    },
+    {
+        "task": "Calculate the circumference of a circle with a radius of 10 units, then find the area of a hexagon with a side length equal to the circle's circumference.",
+        "functions": [
+            "circumference_circle",
+            "area_of_hexagon"
+        ],
+        "name": "M.T.M.007",
+        "valid_solutions": [
+            10256.79
+        ]
+    },
+    {
+        "task": "Calculate the area of a rhombus with diagonals of lengths 10 units and 8 units, then find the digital root of the area.",
+        "functions": [
+            "area_of_rhombus",
+            "digital_root"
+        ],
+        "name": "M.T.M.008",
+        "valid_solutions": [
+            4
+        ]
+    },
+    {
+        "task": "Calculate the volume of a pyramid with a base area of 24 square units and a height of 9 units, then find the nth root of the volume where n is 3.",
+        "functions": [
+            "volume_of_pyramid",
+            "nth_root"
+        ],
+        "name": "M.T.M.009",
+        "valid_solutions": [
+            4.16
+        ]
     }
 ]

@@ -54,10 +54,11 @@ Your task is to come up with math tasks of varying difficulty.
 
 
 TASK_PROMPT = """\
-Come up with a math task the result of which is a single value.
+Come up with a math problem posed as a text question the result of which is a single value.
 {explanation}
-The task should be solvable with the following functions:
+The problem must be solvable with the following functions:
 {functions}
+Do not include formulas in the question.
 Return valid JSON in the following form:
 {{
     "task": "Description of the task",

@@ -54,7 +54,7 @@ Your task is to come up with math tasks of varying difficulty.
 
 
 TASK_PROMPT = """\
-Come up with a math task.
+Come up with a math task the result of which is a single value.
 {explanation}
 The task should be solvable with the following functions:
 {functions}

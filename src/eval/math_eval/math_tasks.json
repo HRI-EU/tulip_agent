@@ -444,5 +444,126 @@
         "valid_solutions": [
             0.5
         ]
+    },
+    {
+        "task": "A farmer is planning to build a new rectangular field next to a river. The length of the field is 50 meters more than its width. If the area of the field is 15,000 square meters, calculate the perimeter of the field.",
+        "functions": [
+            "quadratic_formula",
+            "area_rectangle",
+            "perimeter_rectangle"
+        ],
+        "name": "M.T.H.000",
+        "valid_solutions": [
+            500
+        ]
+    },
+    {
+        "task": "A mathematician is exploring number properties and comes across the number 123. She calculates the sum of the digits of this number, then finds the factorial of this sum. Afterward, she computes the digital root of the factorial result. Finally, she wants to determine if this digital root is a prime number. Respond only with a single word, either true or false.",
+        "functions": [
+            "sum_of_digits",
+            "factorial",
+            "digital_root",
+            "is_prime"
+        ],
+        "name": "M.T.H.002",
+        "valid_solutions": [
+            "false",
+            "False"
+        ]
+    },
+    {
+        "task": "What is the sum of the areas of a circle with radius 5, a square with side length 5, and a hexagon with side length 5?",
+        "functions": [
+            "area_square",
+            "area_circle",
+            "area_of_hexagon",
+            "add"
+        ],
+        "name": "M.T.H.003",
+        "valid_solutions": [
+            168
+        ]
+    },
+    {
+        "task": "A student is working on a geometry project involving various shapes. She starts by calculating the area of a square with a side length of 12 meters. She then finds the area of a circle with radius 8. After obtaining these two areas, she calculates the difference between them. What is the square root of this difference?",
+        "functions": [
+            "area_square",
+            "area_circle",
+            "subtract",
+            "sqrt"
+        ],
+        "name": "M.T.H.004",
+        "valid_solutions": [
+            7.55,
+            7.6
+        ]
+    },
+    {
+        "task": "A landscape architect is planning to design a new park in the shape of a parallelogram with a base of 40 meters and a height of 30 meters. After calculating the area of the park, the architect decides to place a rectangular pond inside the park with a length that is 10 meters less than the base of the park and a width that is 5 meters less than the height of the park. Calculate the area of the pond. Then, find the difference in area between the park and the pond. Finally, the architect wants to know the square root of this difference to estimate the complexity of the landscaping required. What is the result?",
+        "functions": [
+            "area_parallelogram",
+            "area_rectangle",
+            "subtract",
+            "sqrt"
+        ],
+        "name": "M.T.H.005",
+        "valid_solutions": [
+            21
+        ]
+    },
+    {
+        "task": "A scientist is studying the thermal properties of a material by observing its expansion. Initially, the material forms a square with a side length of 10 cm. When heated, the side length of the square increases by 5%. The scientist calculates the area of the expanded square and then wants to compare it with the original square by finding the difference in their areas. After obtaining this difference, the scientist calculates the square root of this value to analyze the rate of expansion. What is the result?",
+        "functions": [
+            "area_square",
+            "multiply",
+            "subtract",
+            "sqrt"
+        ],
+        "name": "M.T.H.006",
+        "valid_solutions": [
+            3.20
+        ]
+    },
+    {
+        "task": "Convert 15 degrees celsius to fahrenheit, add ten, convert the result from fahrenheit to celsius, and subtract 10. What is the result?",
+        "functions": [
+            "convert_celsius_to_fahrenheit",
+            "add",
+            "convert_fahrenheit_to_celsius",
+            "subtract"
+        ],
+        "name": "M.T.H.007",
+        "valid_solutions": [
+            10.56,
+            11
+        ]
+    },
+    {
+        "task": "Tom owns land in the form of a square with side length 10 km he can rent out at 100 dollars per square kilometer per month. Unfortunately, a circle area with radius 4 km is covered by water, reducing the price for that area by half. How much does Tom make per month?",
+        "functions": [
+            "area_square",
+            "area_circle",
+            "subtract",
+            "multiply"
+        ],
+        "name": "M.T.H.008",
+        "valid_solutions": [
+            7486.7,
+            7487
+        ]
+    },
+    {
+        "task": "Susan inherits 500.000 dollars twice. What is the difference in income after 10 years if she invests the money at an interest rate of 10 % versus an interest rate of 11 %?",
+        "functions": [
+            "multiply",
+            "compound_interest",
+            "subtract"
+        ],
+        "name": "M.T.H.009",
+        "valid_solutions": [
+            "245,678.53",
+            245678,
+            245679
+        ]
     }
 ]

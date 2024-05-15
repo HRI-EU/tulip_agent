@@ -30,6 +30,8 @@
 import ast
 import json
 import logging.config
+import statistics
+
 import matplotlib.pyplot as plt
 import numpy as np
 import yaml
@@ -200,18 +202,28 @@ def plot(
         "orange": "#e37222",
         "green": "#a2ad00",
     }
+    levels = {
+        "E": "Easy",
+        "M": "Medium",
+        "H": "Hard",
+    }
     colors = list(color_dict.values())
-    x = np.arange(len(tasks))
+    x = np.arange(len(levels))
     fig, axs = plt.subplots(len(criteria), sharex=True, sharey=False, figsize=(10, 5))
     for ci, criterion in enumerate(criteria):
         for ai, agent in enumerate(agents):
             _ = axs[ci].bar(
                 x - (number_agents - 1) / 2 * width + width * ai,
                 [
-                    float(getattr(d, criterion))
-                    for task in tasks
-                    for d in data
-                    if d.agent == agent and d.task == task
+                    statistics.mean(
+                        [
+                            float(getattr(d, criterion))
+                            for d in data
+                            if d.agent == agent
+                            and tasks[d.task].split(".")[-2] == level
+                        ]
+                    )
+                    for level in levels
                 ],
                 width,
                 color=colors[ai],
@@ -226,9 +238,9 @@ def plot(
         title="Frameworks",
         borderaxespad=0.2,
     )
-    plt.xticks(x, list(tasks.values()), rotation=0)
+    plt.xticks(x, list(levels.values()), rotation=0)
     # plt.ylim(0, 1.0)
-    plt.xlabel("Tasks")
+    plt.xlabel("Difficulty")
     plt.savefig(output_file, bbox_inches="tight")
 
 

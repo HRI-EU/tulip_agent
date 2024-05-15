@@ -242,6 +242,27 @@ def main(
     plot(data=res, output_file=plot_file, agents=agents, tasks=tasks, criteria=criteria)
 
 
+def analyze(log_file: str, ground_truth: str) -> None:
+    with open(ground_truth, "r") as gtf:
+        gtf_data_ = json.load(gtf)
+        task_ids = {e["task"]: e["name"] for e in gtf_data_}
+    res = extract_data_from_log(log_file=log_file)
+    res, tasks = assess_data(results=res, ground_truth=ground_truth)
+    for r in res:
+        if not r.correctness:
+            print(f"INCORRECT: {task_ids[r.task]} - {r.response} - {r.agent}")
+        if r.agent != "BaseAgent":
+            if r.function_precision < 1:
+                print(
+                    f"WRONG FUNCTIONS: {task_ids[r.task]} - {r.response} - {r.tools_called}"
+                )
+            if r.function_recall < 1:
+                print(
+                    f"MISSING FUNCTIONS: {task_ids[r.task]} - {r.response} - {r.tools_called}"
+                )
+        print("\n")
+
+
 if __name__ == "__main__":
     main(
         log_file="math.eval.2.log",

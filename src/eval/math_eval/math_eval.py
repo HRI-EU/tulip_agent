@@ -71,7 +71,7 @@ def run_math_eval(task_file: str):
         queries = {e["task"]: e for e in tasks_}
 
     for query in queries:
-        print(query)
+        print(queries[query]["name"], "--", query)
 
         print(" BASE ".center(40, "="))
         base_agent = BaseAgent()

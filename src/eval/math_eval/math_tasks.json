@@ -458,6 +458,17 @@
         ]
     },
     {
+        "task": "A construction company is planning to build a new park with a large rectangular playground surrounded by a walking path. The playground measures 50 meters in length and 30 meters in width. The walking path, which is 3 meters wide, runs around the entire perimeter of the playground. Calculate the area of the walking path alone.",
+        "functions": [
+            "area_rectangle",
+            "subtract"
+        ],
+        "name": "M.T.H.001",
+        "valid_solutions": [
+            516
+        ]
+    },
+    {
         "task": "A mathematician is exploring number properties and comes across the number 123. She calculates the sum of the digits of this number, then finds the factorial of this sum. Afterward, she computes the digital root of the factorial result. Finally, she wants to determine if this digital root is a prime number. Respond only with a single word, either true or false.",
         "functions": [
             "sum_of_digits",
@@ -564,6 +575,138 @@
             "245,678.53",
             245678,
             245679
+        ]
+    },
+    {
+        "task": "A farmer is planning to build a new rectangular enclosure for her sheep, using the existing barn wall as one of the enclosure's longer sides. The length of the enclosure is to be 30 meters, and the width is to be 20 meters. She wants to plant grass inside the entire enclosure but for a square area with side length 5 meters, for which she needs to know the amount of seed required. The seed packaging states that one packet can cover 100 square meters. How many packets of seed does she need to buy?",
+        "functions": [
+            "area_rectangle",
+            "area_square",
+            "subtract",
+            "divide"
+        ],
+        "name": "M.T.H.010",
+        "valid_solutions": [
+            6
+        ]
+    },
+    {
+        "task": "A student is planning a science project that involves a cylindrical container fully filled with water. The container has a radius of 5 meters and a height of 10 meters. The student needs to calculate the volume of the cylinder to know how much water it can hold. After filling the cylinder, the student places a spherical object with a radius of 3 meters into the water, resulting in water flowing out of the cylinder. Calculate the water level in the cylinder in meters after the sphere is taken out again.",
+        "functions": [
+            "volume_cylinder",
+            "volume_sphere",
+            "subtract",
+            "area_circle",
+            "divide"
+        ],
+        "name": "M.T.H.011",
+        "valid_solutions": [
+            8.56
+        ]
+    },
+    {
+        "task": "A homeowner is planning to install a new rhombus-shaped tile floor in their kitchen. The diagonals of the rhombus measure 10 feet and 12 feet respectively. They need to calculate the area of the rhombus to determine how many tiles are required. Each tile covers an area of .3 square foot. Additionally, the homeowner wants to install a rectangular carpet in the center of the kitchen that measures 6 feet by 8 feet. Calculate the total area of the rhombus-shaped floor and subtract the area of the carpet to find out how many tiles are needed for the uncovered floor area.",
+        "functions": [
+            "area_of_rhombus",
+            "area_rectangle",
+            "subtract",
+            "divide"
+        ],
+        "name": "M.T.H.012",
+        "valid_solutions": [
+            40
+        ]
+    },
+    {
+        "task": "A math teacher is preparing a set of problems for a competition. She decides to create a problem involving a square and a circle. The square has a side length of 10 meters. She plans to inscribe a circle within this square and needs to calculate the area of the circle. Additionally, she wants to find the area of one of the four regions of the square that is not covered by the circle.",
+        "functions": [
+            "area_square",
+            "area_circle",
+            "subtract",
+            "divide"
+        ],
+        "name": "M.T.H.013",
+        "valid_solutions": [
+            5.37,
+            5.4
+        ]
+    },
+    {
+        "task": "A jewelry designer is planning to create a unique bracelet that consists of a series of small spherical beads and a central cylindrical charm. The radius of each bead is 0.5 cm, and the bracelet will contain 20 beads. The cylindrical charm has a radius of 1 cm and a height of 2 cm. The designer needs to calculate the total volume of the beads and the volume of the cylindrical charm to determine the amount of material needed for the entire bracelet.",
+        "functions": [
+            "volume_sphere",
+            "volume_cylinder",
+            "multiply",
+            "add"
+        ],
+        "name": "M.T.H.014",
+        "valid_solutions": [
+            16.76
+        ]
+    },
+    {
+        "task": "What is the standard deviation for the areas of a circle with radius 5, a square with side length 8, and a hexagon with side length 6?",
+        "functions": [
+            "area_circle",
+            "area_square",
+            "area_of_hexagon",
+            "standard_deviation"
+        ],
+        "name": "M.T.H.015",
+        "valid_solutions": [
+            12
+        ]
+    },
+    {
+        "task": "Solve the following: 5**2+sqrt(6-2)",
+        "functions": [
+            "add",
+            "power",
+            "sqrt",
+            "subtract"
+        ],
+        "name": "M.T.H.016",
+        "valid_solutions": [
+            27
+        ]
+    },
+    {
+        "task": "A landlord rents out two properties. The first property is a square area with side length 20 meters and a price of 10 $ per square meter a month. The second property has a rectangular area with side lengths 10 meters and 40 meters, which he rents at 8 $ per square meter a month. Which property makes more money? Respond with either `first` or `second`.",
+        "functions": [
+            "area_square",
+            "area_rectangle",
+            "multiply",
+            "subtract"
+        ],
+        "name": "M.T.H.017",
+        "valid_solutions": [
+            "first",
+            "First"
+        ]
+    },
+    {
+        "task": "A landscape architect is designing a new park that includes a large rectangular lawn and a smaller, adjacent rectangular flower bed. The lawn measures 60 meters in length and 40 meters in width. The flower bed is one-third as long and one-fourth as wide as the lawn. The architect needs to calculate the total area of both the lawn and the flower bed combined.",
+        "functions": [
+            "area_rectangle",
+            "add",
+            "multiply"
+        ],
+        "name": "M.T.H.018",
+        "valid_solutions": [
+            2600
+        ]
+    },
+    {
+        "task": "What is the total surface area of a cylinder with height 8 and radius 3 and a prism with height 8 and a square with side length 5 as a base area?",
+        "functions": [
+            "add",
+            "area_square",
+            "surface_area_of_cylinder",
+            "surface_area_of_prism"
+        ],
+        "name": "M.T.H.019",
+        "valid_solutions": [
+            417
         ]
     }
 ]

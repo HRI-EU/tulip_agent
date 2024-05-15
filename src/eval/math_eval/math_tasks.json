@@ -2,7 +2,7 @@
     {
         "task": "Calculate the area of a rectangle with a length of 8 meters and a width of 5 meters.",
         "functions": [
-            "math_tools__area_rectangle"
+            "area_rectangle"
         ],
         "name": "M.T.E.000",
         "valid_solutions": [
@@ -12,7 +12,7 @@
     {
         "task": "Find the circumference of a circle with a radius of 7 centimeters.",
         "functions": [
-            "math_tools__circumference_circle"
+            "circumference_circle"
         ],
         "name": "M.T.E.001",
         "valid_solutions": [
@@ -23,7 +23,7 @@
     {
         "task": "Determine the volume of a sphere with a radius of 6 meters.",
         "functions": [
-            "math_tools__volume_sphere"
+            "volume_sphere"
         ],
         "name": "M.T.E.002",
         "valid_solutions": [
@@ -34,7 +34,7 @@
     {
         "task": "Compute the hypotenuse of a right triangle with legs of lengths 9 meters and 12 meters.",
         "functions": [
-            "math_tools__hypotenuse"
+            "hypotenuse"
         ],
         "name": "M.T.E.003",
         "valid_solutions": [
@@ -44,7 +44,7 @@
     {
         "task": "Calculate the area of a parallelogram with a base of 10 meters and a height of 7 meters.",
         "functions": [
-            "math_tools__area_parallelogram"
+            "area_parallelogram"
         ],
         "name": "M.T.E.004",
         "valid_solutions": [
@@ -54,10 +54,11 @@
     {
         "task": "Calculate the area of a hexagon with a side length of 4 meters.",
         "functions": [
-            "math_tools__area_of_hexagon"
+            "area_of_hexagon"
         ],
         "name": "M.T.E.005",
         "valid_solutions": [
+            41.568,
             41.57,
             42
         ]
@@ -65,17 +66,17 @@
     {
         "task": "Calculate the area of an ellipse with a major axis of 10 meters and a minor axis of 5 meters.",
         "functions": [
-            "math_tools__area_of_ellipse"
+            "area_of_ellipse"
         ],
         "name": "M.T.E.006",
         "valid_solutions": [
-            157
+            39
         ]
     },
     {
         "task": "Calculate the area of a square with a side length of 15 meters.",
         "functions": [
-            "math_tools__area_square"
+            "area_square"
         ],
         "name": "M.T.E.007",
         "valid_solutions": [
@@ -85,7 +86,7 @@
     {
         "task": "Calculate the area of a rhombus with diagonals of lengths 10 meters and 8 meters.",
         "functions": [
-            "math_tools__area_of_rhombus"
+            "area_of_rhombus"
         ],
         "name": "M.T.E.008",
         "valid_solutions": [
@@ -95,7 +96,7 @@
     {
         "task": "Calculate the area of a triangle with a base of 12 meters and a height of 9 meters.",
         "functions": [
-            "math_tools__area_triangle"
+            "area_triangle"
         ],
         "name": "M.T.E.009",
         "valid_solutions": [
@@ -105,7 +106,7 @@
     {
         "task": "Calculate the simple interest on a loan of $5000 with an annual interest rate of 5% over a period of 3 years.",
         "functions": [
-            "math_tools__simple_interest"
+            "simple_interest"
         ],
         "name": "M.T.E.010",
         "valid_solutions": [
@@ -115,7 +116,7 @@
     {
         "task": "Calculate the factorial of the number 7.",
         "functions": [
-            "math_tools__factorial"
+            "factorial"
         ],
         "name": "M.T.E.011",
         "valid_solutions": [
@@ -125,7 +126,7 @@
     {
         "task": "Calculate the sum of the first 100 natural numbers.",
         "functions": [
-            "math_tools__sum_of_natural_numbers"
+            "sum_of_natural_numbers"
         ],
         "name": "M.T.E.012",
         "valid_solutions": [
@@ -135,7 +136,7 @@
     {
         "task": "Calculate the volume of a cone with a radius of 3 meters and a height of 5 meters.",
         "functions": [
-            "math_tools__volume_cone"
+            "volume_cone"
         ],
         "name": "M.T.E.013",
         "valid_solutions": [
@@ -146,7 +147,7 @@
     {
         "task": "Calculate the compound interest on an investment of $2000 with an annual interest rate of 4% compounded annually over a period of 5 years.",
         "functions": [
-            "math_tools__compound_interest"
+            "compound_interest"
         ],
         "name": "M.T.E.014",
         "valid_solutions": [
@@ -157,7 +158,7 @@
     {
         "task": "Calculate the digital root of the number 98765.",
         "functions": [
-            "math_tools__digital_root"
+            "digital_root"
         ],
         "name": "M.T.E.015",
         "valid_solutions": [
@@ -167,7 +168,7 @@
     {
         "task": "Calculate the surface area of a cube with an edge length of 4 meters.",
         "functions": [
-            "math_tools__surface_area_cube"
+            "surface_area_cube"
         ],
         "name": "M.T.E.016",
         "valid_solutions": [
@@ -177,7 +178,7 @@
     {
         "task": "Calculate the perimeter of a square with a side length of 10 meters.",
         "functions": [
-            "math_tools__perimeter_square"
+            "perimeter_square"
         ],
         "name": "M.T.E.017",
         "valid_solutions": [
@@ -187,7 +188,7 @@
     {
         "task": "Calculate the volume of a cylinder with a radius of 5 meters and a height of 10 meters.",
         "functions": [
-            "math_tools__volume_cylinder"
+            "volume_cylinder"
         ],
         "name": "M.T.E.018",
         "valid_solutions": [
@@ -198,7 +199,7 @@
     {
         "task": "Calculate the sum of the first 50 odd numbers.",
         "functions": [
-            "math_tools__sum_of_odd_numbers"
+            "sum_of_odd_numbers"
         ],
         "name": "M.T.E.019",
         "valid_solutions": [
@@ -208,9 +209,9 @@
     {
         "task": "Calculate the area of a rectangle with length 8 units and width 5 units, then find the circumference of a circle with a radius equal to the square root of the rectangle's area.",
         "functions": [
-            "math_tools__area_rectangle",
-            "math_tools__sqrt",
-            "math_tools__circumference_circle"
+            "area_rectangle",
+            "sqrt",
+            "circumference_circle"
         ],
         "name": "M.T.M.000",
         "valid_solutions": [
@@ -221,8 +222,8 @@
     {
         "task": "Compute the volume of a cylinder with a height of 10 units and a base radius of 3 units, then find the surface area of a sphere with a radius equal to the height of the cylinder.",
         "functions": [
-            "math_tools__volume_cylinder",
-            "math_tools__surface_area_sphere"
+            "volume_cylinder",
+            "surface_area_sphere"
         ],
         "name": "M.T.M.001",
         "valid_solutions": [
@@ -233,8 +234,8 @@
     {
         "task": "Find the area of a triangle with a base of 6 units and a height of 9 units, then calculate the volume of a cone with a height equal to the triangle's area and a base radius of 4 units.",
         "functions": [
-            "math_tools__area_triangle",
-            "math_tools__volume_cone"
+            "area_triangle",
+            "volume_cone"
         ],
         "name": "M.T.M.002",
         "valid_solutions": [
@@ -244,8 +245,9 @@
     {
         "task": "Calculate 10th Fibonacci number and add it to the factorial of 10.",
         "functions": [
-            "math_tools__fibonacci_recursive",
-            "math_tools__factorial"
+            "fibonacci_recursive",
+            "factorial",
+            "add"
         ],
         "name": "M.T.M.003",
         "valid_solutions": [
@@ -256,9 +258,9 @@
     {
         "task": "Calculate the area of an ellipse with semi-major axis 7 units and semi-minor axis 4 units, then find the perimeter of a hexagon with a side length equal to the square root of the ellipse's area.",
         "functions": [
-            "math_tools__area_of_ellipse",
-            "math_tools__sqrt",
-            "math_tools__perimeter_of_hexagon"
+            "area_of_ellipse",
+            "sqrt",
+            "perimeter_of_hexagon"
         ],
         "name": "M.T.M.004",
         "valid_solutions": [
@@ -268,9 +270,9 @@
     {
         "task": "Calculate the area of a square with a side length of 6 units, then find the volume of a cube with a side length equal to the square root of the square's area.",
         "functions": [
-            "math_tools__area_square",
-            "math_tools__sqrt",
-            "math_tools__volume_cube"
+            "area_square",
+            "sqrt",
+            "volume_cube"
         ],
         "name": "M.T.M.005",
         "valid_solutions": [
@@ -280,8 +282,8 @@
     {
         "task": "Calculate the area of a parallelogram with a base of 12 units and a height of 5 units, then find the sum of the digits of the area.",
         "functions": [
-            "math_tools__area_parallelogram",
-            "math_tools__sum_of_digits"
+            "area_parallelogram",
+            "sum_of_digits"
         ],
         "name": "M.T.M.006",
         "valid_solutions": [
@@ -291,8 +293,8 @@
     {
         "task": "Calculate the circumference of a circle with a radius of 10 units, then find the area of a hexagon with a side length equal to the circle's circumference.",
         "functions": [
-            "math_tools__circumference_circle",
-            "math_tools__area_of_hexagon"
+            "circumference_circle",
+            "area_of_hexagon"
         ],
         "name": "M.T.M.007",
         "valid_solutions": [
@@ -302,8 +304,8 @@
     {
         "task": "Calculate the area of a rhombus with diagonals of lengths 10 units and 8 units, then find the digital root of the area.",
         "functions": [
-            "math_tools__area_of_rhombus",
-            "math_tools__digital_root"
+            "area_of_rhombus",
+            "digital_root"
         ],
         "name": "M.T.M.008",
         "valid_solutions": [
@@ -313,8 +315,8 @@
     {
         "task": "Calculate the volume of a pyramid with a base area of 24 square units and a height of 9 units, then find the nth root of the volume where n is 3.",
         "functions": [
-            "math_tools__volume_of_pyramid",
-            "math_tools__nth_root"
+            "volume_of_pyramid",
+            "nth_root"
         ],
         "name": "M.T.M.009",
         "valid_solutions": [
@@ -324,9 +326,9 @@
     {
         "task": "Calculate the area of a rectangle with length 8 units and width 5 units, then find the sum of squares of the area and the perimeter of the rectangle.",
         "functions": [
-            "math_tools__area_rectangle",
-            "math_tools__perimeter_rectangle",
-            "math_tools__sum_of_squares"
+            "area_rectangle",
+            "perimeter_rectangle",
+            "sum_of_squares"
         ],
         "name": "M.T.M.010",
         "valid_solutions": [
@@ -336,9 +338,9 @@
     {
         "task": "Calculate the volume of a cylinder with a radius of 4 units and a height of 10 units, then find the sum of the volume and the surface area of the cylinder.",
         "functions": [
-            "math_tools__volume_cylinder",
-            "math_tools__surface_area_of_cylinder",
-            "math_tools__add"
+            "volume_cylinder",
+            "surface_area_of_cylinder",
+            "add"
         ],
         "name": "M.T.M.011",
         "valid_solutions": [
@@ -349,8 +351,8 @@
     {
         "task": "Calculate the perimeter of a square with a side length of 7 units and then find the sum of the digits of the resulting circumference value.",
         "functions": [
-            "math_tools__perimeter_rectangle",
-            "math_tools__sum_of_digits"
+            "perimeter_square",
+            "sum_of_digits"
         ],
         "name": "M.T.M.012",
         "valid_solutions": [
@@ -360,9 +362,9 @@
     {
         "task": "Calculate the product of the area and the perimeter of an ellipse with semi-major axis 10 units and semi-minor axis 5 units.",
         "functions": [
-            "math_tools__area_of_ellipse",
-            "math_tools__perimeter_of_ellipse",
-            "math_tools__multiply"
+            "area_of_ellipse",
+            "perimeter_of_ellipse",
+            "multiply"
         ],
         "name": "M.T.M.013",
         "valid_solutions": [
@@ -372,9 +374,9 @@
     {
         "task": "Find the sum of the area and the perimeter of a square with side length 6.",
         "functions": [
-            "math_tools__area_square",
-            "math_tools__perimeter_square",
-            "math_tools__add"
+            "area_square",
+            "perimeter_square",
+            "add"
         ],
         "name": "M.T.M.014",
         "valid_solutions": [
@@ -384,9 +386,9 @@
     {
         "task": "Calculate the area of a triangle with base 12 units and height 5 units, then find the nth root where n is the perimeter of the triangle with sides 2, 3, and 4 units.",
         "functions": [
-            "math_tools__area_triangle",
-            "math_tools__perimeter_triangle",
-            "math_tools__nth_root"
+            "area_triangle",
+            "perimeter_triangle",
+            "nth_root"
         ],
         "name": "M.T.M.015",
         "valid_solutions": [
@@ -397,9 +399,9 @@
     {
         "task": "Find the difference between the area of a square with side length 20 and a the area of a circle with radius 10.",
         "functions": [
-            "math_tools__area_rectangle",
-            "math_tools__area_circle",
-            "math_tools__subtract"
+            "area_square",
+            "area_circle",
+            "subtract"
         ],
         "name": "M.T.M.016",
         "valid_solutions": [
@@ -410,9 +412,9 @@
     {
         "task": "Calculate the `sum of squares` of the area and the perimeter of the hexagon with a side length of 9 units.",
         "functions": [
-            "math_tools__area_of_hexagon",
-            "math_tools__perimeter_of_hexagon",
-            "math_tools__sum_of_squares"
+            "area_of_hexagon",
+            "perimeter_of_hexagon",
+            "sum_of_squares"
         ],
         "name": "M.T.M.017",
         "valid_solutions": [
@@ -423,9 +425,9 @@
     {
         "task": "Calculate the area of a circle with a radius of 5 units, then find the nth root where n is the circumference of the circle.",
         "functions": [
-            "math_tools__area_circle",
-            "math_tools__circumference_circle",
-            "math_tools__nth_root"
+            "area_circle",
+            "circumference_circle",
+            "nth_root"
         ],
         "name": "M.T.M.018",
         "valid_solutions": [
@@ -436,9 +438,9 @@
     {
         "task": "Calculate the ratio of the surface area of a sphere with a radius of 6 units to its volume.",
         "functions": [
-            "math_tools__volume_sphere",
-            "math_tools__surface_area_sphere",
-            "math_tools__divide"
+            "volume_sphere",
+            "surface_area_sphere",
+            "divide"
         ],
         "name": "M.T.M.019",
         "valid_solutions": [
@@ -448,9 +450,9 @@
     {
         "task": "A farmer is planning to build a new rectangular field next to a river. The length of the field is 50 meters more than its width. If the area of the field is 15,000 square meters, calculate the perimeter of the field.",
         "functions": [
-            "math_tools__quadratic_formula",
-            "math_tools__area_rectangle",
-            "math_tools__perimeter_rectangle"
+            "quadratic_formula",
+            "area_rectangle",
+            "perimeter_rectangle"
         ],
         "name": "M.T.H.000",
         "valid_solutions": [
@@ -460,8 +462,9 @@
     {
         "task": "A construction company is planning to build a new park with a large rectangular playground surrounded by a walking path. The playground measures 50 meters in length and 30 meters in width. The walking path, which is 3 meters wide, runs around the entire perimeter of the playground. Calculate the area of the walking path alone.",
         "functions": [
-            "math_tools__area_rectangle",
-            "math_tools__subtract"
+            "area_rectangle",
+            "area_rectangle",
+            "subtract"
         ],
         "name": "M.T.H.001",
         "valid_solutions": [
@@ -471,10 +474,10 @@
     {
         "task": "A mathematician is exploring number properties and comes across the number 123. She calculates the sum of the digits of this number, then finds the factorial of this sum. Afterward, she computes the digital root of the factorial result. Finally, she wants to determine if this digital root is a prime number. Respond only with a single word, either true or false.",
         "functions": [
-            "math_tools__sum_of_digits",
-            "math_tools__factorial",
-            "math_tools__digital_root",
-            "math_tools__is_prime"
+            "sum_of_digits",
+            "factorial",
+            "digital_root",
+            "is_prime"
         ],
         "name": "M.T.H.002",
         "valid_solutions": [
@@ -485,10 +488,10 @@
     {
         "task": "What is the sum of the areas of a circle with radius 5, a square with side length 5, and a hexagon with side length 5?",
         "functions": [
-            "math_tools__area_square",
-            "math_tools__area_circle",
-            "math_tools__area_of_hexagon",
-            "math_tools__add"
+            "area_square",
+            "area_circle",
+            "area_of_hexagon",
+            "add"
         ],
         "name": "M.T.H.003",
         "valid_solutions": [
@@ -498,10 +501,10 @@
     {
         "task": "A student is working on a geometry project involving various shapes. She starts by calculating the area of a square with a side length of 12 meters. She then finds the area of a circle with radius 8. After obtaining these two areas, she calculates the difference between them. What is the square root of this difference?",
         "functions": [
-            "math_tools__area_square",
-            "math_tools__area_circle",
-            "math_tools__subtract",
-            "math_tools__sqrt"
+            "area_square",
+            "area_circle",
+            "subtract",
+            "sqrt"
         ],
         "name": "M.T.H.004",
         "valid_solutions": [
@@ -512,10 +515,10 @@
     {
         "task": "A landscape architect is planning to design a new park in the shape of a parallelogram with a base of 40 meters and a height of 30 meters. After calculating the area of the park, the architect decides to place a rectangular pond inside the park with a length that is 10 meters less than the base of the park and a width that is 5 meters less than the height of the park. Calculate the area of the pond. Then, find the difference in area between the park and the pond. Finally, the architect wants to know the square root of this difference to estimate the complexity of the landscaping required. What is the result?",
         "functions": [
-            "math_tools__area_parallelogram",
-            "math_tools__area_rectangle",
-            "math_tools__subtract",
-            "math_tools__sqrt"
+            "area_parallelogram",
+            "area_rectangle",
+            "subtract",
+            "sqrt"
         ],
         "name": "M.T.H.005",
         "valid_solutions": [
@@ -525,10 +528,11 @@
     {
         "task": "A scientist is studying the thermal properties of a material by observing its expansion. Initially, the material forms a square with a side length of 10 cm. When heated, the side length of the square increases by 5%. The scientist calculates the area of the expanded square and then wants to compare it with the original square by finding the difference in their areas. After obtaining this difference, the scientist calculates the square root of this value to analyze the rate of expansion. What is the result?",
         "functions": [
-            "math_tools__area_square",
-            "math_tools__multiply",
-            "math_tools__subtract",
-            "math_tools__sqrt"
+            "area_square",
+            "area_square",
+            "multiply",
+            "subtract",
+            "sqrt"
         ],
         "name": "M.T.H.006",
         "valid_solutions": [
@@ -538,13 +542,14 @@
     {
         "task": "Convert 15 degrees celsius to fahrenheit, add ten, convert the result from fahrenheit to celsius, and subtract 10. What is the result?",
         "functions": [
-            "math_tools__convert_celsius_to_fahrenheit",
-            "math_tools__add",
-            "math_tools__convert_fahrenheit_to_celsius",
-            "math_tools__subtract"
+            "convert_celsius_to_fahrenheit",
+            "add",
+            "convert_fahrenheit_to_celsius",
+            "subtract"
         ],
         "name": "M.T.H.007",
         "valid_solutions": [
+            10.556,
             10.56,
             11
         ]
@@ -552,10 +557,12 @@
     {
         "task": "Tom owns land in the form of a square with side length 10 km he can rent out at 100 dollars per square kilometer per month. Unfortunately, a circle area with radius 4 km is covered by water, reducing the price for that area by half. How much does Tom make per month?",
         "functions": [
-            "math_tools__area_square",
-            "math_tools__area_circle",
-            "math_tools__subtract",
-            "math_tools__multiply"
+            "area_square",
+            "area_circle",
+            "subtract",
+            "multiply",
+            "multiply",
+            "add"
         ],
         "name": "M.T.H.008",
         "valid_solutions": [
@@ -566,9 +573,9 @@
     {
         "task": "Susan inherits 500.000 dollars twice. What is the difference in income after 10 years if she invests the money at an interest rate of 10 % versus an interest rate of 11 %?",
         "functions": [
-            "math_tools__multiply",
-            "math_tools__compound_interest",
-            "math_tools__subtract"
+            "multiply",
+            "compound_interest",
+            "subtract"
         ],
         "name": "M.T.H.009",
         "valid_solutions": [
@@ -580,10 +587,10 @@
     {
         "task": "A farmer is planning to build a new rectangular enclosure for her sheep, using the existing barn wall as one of the enclosure's longer sides. The length of the enclosure is to be 30 meters, and the width is to be 20 meters. She wants to plant grass inside the entire enclosure but for a square area with side length 5 meters, for which she needs to know the amount of seed required. The seed packaging states that one packet can cover 100 square meters. How many packets of seed does she need to buy?",
         "functions": [
-            "math_tools__area_rectangle",
-            "math_tools__area_square",
-            "math_tools__subtract",
-            "math_tools__divide"
+            "area_rectangle",
+            "area_square",
+            "subtract",
+            "divide"
         ],
         "name": "M.T.H.010",
         "valid_solutions": [
@@ -593,11 +600,11 @@
     {
         "task": "A student is planning a science project that involves a cylindrical container fully filled with water. The container has a radius of 5 meters and a height of 10 meters. The student needs to calculate the volume of the cylinder to know how much water it can hold. After filling the cylinder, the student places a spherical object with a radius of 3 meters into the water, resulting in water flowing out of the cylinder. Calculate the water level in the cylinder in meters after the sphere is taken out again.",
         "functions": [
-            "math_tools__volume_cylinder",
-            "math_tools__volume_sphere",
-            "math_tools__subtract",
-            "math_tools__area_circle",
-            "math_tools__divide"
+            "volume_cylinder",
+            "volume_sphere",
+            "subtract",
+            "area_circle",
+            "divide"
         ],
         "name": "M.T.H.011",
         "valid_solutions": [
@@ -607,10 +614,10 @@
     {
         "task": "A homeowner is planning to install a new rhombus-shaped tile floor in their kitchen. The diagonals of the rhombus measure 10 feet and 12 feet respectively. They need to calculate the area of the rhombus to determine how many tiles are required. Each tile covers an area of .3 square foot. Additionally, the homeowner wants to install a rectangular carpet in the center of the kitchen that measures 6 feet by 8 feet. Calculate the total area of the rhombus-shaped floor and subtract the area of the carpet to find out how many tiles are needed for the uncovered floor area.",
         "functions": [
-            "math_tools__area_of_rhombus",
-            "math_tools__area_rectangle",
-            "math_tools__subtract",
-            "math_tools__divide"
+            "area_of_rhombus",
+            "area_rectangle",
+            "subtract",
+            "divide"
         ],
         "name": "M.T.H.012",
         "valid_solutions": [
@@ -620,10 +627,11 @@
     {
         "task": "A math teacher is preparing a set of problems for a competition. She decides to create a problem involving a square and a circle. The square has a side length of 10 meters. She plans to inscribe a circle within this square and needs to calculate the area of the circle. Additionally, she wants to find the area of one of the four regions of the square that is not covered by the circle.",
         "functions": [
-            "math_tools__area_square",
-            "math_tools__area_circle",
-            "math_tools__subtract",
-            "math_tools__divide"
+            "area_square",
+            "area_circle",
+            "subtract",
+            "divide",
+            "divide"
         ],
         "name": "M.T.H.013",
         "valid_solutions": [
@@ -634,23 +642,24 @@
     {
         "task": "A jewelry designer is planning to create a unique bracelet that consists of a series of small spherical beads and a central cylindrical charm. The radius of each bead is 0.5 cm, and the bracelet will contain 20 beads. The cylindrical charm has a radius of 1 cm and a height of 2 cm. The designer needs to calculate the total volume of the beads and the volume of the cylindrical charm to determine the amount of material needed for the entire bracelet.",
         "functions": [
-            "math_tools__volume_sphere",
-            "math_tools__volume_cylinder",
-            "math_tools__multiply",
-            "math_tools__add"
+            "volume_sphere",
+            "volume_cylinder",
+            "multiply",
+            "add"
         ],
         "name": "M.T.H.014",
         "valid_solutions": [
-            16.76
+            16.76,
+            16.755
         ]
     },
     {
         "task": "What is the standard deviation for the areas of a circle with radius 5, a square with side length 8, and a hexagon with side length 6?",
         "functions": [
-            "math_tools__area_circle",
-            "math_tools__area_square",
-            "math_tools__area_of_hexagon",
-            "math_tools__standard_deviation"
+            "area_circle",
+            "area_square",
+            "area_of_hexagon",
+            "standard_deviation"
         ],
         "name": "M.T.H.015",
         "valid_solutions": [
@@ -660,10 +669,10 @@
     {
         "task": "Solve the following: 5**2+sqrt(6-2)",
         "functions": [
-            "math_tools__add",
-            "math_tools__power",
-            "math_tools__sqrt",
-            "math_tools__subtract"
+            "add",
+            "power",
+            "sqrt",
+            "subtract"
         ],
         "name": "M.T.H.016",
         "valid_solutions": [
@@ -671,25 +680,25 @@
         ]
     },
     {
-        "task": "A landlord rents out two properties. The first property is a square area with side length 20 meters and a price of 10 $ per square meter a month. The second property has a rectangular area with side lengths 10 meters and 40 meters, which he rents at 8 $ per square meter a month. Which property makes more money? Respond with either `first` or `second`.",
+        "task": "A landlord rents out two properties. The first property is a square area with side length 20 meters and a price of 10 $ per square meter a month. The second property has a rectangular area with side lengths 10 meters and 40 meters, which he rents at 8 $ per square meter a month. Which property makes more money? Respond with either `first makes more` or `second makes more`.",
         "functions": [
-            "math_tools__area_square",
-            "math_tools__area_rectangle",
-            "math_tools__multiply",
-            "math_tools__subtract"
+            "area_square",
+            "area_rectangle",
+            "multiply",
+            "subtract"
         ],
         "name": "M.T.H.017",
         "valid_solutions": [
-            "first",
-            "First"
+            "first makes more"
         ]
     },
     {
         "task": "A landscape architect is designing a new park that includes a large rectangular lawn and a smaller, adjacent rectangular flower bed. The lawn measures 60 meters in length and 40 meters in width. The flower bed is one-third as long and one-fourth as wide as the lawn. The architect needs to calculate the total area of both the lawn and the flower bed combined.",
         "functions": [
-            "math_tools__area_rectangle",
-            "math_tools__add",
-            "math_tools__multiply"
+            "area_rectangle",
+            "area_rectangle",
+            "add",
+            "multiply"
         ],
         "name": "M.T.H.018",
         "valid_solutions": [
@@ -699,10 +708,10 @@
     {
         "task": "What is the total surface area of a cylinder with height 8 and radius 3 and a prism with height 8 and a square with side length 5 as a base area?",
         "functions": [
-            "math_tools__add",
-            "math_tools__area_square",
-            "math_tools__surface_area_of_cylinder",
-            "math_tools__surface_area_of_prism"
+            "add",
+            "area_square",
+            "surface_area_of_cylinder",
+            "surface_area_of_prism"
         ],
         "name": "M.T.H.019",
         "valid_solutions": [

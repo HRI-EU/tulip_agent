@@ -276,19 +276,14 @@ def analyze(log_file: str, ground_truth: str) -> None:
 
 
 if __name__ == "__main__":
+    with open("math_eval_settings.yaml", "rt") as mes:
+        settings = yaml.safe_load(mes.read())
+    agents = [a for a in settings["agents"] if settings["agents"][a]]
     main(
         log_file="math.eval.2.log",
-        ground_truth="math_tasks.json",
+        ground_truth=settings["ground_truth"],
         plot_file="math.eval.png",
-        agents=[
-            "BaseAgent",
-            "NaiveToolAgent",
-            "CotToolAgent",
-            "MinimalTulipAgent",
-            "NaiveTulipAgent",
-            "CotTulipAgent",
-            "AutoTulipAgent",
-        ],
+        agents=agents,
         criteria={
             "costs": "Costs [$]",
             "function_recall": "Recall",

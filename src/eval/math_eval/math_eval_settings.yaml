@@ -1,5 +1,7 @@
 # Ablation settings for math eval
 
+ground_truth: math_tasks.json
+
 agents:
     BaseAgent: True
     NaiveToolAgent: True

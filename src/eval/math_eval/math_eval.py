@@ -129,7 +129,10 @@ def run_math_eval(task_file: str, agents: list[str]):
 def main():
     with open("math_eval_settings.yaml", "rt") as mes:
         settings = yaml.safe_load(mes.read())
-    run_math_eval(task_file="math_tasks.json", agents=[a for a in settings["agents"] if settings["agents"][a]])
+    run_math_eval(
+        task_file=settings["ground_truth"],
+        agents=[a for a in settings["agents"] if settings["agents"][a]],
+    )
     # back up log
     timestamp = datetime.now().strftime("%Y%m%d-%H%M")
     shutil.copy("math.eval.log", f"math.eval.{timestamp}.log")

@@ -1,0 +1,10 @@
+# Ablation settings for math eval
+
+agents:
+    BaseAgent: True
+    NaiveToolAgent: True
+    CotToolAgent: True
+    MinimalTulipAgent: True
+    NaiveTulipAgent: True
+    CotTulipAgent: True
+    AutoTulipAgent: False

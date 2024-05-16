@@ -27,16 +27,12 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
-"""
-TulipAgent evals
-* Models: smaller OpenAI model, gpt-4-turbo
-* Datasets: use some Python lib from which I can extract functions? must adhere to Sphinx doc style; or generate
-* Several runs, with an increasing number of functions
-"""
 import json
 import logging.config
+import shutil
 import yaml
 
+from datetime import datetime
 from inspect import getmembers, isfunction
 
 from tulip_agent import (
@@ -58,7 +54,7 @@ with open("logging_config.yaml", "rt") as log_config:
 logging.config.dictConfig(config)
 
 
-def run_math_eval(task_file: str):
+def run_math_eval(task_file: str, agents: list[str]):
     functions = [
         getattr(math_tools, n)
         for n, f in getmembers(math_tools, isfunction)
@@ -70,62 +66,74 @@ def run_math_eval(task_file: str):
         tasks_ = json.load(gtf)
         queries = {e["task"]: e for e in tasks_}
 
-    for query in queries:
-        print(queries[query]["name"], "--", query)
+    tulip = ToolLibrary(
+        chroma_sub_dir="math_eval/",
+        file_imports=[("math_tools", [])],
+        chroma_base_dir="../../../data/chroma/",
+    )
 
-        print(" BASE ".center(40, "="))
-        base_agent = BaseAgent()
-        base_res = base_agent.query(query)
-        print(f"{base_res=}")
+    def _run(agent) -> None:
+        for query in queries:
+            print(queries[query]["name"], "--", query)
+            res = agent.query(query)
+            print(f"{res=}")
 
-        print(" TOOL ".center(40, "="))
-        tool_agent = NaiveToolAgent(functions=functions)
-        tool_res = tool_agent.query(query)
-        print(f"{tool_res=}")
+    if "BaseAgent" in agents:
+        print(" BaseAgent ".center(40, "="))
+        agent = BaseAgent()
+        _run(agent)
 
-        print(" TOOL COT ".center(40, "="))
-        tool_cot_agent = CotToolAgent(functions=functions)
-        tool_cot_res = tool_cot_agent.query(query)
-        print(f"{tool_cot_res=}")
+    if "NaiveToolAgent" in agents:
+        print(" NaiveToolAgent ".center(40, "="))
+        agent = NaiveToolAgent(functions=functions)
+        _run(agent)
 
-        tulip = ToolLibrary(
-            chroma_sub_dir="math_eval/",
-            file_imports=[("math_tools", [])],
-            chroma_base_dir="../../../data/chroma/",
-        )
+    if "CotToolAgent" in agents:
+        print(" CotToolAgent ".center(40, "="))
+        agent = CotToolAgent(functions=functions)
+        _run(agent)
 
-        print(" MINIMAL TULIP ".center(40, "="))
-        minimal_tulip_agent = MinimalTulipAgent(
+    if "MinimalTulipAgent" in agents:
+        print(" MinimalTulipAgent ".center(40, "="))
+        agent = MinimalTulipAgent(
             tool_library=tulip,
-            top_k_functions=2,
+            top_k_functions=5,
         )
-        tulip_res = minimal_tulip_agent.query(query)
-        print(f"{tulip_res=}")
+        _run(agent)
 
-        print(" NAIVE TULIP ".center(40, "="))
-        naive_tulip_agent = NaiveTulipAgent(
+    if "NaiveTulipAgent" in agents:
+        print(" NaiveTulipAgent ".center(40, "="))
+        agent = NaiveTulipAgent(
             tool_library=tulip,
-            top_k_functions=4,
+            top_k_functions=5,
         )
-        tulip_res = naive_tulip_agent.query(query)
-        print(f"{tulip_res=}")
+        _run(agent)
 
-        print(" TULIP COT ".center(40, "="))
-        tulip_cot_agent = CotTulipAgent(
+    if "CotTulipAgent" in agents:
+        print(" CotTulipAgent ".center(40, "="))
+        agent = CotTulipAgent(
             tool_library=tulip,
-            top_k_functions=3,
+            top_k_functions=5,
         )
-        tulip_res = tulip_cot_agent.query(query)
-        print(f"{tulip_res=}")
+        _run(agent)
 
-        print(" AUTO TULIP ".center(40, "="))
-        auto_tulip_agent = AutoTulipAgent(
+    if "AutoTulipAgent" in agents:
+        print(" AutoTulipAgent ".center(40, "="))
+        agent = AutoTulipAgent(
             tool_library=tulip,
-            top_k_functions=1,
+            top_k_functions=5,
         )
-        tulip_res = auto_tulip_agent.query(query)
-        print(f"{tulip_res=}")
+        _run(agent)
+
+
+def main():
+    with open("math_eval_settings.yaml", "rt") as mes:
+        settings = yaml.safe_load(mes.read())
+    run_math_eval(task_file="math_tasks.json", agents=[a for a in settings["agents"] if settings["agents"][a]])
+    # back up log
+    timestamp = datetime.now().strftime("%Y%m%d-%H%M")
+    shutil.copy("math.eval.log", f"math.eval.{timestamp}.log")
 
 
 if __name__ == "__main__":
-    run_math_eval(task_file="math_tasks.json")
+    main()

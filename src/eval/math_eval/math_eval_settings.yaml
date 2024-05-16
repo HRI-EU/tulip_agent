@@ -1,6 +1,7 @@
 # Ablation settings for math eval
 
 ground_truth: math_tasks.json
+log_file: null
 
 agents:
     BaseAgent: True

@@ -30,6 +30,8 @@
 import ast
 import json
 import logging.config
+import os
+import re
 import statistics
 
 import matplotlib.pyplot as plt
@@ -38,6 +40,7 @@ import yaml
 
 from collections import Counter
 from dataclasses import dataclass
+from datetime import datetime
 from typing import Optional
 
 
@@ -244,6 +247,24 @@ def plot(
     plt.savefig(output_file, bbox_inches="tight")
 
 
+def find_most_recent_log(directory: str = "logs") -> str:
+    pattern = re.compile(r"math\.eval\.(\d{8}-\d{4})\.log")
+    files = os.listdir(directory)
+    log_files = []
+    for file in files:
+        match = pattern.match(file)
+        if match:
+            timestamp_str = match.group(1)
+            timestamp = datetime.strptime(timestamp_str, "%Y%m%d-%H%M")
+            log_files.append((directory + "/" + file, timestamp))
+    if not log_files:
+        raise ValueError("No log file found. Run the evaluation first.")
+    log_files.sort(key=lambda x: x[1], reverse=True)
+    latest_log, latest_timestamp = log_files[0]
+    logger.info(f"Using log {latest_log} from {latest_timestamp}.")
+    return latest_log
+
+
 def main(
     log_file: str, ground_truth: str, plot_file: str, agents: list, criteria: dict
 ) -> None:
@@ -279,8 +300,9 @@ if __name__ == "__main__":
     with open("math_eval_settings.yaml", "rt") as mes:
         settings = yaml.safe_load(mes.read())
     agents = [a for a in settings["agents"] if settings["agents"][a]]
+    log = settings["log_file"] or find_most_recent_log()
     main(
-        log_file="math.eval.2.log",
+        log_file=log,
         ground_truth=settings["ground_truth"],
         plot_file="math.eval.png",
         agents=agents,

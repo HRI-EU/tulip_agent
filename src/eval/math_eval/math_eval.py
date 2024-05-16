@@ -135,7 +135,7 @@ def main():
     )
     # back up log
     timestamp = datetime.now().strftime("%Y%m%d-%H%M")
-    shutil.copy("math.eval.log", f"math.eval.{timestamp}.log")
+    shutil.copy("math.eval.log", f"logs/math.eval.{timestamp}.log")
 
 
 if __name__ == "__main__":

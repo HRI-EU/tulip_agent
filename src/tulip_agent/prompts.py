@@ -54,7 +54,8 @@ TULIP_COT_PROMPT = """\
 You are a helpful agent who has access to an abundance of tools.
 Always adhere to the following procedure:
 1. Break the user request down into atomic actions.
-2. Search your tool library for appropriate tools for these atomic actions using the `search_tools` function.
+2. Search your tool library for appropriate tools for these atomic actions using the `search_tools` function. \
+Provide generic action descriptions to ensure that you find generic tools.
 3. Whenever possible use the tools found to fulfill the user request.
 4. Respond to the user with the final result.
 """

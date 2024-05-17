@@ -89,7 +89,10 @@ class TulipAgent(LlmAgent, ABC):
                             "items": {
                                 "type": "string",
                             },
-                            "description": "A list of textual description for the actions you want to execute.",
+                            "description": (
+                                "A list of textual descriptions for the actions you want to execute. "
+                                "The description should be generic enough to find generic and reusable tools."
+                            ),
                         },
                     },
                     "required": ["problem_description"],

@@ -302,5 +302,5 @@ class ToolLibrary:
             res = self.functions[function_id](**function_args)
         except Exception as e:
             logger.error(e)
-            res = f"Invalid tool call for {function_id}. Continue without this information."
+            res = f"Invalid tool call for {function_id}: {e}"
         return res

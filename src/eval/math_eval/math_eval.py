@@ -40,12 +40,12 @@ from pathlib import Path
 from tulip_agent import (
     AutoTulipAgent,
     BaseAgent,
+    CotToolAgent,
+    CotTulipAgent,
     MinimalTulipAgent,
     NaiveTulipAgent,
     NaiveToolAgent,
-    CotToolAgent,
     ToolLibrary,
-    CotTulipAgent,
 )
 import math_tools
 
@@ -74,58 +74,46 @@ def run_math_eval(task_file: str, agents: list[str]):
         chroma_base_dir="../../../data/chroma/",
     )
 
-    def _run(agent) -> None:
+    def _run(agent_class, setup_args: dict) -> None:
+        print(f" {agent_class.__name__} ".center(40, "="))
         for query in queries:
-            print(queries[query]["name"], "--", query)
+            agent = agent_class(**setup_args)
+            print(agent_class.__name__, "--", queries[query]["name"], "--", query)
             res = agent.query(query)
             print(f"{res=}")
 
     if "BaseAgent" in agents:
-        print(" BaseAgent ".center(40, "="))
-        agent = BaseAgent()
-        _run(agent)
+        _run(agent_class=BaseAgent, setup_args={})
 
     if "NaiveToolAgent" in agents:
-        print(" NaiveToolAgent ".center(40, "="))
-        agent = NaiveToolAgent(functions=functions)
-        _run(agent)
+        _run(agent_class=NaiveToolAgent, setup_args={"functions": functions})
 
     if "CotToolAgent" in agents:
-        print(" CotToolAgent ".center(40, "="))
-        agent = CotToolAgent(functions=functions)
-        _run(agent)
+        _run(agent_class=CotToolAgent, setup_args={"functions": functions})
 
     if "MinimalTulipAgent" in agents:
-        print(" MinimalTulipAgent ".center(40, "="))
-        agent = MinimalTulipAgent(
-            tool_library=tulip,
-            top_k_functions=5,
+        _run(
+            agent_class=MinimalTulipAgent,
+            setup_args={"tool_library": tulip, "top_k_functions": 5},
         )
-        _run(agent)
 
     if "NaiveTulipAgent" in agents:
-        print(" NaiveTulipAgent ".center(40, "="))
-        agent = NaiveTulipAgent(
-            tool_library=tulip,
-            top_k_functions=5,
+        _run(
+            agent_class=NaiveTulipAgent,
+            setup_args={"tool_library": tulip, "top_k_functions": 5},
         )
-        _run(agent)
 
     if "CotTulipAgent" in agents:
-        print(" CotTulipAgent ".center(40, "="))
-        agent = CotTulipAgent(
-            tool_library=tulip,
-            top_k_functions=5,
+        _run(
+            agent_class=CotTulipAgent,
+            setup_args={"tool_library": tulip, "top_k_functions": 5},
         )
-        _run(agent)
 
     if "AutoTulipAgent" in agents:
-        print(" AutoTulipAgent ".center(40, "="))
-        agent = AutoTulipAgent(
-            tool_library=tulip,
-            top_k_functions=5,
+        _run(
+            agent_class=AutoTulipAgent,
+            setup_args={"tool_library": tulip, "top_k_functions": 5},
         )
-        _run(agent)
 
 
 def main():

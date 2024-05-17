@@ -84,7 +84,11 @@ class ToolAgent(LlmAgent, ABC):
             for tool_call in tool_calls:
                 func_name = tool_call.function.name
                 func_args = json.loads(tool_call.function.arguments)
-                function_response = self.tools[func_name](**func_args)
+                try:
+                    function_response = self.tools[func_name](**func_args)
+                except Exception as e:
+                    logger.error(e)
+                    function_response = f"Invalid tool call for {func_name}."
                 self.messages.append(
                     {
                         "tool_call_id": tool_call.id,

@@ -9,3 +9,6 @@
 
 ## Results
 ![math eval plot](math.eval.png)
+
+Note: To avoid a bias towards the tulip architecture, the costs for creating the tool library
+are currently added to the embeddings costs of **every single** query, even though it could be reused

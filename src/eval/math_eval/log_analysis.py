@@ -28,6 +28,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 import ast
+import importlib
 import json
 import logging.config
 import os
@@ -36,12 +37,16 @@ import statistics
 
 import matplotlib.pyplot as plt
 import numpy as np
+import tiktoken
 import yaml
 
 from collections import Counter
 from dataclasses import dataclass
 from datetime import datetime
+from inspect import getmembers, isfunction
 from typing import Optional
+
+from tulip_agent.function_analyzer import FunctionAnalyzer
 
 
 # Set up logger
@@ -93,6 +98,7 @@ class Result:
 
 def extract_data_from_log(log_file: str) -> list[Result]:
     results = []
+    tool_library_costs = calc_costs_for_tool_library()
     with open(log_file, "r") as f:
         logs = f.read()
     parts, current = [], []
@@ -138,6 +144,13 @@ def extract_data_from_log(log_file: str) -> list[Result]:
                         name=tool_name, arguments=tool_arguments, result=tool_result
                     )
                 )
+        if agent in (
+            "MinimalTulipAgent",
+            "NaiveTulipAgent",
+            "CotTulipAgent",
+            "AutoTulipAgent",
+        ):
+            embed_tokens += tool_library_costs
         r = Result(
             agent=agent,
             task=query,
@@ -150,6 +163,26 @@ def extract_data_from_log(log_file: str) -> list[Result]:
         results.append(r)
         logger.info(f"Retrieved data for {r.agent} on `{r.task}`.")
     return results
+
+
+def calc_costs_for_tool_library(settings_file: str = "math_eval_settings.yaml"):
+    with open(settings_file, "rt") as mes_:
+        settings_ = yaml.safe_load(mes_.read())
+    tools_filename = settings_["tools"]
+    tools = importlib.import_module(tools_filename)
+
+    fa = FunctionAnalyzer()
+
+    functions = [
+        getattr(tools, n)
+        for n, f in getmembers(tools, isfunction)
+        if f.__module__ == tools.__name__
+    ]
+
+    docstrings = [fa.analyze_function(f)["function"]["description"] for f in functions]
+    encoding = tiktoken.get_encoding("cl100k_base")
+    num_tokens = sum([len(encoding.encode(ds)) for ds in docstrings])
+    return num_tokens
 
 
 def assess_data(

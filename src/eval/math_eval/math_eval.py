@@ -34,6 +34,7 @@ import yaml
 
 from datetime import datetime
 from inspect import getmembers, isfunction
+from pathlib import Path
 
 from tulip_agent import (
     AutoTulipAgent,
@@ -134,8 +135,10 @@ def main():
         agents=[a for a in settings["agents"] if settings["agents"][a]],
     )
     # back up log
+    log_folder = settings["log_folder"]
     timestamp = datetime.now().strftime("%Y%m%d-%H%M")
-    shutil.copy("math.eval.log", f"logs/math.eval.{timestamp}.log")
+    Path(log_folder).mkdir(parents=True, exist_ok=True)
+    shutil.copy("math.eval.log", f"{log_folder}/math.eval.{timestamp}.log")
 
 
 if __name__ == "__main__":

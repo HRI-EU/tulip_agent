@@ -1,2 +1,5 @@
+# directories
+logs/
+
 # specific files
 temp.py

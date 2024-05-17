@@ -247,7 +247,7 @@ def plot(
     plt.savefig(output_file, bbox_inches="tight")
 
 
-def find_most_recent_log(directory: str = "logs") -> str:
+def find_most_recent_log(directory: str) -> str:
     pattern = re.compile(r"math\.eval\.(\d{8}-\d{4})\.log")
     files = os.listdir(directory)
     log_files = []
@@ -300,7 +300,8 @@ if __name__ == "__main__":
     with open("math_eval_settings.yaml", "rt") as mes:
         settings = yaml.safe_load(mes.read())
     agents = [a for a in settings["agents"] if settings["agents"][a]]
-    log = settings["log_file"] or find_most_recent_log()
+    log_folder = settings["log_folder"]
+    log = settings["log_file"] or find_most_recent_log(directory=log_folder)
     main(
         log_file=log,
         ground_truth=settings["ground_truth"],

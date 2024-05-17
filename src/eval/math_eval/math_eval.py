@@ -27,6 +27,7 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
+import importlib
 import json
 import logging.config
 import os.path
@@ -47,7 +48,6 @@ from tulip_agent import (
     NaiveToolAgent,
     ToolLibrary,
 )
-import math_tools
 
 
 # Set up agent loggers to save logs to file for analysis
@@ -56,11 +56,18 @@ with open("logging_config.yaml", "rt") as log_config:
 logging.config.dictConfig(config)
 
 
+# Import tools as specified in settings
+with open("math_eval_settings.yaml", "rt") as mes:
+    SETTINGS = yaml.safe_load(mes.read())
+TOOLS_FILENAME = SETTINGS["tools"]
+tools = importlib.import_module(TOOLS_FILENAME)
+
+
 def run_math_eval(task_file: str, agents: list[str]):
     functions = [
-        getattr(math_tools, n)
-        for n, f in getmembers(math_tools, isfunction)
-        if f.__module__ == math_tools.__name__
+        getattr(tools, n)
+        for n, f in getmembers(tools, isfunction)
+        if f.__module__ == tools.__name__
     ]
     print(f"{functions=}")
 
@@ -70,7 +77,7 @@ def run_math_eval(task_file: str, agents: list[str]):
 
     tulip = ToolLibrary(
         chroma_sub_dir="math_eval/",
-        file_imports=[("math_tools", [])],
+        file_imports=[(TOOLS_FILENAME, [])],
         chroma_base_dir="../../../data/chroma/",
     )
 
@@ -117,14 +124,12 @@ def run_math_eval(task_file: str, agents: list[str]):
 
 
 def main():
-    with open("math_eval_settings.yaml", "rt") as mes:
-        settings = yaml.safe_load(mes.read())
     run_math_eval(
-        task_file=settings["ground_truth"],
-        agents=[a for a in settings["agents"] if settings["agents"][a]],
+        task_file=SETTINGS["ground_truth"],
+        agents=[a for a in SETTINGS["agents"] if SETTINGS["agents"][a]],
     )
     # back up log
-    log_folder = settings["log_folder"]
+    log_folder = SETTINGS["log_folder"]
     log_name = "math.eval." + datetime.now().strftime("%Y%m%d-%H%M") + ".log"
     Path(log_folder).mkdir(parents=True, exist_ok=True)
     shutil.copy("math.eval.log", f"{log_folder}/{log_name}")
@@ -134,7 +139,7 @@ def main():
             history = json.load(h)
     else:
         history = {}
-    history[log_name] = settings
+    history[log_name] = SETTINGS
     with open(history_path, "w") as h:
         json.dump(history, h, indent=4)
 

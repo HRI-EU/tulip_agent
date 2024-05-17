@@ -1,6 +1,7 @@
 # Ablation settings for math eval
 
 ground_truth: math_tasks.json
+tools: math_tools
 log_folder: logs
 log_file: null
 

@@ -29,6 +29,7 @@
 #
 import json
 import logging.config
+import os.path
 import shutil
 import yaml
 
@@ -136,9 +137,18 @@ def main():
     )
     # back up log
     log_folder = settings["log_folder"]
-    timestamp = datetime.now().strftime("%Y%m%d-%H%M")
+    log_name = "math.eval." + datetime.now().strftime("%Y%m%d-%H%M") + ".log"
     Path(log_folder).mkdir(parents=True, exist_ok=True)
-    shutil.copy("math.eval.log", f"{log_folder}/math.eval.{timestamp}.log")
+    shutil.copy("math.eval.log", f"{log_folder}/{log_name}")
+    # track settings
+    if os.path.exists((history_path := log_folder + "/history.json")):
+        with open(history_path, "r") as h:
+            history = json.load(h)
+    else:
+        history = {}
+    history[log_name] = settings
+    with open(history_path, "w") as h:
+        json.dump(history, h, indent=4)
 
 
 if __name__ == "__main__":

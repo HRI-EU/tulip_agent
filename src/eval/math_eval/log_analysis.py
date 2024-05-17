@@ -192,25 +192,15 @@ def plot(
     agents: list,
     tasks: dict,
     criteria: dict,
+    colors: list[str],
 ) -> None:
     number_agents = len(agents)
     width = 0.05
-    color_dict = {
-        "dark grey": "#999999",
-        "lighter blue": "#98c6ea",
-        "dark blue": "#005293",
-        "light grey": "#dad7cb",
-        "light blue": "#64a0c8",
-        "tum blue": "#0065bd",
-        "orange": "#e37222",
-        "green": "#a2ad00",
-    }
     levels = {
         "E": "Easy",
         "M": "Medium",
         "H": "Hard",
     }
-    colors = list(color_dict.values())
     x = np.arange(len(levels))
     fig, axs = plt.subplots(len(criteria), sharex=True, sharey=False, figsize=(10, 5))
     for ci, criterion in enumerate(criteria):
@@ -266,13 +256,25 @@ def find_most_recent_log(directory: str) -> str:
 
 
 def main(
-    log_file: str, ground_truth: str, plot_file: str, agents: list, criteria: dict
+    log_file: str,
+    ground_truth: str,
+    plot_file: str,
+    agents: list,
+    criteria: dict,
+    colors: list,
 ) -> None:
     res = extract_data_from_log(log_file=log_file)
     res, tasks = assess_data(results=res, ground_truth=ground_truth)
     for r in res:
         print(r)
-    plot(data=res, output_file=plot_file, agents=agents, tasks=tasks, criteria=criteria)
+    plot(
+        data=res,
+        output_file=plot_file,
+        agents=agents,
+        tasks=tasks,
+        criteria=criteria,
+        colors=colors,
+    )
 
 
 def analyze(log_file: str, ground_truth: str) -> None:
@@ -300,6 +302,7 @@ if __name__ == "__main__":
     with open("math_eval_settings.yaml", "rt") as mes:
         settings = yaml.safe_load(mes.read())
     agents = [a for a in settings["agents"] if settings["agents"][a]]
+    colors = [settings["colors"][a] for a in agents]
     log_folder = settings["log_folder"]
     log = settings["log_file"] or find_most_recent_log(directory=log_folder)
     main(
@@ -313,4 +316,5 @@ if __name__ == "__main__":
             "function_precision": "Precision",
             "correctness": "Correct",
         },
+        colors=colors,
     )

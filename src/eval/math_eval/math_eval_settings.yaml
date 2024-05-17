@@ -12,3 +12,12 @@ agents:
     NaiveTulipAgent: True
     CotTulipAgent: True
     AutoTulipAgent: False
+
+colors:
+    BaseAgent: "#a6a6a6"
+    NaiveToolAgent: "#8cb3d9"
+    CotToolAgent: "#6699ff"
+    MinimalTulipAgent: "#9999ff"
+    NaiveTulipAgent: "#9966ff"
+    CotTulipAgent: "#9933ff"
+    AutoTulipAgent: "#9900ff"

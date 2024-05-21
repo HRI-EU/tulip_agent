@@ -339,7 +339,11 @@ if __name__ == "__main__":
     agents = [a for a in settings["agents"] if settings["agents"][a]]
     colors = [settings["colors"][a] for a in agents]
     log_folder = settings["log_folder"]
-    log = log_folder + "/" + settings["log_file"] if settings["log_file"] else find_most_recent_log(directory=log_folder)
+    log = (
+        log_folder + "/" + settings["log_file"]
+        if settings["log_file"]
+        else find_most_recent_log(directory=log_folder)
+    )
     main(
         log_file=log,
         ground_truth=settings["ground_truth"],

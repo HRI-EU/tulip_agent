@@ -635,6 +635,7 @@
         ],
         "name": "M.T.H.013",
         "valid_solutions": [
+            5.365,
             5.37,
             5.4
         ]
@@ -689,7 +690,8 @@
         ],
         "name": "M.T.H.017",
         "valid_solutions": [
-            "first makes more"
+            "first makes more",
+            "first property makes more"
         ]
     },
     {

@@ -63,7 +63,7 @@ TOOLS_FILENAME = SETTINGS["tools"]
 tools = importlib.import_module(TOOLS_FILENAME)
 
 
-def run_math_eval(task_file: str, agents: list[str]):
+def run_math_eval(task_file: str, agents: list[str], task_filter: list[str]):
     functions = [
         getattr(tools, n)
         for n, f in getmembers(tools, isfunction)
@@ -84,6 +84,8 @@ def run_math_eval(task_file: str, agents: list[str]):
     def _run(agent_class, setup_args: dict) -> None:
         print(f" {agent_class.__name__} ".center(40, "="))
         for query in queries:
+            if task_filter and queries[query]["name"] not in task_filter:
+                continue
             agent = agent_class(**setup_args)
             print(agent_class.__name__, "--", queries[query]["name"], "--", query)
             res = agent.query(query)
@@ -127,6 +129,7 @@ def main():
     run_math_eval(
         task_file=SETTINGS["ground_truth"],
         agents=[a for a in SETTINGS["agents"] if SETTINGS["agents"][a]],
+        task_filter=SETTINGS["task_filter"],
     )
     # back up log
     log_folder = SETTINGS["log_folder"]

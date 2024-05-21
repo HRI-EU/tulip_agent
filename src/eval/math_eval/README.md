@@ -4,6 +4,7 @@
 1. Specify settings in `math_eval_settings.yaml`
    * Agent ablations to include
    * Tools module to be used
+   * Optionally specify a subset of tasks to be executed as a list via the `task_filter` - will run all tasks if set to `null`
 2. Run the evaluation with `math_eval.py`
 3. Analyze results and plot with `log_analysis.py`; uses the latest log file unless one is specified in `math_eval_settings.yaml`
 

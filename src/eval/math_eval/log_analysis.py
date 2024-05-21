@@ -317,6 +317,8 @@ def analyze(log_file: str, ground_truth: str) -> None:
     res = extract_data_from_log(log_file=log_file)
     res, tasks = assess_data(results=res, ground_truth=ground_truth)
     for r in res:
+        if r.agent != "CotTulipAgent":
+            continue
         if not r.correctness:
             print(f"INCORRECT: {task_ids[r.task]} - {r.response} - {r.agent}")
         if r.agent != "BaseAgent":
@@ -337,7 +339,7 @@ if __name__ == "__main__":
     agents = [a for a in settings["agents"] if settings["agents"][a]]
     colors = [settings["colors"][a] for a in agents]
     log_folder = settings["log_folder"]
-    log = settings["log_file"] or find_most_recent_log(directory=log_folder)
+    log = log_folder + "/" + settings["log_file"] if settings["log_file"] else find_most_recent_log(directory=log_folder)
     main(
         log_file=log,
         ground_truth=settings["ground_truth"],

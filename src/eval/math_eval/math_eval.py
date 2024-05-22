@@ -48,6 +48,7 @@ from tulip_agent import (
     NaiveToolAgent,
     ToolLibrary,
 )
+from tulip_agent.constants import BASE_LANGUAGE_MODEL
 
 
 # Set up agent loggers to save logs to file for analysis
@@ -143,6 +144,7 @@ def main():
     else:
         history = {}
     history[log_name] = SETTINGS
+    history[log_name]["model"] = BASE_LANGUAGE_MODEL
     with open(history_path, "w") as h:
         json.dump(history, h, indent=4)
 

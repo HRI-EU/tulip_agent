@@ -56,10 +56,16 @@ logging.config.dictConfig(config)
 logger = logging.getLogger("result_analysis")
 
 
-# source: https://openai.com/pricing, all in cents
+# source: https://openai.com/pricing, all in dollars
 OAI_PRICES = {
-    "gpt_4_input": 10 / 1_000_000,
-    "gpt_4_output": 30 / 1_000_000,
+    "gpt-3.5-turbo-0125": {
+        "input": 0.5 / 1_000_000,
+        "output": 1.5 / 1_000_000,
+    },
+    "gpt-4-turbo-2024-04-09": {
+        "input": 10 / 1_000_000,
+        "output": 30 / 1_000_000,
+    },
     "ada_embed": 0.1 / 1_000_000,
 }
 
@@ -75,6 +81,7 @@ class ToolCall:
 class Result:
     agent: str
     task: str
+    model: str
     input_tokens: int
     completion_tokens: int
     embedding_tokens: int
@@ -88,15 +95,15 @@ class Result:
     def __post_init__(self) -> None:
         self.costs = round(
             (
-                OAI_PRICES["gpt_4_input"] * self.input_tokens
-                + OAI_PRICES["gpt_4_output"] * self.completion_tokens
+                OAI_PRICES[self.model]["input"] * self.input_tokens
+                + OAI_PRICES[self.model]["output"] * self.completion_tokens
                 + OAI_PRICES["ada_embed"] * self.embedding_tokens
             ),
             2,
         )
 
 
-def extract_data_from_log(log_file: str) -> list[Result]:
+def extract_data_from_log(log_file: str, model: str) -> list[Result]:
     results = []
     tool_library_costs = calc_costs_for_tool_library()
     with open(log_file, "r") as f:
@@ -154,6 +161,7 @@ def extract_data_from_log(log_file: str) -> list[Result]:
         r = Result(
             agent=agent,
             task=query,
+            model=model,
             input_tokens=in_tokens,
             completion_tokens=out_tokens,
             embedding_tokens=embed_tokens,
@@ -290,13 +298,14 @@ def find_most_recent_log(directory: str) -> str:
 
 def main(
     log_file: str,
+    model: str,
     ground_truth: str,
     plot_file: str,
     agents: list,
     criteria: dict,
     colors: list,
 ) -> None:
-    res = extract_data_from_log(log_file=log_file)
+    res = extract_data_from_log(log_file=log_file, model=model)
     res, tasks = assess_data(results=res, ground_truth=ground_truth)
     for r in res:
         print(r)
@@ -344,8 +353,12 @@ if __name__ == "__main__":
         if settings["log_file"]
         else find_most_recent_log(directory=log_folder)
     )
+    with open(log_folder + "/history.json", "r") as f:
+        history_data = json.load(f)
+        model = history_data[log.split("/")[-1]]["model"]
     main(
         log_file=log,
+        model=model,
         ground_truth=settings["ground_truth"],
         plot_file="math.eval.png",
         agents=agents,

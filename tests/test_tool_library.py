@@ -120,9 +120,10 @@ class TestCore(unittest.TestCase):
         tulip = ToolLibrary(
             chroma_sub_dir="test/", file_imports=[("example_tools", ["multiply"])]
         )
-        res = tulip.execute(
+        res, error = tulip.execute(
             function_id="example_tools__multiply", function_args={"a": 2.0, "b": 2.0}
         )
+        self.assertEqual(error, False, "Function execution failed.")
         self.assertEqual(
             res,
             4.0,
@@ -134,9 +135,10 @@ class TestCore(unittest.TestCase):
             chroma_sub_dir="test/", file_imports=[("example_module", [])]
         )
         function_id = "example_module__example"
-        res = tulip.execute(
+        res, error = tulip.execute(
             function_id=function_id, function_args={"text": "unchanged"}
         )
+        self.assertEqual(error, False, "Function execution failed.")
         self.assertEqual(res, "unchanged", "Initial function execution failed.")
         # overwrite function
         code = (
@@ -153,7 +155,10 @@ class TestCore(unittest.TestCase):
         with open(module_path, "w") as m:
             m.write(code)
         tulip.update_function(function_id=function_id)
-        res = tulip.execute(function_id=function_id, function_args={"text": "failure"})
+        res, error = tulip.execute(
+            function_id=function_id, function_args={"text": "failure"}
+        )
+        self.assertEqual(error, False, "Function execution failed.")
         self.assertEqual(
             res, "success", "Executing the function after updating the module failed."
         )

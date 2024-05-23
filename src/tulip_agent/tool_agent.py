@@ -93,7 +93,7 @@ class ToolAgent(LlmAgent, ABC):
                     self.messages[-1].tool_calls[0].function.name = func_name
                 except Exception as e:
                     logger.error(e)
-                    function_response = f"Invalid tool call for {func_name}: {e}"
+                    function_response = f"Error: Invalid tool call for {func_name}: {e}"
                 self.messages.append(
                     {
                         "tool_call_id": tool_call.id,

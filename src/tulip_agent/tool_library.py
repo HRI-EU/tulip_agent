@@ -297,10 +297,16 @@ class ToolLibrary:
         self,
         function_id: str,
         function_args: dict,
-    ):
+    ) -> tuple:
         try:
             res = self.functions[function_id](**function_args)
+            error = False
+        except KeyError as e:
+            logger.error(e)
+            res = f"Error: {function_id} is not a valid tool. Use only the tools available."
+            error = True
         except Exception as e:
             logger.error(e)
-            res = f"Invalid tool call for {function_id}: {e}"
-        return res
+            res = f"Error: Invalid tool call for {function_id}: {e}"
+            error = True
+        return res, error

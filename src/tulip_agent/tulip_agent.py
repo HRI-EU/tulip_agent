@@ -159,9 +159,12 @@ class TulipAgent(LlmAgent, ABC):
             for tool_call in tool_calls:
                 func_name = tool_call.function.name
                 func_args = json.loads(tool_call.function.arguments)
-                function_response = self.tool_library.execute(
+                function_response, error = self.tool_library.execute(
                     function_id=func_name, function_args=func_args
                 )
+                if error:
+                    func_name = "invalid_tool_call"
+                    self.messages[-1].tool_calls[0].function.name = func_name
                 self.messages.append(
                     {
                         "tool_call_id": tool_call.id,

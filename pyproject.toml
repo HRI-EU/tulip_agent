@@ -32,3 +32,12 @@ pre-commit = "^3.6.2"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.isort]
+profile = "black"
+src_paths = ["examples", "src", "tests"]
+skip = [
+    "src/eval/robo_eval/AttentiveSupport",
+    ".venv"
+]
+lines_after_imports = 2

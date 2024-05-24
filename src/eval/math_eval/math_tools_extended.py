@@ -107,7 +107,7 @@ def calculate_determinant(matrix: list[list[float]]) -> float:
     return matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0]
 
 
-def find_slope(point1: tuple[float, float], point2: tuple[float, float]) -> float:
+def find_slope(point1: tuple[float, ...], point2: tuple[float, ...]) -> float:
     """
     Find the slope of a line given two points.
 
@@ -859,7 +859,9 @@ def calculate_polynomial_value(coefficients: list[float], x: float) -> float:
     return sum(coef * x**i for i, coef in enumerate(reversed(coefficients)))
 
 
-def calculate_euclidean_distance(point1: tuple, point2: tuple) -> float:
+def calculate_euclidean_distance(
+    point1: tuple[float, ...], point2: tuple[float, ...]
+) -> float:
     """
     Calculate the Euclidean distance between two points in n-dimensional space.
     The distance is calculated using the formula sqrt(sum((p1_i - p2_i)^2 for i in dimensions)).
@@ -1845,7 +1847,7 @@ def calculate_arc_length(radius: float, angle: float) -> float:
     return radius * angle
 
 
-def calculate_tangent_line_equation(slope: float, point: tuple) -> str:
+def calculate_tangent_line_equation(slope: float, point: tuple[float, ...]) -> str:
     """
     Calculate the equation of a tangent line given its slope and a point it passes through.
 
@@ -3617,7 +3619,10 @@ def calculate_elliptic_arc_length(a: float, b: float, phi: float) -> float:
 
 
 def calculate_triple_integral(
-    func, x_range: tuple, y_range: tuple, z_range: tuple
+    func,
+    x_range: tuple[float, ...],
+    y_range: tuple[float, ...],
+    z_range: tuple[float, ...],
 ) -> float:
     """
     Calculate the triple integral of a given function over specified ranges.
@@ -3654,7 +3659,7 @@ def calculate_volume_of_spherical_sector(radius: float, height: float) -> float:
     return (1 / 3) * pi * height**2 * (3 * radius - height)
 
 
-def calculate_length_of_vector(vector: tuple) -> float:
+def calculate_length_of_vector(vector: tuple[float, ...]) -> float:
     """
     Calculate the length (magnitude) of a vector in n-dimensional space.
 
@@ -3664,24 +3669,6 @@ def calculate_length_of_vector(vector: tuple) -> float:
     from math import sqrt
 
     return sqrt(sum(comp**2 for comp in vector))
-
-
-def calculate_curl_of_vector_field(F: tuple, point: tuple) -> tuple:
-    """
-    Calculate the curl of a vector field at a given point.
-
-    :param F: A tuple of functions representing the vector field components (Fx, Fy, Fz).
-    :param point: A tuple representing the point (x, y, z) at which to calculate the curl.
-    :return: A tuple representing the curl vector at the given point.
-    """
-    from sympy import diff, symbols
-
-    x, y, z = symbols("x y z")
-    Fx, Fy, Fz = F
-    curl_x = diff(Fz.subs(z, point[2]), y) - diff(Fy.subs(y, point[1]), z)
-    curl_y = diff(Fx.subs(x, point[0]), z) - diff(Fz.subs(z, point[2]), x)
-    curl_z = diff(Fy.subs(y, point[1]), x) - diff(Fx.subs(x, point[0]), y)
-    return curl_x, curl_y, curl_z
 
 
 def calculate_volume_of_spherical_cap(radius: float, height: float) -> float:
@@ -5391,22 +5378,6 @@ def calculate_fixed_point(
     return x0
 
 
-def calculate_mobius_transformation(
-    z: complex, a: complex, b: complex, c: complex, d: complex
-) -> complex:
-    """
-    Calculate the Mobius transformation of a complex number.
-
-    :param z: The complex number to transform.
-    :param a: The 'a' parameter in the Mobius transformation.
-    :param b: The 'b' parameter in the Mobius transformation.
-    :param c: The 'c' parameter in the Mobius transformation.
-    :param d: The 'd' parameter in the Mobius transformation.
-    :return: The transformed complex number.
-    """
-    return (a * z + b) / (c * z + d)
-
-
 def calculate_klein_bottle_area(radius: float) -> float:
     """
     Calculate the surface area of a Klein bottle.
@@ -7068,7 +7039,7 @@ def calculate_greatest_common_divisor(a: int, b: int) -> int:
 # set_theory
 
 
-def union_of_sets(set_a: set, set_b: set) -> set:
+def union_of_sets(set_a: set[str], set_b: set[str]) -> set:
     """
     Calculate the union of two sets.
 
@@ -7079,7 +7050,7 @@ def union_of_sets(set_a: set, set_b: set) -> set:
     return set_a.union(set_b)
 
 
-def intersection_of_sets(set_a: set, set_b: set) -> set:
+def intersection_of_sets(set_a: set[str], set_b: set[str]) -> set:
     """
     Calculate the intersection of two sets.
 
@@ -7090,7 +7061,7 @@ def intersection_of_sets(set_a: set, set_b: set) -> set:
     return set_a.intersection(set_b)
 
 
-def difference_of_sets(set_a: set, set_b: set) -> set:
+def difference_of_sets(set_a: set[str], set_b: set[str]) -> set:
     """
     Calculate the difference between two sets.
 
@@ -7101,7 +7072,7 @@ def difference_of_sets(set_a: set, set_b: set) -> set:
     return set_a.difference(set_b)
 
 
-def symmetric_difference_of_sets(set_a: set, set_b: set) -> set:
+def symmetric_difference_of_sets(set_a: set[str], set_b: set[str]) -> set:
     """
     Calculate the symmetric difference of two sets.
 
@@ -7112,18 +7083,18 @@ def symmetric_difference_of_sets(set_a: set, set_b: set) -> set:
     return set_a.symmetric_difference(set_b)
 
 
-def is_disjoint(A: set, B: set) -> bool:
+def is_disjoint(set_a: set[str], set_b: set[str]) -> bool:
     """
     Determine if two sets have no elements in common.
 
-    :param A: First set
-    :param B: Second set
+    :param set_a: First set
+    :param set_b: Second set
     :return: True if A and B have no common elements, False otherwise
     """
-    return A.isdisjoint(B)
+    return set_a.isdisjoint(set_b)
 
 
-def set_complement(universal_set: set, subset: set) -> set:
+def set_complement(universal_set: set[str], subset: set[str]) -> set:
     """
     Calculate the complement of a subset within a universal set.
 
@@ -7134,7 +7105,7 @@ def set_complement(universal_set: set, subset: set) -> set:
     return universal_set - subset
 
 
-def cartesian_product(set_a: set, set_b: set) -> set:
+def cartesian_product(set_a: set[str], set_b: set[str]) -> set:
     """
     Calculate the Cartesian product of two sets.
 
@@ -7145,7 +7116,7 @@ def cartesian_product(set_a: set, set_b: set) -> set:
     return {(a, b) for a in set_a for b in set_b}
 
 
-def power_set(input_set: set) -> set:
+def power_set(input_set: set[str]) -> set:
     """
     Calculate the power set of a given set.
 
@@ -7162,7 +7133,7 @@ def power_set(input_set: set) -> set:
     }
 
 
-def is_superset(super_set: set, sub_set: set) -> bool:
+def is_superset(super_set: set[str], sub_set: set[str]) -> bool:
     """
     Determine if one set is a superset of another.
 
@@ -7173,7 +7144,7 @@ def is_superset(super_set: set, sub_set: set) -> bool:
     return super_set.issuperset(sub_set)
 
 
-def is_proper_subset(sub_set: set, super_set: set) -> bool:
+def is_proper_subset(sub_set: set[str], super_set: set[str]) -> bool:
     """
     Determine if one set is a proper subset of another.
 
@@ -7184,7 +7155,7 @@ def is_proper_subset(sub_set: set, super_set: set) -> bool:
     return sub_set.issubset(super_set) and sub_set != super_set
 
 
-def set_cardinality(s: set) -> int:
+def set_cardinality(s: set[str]) -> int:
     """
     Calculate the cardinality (number of elements) of a set.
 
@@ -7194,7 +7165,7 @@ def set_cardinality(s: set) -> int:
     return len(s)
 
 
-def is_element_of_set(element: int, s: set) -> bool:
+def is_element_of_set(element: int, s: set[int]) -> bool:
     """
     Check if an element is a member of a given set.
 
@@ -7205,7 +7176,7 @@ def is_element_of_set(element: int, s: set) -> bool:
     return element in s
 
 
-def set_power_set(s: set) -> set:
+def set_power_set(s: set[str]) -> set:
     """
     Calculate the power set of a given set. The power set contains all subsets of a set.
 
@@ -7217,7 +7188,7 @@ def set_power_set(s: set) -> set:
     return set(chain.from_iterable(combinations(s, r) for r in range(len(s) + 1)))
 
 
-def disjoint_sets(s1: set, s2: set) -> bool:
+def disjoint_sets(s1: set[str], s2: set[str]) -> bool:
     """
     Determine if two sets are disjoint. Two sets are disjoint if they have no elements in common.
 
@@ -7228,7 +7199,7 @@ def disjoint_sets(s1: set, s2: set) -> bool:
     return s1.isdisjoint(s2)
 
 
-def cartesian_product_set(s1: set, s2: set) -> set:
+def cartesian_product_set(s1: set[str], s2: set[str]) -> set:
     """
     Calculate the Cartesian product of two sets. The Cartesian product of two sets is a set of all ordered pairs
     where the first element of each pair is from the first set and the second element is from the second set.
@@ -7242,7 +7213,7 @@ def cartesian_product_set(s1: set, s2: set) -> set:
     return set(product(s1, s2))
 
 
-def set_is_empty(s: set) -> bool:
+def set_is_empty(s: set[str]) -> bool:
     """
     Determine if a given set is empty.
 
@@ -7252,7 +7223,7 @@ def set_is_empty(s: set) -> bool:
     return len(s) == 0
 
 
-def set_max_element(s: set) -> int:
+def set_max_element(s: set[int]) -> int:
     """
     Find the maximum element in a non-empty set of integers.
 
@@ -7262,7 +7233,7 @@ def set_max_element(s: set) -> int:
     return max(s)
 
 
-def set_min_element(s: set) -> int:
+def set_min_element(s: set[int]) -> int:
     """
     Find the minimum element in a non-empty set of integers.
 
@@ -7272,7 +7243,7 @@ def set_min_element(s: set) -> int:
     return min(s)
 
 
-def set_element_belongs(s: set, element: int) -> bool:
+def set_element_belongs(s: set[int], element: int) -> bool:
     """
     Check if an element belongs to a set.
 
@@ -7283,7 +7254,7 @@ def set_element_belongs(s: set, element: int) -> bool:
     return element in s
 
 
-def set_clear(s: set) -> set:
+def set_clear(s: set[str]) -> set:
     """
     Clear all elements from a set, making it an empty set.
 
@@ -7294,34 +7265,34 @@ def set_clear(s: set) -> set:
     return s
 
 
-def set_relative_complement(A: set, B: set) -> set:
+def set_relative_complement(set_a: set[str], set_b: set[str]) -> set:
     """
     Calculate the relative complement of set B in set A.
 
-    The relative complement of B in A (also called the set difference of A and B)
-    is the set of elements in A, but not in B.
+    The relative complement of set_b in set_a (also called the set difference of set_a and set_b)
+    is the set of elements in set_a, but not in set_b.
 
-    :param A: The first set
-    :param B: The second set
-    :return: A set containing elements that are in A but not in B
+    :param set_a: The first set
+    :param set_b: The second set
+    :return: A set containing elements that are in set_a but not in set_b
     """
-    return A.difference(B)
+    return set_a.difference(set_b)
 
 
-def is_proper_superset(A: set, B: set) -> bool:
+def is_proper_superset(set_a: set[str], set_b: set[str]) -> bool:
     """
-    Determine if set A is a proper superset of set B.
+    Determine if set_a is a proper superset of set_b.
 
-    A proper superset of a set B is a superset of B that is not equal to B.
+    A proper superset of a set is a superset that is not equal to the initial set.
 
-    :param A: The first set
-    :param B: The second set
-    :return: True if A is a proper superset of B, False otherwise
+    :param set_a: The first set
+    :param set_b: The second set
+    :return: True if set_a is a proper superset of set_b, False otherwise
     """
-    return A > B
+    return set_a > set_b
 
 
-def set_cartesian_product(set_a: set, set_b: set) -> set:
+def set_cartesian_product(set_a: set[str], set_b: set[str]) -> set:
     """
     Calculate the Cartesian product of two sets A and B.
 
@@ -7335,30 +7306,30 @@ def set_cartesian_product(set_a: set, set_b: set) -> set:
     return {(a, b) for a in set_a for b in set_b}
 
 
-def set_is_disjoint(A: set, B: set) -> bool:
+def set_is_disjoint(set_a: set[str], set_b: set[str]) -> bool:
     """
-    Determine if two sets A and B are disjoint.
+    Determine if two sets set_a and set_b are disjoint.
 
     Two sets are disjoint if they have no elements in common.
 
-    :param A: The first set
-    :param B: The second set
-    :return: True if A and B are disjoint, False otherwise
+    :param set_a: The first set
+    :param set_b: The second set
+    :return: True if set_a and set_b are disjoint, False otherwise
     """
-    return A.isdisjoint(B)
+    return set_a.isdisjoint(set_b)
 
 
-def set_union_multiple(*sets: set) -> set:
+def set_union_multiple(sets: list[set[str]]) -> set:
     """
     Find the union of multiple sets.
 
     :param sets: An arbitrary number of sets to find the union of.
     :return: A set containing all unique elements from all provided sets.
     """
-    return set().union(*sets)
+    return set().union(sets)
 
 
-def set_intersection_multiple(*sets: set) -> set:
+def set_intersection_multiple(sets: list[set[str]]) -> set:
     """
     Find the intersection of multiple sets.
 
@@ -7367,10 +7338,10 @@ def set_intersection_multiple(*sets: set) -> set:
     """
     if not sets:
         return set()
-    return set.intersection(*sets)
+    return set().intersection(sets)
 
 
-def set_union(a: set, b: set) -> set:
+def set_union(a: set[str], b: set[str]) -> set:
     """
     Returns the union of two sets.
 
@@ -7381,7 +7352,7 @@ def set_union(a: set, b: set) -> set:
     return a.union(b)
 
 
-def set_intersection(a: set, b: set) -> set:
+def set_intersection(a: set[str], b: set[str]) -> set:
     """
     Returns the intersection of two sets.
 
@@ -7392,7 +7363,7 @@ def set_intersection(a: set, b: set) -> set:
     return a.intersection(b)
 
 
-def set_difference(a: set, b: set) -> set:
+def set_difference(a: set[str], b: set[str]) -> set:
     """
     Returns the difference of two sets.
 
@@ -7403,7 +7374,7 @@ def set_difference(a: set, b: set) -> set:
     return a.difference(b)
 
 
-def set_symmetric_difference(a: set, b: set) -> set:
+def set_symmetric_difference(a: set[str], b: set[str]) -> set:
     """
     Returns the symmetric difference of two sets.
 
@@ -7414,7 +7385,7 @@ def set_symmetric_difference(a: set, b: set) -> set:
     return a.symmetric_difference(b)
 
 
-def is_subset(a: set, b: set) -> bool:
+def is_subset(a: set[str], b: set[str]) -> bool:
     """
     Determines if set a is a subset of set b.
 
@@ -7425,66 +7396,66 @@ def is_subset(a: set, b: set) -> bool:
     return a.issubset(b)
 
 
-def set_is_equal(A: set, B: set) -> bool:
+def set_is_equal(set_a: set[str], set_b: set[str]) -> bool:
     """
     Determine if two sets are equal.
 
-    :param A: First set to compare
-    :param B: Second set to compare
-    :return: True if sets A and B contain exactly the same elements, False otherwise
+    :param set_a: First set to compare
+    :param set_b: Second set to compare
+    :return: True if sets set_a and set_b contain exactly the same elements, False otherwise
     """
-    return A == B
+    return set_a == set_b
 
 
-def set_subset_relation(A: set, B: set) -> str:
+def set_subset_relation(set_a: set[str], set_b: set[str]) -> str:
     """
     Determine the subset relation between two sets.
 
-    :param A: First set
-    :param B: Second set
-    :return: A string indicating the subset relation ('A is a subset of B', 'B is a subset of A', 'A and B are equal', or 'No subset relation')
+    :param set_a: First set
+    :param set_b: Second set
+    :return: A string indicating the subset relation.
     """
-    if A == B:
-        return "A and B are equal"
-    elif A.issubset(B):
-        return "A is a subset of B"
-    elif B.issubset(A):
-        return "B is a subset of A"
+    if set_a == set_b:
+        return "set_a and set_b are equal"
+    elif set_a.issubset(set_b):
+        return "set_a is a subset of set_b"
+    elif set_b.issubset(set_a):
+        return "set_b is a subset of set_a"
     else:
         return "No subset relation"
 
 
-def set_complement_universe(A: set, U: set) -> set:
+def set_complement_universe(set_a: set[str], set_u: set[str]) -> set:
     """
-    Calculate the complement of a set A with respect to the universe set U.
+    Calculate the complement of a set_a with respect to the universe set set_u.
 
-    :param A: The set for which to find the complement
-    :param U: The universe set relative to which the complement is calculated
-    :return: The complement of set A with respect to U
+    :param set_a: The set for which to find the complement
+    :param set_u: The universe set relative to which the complement is calculated
+    :return: The complement of set_a with respect to set_u
     """
-    return U - A
+    return set_u - set_a
 
 
-def set_is_proper_superset(A: set, B: set) -> bool:
+def set_is_proper_superset(set_a: set[str], set_b: set[str]) -> bool:
     """
-    Determine if set A is a proper superset of set B.
+    Determine if set_a is a proper superset of set_b.
 
-    :param A: The first set to be compared.
-    :param B: The second set, which is compared against the first set.
-    :return: True if A is a proper superset of B, False otherwise.
+    :param set_a: The first set to be compared.
+    :param set_b: The second set, which is compared against the first set.
+    :return: True if set_a is a proper superset of set_b, False otherwise.
     """
-    return A > B
+    return set_a > set_b
 
 
-def symmetric_difference(A: set, B: set) -> set:
+def symmetric_difference(set_a: set[str], set_b: set[str]) -> set:
     """
-    Calculate the symmetric difference between two sets A and B.
+    Calculate the symmetric difference between two sets set_a and set_b.
 
-    :param A: The first set.
-    :param B: The second set.
-    :return: A new set containing elements that are in either A or B but not in both.
+    :param set_a: The first set.
+    :param set_b: The second set.
+    :return: A new set containing elements that are in either set_a or set_b but not in both.
     """
-    return A.symmetric_difference(B)
+    return set_a.symmetric_difference(set_b)
 
 
 # probability theory
@@ -7961,9 +7932,7 @@ def calculate_poisson_probability(lambda_: float, k: int) -> float:
 # statistics
 
 
-def calculate_variance_sample_or_population(
-    values: list[float], sample: bool = True
-) -> float:
+def calculate_variance_sample_or_population(values: list[float], sample: bool) -> float:
     """
     Calculate the variance of a list of numbers.
 
@@ -7978,7 +7947,7 @@ def calculate_variance_sample_or_population(
 
 
 def calculate_standard_deviation_sample_or_population(
-    values: list[float], sample: bool = True
+    values: list[float], sample: bool
 ) -> float:
     """
     Calculate the standard deviation of a list of numbers.
@@ -8291,3 +8260,27 @@ def calculate_weighted_mean(values: list[float], weights: list[float]) -> float:
     :return: The weighted mean of the data as a float.
     """
     return sum(value * weight for value, weight in zip(values, weights)) / sum(weights)
+
+
+if __name__ == "__main__":
+    import sys
+    from inspect import getmembers, isfunction
+
+    from tulip_agent.function_analyzer import FunctionAnalyzer
+
+    current_module = sys.modules[__name__]
+    print(current_module)
+    functions = [
+        (n, f)
+        for n, f in getmembers(current_module, isfunction)
+        if f.__module__ == "__main__"
+    ]
+    print(f"Number of functions: {len(functions)}")
+    print(f"Functions: {functions}")
+    print(f"Number of duplicate functions: {len(functions) - len(set(functions))}")
+
+    fa = FunctionAnalyzer()
+    for name, function in functions:
+        print(name)
+        description = fa.analyze_function(function)
+        print(description)

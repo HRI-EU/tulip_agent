@@ -152,3 +152,7 @@ cython_debug/
 
 # PyCharm
 .idea/
+
+# benchmark data
+data/MATH/
+data/MATH.tar

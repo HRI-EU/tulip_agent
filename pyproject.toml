@@ -21,6 +21,7 @@ matplotlib = "^3.8.3"
 scipy = "^1.13.0"
 docstring-parser = "^0.16"
 tiktoken = "^0.7.0"
+isort = "^5.13.2"
 
 
 [tool.poetry.group.dev.dependencies]

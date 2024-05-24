@@ -31,10 +31,7 @@ import logging
 
 from .base_agent import BaseAgent
 from .function_analyzer import FunctionAnalyzer
-from .tool_agent import (
-    CotToolAgent,
-    NaiveToolAgent,
-)
+from .tool_agent import CotToolAgent, NaiveToolAgent
 from .tool_library import ToolLibrary
 from .tulip_agent import (
     AutoTulipAgent,

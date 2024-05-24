@@ -1033,7 +1033,7 @@ def calculate_sine_law_side(a: float, A: float, B: float) -> float:
     :param B: Angle opposite the side to be calculated, in degrees.
     :return: Length of the side opposite angle B.
     """
-    from math import sin, radians
+    from math import radians, sin
 
     return a * sin(radians(B)) / sin(radians(A))
 
@@ -1047,7 +1047,7 @@ def calculate_sine_law_angle(a: float, A: float, b: float) -> float:
     :param b: Length of the side opposite the angle to be calculated.
     :return: Angle opposite the side b, in degrees.
     """
-    from math import asin, degrees, sin, radians
+    from math import asin, degrees, radians, sin
 
     return degrees(asin(b * sin(radians(A)) / a))
 
@@ -1710,7 +1710,7 @@ def calculate_regular_polygon_area(num_sides: int, side_length: float) -> float:
     :param side_length: The length of each side of the polygon.
     :return: The area of the regular polygon.
     """
-    from math import tan, pi
+    from math import pi, tan
 
     return (num_sides * side_length**2) / (4 * tan(pi / num_sides))
 
@@ -1738,8 +1738,9 @@ def calculate_elliptic_integral_of_second_kind(
     :param eccentricity: The eccentricity of the elliptic integral.
     :return: The value of the elliptic integral of the second kind.
     """
-    from scipy.integrate import quad
     from math import sin, sqrt
+
+    from scipy.integrate import quad
 
     def integrand(theta):
         return sqrt(1 - eccentricity**2 * sin(theta) ** 2)
@@ -1974,7 +1975,7 @@ def calculate_logarithmic_derivative(expression: str, variable: str) -> str:
     :param variable: The variable with respect to which the derivative is calculated.
     :return: The derivative of the logarithmic expression as a string.
     """
-    from sympy import diff, symbols, log
+    from sympy import diff, log, symbols
 
     x = symbols(variable)
     expr = log(eval(expression))
@@ -2107,7 +2108,7 @@ def calculate_time_of_flight(velocity: float, angle: float) -> float:
     :param angle: Launch angle of the projectile in degrees.
     :return: Time of flight of the projectile in seconds.
     """
-    from math import sin, radians
+    from math import radians, sin
 
     g = 9.81  # Acceleration due to gravity in m/s^2
     return (2 * velocity * sin(radians(angle))) / g
@@ -2358,7 +2359,7 @@ def calculate_sine_wave_value(
     :param time: The time at which to evaluate the sine wave.
     :return: The value of the sine wave at the given time.
     """
-    from math import sin, pi
+    from math import pi, sin
 
     return amplitude * sin(2 * pi * frequency * time + phase)
 
@@ -2802,7 +2803,7 @@ def calculate_circular_helix_length(radius: float, pitch: float, turns: int) -> 
     :param turns: The total number of turns in the helix.
     :return: The length of the circular helix.
     """
-    from math import sqrt, pi
+    from math import pi, sqrt
 
     return sqrt((2 * pi * radius) ** 2 + pitch**2) * turns
 
@@ -3550,7 +3551,7 @@ def calculate_surface_area_of_spheroid(a: float, b: float) -> float:
     :param b: semi-minor axis of the spheroid
     :return: surface area of the spheroid
     """
-    from math import pi, sqrt, log, asin
+    from math import asin, log, pi, sqrt
 
     if a == b:  # Sphere
         return 4 * pi * a**2
@@ -3731,7 +3732,7 @@ def calculate_curl_of_vector_field(F: tuple, point: tuple) -> tuple:
     :param point: A tuple representing the point (x, y, z) at which to calculate the curl.
     :return: A tuple representing the curl vector at the given point.
     """
-    from sympy import symbols, diff
+    from sympy import diff, symbols
 
     x, y, z = symbols("x y z")
     Fx, Fy, Fz = F
@@ -3988,7 +3989,7 @@ def calculate_area_of_regular_polygon(side_length: float, num_sides: int) -> flo
     :param num_sides: The number of sides of the polygon.
     :return: The area of the regular polygon.
     """
-    from math import tan, pi
+    from math import pi, tan
 
     return (num_sides * side_length**2) / (4 * tan(pi / num_sides))
 
@@ -4049,8 +4050,8 @@ def calculate_logarithmic_integral(x: float) -> float:
     :param x: The value to calculate the logarithmic integral for.
     :returns: The logarithmic integral of the given value.
     """
-    from scipy.integrate import quad
     import numpy as np
+    from scipy.integrate import quad
 
     return quad(lambda t: 1 / np.log(t), 2, x)
 
@@ -5332,7 +5333,7 @@ def calculate_diagonal_of_polygon(side_length: float, number_of_sides: int) -> f
     :param number_of_sides: The total number of sides (or vertices) of the polygon.
     :return: The length of the diagonal of the polygon.
     """
-    from math import tan, pi
+    from math import pi, tan
 
     return 2 * side_length * tan(pi / number_of_sides)
 
@@ -7970,7 +7971,7 @@ def calculate_normal_distribution_probability(
     :param x: Point at which to evaluate the density.
     :return: The probability density at point x.
     """
-    from math import exp, sqrt, pi
+    from math import exp, pi, sqrt
 
     return exp(-0.5 * ((x - mu) / sigma) ** 2) / (sigma * sqrt(2 * pi))
 

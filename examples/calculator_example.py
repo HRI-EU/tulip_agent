@@ -39,16 +39,17 @@ from tulip_agent import (
     NaiveTulipAgent,
     ToolLibrary,
 )
+
 from calculator import (
     add,
-    subtract,
-    multiply,
+    cosine,
     divide,
-    square_root,
     exponent,
     modulus,
+    multiply,
     sine,
-    cosine,
+    square_root,
+    subtract,
     tangent,
 )
 

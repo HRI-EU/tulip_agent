@@ -33,9 +33,9 @@ Generate tasks for math evaluation
 import importlib
 import json
 import logging.config
-import yaml
-
 from inspect import getmembers, isfunction
+
+import yaml
 from openai import OpenAI, OpenAIError
 from tulip_agent.constants import BASE_LANGUAGE_MODEL, BASE_TEMPERATURE
 

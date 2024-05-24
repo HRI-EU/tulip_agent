@@ -34,7 +34,6 @@ for creating descriptions usable with the OpenAI API
 Note: Only OPENAI_TYPES are supported as function inputs
 """
 import typing
-
 from dataclasses import dataclass
 
 

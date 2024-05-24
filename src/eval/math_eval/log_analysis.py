@@ -35,18 +35,16 @@ import os
 import re
 import shutil
 import statistics
-
-import matplotlib.pyplot as plt
-import numpy as np
-import tiktoken
-import yaml
-
 from collections import Counter
 from dataclasses import dataclass
 from datetime import datetime
 from inspect import getmembers, isfunction
 from typing import Optional
 
+import matplotlib.pyplot as plt
+import numpy as np
+import tiktoken
+import yaml
 from tulip_agent.function_analyzer import FunctionAnalyzer
 
 

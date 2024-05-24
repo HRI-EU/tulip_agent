@@ -28,7 +28,6 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 import unittest
-
 from typing import Optional, Union
 
 from tulip_agent.function_analyzer import FunctionAnalyzer

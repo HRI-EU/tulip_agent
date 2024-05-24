@@ -32,17 +32,16 @@ Utility for generating Python math functions.
 Must run reset_temp.py to generate empty temp module
 """
 import ast
-import logging.config
 import importlib
+import logging.config
 import os.path
-import yaml
-
-from black import format_str, FileMode
 from inspect import getmembers, isfunction
+
+import yaml
+from black import FileMode, format_str
 from openai import OpenAI, OpenAIError
-
-
 from tulip_agent.constants import BASE_LANGUAGE_MODEL, BASE_TEMPERATURE
+
 import temp
 
 

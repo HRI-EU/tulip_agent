@@ -353,7 +353,7 @@ if __name__ == "__main__":
     )
     with open(log_folder + "/history.json", "r") as f:
         history_data = json.load(f)
-        log_name = [log.split("/")[-1]]
+        log_name = log.split("/")[-1]
         model = history_data[log_name]["model"]
         agents = [
             a

@@ -45,6 +45,8 @@ OPENAI_BASE_TYPES = {
 
 OPENAI_NESTED_TYPES = {
     list: "array",
+    tuple: "array",
+    set: "array",
 }
 
 

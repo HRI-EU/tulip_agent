@@ -58,7 +58,7 @@ def dummy_function(
 
 
 def nested_function(
-    nested: list[list[list[list[str]]]],
+    nested: list[list[tuple[set[str]]]],
 ) -> None:
     """
     Print some fine information.

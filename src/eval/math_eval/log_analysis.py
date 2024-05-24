@@ -33,6 +33,7 @@ import json
 import logging.config
 import os
 import re
+import shutil
 import statistics
 
 import matplotlib.pyplot as plt
@@ -375,3 +376,5 @@ if __name__ == "__main__":
         },
         colors=colors,
     )
+    img_name = log_name[:-3] + "png"
+    shutil.copy("math.eval.png", f"{log_folder}/{img_name}")

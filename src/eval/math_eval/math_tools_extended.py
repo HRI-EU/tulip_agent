@@ -357,7 +357,7 @@ def calculate_logarithm(base: float, value: float) -> float:
     return math.log(value, base)
 
 
-def calculate_median(numbers: list) -> float:
+def calculate_median(numbers: list[float]) -> float:
     """
     Calculate the median of a list of numbers.
 
@@ -377,7 +377,7 @@ def calculate_median(numbers: list) -> float:
         return sorted_numbers[mid]
 
 
-def calculate_standard_deviation(numbers: list) -> float:
+def calculate_standard_deviation(numbers: list[float]) -> float:
     """
     Calculate the standard deviation of a list of numbers.
 
@@ -393,7 +393,7 @@ def calculate_standard_deviation(numbers: list) -> float:
     return variance**0.5
 
 
-def calculate_mode(numbers: list) -> list:
+def calculate_mode(numbers: list[float]) -> list:
     """
     Calculate the mode(s) of a list of numbers.
 
@@ -411,7 +411,7 @@ def calculate_mode(numbers: list) -> list:
     return modes
 
 
-def calculate_range(numbers: list) -> float:
+def calculate_range(numbers: list[float]) -> float:
     """
     Calculate the range of a list of numbers.
 
@@ -423,7 +423,7 @@ def calculate_range(numbers: list) -> float:
     return max(numbers) - min(numbers)
 
 
-def calculate_sum_of_squares(numbers: list) -> float:
+def calculate_sum_of_squares(numbers: list[float]) -> float:
     """
     Calculate the sum of the squares of a list of numbers.
 
@@ -499,7 +499,7 @@ def calculate_volume_of_pyramid(
     return (1 / 3) * base_length * base_width * height
 
 
-def calculate_variance(numbers: list) -> float:
+def calculate_variance(numbers: list[float]) -> float:
     """
     Calculate the variance of a list of numbers.
 
@@ -847,7 +847,7 @@ def calculate_scalar_multiplication_of_matrix(
     return [[scalar * element for element in row] for row in matrix]
 
 
-def calculate_polynomial_value(coefficients: list, x: float) -> float:
+def calculate_polynomial_value(coefficients: list[float], x: float) -> float:
     """
     Calculate the value of a polynomial for a given x.
     The polynomial is defined as coefficients[0]*x^n + coefficients[1]*x^(n-1) + ... + coefficients[n].
@@ -871,7 +871,9 @@ def calculate_euclidean_distance(point1: tuple, point2: tuple) -> float:
     return sum((a - b) ** 2 for a, b in zip(point1, point2)) ** 0.5
 
 
-def calculate_system_of_linear_equations(matrix: list, constants: list) -> list:
+def calculate_system_of_linear_equations(
+    matrix: list[list[float]], constants: list[float]
+) -> list:
     """
     Solve a system of linear equations represented in matrix form.
     This function uses the numpy library to solve the system of equations.
@@ -898,7 +900,7 @@ def calculate_derivative_at_point(function, x: float, h: float = 1e-5) -> float:
     return (function(x + h) - function(x)) / h
 
 
-def calculate_inverse_matrix(matrix: list) -> list:
+def calculate_inverse_matrix(matrix: list[list[float]]) -> list:
     """
     Calculate the inverse of a square matrix.
     This function uses the numpy library to calculate the inverse of the matrix.
@@ -2163,7 +2165,9 @@ def calculate_conical_frustum_volume(
     )
 
 
-def calculate_triple_product(v1: list, v2: list, v3: list) -> float:
+def calculate_triple_product(
+    v1: list[float], v2: list[float], v3: list[float]
+) -> float:
     """
     Calculate the scalar triple product of three vectors.
 
@@ -2179,7 +2183,7 @@ def calculate_triple_product(v1: list, v2: list, v3: list) -> float:
     )
 
 
-def calculate_vector_cross_product(v1: list, v2: list) -> list:
+def calculate_vector_cross_product(v1: list[float], v2: list[float]) -> list[float]:
     """
     Calculate the cross product of two vectors.
 
@@ -2194,7 +2198,7 @@ def calculate_vector_cross_product(v1: list, v2: list) -> list:
     ]
 
 
-def calculate_vector_projection(v1: list, v2: list) -> list:
+def calculate_vector_projection(v1: list[float], v2: list[float]) -> list:
     """
     Calculate the projection of vector v1 onto vector v2.
 
@@ -2207,7 +2211,7 @@ def calculate_vector_projection(v1: list, v2: list) -> list:
     return [dot_product / magnitude_v2_squared * a for a in v2]
 
 
-def calculate_vector_angle(v1: list, v2: list) -> float:
+def calculate_vector_angle(v1: list[float], v2: list[float]) -> float:
     """
     Calculate the angle in radians between two vectors.
 
@@ -2223,7 +2227,7 @@ def calculate_vector_angle(v1: list, v2: list) -> float:
     return acos(dot_product / (magnitude_v1 * magnitude_v2))
 
 
-def calculate_vector_unit(v: list) -> list:
+def calculate_vector_unit(v: list[float]) -> list:
     """
     Calculate the unit vector of a given vector.
 
@@ -3144,7 +3148,9 @@ def calculate_leibniz_pi_approximation(n: int) -> float:
 # calculus
 
 
-def calculate_integral_of_polynomial(coefficients: list, variable: str = "x") -> str:
+def calculate_integral_of_polynomial(
+    coefficients: list[float], variable: str = "x"
+) -> str:
     """
     Calculate the indefinite integral of a polynomial function.
     The function calculates the indefinite integral of a polynomial function given its coefficients.
@@ -3172,7 +3178,7 @@ def calculate_integral_of_polynomial(coefficients: list, variable: str = "x") ->
     return integral
 
 
-def calculate_derivative_of_polynomial(coefficients: list) -> list:
+def calculate_derivative_of_polynomial(coefficients: list[float]) -> list:
     """
     Calculate the derivative of a polynomial function.
 
@@ -5818,7 +5824,7 @@ def calculate_covering_space_lifts(base_space: str, covering_space: str) -> int:
     return lifts.get((base_space, covering_space), 0)
 
 
-def calculate_wedge_product_dimension(spaces: list) -> int:
+def calculate_wedge_product_dimension(spaces: list[int]) -> int:
     """
     Calculate the dimension of the wedge product of a list of topological spaces.
 
@@ -5898,7 +5904,7 @@ def calculate_homotopy_equivalence_spaces(n: int) -> int:
     return 2**n
 
 
-def calculate_winding_number(path: list, point: tuple) -> int:
+def calculate_winding_number(path: list[list[float]], point: list[float]) -> int:
     """
     Calculate the winding number of a closed path around a given point.
 
@@ -6876,7 +6882,9 @@ def calculate_modular_multiplicative_inverse(a: int, m: int) -> int:
     return -1
 
 
-def calculate_least_squares_slope(x_values: list, y_values: list) -> float:
+def calculate_least_squares_slope(
+    x_values: list[float], y_values: list[float]
+) -> float:
     """
     Calculate the slope of the least squares regression line for a given set of data points.
 
@@ -6909,7 +6917,7 @@ def calculate_nth_power_sum(n: int, power: int) -> int:
     return sum(i**power for i in range(1, n + 1))
 
 
-def calculate_vector_magnitude(vector: list) -> float:
+def calculate_vector_magnitude(vector: list[float]) -> float:
     """
     Calculate the magnitude (or length) of a vector.
 
@@ -6938,7 +6946,7 @@ def calculate_hypotenuse_length(a: float, b: float) -> float:
 
 
 def calculate_least_squares_regression_intercept(
-    x_values: list, y_values: list
+    x_values: list[float], y_values: list[float]
 ) -> float:
     """
     Calculate the y-intercept (b0) of the least squares regression line from given x and y values.
@@ -6957,7 +6965,7 @@ def calculate_least_squares_regression_intercept(
     return b0
 
 
-def calculate_vector_length(vector: list) -> float:
+def calculate_vector_length(vector: list[float]) -> float:
     """
     Calculate the length (magnitude) of a vector.
 
@@ -6967,7 +6975,7 @@ def calculate_vector_length(vector: list) -> float:
     return sum(component**2 for component in vector) ** 0.5
 
 
-def calculate_least_squares_regression_slope(x: list, y: list) -> float:
+def calculate_least_squares_regression_slope(x: list[float], y: list[float]) -> float:
     """
     Calculate the slope of the least squares regression line for a given set of data points.
 
@@ -6987,7 +6995,7 @@ def calculate_least_squares_regression_slope(x: list, y: list) -> float:
     return slope
 
 
-def calculate_vector_dot_product(vector_a: list, vector_b: list) -> float:
+def calculate_vector_dot_product(vector_a: list[float], vector_b: list[float]) -> float:
     """
     Calculate the dot product of two vectors.
 
@@ -7000,7 +7008,7 @@ def calculate_vector_dot_product(vector_a: list, vector_b: list) -> float:
     return sum(a * b for a, b in zip(vector_a, vector_b))
 
 
-def calculate_mean_absolute_deviation(data: list) -> float:
+def calculate_mean_absolute_deviation(data: list[float]) -> float:
     """
     Calculate the mean absolute deviation of a dataset.
 
@@ -7013,7 +7021,7 @@ def calculate_mean_absolute_deviation(data: list) -> float:
     return sum(abs(x - mean) for x in data) / len(data)
 
 
-def calculate_euclidean_norm(vector: list) -> float:
+def calculate_euclidean_norm(vector: list[float]) -> float:
     """
     Calculate the Euclidean norm (or Euclidean length) of a vector.
 
@@ -7457,26 +7465,6 @@ def set_complement_universe(A: set, U: set) -> set:
     return U - A
 
 
-def set_partition(A: set, predicates: list) -> list:
-    """
-    Partition a set based on a list of predicates.
-
-    :param A: The set to partition
-    :param predicates: A list of functions that take an element of A as input and return a boolean
-    :return: A list of sets, each containing elements for which the corresponding predicate returns True
-    """
-    partitions = []
-    for predicate in predicates:
-        partition = {x for x in A if predicate(x)}
-        A -= partition
-        partitions.append(partition)
-    if (
-        A
-    ):  # If there are remaining elements not covered by predicates, add them as a separate partition
-        partitions.append(A)
-    return partitions
-
-
 def set_is_proper_superset(A: set, B: set) -> bool:
     """
     Determine if set A is a proper superset of set B.
@@ -7748,7 +7736,7 @@ def calculate_probability_of_no_success(p_success: float, trials: int) -> float:
 
 
 def calculate_mean_of_discrete_random_variable(
-    values: list, probabilities: list
+    values: list[int], probabilities: list[float]
 ) -> float:
     """
     Calculate the mean (expected value) of a discrete random variable.
@@ -8003,7 +7991,7 @@ def calculate_standard_deviation_sample_or_population(
     return variance**0.5
 
 
-def calculate_population_variance(data: list) -> float:
+def calculate_population_variance(data: list[float]) -> float:
     """
     Calculate the population variance of a dataset.
 
@@ -8015,7 +8003,7 @@ def calculate_population_variance(data: list) -> float:
     return variance
 
 
-def calculate_sample_variance(data: list) -> float:
+def calculate_sample_variance(data: list[float]) -> float:
     """
     Calculate the sample variance of a dataset.
 
@@ -8027,7 +8015,7 @@ def calculate_sample_variance(data: list) -> float:
     return variance
 
 
-def calculate_population_standard_deviation(data: list) -> float:
+def calculate_population_standard_deviation(data: list[float]) -> float:
     """
     Calculate the population standard deviation of a dataset.
 
@@ -8038,7 +8026,7 @@ def calculate_population_standard_deviation(data: list) -> float:
     return variance**0.5
 
 
-def calculate_sample_standard_deviation(data: list) -> float:
+def calculate_sample_standard_deviation(data: list[float]) -> float:
     """
     Calculate the sample standard deviation of a dataset.
 
@@ -8049,7 +8037,7 @@ def calculate_sample_standard_deviation(data: list) -> float:
     return variance**0.5
 
 
-def calculate_mean_absolute_error(actual: list, predicted: list) -> float:
+def calculate_mean_absolute_error(actual: list[float], predicted: list[float]) -> float:
     """
     Calculate the mean absolute error (MAE) between actual and predicted values.
 
@@ -8060,7 +8048,9 @@ def calculate_mean_absolute_error(actual: list, predicted: list) -> float:
     return sum(abs(a - p) for a, p in zip(actual, predicted)) / len(actual)
 
 
-def calculate_root_mean_square_error(actual: list, predicted: list) -> float:
+def calculate_root_mean_square_error(
+    actual: list[float], predicted: list[float]
+) -> float:
     """
     Calculate the root-mean-square error (RMSE) between actual and predicted values.
 
@@ -8071,7 +8061,7 @@ def calculate_root_mean_square_error(actual: list, predicted: list) -> float:
     return (sum((a - p) ** 2 for a, p in zip(actual, predicted)) / len(actual)) ** 0.5
 
 
-def calculate_sample_covariance(x: list, y: list) -> float:
+def calculate_sample_covariance(x: list[float], y: list[float]) -> float:
     """
     Calculate the sample covariance between two lists.
 
@@ -8085,7 +8075,7 @@ def calculate_sample_covariance(x: list, y: list) -> float:
     return sum((xi - mean_x) * (yi - mean_y) for xi, yi in zip(x, y)) / (n - 1)
 
 
-def calculate_mean_squared_error(y_true: list, y_pred: list) -> float:
+def calculate_mean_squared_error(y_true: list[float], y_pred: list[float]) -> float:
     """
     Calculate the mean squared error between true and predicted values.
 
@@ -8097,7 +8087,7 @@ def calculate_mean_squared_error(y_true: list, y_pred: list) -> float:
     return mse
 
 
-def calculate_pearson_correlation(x: list, y: list) -> float:
+def calculate_pearson_correlation(x: list[float], y: list[float]) -> float:
     """
     Calculate the Pearson correlation coefficient between two lists.
 
@@ -8118,7 +8108,7 @@ def calculate_pearson_correlation(x: list, y: list) -> float:
     return numerator / denominator
 
 
-def calculate_root_mean_square(values: list) -> float:
+def calculate_root_mean_square(values: list[float]) -> float:
     """
     Calculate the root-mean-square of a list of values.
 
@@ -8129,7 +8119,7 @@ def calculate_root_mean_square(values: list) -> float:
     return rms
 
 
-def calculate_sample_skewness(data: list) -> float:
+def calculate_sample_skewness(data: list[float]) -> float:
     """
     Calculate the sample skewness of a dataset.
 
@@ -8144,7 +8134,7 @@ def calculate_sample_skewness(data: list) -> float:
     return skewness
 
 
-def calculate_kurtosis(data: list) -> float:
+def calculate_kurtosis(data: list[float]) -> float:
     """
     Calculate the kurtosis of a dataset.
 
@@ -8171,7 +8161,7 @@ def calculate_z_score(value: float, mean: float, std_dev: float) -> float:
     return (value - mean) / std_dev
 
 
-def calculate_coefficient_of_variation(data: list) -> float:
+def calculate_coefficient_of_variation(data: list[float]) -> float:
     """
     Calculate the coefficient of variation of a dataset.
 
@@ -8183,7 +8173,7 @@ def calculate_coefficient_of_variation(data: list) -> float:
     return std_dev / mean
 
 
-def calculate_population_mean(data: list) -> float:
+def calculate_population_mean(data: list[float]) -> float:
     """
     Calculate the mean (average) of a population data set.
 
@@ -8193,7 +8183,7 @@ def calculate_population_mean(data: list) -> float:
     return sum(data) / len(data)
 
 
-def calculate_sample_standard_error(data: list) -> float:
+def calculate_sample_standard_error(data: list[float]) -> float:
     """
     Calculate the standard error of a sample data set.
 
@@ -8206,7 +8196,9 @@ def calculate_sample_standard_error(data: list) -> float:
     return stdev(data) / n**0.5
 
 
-def calculate_coefficient_of_determination(y_true: list, y_pred: list) -> float:
+def calculate_coefficient_of_determination(
+    y_true: list[float], y_pred: list[float]
+) -> float:
     """
     Calculate the coefficient of determination (R^2) for a set of true and predicted values.
 
@@ -8220,7 +8212,7 @@ def calculate_coefficient_of_determination(y_true: list, y_pred: list) -> float:
     return 1 - (residual_sum_of_squares / total_sum_of_squares)
 
 
-def calculate_population_median(data: list) -> float:
+def calculate_population_median(data: list[float]) -> float:
     """
     Calculate the median of a population data set.
 
@@ -8236,7 +8228,7 @@ def calculate_population_median(data: list) -> float:
     return median
 
 
-def calculate_sample_correlation(x: list, y: list) -> float:
+def calculate_sample_correlation(x: list[float], y: list[float]) -> float:
     """
     Calculate the sample correlation coefficient between two variables.
 
@@ -8255,7 +8247,7 @@ def calculate_sample_correlation(x: list, y: list) -> float:
     return numerator / denominator
 
 
-def calculate_population_range(data: list) -> float:
+def calculate_population_range(data: list[float]) -> float:
     """
     Calculate the range of a population data set.
 
@@ -8276,7 +8268,7 @@ def calculate_sample_proportion(successes: int, trials: int) -> float:
     return successes / trials
 
 
-def calculate_interquartile_range(data: list) -> float:
+def calculate_interquartile_range(data: list[float]) -> float:
     """
     Calculate the interquartile range of a data set.
 
@@ -8290,7 +8282,7 @@ def calculate_interquartile_range(data: list) -> float:
     return q3 - q1
 
 
-def calculate_weighted_mean(values: list, weights: list) -> float:
+def calculate_weighted_mean(values: list[float], weights: list[float]) -> float:
     """
     Calculate the weighted mean of a data set.
 

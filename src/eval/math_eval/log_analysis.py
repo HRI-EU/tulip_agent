@@ -345,8 +345,6 @@ def analyze(log_file: str, ground_truth: str) -> None:
 if __name__ == "__main__":
     with open("math_eval_settings.yaml", "rt") as mes:
         settings = yaml.safe_load(mes.read())
-    agents = [a for a in settings["agents"] if settings["agents"][a]]
-    colors = [settings["colors"][a] for a in agents]
     log_folder = settings["log_folder"]
     log = (
         log_folder + "/" + settings["log_file"]
@@ -355,7 +353,14 @@ if __name__ == "__main__":
     )
     with open(log_folder + "/history.json", "r") as f:
         history_data = json.load(f)
-        model = history_data[log.split("/")[-1]]["model"]
+        log_name = [log.split("/")[-1]]
+        model = history_data[log_name]["model"]
+        agents = [
+            a
+            for a in history_data[log_name]["agents"]
+            if history_data[log_name]["agents"][a]
+        ]
+        colors = [history_data[log_name]["colors"][a] for a in agents]
     main(
         log_file=log,
         model=model,

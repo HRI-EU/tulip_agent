@@ -27,6 +27,9 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
+"""
+mte: math_tools_extended
+"""
 
 
 # algebra
@@ -8284,3 +8287,16 @@ if __name__ == "__main__":
         print(name)
         description = fa.analyze_function(function)
         print(description)
+
+    module_name = "mte"
+    too_long = [
+        [name, len(module_name + "__" + name)]
+        for name, _ in functions
+        if len(module_name + "__" + name) > 64
+    ]
+    if too_long:
+        print("Names too long for:")
+        c = 0
+        for name, ln in too_long:
+            print(f"{c} -- {name} -- [{ln}/64]")
+            c += 1

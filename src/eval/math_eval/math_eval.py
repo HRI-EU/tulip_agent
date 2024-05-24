@@ -37,6 +37,7 @@ from inspect import getmembers, isfunction
 from pathlib import Path
 
 import yaml
+
 from tulip_agent import (
     AutoTulipAgent,
     BaseAgent,

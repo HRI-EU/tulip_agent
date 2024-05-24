@@ -37,12 +37,12 @@ import logging.config
 import os.path
 from inspect import getmembers, isfunction
 
+import temp
 import yaml
 from black import FileMode, format_str
 from openai import OpenAI, OpenAIError
-from tulip_agent.constants import BASE_LANGUAGE_MODEL, BASE_TEMPERATURE
 
-import temp
+from tulip_agent.constants import BASE_LANGUAGE_MODEL, BASE_TEMPERATURE
 
 
 # Set up logger

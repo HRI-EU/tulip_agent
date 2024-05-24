@@ -29,9 +29,8 @@
 #
 import unittest
 
-from tulip_agent import CotToolAgent, NaiveToolAgent
-
 from example_tools import add
+from tulip_agent import CotToolAgent, NaiveToolAgent
 
 
 class TestCore(unittest.TestCase):

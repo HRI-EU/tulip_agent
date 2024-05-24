@@ -37,6 +37,7 @@ from inspect import getmembers, isfunction
 
 import yaml
 from openai import OpenAI, OpenAIError
+
 from tulip_agent.constants import BASE_LANGUAGE_MODEL, BASE_TEMPERATURE
 
 

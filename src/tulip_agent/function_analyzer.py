@@ -41,6 +41,7 @@ OPENAI_BASE_TYPES = {
     float: "number",
     int: "number",
     str: "string",
+    bool: "boolean",
 }
 
 OPENAI_NESTED_TYPES = {

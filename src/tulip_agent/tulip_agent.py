@@ -632,13 +632,18 @@ class AutoTulipAgent(TulipAgent):
         # reload tool library
         with open(module_path, "w") as m:
             m.write(code)
-        self.tool_library.update_function(function_id=tool_name)
+        updated_tool_description = self.tool_library.update_function(
+            function_id=tool_name
+        )
+        self.tools = [t for t in self.tools if t["function"]["name"] != tool_name]
+        self.tools.append(updated_tool_description)
         success_msg = f"Successfully updated `{tool_name}`."
         logger.info(success_msg)
         return success_msg
 
     def delete_tool(self, tool_name: str) -> str:
         self.tool_library.remove_function(function_id=tool_name)
+        self.tools = [t for t in self.tools if t["function"]["name"] != tool_name]
         return f"Removed tool {tool_name} from the tool library."
 
     def decompose_task(self, task: str) -> str:

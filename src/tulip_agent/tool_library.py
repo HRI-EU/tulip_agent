@@ -244,7 +244,7 @@ class ToolLibrary:
     def update_function(
         self,
         function_id: str,
-    ) -> None:
+    ) -> dict:
         module_name = self.function_origins[function_id]["module_name"]
         module = sys.modules[module_name]
         function_name = self.function_origins[function_id]["function_name"]
@@ -269,6 +269,7 @@ class ToolLibrary:
         f_description = self.function_analyzer.analyze_function(f_)
         f_description["function"]["name"] = function_id
         self.function_descriptions[function_id] = f_description
+        return f_description
 
     def search(
         self,

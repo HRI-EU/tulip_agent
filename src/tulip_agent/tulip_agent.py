@@ -272,8 +272,8 @@ class NaiveTulipAgent(TulipAgent):
                 tools=[self.search_tools_description],
                 tool_choice={"type": "function", "function": {"name": "search_tools"}},
             )
-            _msgs.append(function_response)
             response_message = function_response.choices[0].message
+            _msgs.append(response_message)
             tool_calls = response_message.tool_calls
 
             # More than one tool call - several searches should be combined in one call

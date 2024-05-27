@@ -62,6 +62,7 @@ class TulipAgent(LlmAgent, ABC):
         instructions: str,
         model: str = BASE_LANGUAGE_MODEL,
         temperature: float = BASE_TEMPERATURE,
+        api_interaction_limit: int = 100,
         tool_library: ToolLibrary = None,
         top_k_functions: int = 3,
         search_similarity_threshold: float = None,
@@ -70,6 +71,7 @@ class TulipAgent(LlmAgent, ABC):
             instructions=instructions,
             model=model,
             temperature=temperature,
+            api_interaction_limit=api_interaction_limit,
         )
         self.tool_library = tool_library
         self.top_k_functions = top_k_functions
@@ -155,6 +157,11 @@ class TulipAgent(LlmAgent, ABC):
         while tool_calls:
             self.messages.append(response_message)
 
+            if self.api_interaction_counter >= self.api_interaction_limit:
+                error_message = f"Error: Reached API interaction limit of {self.api_interaction_limit}."
+                logger.error(error_message)
+                return error_message
+
             for tool_call in tool_calls:
                 func_name = tool_call.function.name
                 func_args = json.loads(tool_call.function.arguments)
@@ -195,6 +202,7 @@ class MinimalTulipAgent(TulipAgent):
         self,
         model: str = BASE_LANGUAGE_MODEL,
         temperature: float = BASE_TEMPERATURE,
+        api_interaction_limit: int = 100,
         tool_library: ToolLibrary = None,
         top_k_functions: int = 10,
         instructions: Optional[str] = None,
@@ -205,6 +213,7 @@ class MinimalTulipAgent(TulipAgent):
             ),
             model=model,
             temperature=temperature,
+            api_interaction_limit=api_interaction_limit,
             tool_library=tool_library,
             top_k_functions=top_k_functions,
         )
@@ -233,6 +242,7 @@ class NaiveTulipAgent(TulipAgent):
         self,
         model: str = BASE_LANGUAGE_MODEL,
         temperature: float = BASE_TEMPERATURE,
+        api_interaction_limit: int = 100,
         tool_library: ToolLibrary = None,
         top_k_functions: int = 3,
         instructions: Optional[str] = None,
@@ -243,6 +253,7 @@ class NaiveTulipAgent(TulipAgent):
             ),
             model=model,
             temperature=temperature,
+            api_interaction_limit=api_interaction_limit,
             tool_library=tool_library,
             top_k_functions=top_k_functions,
         )
@@ -332,6 +343,7 @@ class CotTulipAgent(TulipAgent):
         self,
         model: str = BASE_LANGUAGE_MODEL,
         temperature: float = BASE_TEMPERATURE,
+        api_interaction_limit: int = 100,
         tool_library: ToolLibrary = None,
         top_k_functions: int = 3,
         search_similarity_threshold: float = 0.35,
@@ -345,6 +357,7 @@ class CotTulipAgent(TulipAgent):
             ),
             model=model,
             temperature=temperature,
+            api_interaction_limit=api_interaction_limit,
             tool_library=tool_library,
             top_k_functions=top_k_functions,
             search_similarity_threshold=search_similarity_threshold,
@@ -437,6 +450,7 @@ class AutoTulipAgent(TulipAgent):
         self,
         model: str = BASE_LANGUAGE_MODEL,
         temperature: float = BASE_TEMPERATURE,
+        api_interaction_limit: int = 100,
         tool_library: ToolLibrary = None,
         top_k_functions: int = 1,
         instructions: Optional[str] = None,
@@ -449,6 +463,7 @@ class AutoTulipAgent(TulipAgent):
             ),
             model=model,
             temperature=temperature,
+            api_interaction_limit=api_interaction_limit,
             tool_library=tool_library,
             top_k_functions=top_k_functions,
         )
@@ -663,6 +678,11 @@ class AutoTulipAgent(TulipAgent):
 
         while tool_calls:
             self.messages.append(response_message)
+
+            if self.api_interaction_counter >= self.api_interaction_limit:
+                error_message = f"Error: Reached API interaction limit of {self.api_interaction_limit}."
+                logger.error(error_message)
+                return error_message
 
             for tool_call in tool_calls:
                 func_name = tool_call.function.name

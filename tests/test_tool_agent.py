@@ -30,7 +30,7 @@
 import unittest
 
 from example_tools import add
-from tulip_agent import NaiveToolAgent, CotToolAgent
+from tulip_agent import CotToolAgent, NaiveToolAgent
 
 
 class TestCore(unittest.TestCase):

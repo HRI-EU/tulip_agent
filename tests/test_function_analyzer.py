@@ -28,7 +28,6 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 import unittest
-
 from typing import Optional, Union
 
 from tulip_agent.function_analyzer import FunctionAnalyzer
@@ -58,15 +57,28 @@ def dummy_function(
     return None
 
 
+def nested_function(
+    nested: list[list[tuple[set[str]]]],
+) -> None:
+    """
+    Print some fine information.
+
+    :param nested: A four-dimensional array of strings.
+    :return: Nothing.
+    """
+    print(nested)
+    return None
+
+
 class TestCore(unittest.TestCase):
 
     def setUp(self):
         self.fa = FunctionAnalyzer()
-        self.res = self.fa.analyze_function(dummy_function)
 
     def test_required_identification(self):
+        res = self.fa.analyze_function(dummy_function)
         self.assertEqual(
-            self.res["function"]["parameters"]["required"],
+            res["function"]["parameters"]["required"],
             [
                 "texts",
                 "number",
@@ -75,8 +87,9 @@ class TestCore(unittest.TestCase):
         )
 
     def test_parameter_identification(self):
+        res = self.fa.analyze_function(dummy_function)
         self.assertEqual(
-            [k for k, _ in self.res["function"]["parameters"]["properties"].items()],
+            [k for k, _ in res["function"]["parameters"]["properties"].items()],
             [
                 "texts",
                 "number",
@@ -84,6 +97,25 @@ class TestCore(unittest.TestCase):
                 "str_two",
             ],
             "Identifying parameters failed.",
+        )
+
+    def test_nested(self):
+        res = self.fa.analyze_function(nested_function)
+        self.assertEqual(
+            res["function"]["parameters"]["properties"]["nested"]["type"],
+            "array",
+            "Resolving parameter type origin failed.",
+        )
+        self.assertEqual(
+            res["function"]["parameters"]["properties"]["nested"]["items"],
+            {
+                "type": "array",
+                "items": {
+                    "type": "array",
+                    "items": {"type": "array", "items": {"type": "string"}},
+                },
+            },
+            "Resolving nested parameters failed.",
         )
 
 

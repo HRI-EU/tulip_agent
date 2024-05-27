@@ -32,11 +32,11 @@ import json
 import logging.config
 import os.path
 import shutil
-import yaml
-
 from datetime import datetime
 from inspect import getmembers, isfunction
 from pathlib import Path
+
+import yaml
 
 from tulip_agent import (
     AutoTulipAgent,
@@ -44,8 +44,8 @@ from tulip_agent import (
     CotToolAgent,
     CotTulipAgent,
     MinimalTulipAgent,
-    NaiveTulipAgent,
     NaiveToolAgent,
+    NaiveTulipAgent,
     ToolLibrary,
 )
 from tulip_agent.constants import BASE_LANGUAGE_MODEL

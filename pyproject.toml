@@ -21,6 +21,7 @@ matplotlib = "^3.8.3"
 scipy = "^1.13.0"
 docstring-parser = "^0.16"
 tiktoken = "^0.7.0"
+isort = "^5.13.2"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -31,3 +32,12 @@ pre-commit = "^3.6.2"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.isort]
+profile = "black"
+src_paths = ["examples", "src", "tests"]
+skip = [
+    "src/eval/robo_eval/AttentiveSupport",
+    ".venv"
+]
+lines_after_imports = 2

@@ -46,6 +46,7 @@ otherwise lead to challenges for the LLM to find the right tool for the task.
 * [Pre-commit hooks](https://pre-commit.com/) - install with `(poetry run) pre-commit install`
 * Linting: [ruff](https://github.com/astral-sh/ruff)
 * Formatting: [black](https://github.com/psf/black)
+* Import sorting: [isort](https://github.com/PyCQA/isort)
 * Tests: Run with `poetry run python -m unittest discover tests/`
 
 

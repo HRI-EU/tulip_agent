@@ -32,19 +32,13 @@ Agent variations with tool access as a baseline.
 """
 import json
 import logging
-
 from abc import ABC
 from typing import Callable, Optional
 
 from .base_agent import LlmAgent
 from .constants import BASE_LANGUAGE_MODEL, BASE_TEMPERATURE
 from .function_analyzer import FunctionAnalyzer
-from .prompts import (
-    SOLVE_WITH_TOOLS,
-    TASK_DECOMPOSITION,
-    TOOL_COT_PROMPT,
-    TOOL_PROMPT,
-)
+from .prompts import SOLVE_WITH_TOOLS, TASK_DECOMPOSITION, TOOL_COT_PROMPT, TOOL_PROMPT
 
 
 logger = logging.getLogger(__name__)

@@ -34,7 +34,6 @@ for creating descriptions usable with the OpenAI API
 Note: Only OPENAI_TYPES are supported as function inputs
 """
 import typing
-
 from dataclasses import dataclass
 
 
@@ -42,10 +41,13 @@ OPENAI_BASE_TYPES = {
     float: "number",
     int: "number",
     str: "string",
+    bool: "boolean",
 }
 
 OPENAI_NESTED_TYPES = {
     list: "array",
+    tuple: "array",
+    set: "array",
 }
 
 
@@ -56,31 +58,34 @@ class VariableDescription:
     description: str
 
     def __post_init__(self):
-        if self.type_ in OPENAI_BASE_TYPES:
-            self.type_origin = OPENAI_BASE_TYPES[self.type_]
-            self.type_arg = None
-        elif typing.get_origin(self.type_) in OPENAI_NESTED_TYPES:
-            self.type_origin = OPENAI_NESTED_TYPES[typing.get_origin(self.type_)]
-            self.type_arg = OPENAI_BASE_TYPES[typing.get_args(self.type_)[0]]
-        else:
-            raise TypeError(f"Unexpected subtype for {self.name}: {str(self.type_)}.")
+        # NOTE: assumes simple type hint structure; uses first type if there are distinct ones
+        def _recurse(type_):
+            if type_ in OPENAI_BASE_TYPES:
+                return [OPENAI_BASE_TYPES[type_]]
+            elif typing.get_origin(type_) in OPENAI_NESTED_TYPES:
+                type_origin = OPENAI_NESTED_TYPES[typing.get_origin(type_)]
+                type_args = _recurse(typing.get_args(type_)[0])
+                return [type_origin] + type_args
+            else:
+                raise TypeError(
+                    f"Unexpected subtype for {self.name}: {str(self.type_)}."
+                )
+
+        self.type_structure = _recurse(type_=self.type_)
 
     def to_dict(self) -> dict:
-        if self.type_arg is None:
-            return {
-                self.name: {
-                    "type": self.type_origin,
-                    "description": self.description,
-                }
+        base_result = {
+            self.name: {
+                "type": self.type_structure[0],
+                "description": self.description,
             }
-        else:
-            return {
-                self.name: {
-                    "type": self.type_origin,
-                    "description": self.description,
-                    "items": {"type": self.type_arg},
-                }
-            }
+        }
+        if len(self.type_structure) > 1:
+            sub = base_result[self.name]
+            for t in self.type_structure[1:]:
+                sub["items"] = {"type": t}
+                sub = sub["items"]
+        return base_result
 
 
 class FunctionAnalyzer:

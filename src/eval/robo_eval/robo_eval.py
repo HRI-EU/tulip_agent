@@ -31,14 +31,12 @@
 TulipAgent robotics eval
 """
 import logging.config
-import yaml
 
-from tulip_agent import (
-    AutoTulipAgent,
-    ToolLibrary,
-)
 import tools
+import yaml
 from AttentiveSupport.src.gpt_config import system_prompt
+
+from tulip_agent import AutoTulipAgent, ToolLibrary
 
 
 # Set up agent loggers to save logs to file for analysis

@@ -29,6 +29,18 @@
 #
 import logging
 
+from calculator import (
+    add,
+    cosine,
+    divide,
+    exponent,
+    modulus,
+    multiply,
+    sine,
+    square_root,
+    subtract,
+    tangent,
+)
 from tulip_agent import (
     AutoTulipAgent,
     BaseAgent,
@@ -38,18 +50,6 @@ from tulip_agent import (
     NaiveToolAgent,
     NaiveTulipAgent,
     ToolLibrary,
-)
-from calculator import (
-    add,
-    subtract,
-    multiply,
-    divide,
-    square_root,
-    exponent,
-    modulus,
-    sine,
-    cosine,
-    tangent,
 )
 
 

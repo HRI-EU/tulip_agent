@@ -27,6 +27,9 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
+"""
+mte: math_tools_extended
+"""
 
 
 # algebra
@@ -102,18 +105,18 @@ def calculate_determinant(matrix: list[list[float]]) -> float:
     Calculate the determinant of a 2x2 matrix.
 
     :param matrix: A 2x2 matrix represented as a list of lists containing floats.
-    :returns: The determinant of the matrix.
+    :return: The determinant of the matrix.
     """
     return matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0]
 
 
-def find_slope(point1: tuple[float, float], point2: tuple[float, float]) -> float:
+def find_slope(point1: tuple[float, ...], point2: tuple[float, ...]) -> float:
     """
     Find the slope of a line given two points.
 
     :param point1: A tuple representing the first point (x1, y1).
     :param point2: A tuple representing the second point (x2, y2).
-    :returns: The slope of the line.
+    :return: The slope of the line.
     """
     return (point2[1] - point1[1]) / (point2[0] - point1[0])
 
@@ -124,7 +127,7 @@ def calculate_area_of_triangle(base: float, height: float) -> float:
 
     :param base: The base of the triangle.
     :param height: The height of the triangle.
-    :returns: The area of the triangle.
+    :return: The area of the triangle.
     """
     return 0.5 * base * height
 
@@ -134,7 +137,7 @@ def calculate_mean(values: list[float]) -> float:
     Calculate the mean of a list of numbers.
 
     :param values: A list of floats representing the numbers.
-    :returns: The mean of the numbers.
+    :return: The mean of the numbers.
     """
     return sum(values) / len(values)
 
@@ -145,7 +148,7 @@ def find_root_linear_equation(a: float, b: float) -> float:
 
     :param a: The coefficient of x.
     :param b: The constant term.
-    :returns: The root of the equation.
+    :return: The root of the equation.
     """
     return -b / a
 
@@ -233,7 +236,7 @@ def calculate_area_of_circle(radius: float) -> float:
     Calculate the area of a circle given its radius.
 
     :param radius: The radius of the circle.
-    :returns: The area of the circle.
+    :return: The area of the circle.
     """
     import math
 
@@ -245,7 +248,7 @@ def calculate_circumference_of_circle(radius: float) -> float:
     Calculate the circumference of a circle given its radius.
 
     :param radius: The radius of the circle.
-    :returns: The circumference of the circle.
+    :return: The circumference of the circle.
     """
     import math
 
@@ -257,7 +260,7 @@ def calculate_area_of_square(side_length: float) -> float:
     Calculate the area of a square given the length of its side.
 
     :param side_length: The length of the side of the square.
-    :returns: The area of the square.
+    :return: The area of the square.
     """
     return side_length**2
 
@@ -267,7 +270,7 @@ def calculate_volume_of_cube(side_length: float) -> float:
     Calculate the volume of a cube given the length of its side.
 
     :param side_length: The length of the side of the cube.
-    :returns: The volume of the cube.
+    :return: The volume of the cube.
     """
     return side_length**3
 
@@ -278,7 +281,7 @@ def calculate_pythagorean_theorem(a: float, b: float) -> float:
 
     :param a: The length of one side of the triangle.
     :param b: The length of the other side of the triangle.
-    :returns: The length of the hypotenuse of the triangle.
+    :return: The length of the hypotenuse of the triangle.
     """
     import math
 
@@ -293,7 +296,7 @@ def calculate_factorial(n: int) -> int:
     It is denoted by n!.
 
     :param n: The non-negative integer to calculate the factorial of.
-    :returns: The factorial of n.
+    :return: The factorial of n.
     """
     if n == 0:
         return 1
@@ -308,7 +311,7 @@ def calculate_gcd(a: int, b: int) -> int:
 
     :param a: First integer.
     :param b: Second integer.
-    :returns: The greatest common divisor of a and b.
+    :return: The greatest common divisor of a and b.
     """
     while b:
         a, b = b, a % b
@@ -323,7 +326,7 @@ def calculate_lcm(a: int, b: int) -> int:
 
     :param a: First integer.
     :param b: Second integer.
-    :returns: The least common multiple of a and b.
+    :return: The least common multiple of a and b.
     """
     return abs(a * b) // calculate_gcd(a, b)
 
@@ -336,7 +339,7 @@ def calculate_exponential(base: float, exponent: int) -> float:
 
     :param base: The base value.
     :param exponent: The exponent value.
-    :returns: The result of base raised to the power of exponent.
+    :return: The result of base raised to the power of exponent.
     """
     return base**exponent
 
@@ -350,14 +353,14 @@ def calculate_logarithm(base: float, value: float) -> float:
 
     :param base: The base of the logarithm.
     :param value: The value to calculate the logarithm for.
-    :returns: The logarithm of value to the given base.
+    :return: The logarithm of value to the given base.
     """
     import math
 
     return math.log(value, base)
 
 
-def calculate_median(numbers: list) -> float:
+def calculate_median(numbers: list[float]) -> float:
     """
     Calculate the median of a list of numbers.
 
@@ -377,7 +380,7 @@ def calculate_median(numbers: list) -> float:
         return sorted_numbers[mid]
 
 
-def calculate_standard_deviation(numbers: list) -> float:
+def calculate_standard_deviation(numbers: list[float]) -> float:
     """
     Calculate the standard deviation of a list of numbers.
 
@@ -393,7 +396,7 @@ def calculate_standard_deviation(numbers: list) -> float:
     return variance**0.5
 
 
-def calculate_mode(numbers: list) -> list:
+def calculate_mode(numbers: list[float]) -> list:
     """
     Calculate the mode(s) of a list of numbers.
 
@@ -411,7 +414,7 @@ def calculate_mode(numbers: list) -> list:
     return modes
 
 
-def calculate_range(numbers: list) -> float:
+def calculate_range(numbers: list[float]) -> float:
     """
     Calculate the range of a list of numbers.
 
@@ -423,7 +426,7 @@ def calculate_range(numbers: list) -> float:
     return max(numbers) - min(numbers)
 
 
-def calculate_sum_of_squares(numbers: list) -> float:
+def calculate_sum_of_squares(numbers: list[float]) -> float:
     """
     Calculate the sum of the squares of a list of numbers.
 
@@ -440,7 +443,7 @@ def calculate_volume_of_sphere(radius: float) -> float:
     Calculate the volume of a sphere given its radius.
 
     :param radius: The radius of the sphere.
-    :returns: The volume of the sphere.
+    :return: The volume of the sphere.
     """
     from math import pi
 
@@ -452,7 +455,7 @@ def calculate_surface_area_of_sphere(radius: float) -> float:
     Calculate the surface area of a sphere given its radius.
 
     :param radius: The radius of the sphere.
-    :returns: The surface area of the sphere.
+    :return: The surface area of the sphere.
     """
     from math import pi
 
@@ -465,7 +468,7 @@ def calculate_volume_of_cone(radius: float, height: float) -> float:
 
     :param radius: The radius of the base of the cone.
     :param height: The height of the cone.
-    :returns: The volume of the cone.
+    :return: The volume of the cone.
     """
     from math import pi
 
@@ -478,7 +481,7 @@ def calculate_surface_area_of_cylinder(radius: float, height: float) -> float:
 
     :param radius: The radius of the base of the cylinder.
     :param height: The height of the cylinder.
-    :returns: The surface area of the cylinder.
+    :return: The surface area of the cylinder.
     """
     from math import pi
 
@@ -494,17 +497,17 @@ def calculate_volume_of_pyramid(
     :param base_length: The length of the base of the pyramid.
     :param base_width: The width of the base of the pyramid.
     :param height: The height of the pyramid.
-    :returns: The volume of the pyramid.
+    :return: The volume of the pyramid.
     """
     return (1 / 3) * base_length * base_width * height
 
 
-def calculate_variance(numbers: list) -> float:
+def calculate_variance(numbers: list[float]) -> float:
     """
     Calculate the variance of a list of numbers.
 
     :param numbers: A list of numbers for which the variance is to be calculated
-    :returns: The variance of the numbers
+    :return: The variance of the numbers
     """
     mean = sum(numbers) / len(numbers)
     variance = sum((x - mean) ** 2 for x in numbers) / len(numbers)
@@ -516,7 +519,7 @@ def calculate_cubic_root(number: float) -> float:
     Calculate the cubic root of a given number.
 
     :param number: The number to calculate the cubic root for
-    :returns: The cubic root of the number
+    :return: The cubic root of the number
     """
     return number ** (1 / 3)
 
@@ -527,7 +530,7 @@ def calculate_percent_difference(value1: float, value2: float) -> float:
 
     :param value1: The first value
     :param value2: The second value
-    :returns: The percent difference between the two values
+    :return: The percent difference between the two values
     """
     difference = abs(value1 - value2)
     average = (value1 + value2) / 2
@@ -543,7 +546,7 @@ def calculate_slope_intercept_form(x1: float, y1: float, x2: float, y2: float) -
     :param y1: The y-coordinate of the first point
     :param x2: The x-coordinate of the second point
     :param y2: The y-coordinate of the second point
-    :returns: A tuple containing the slope and y-intercept of the line
+    :return: A tuple containing the slope and y-intercept of the line
     """
     slope = (y2 - y1) / (x2 - x1)
     y_intercept = y1 - slope * x1
@@ -557,7 +560,7 @@ def calculate_arithmetic_progression_sum(n: int, a1: float, an: float) -> float:
     :param n: The number of terms
     :param a1: The first term of the progression
     :param an: The nth term of the progression
-    :returns: The sum of the first n terms of the arithmetic progression
+    :return: The sum of the first n terms of the arithmetic progression
     """
     return (n / 2) * (a1 + an)
 
@@ -567,7 +570,7 @@ def calculate_quartic_root(number: float) -> float:
     Calculate the quartic (fourth) root of a given number.
 
     :param number: The number to find the quartic root of.
-    :returns: The quartic root of the number.
+    :return: The quartic root of the number.
     """
     return number**0.25
 
@@ -577,7 +580,7 @@ def calculate_harmonic_mean(numbers: list[float]) -> float:
     Calculate the harmonic mean of a list of numbers.
 
     :param numbers: A list of numbers to calculate the harmonic mean of.
-    :returns: The harmonic mean of the numbers.
+    :return: The harmonic mean of the numbers.
     """
     n = len(numbers)
     denominator = sum(1 / x for x in numbers)
@@ -589,7 +592,7 @@ def calculate_geometric_mean(numbers: list[float]) -> float:
     Calculate the geometric mean of a list of numbers.
 
     :param numbers: A list of numbers to calculate the geometric mean of.
-    :returns: The geometric mean of the numbers.
+    :return: The geometric mean of the numbers.
     """
     product = 1
     n = len(numbers)
@@ -603,7 +606,7 @@ def calculate_coterminal_angle(angle: float) -> float:
     Calculate a coterminal angle in degrees for a given angle.
 
     :param angle: The original angle in degrees.
-    :returns: A positive coterminal angle of the given angle within the range 0 to 360 degrees.
+    :return: A positive coterminal angle of the given angle within the range 0 to 360 degrees.
     """
     return angle % 360
 
@@ -613,7 +616,7 @@ def calculate_inverse_sine(value: float) -> float:
     Calculate the inverse sine (arcsin) of a value.
 
     :param value: The value to calculate the arcsin for, which must be in the range [-1, 1].
-    :returns: The arcsin of the value in radians.
+    :return: The arcsin of the value in radians.
     """
     import math
 
@@ -847,7 +850,7 @@ def calculate_scalar_multiplication_of_matrix(
     return [[scalar * element for element in row] for row in matrix]
 
 
-def calculate_polynomial_value(coefficients: list, x: float) -> float:
+def calculate_polynomial_value(coefficients: list[float], x: float) -> float:
     """
     Calculate the value of a polynomial for a given x.
     The polynomial is defined as coefficients[0]*x^n + coefficients[1]*x^(n-1) + ... + coefficients[n].
@@ -859,7 +862,9 @@ def calculate_polynomial_value(coefficients: list, x: float) -> float:
     return sum(coef * x**i for i, coef in enumerate(reversed(coefficients)))
 
 
-def calculate_euclidean_distance(point1: tuple, point2: tuple) -> float:
+def calculate_euclidean_distance(
+    point1: tuple[float, ...], point2: tuple[float, ...]
+) -> float:
     """
     Calculate the Euclidean distance between two points in n-dimensional space.
     The distance is calculated using the formula sqrt(sum((p1_i - p2_i)^2 for i in dimensions)).
@@ -871,7 +876,9 @@ def calculate_euclidean_distance(point1: tuple, point2: tuple) -> float:
     return sum((a - b) ** 2 for a, b in zip(point1, point2)) ** 0.5
 
 
-def calculate_system_of_linear_equations(matrix: list, constants: list) -> list:
+def calculate_system_of_linear_equations(
+    matrix: list[list[float]], constants: list[float]
+) -> list:
     """
     Solve a system of linear equations represented in matrix form.
     This function uses the numpy library to solve the system of equations.
@@ -898,7 +905,7 @@ def calculate_derivative_at_point(function, x: float, h: float = 1e-5) -> float:
     return (function(x + h) - function(x)) / h
 
 
-def calculate_inverse_matrix(matrix: list) -> list:
+def calculate_inverse_matrix(matrix: list[list[float]]) -> list:
     """
     Calculate the inverse of a square matrix.
     This function uses the numpy library to calculate the inverse of the matrix.
@@ -1033,7 +1040,7 @@ def calculate_sine_law_side(a: float, A: float, B: float) -> float:
     :param B: Angle opposite the side to be calculated, in degrees.
     :return: Length of the side opposite angle B.
     """
-    from math import sin, radians
+    from math import radians, sin
 
     return a * sin(radians(B)) / sin(radians(A))
 
@@ -1047,7 +1054,7 @@ def calculate_sine_law_angle(a: float, A: float, b: float) -> float:
     :param b: Length of the side opposite the angle to be calculated.
     :return: Angle opposite the side b, in degrees.
     """
-    from math import asin, degrees, sin, radians
+    from math import asin, degrees, radians, sin
 
     return degrees(asin(b * sin(radians(A)) / a))
 
@@ -1062,7 +1069,7 @@ def calculate_linear_equation_slope_intercept(
     :param y1: The y-coordinate of the first point.
     :param x2: The x-coordinate of the second point.
     :param y2: The y-coordinate of the second point.
-    :returns: A tuple containing the slope and y-intercept of the linear equation.
+    :return: A tuple containing the slope and y-intercept of the linear equation.
     """
     slope = (y2 - y1) / (x2 - x1)
     y_intercept = y1 - slope * x1
@@ -1075,7 +1082,7 @@ def calculate_perimeter_of_rectangle(length: float, width: float) -> float:
 
     :param length: The length of the rectangle.
     :param width: The width of the rectangle.
-    :returns: The perimeter of the rectangle.
+    :return: The perimeter of the rectangle.
     """
     return 2 * (length + width)
 
@@ -1086,7 +1093,7 @@ def calculate_volume_of_prism(base_area: float, height: float) -> float:
 
     :param base_area: The area of the base of the prism.
     :param height: The height of the prism.
-    :returns: The volume of the prism.
+    :return: The volume of the prism.
     """
     return base_area * height
 
@@ -1096,7 +1103,7 @@ def calculate_angle_sum_of_polygon(n_sides: int) -> float:
     Calculate the sum of the interior angles of a polygon.
 
     :param n_sides: The number of sides of the polygon.
-    :returns: The sum of the interior angles of the polygon in degrees.
+    :return: The sum of the interior angles of the polygon in degrees.
     """
     return (n_sides - 2) * 180
 
@@ -1107,7 +1114,7 @@ def calculate_area_of_parallelogram(base: float, height: float) -> float:
 
     :param base: The length of the base of the parallelogram.
     :param height: The height of the parallelogram.
-    :returns: The area of the parallelogram.
+    :return: The area of the parallelogram.
     """
     return base * height
 
@@ -1117,7 +1124,7 @@ def calculate_sum_of_cubes(n: int) -> int:
     Calculate the sum of the cubes of the first n natural numbers.
 
     :param n: The number of terms in the series.
-    :returns: The sum of the cubes of the first n natural numbers.
+    :return: The sum of the cubes of the first n natural numbers.
     """
     return sum(i**3 for i in range(1, n + 1))
 
@@ -1127,7 +1134,7 @@ def calculate_double_angle_cosine(cos_x: float) -> float:
     Calculate the cosine of a double angle given the cosine of the original angle.
 
     :param cos_x: The cosine of the original angle x.
-    :returns: The cosine of the double angle 2x.
+    :return: The cosine of the double angle 2x.
     """
     return 2 * cos_x**2 - 1
 
@@ -1137,7 +1144,7 @@ def calculate_pascals_triangle_row(n: int) -> list:
     Calculate the nth row of Pascal's triangle.
 
     :param n: The row number to calculate, where n=0 is the first row.
-    :returns: A list representing the nth row of Pascal's triangle.
+    :return: A list representing the nth row of Pascal's triangle.
     """
     row = [1]
     for k in range(1, n + 1):
@@ -1150,7 +1157,7 @@ def calculate_fibonacci_number(n: int) -> int:
     Calculate the nth Fibonacci number.
 
     :param n: The position of the Fibonacci number to calculate.
-    :returns: The nth Fibonacci number.
+    :return: The nth Fibonacci number.
     """
     a, b = 0, 1
     for _ in range(n):
@@ -1165,7 +1172,7 @@ def calculate_annuity_payment(principal: float, rate: float, periods: int) -> fl
     :param principal: The total amount of the loan.
     :param rate: The interest rate per period.
     :param periods: The number of periods over which the loan is amortized.
-    :returns: The annuity payment amount.
+    :return: The annuity payment amount.
     """
     return principal * (rate * (1 + rate) ** periods) / ((1 + rate) ** periods - 1)
 
@@ -1175,7 +1182,7 @@ def calculate_sum_of_odd_numbers(n: int) -> int:
     Calculate the sum of the first n odd numbers.
 
     :param n: The number of odd numbers to sum up.
-    :returns: The sum of the first n odd numbers.
+    :return: The sum of the first n odd numbers.
     """
     return n**2
 
@@ -1185,7 +1192,7 @@ def calculate_sum_of_even_numbers(n: int) -> int:
     Calculate the sum of the first n even numbers.
 
     :param n: The number of even numbers to sum up.
-    :returns: The sum of the first n even numbers.
+    :return: The sum of the first n even numbers.
     """
     return n * (n + 1)
 
@@ -1195,7 +1202,7 @@ def calculate_product_of_n_numbers(*args: int) -> int:
     Calculate the product of n given numbers.
 
     :param args: A variable number of integers to be multiplied.
-    :returns: The product of the given numbers.
+    :return: The product of the given numbers.
     """
     product = 1
     for num in args:
@@ -1209,7 +1216,7 @@ def calculate_nth_root(value: float, n: int) -> float:
 
     :param value: The value to find the nth root of.
     :param n: The degree of the root.
-    :returns: The nth root of the value.
+    :return: The nth root of the value.
     """
     return value ** (1 / n)
 
@@ -1221,7 +1228,7 @@ def calculate_sum_of_arithmetic_series(n: int, a1: float, an: float) -> float:
     :param n: The number of terms in the series.
     :param a1: The first term of the series.
     :param an: The last term of the series.
-    :returns: The sum of the arithmetic series.
+    :return: The sum of the arithmetic series.
     """
     return (n * (a1 + an)) / 2
 
@@ -1232,7 +1239,7 @@ def calculate_surface_area_of_cone(radius: float, slant_height: float) -> float:
 
     :param radius: The radius of the base of the cone.
     :param slant_height: The slant height of the cone.
-    :returns: The surface area of the cone.
+    :return: The surface area of the cone.
     """
     import math
 
@@ -1248,7 +1255,7 @@ def calculate_volume_of_rectangular_prism(
     :param length: The length of the rectangular prism.
     :param width: The width of the rectangular prism.
     :param height: The height of the rectangular prism.
-    :returns: The volume of the rectangular prism.
+    :return: The volume of the rectangular prism.
     """
     return length * width * height
 
@@ -1260,7 +1267,7 @@ def calculate_perimeter_of_triangle(side1: float, side2: float, side3: float) ->
     :param side1: The length of the first side of the triangle.
     :param side2: The length of the second side of the triangle.
     :param side3: The length of the third side of the triangle.
-    :returns: The perimeter of the triangle.
+    :return: The perimeter of the triangle.
     """
     return side1 + side2 + side3
 
@@ -1271,7 +1278,7 @@ def calculate_area_of_rhombus(diagonal1: float, diagonal2: float) -> float:
 
     :param diagonal1: The length of the first diagonal of the rhombus.
     :param diagonal2: The length of the second diagonal of the rhombus.
-    :returns: The area of the rhombus.
+    :return: The area of the rhombus.
     """
     return (diagonal1 * diagonal2) / 2
 
@@ -1281,7 +1288,7 @@ def calculate_volume_of_tetrahedron(edge_length: float) -> float:
     Calculate the volume of a regular tetrahedron.
 
     :param edge_length: The length of an edge of the tetrahedron.
-    :returns: The volume of the tetrahedron.
+    :return: The volume of the tetrahedron.
     """
     import math
 
@@ -1294,7 +1301,7 @@ def calculate_sum_of_powers(n: int, power: int) -> int:
 
     :param n: The upper limit of the natural numbers to be considered.
     :param power: The power to which each natural number is raised.
-    :returns: The sum of the powers of all natural numbers up to n.
+    :return: The sum of the powers of all natural numbers up to n.
     """
     return sum([i**power for i in range(1, n + 1)])
 
@@ -1304,7 +1311,7 @@ def calculate_perimeter_of_hexagon(side_length: float) -> float:
     Calculate the perimeter of a hexagon given the length of one side.
 
     :param side_length: The length of one side of the hexagon.
-    :returns: The perimeter of the hexagon.
+    :return: The perimeter of the hexagon.
     """
     return 6 * side_length
 
@@ -1315,7 +1322,7 @@ def calculate_volume_of_torus(major_radius: float, minor_radius: float) -> float
 
     :param major_radius: The major radius of the torus (distance from the center of the tube to the center of the torus).
     :param minor_radius: The minor radius of the torus (radius of the tube).
-    :returns: The volume of the torus.
+    :return: The volume of the torus.
     """
     import math
 
@@ -1329,7 +1336,7 @@ def calculate_cofactor(matrix: list[list[float]], row: int, col: int) -> float:
     :param matrix: The matrix as a list of lists.
     :param row: The row index of the element (0-based).
     :param col: The column index of the element (0-based).
-    :returns: The cofactor of the specified element.
+    :return: The cofactor of the specified element.
     """
 
     def minor(m: list[list[float]], i: int, j: int) -> list[list[float]]:
@@ -1410,7 +1417,7 @@ def calculate_prime_factors(n: int) -> list:
     Calculate all prime factors of a given number.
 
     :param n: The number to find the prime factors for.
-    :returns: A list of prime factors of n.
+    :return: A list of prime factors of n.
     """
     i = 2
     factors = []
@@ -1431,7 +1438,7 @@ def calculate_least_common_multiple(a: int, b: int) -> int:
 
     :param a: The first number.
     :param b: The second number.
-    :returns: The LCM of a and b.
+    :return: The LCM of a and b.
     """
 
     def gcd(x, y):
@@ -1450,7 +1457,7 @@ def calculate_cubic_equation_discriminant(a: int, b: int, c: int, d: int) -> int
     :param b: Coefficient of x^2.
     :param c: Coefficient of x.
     :param d: Constant term.
-    :returns: The discriminant of the cubic equation.
+    :return: The discriminant of the cubic equation.
     """
     discriminant = (
         18 * a * b * c * d
@@ -1467,7 +1474,7 @@ def calculate_perfect_numbers(limit: int) -> list:
     Calculate all perfect numbers up to a given limit.
 
     :param limit: The upper limit to search for perfect numbers.
-    :returns: A list of all perfect numbers up to the limit.
+    :return: A list of all perfect numbers up to the limit.
     """
 
     def is_perfect(n):
@@ -1481,7 +1488,7 @@ def calculate_sum_of_n_fibonacci_numbers(n: int) -> int:
     Calculate the sum of the first n Fibonacci numbers.
 
     :param n: The number of terms in the Fibonacci sequence to sum up.
-    :returns: The sum of the first n Fibonacci numbers.
+    :return: The sum of the first n Fibonacci numbers.
     """
     a, b = 0, 1
     sum_fib = 0
@@ -1498,7 +1505,7 @@ def calculate_trapezoid_area(base1: float, base2: float, height: float) -> float
     :param base1: The length of the first base of the trapezoid.
     :param base2: The length of the second base of the trapezoid.
     :param height: The height of the trapezoid.
-    :returns: The area of the trapezoid.
+    :return: The area of the trapezoid.
     """
     return (base1 + base2) * height / 2
 
@@ -1509,7 +1516,7 @@ def calculate_regular_polygon_perimeter(side_length: float, num_sides: int) -> f
 
     :param side_length: The length of one side of the polygon.
     :param num_sides: The total number of sides in the polygon.
-    :returns: The perimeter of the regular polygon.
+    :return: The perimeter of the regular polygon.
     """
     return side_length * num_sides
 
@@ -1520,7 +1527,7 @@ def calculate_cylinder_surface_area(radius: float, height: float) -> float:
 
     :param radius: The radius of the cylinder's base.
     :param height: The height of the cylinder.
-    :returns: The surface area of the cylinder.
+    :return: The surface area of the cylinder.
     """
     from math import pi
 
@@ -1533,7 +1540,7 @@ def calculate_logarithmic_expression(base: float, value: float) -> float:
 
     :param base: The base of the logarithm.
     :param value: The value to compute the logarithm for.
-    :returns: The logarithm of the value with the specified base.
+    :return: The logarithm of the value with the specified base.
     """
     import math
 
@@ -1710,7 +1717,7 @@ def calculate_regular_polygon_area(num_sides: int, side_length: float) -> float:
     :param side_length: The length of each side of the polygon.
     :return: The area of the regular polygon.
     """
-    from math import tan, pi
+    from math import pi, tan
 
     return (num_sides * side_length**2) / (4 * tan(pi / num_sides))
 
@@ -1738,8 +1745,9 @@ def calculate_elliptic_integral_of_second_kind(
     :param eccentricity: The eccentricity of the elliptic integral.
     :return: The value of the elliptic integral of the second kind.
     """
-    from scipy.integrate import quad
     from math import sin, sqrt
+
+    from scipy.integrate import quad
 
     def integrand(theta):
         return sqrt(1 - eccentricity**2 * sin(theta) ** 2)
@@ -1842,7 +1850,7 @@ def calculate_arc_length(radius: float, angle: float) -> float:
     return radius * angle
 
 
-def calculate_tangent_line_equation(slope: float, point: tuple) -> str:
+def calculate_tangent_line_equation(slope: float, point: tuple[float, ...]) -> str:
     """
     Calculate the equation of a tangent line given its slope and a point it passes through.
 
@@ -1974,7 +1982,7 @@ def calculate_logarithmic_derivative(expression: str, variable: str) -> str:
     :param variable: The variable with respect to which the derivative is calculated.
     :return: The derivative of the logarithmic expression as a string.
     """
-    from sympy import diff, symbols, log
+    from sympy import diff, log, symbols
 
     x = symbols(variable)
     expr = log(eval(expression))
@@ -2000,7 +2008,7 @@ def calculate_spherical_volume(radius: float) -> float:
     Calculate the volume of a sphere given its radius.
 
     :param radius: The radius of the sphere.
-    :returns: The volume of the sphere.
+    :return: The volume of the sphere.
     """
     from math import pi
 
@@ -2013,7 +2021,7 @@ def calculate_surface_area_of_torus(major_radius: float, minor_radius: float) ->
 
     :param major_radius: The major radius of the torus (distance from the center of the tube to the center of the torus).
     :param minor_radius: The minor radius of the torus (radius of the tube).
-    :returns: The surface area of the torus.
+    :return: The surface area of the torus.
     """
     from math import pi
 
@@ -2027,7 +2035,7 @@ def calculate_catenary_length(a: float, x1: float, x2: float) -> float:
     :param a: The catenary constant, which determines the steepness of the curve.
     :param x1: The x-coordinate of the starting point.
     :param x2: The x-coordinate of the ending point.
-    :returns: The length of the catenary curve between the two points.
+    :return: The length of the catenary curve between the two points.
     """
     from math import sinh
 
@@ -2039,7 +2047,7 @@ def calculate_golden_ratio_approximation(n: int) -> float:
     Calculate an approximation of the golden ratio using Fibonacci sequence.
 
     :param n: The number of terms in the Fibonacci sequence to use for the approximation.
-    :returns: An approximation of the golden ratio.
+    :return: An approximation of the golden ratio.
     """
 
     def fibonacci(num):
@@ -2107,7 +2115,7 @@ def calculate_time_of_flight(velocity: float, angle: float) -> float:
     :param angle: Launch angle of the projectile in degrees.
     :return: Time of flight of the projectile in seconds.
     """
-    from math import sin, radians
+    from math import radians, sin
 
     g = 9.81  # Acceleration due to gravity in m/s^2
     return (2 * velocity * sin(radians(angle))) / g
@@ -2121,7 +2129,7 @@ def calculate_surface_area_of_hexagonal_prism(
 
     :param side_length: The length of one side of the hexagonal base.
     :param height: The height of the prism.
-    :returns: The surface area of the hexagonal prism.
+    :return: The surface area of the hexagonal prism.
     """
     base_area = 3 * (3**0.5) / 2 * side_length**2
     side_area = 6 * side_length * height
@@ -2134,7 +2142,7 @@ def calculate_volume_of_hexagonal_prism(side_length: float, height: float) -> fl
 
     :param side_length: The length of one side of the hexagonal base.
     :param height: The height of the prism.
-    :returns: The volume of the hexagonal prism.
+    :return: The volume of the hexagonal prism.
     """
     base_area = 3 * (3**0.5) / 2 * side_length**2
     return base_area * height
@@ -2149,7 +2157,7 @@ def calculate_conical_frustum_volume(
     :param top_radius: The radius of the top circle of the frustum.
     :param bottom_radius: The radius of the bottom circle of the frustum.
     :param height: The height of the frustum.
-    :returns: The volume of the conical frustum.
+    :return: The volume of the conical frustum.
     """
     from math import pi
 
@@ -2162,7 +2170,9 @@ def calculate_conical_frustum_volume(
     )
 
 
-def calculate_triple_product(v1: list, v2: list, v3: list) -> float:
+def calculate_triple_product(
+    v1: list[float], v2: list[float], v3: list[float]
+) -> float:
     """
     Calculate the scalar triple product of three vectors.
 
@@ -2178,7 +2188,7 @@ def calculate_triple_product(v1: list, v2: list, v3: list) -> float:
     )
 
 
-def calculate_vector_cross_product(v1: list, v2: list) -> list:
+def calculate_vector_cross_product(v1: list[float], v2: list[float]) -> list[float]:
     """
     Calculate the cross product of two vectors.
 
@@ -2193,7 +2203,7 @@ def calculate_vector_cross_product(v1: list, v2: list) -> list:
     ]
 
 
-def calculate_vector_projection(v1: list, v2: list) -> list:
+def calculate_vector_projection(v1: list[float], v2: list[float]) -> list:
     """
     Calculate the projection of vector v1 onto vector v2.
 
@@ -2206,7 +2216,7 @@ def calculate_vector_projection(v1: list, v2: list) -> list:
     return [dot_product / magnitude_v2_squared * a for a in v2]
 
 
-def calculate_vector_angle(v1: list, v2: list) -> float:
+def calculate_vector_angle(v1: list[float], v2: list[float]) -> float:
     """
     Calculate the angle in radians between two vectors.
 
@@ -2222,7 +2232,7 @@ def calculate_vector_angle(v1: list, v2: list) -> float:
     return acos(dot_product / (magnitude_v1 * magnitude_v2))
 
 
-def calculate_vector_unit(v: list) -> list:
+def calculate_vector_unit(v: list[float]) -> list:
     """
     Calculate the unit vector of a given vector.
 
@@ -2358,7 +2368,7 @@ def calculate_sine_wave_value(
     :param time: The time at which to evaluate the sine wave.
     :return: The value of the sine wave at the given time.
     """
-    from math import sin, pi
+    from math import pi, sin
 
     return amplitude * sin(2 * pi * frequency * time + phase)
 
@@ -2560,7 +2570,7 @@ def calculate_surface_area_of_spherical_wedge(radius: float, height: float) -> f
 
     :param radius: The radius of the sphere from which the spherical wedge is a part.
     :param height: The height of the spherical wedge.
-    :returns: The surface area of the spherical wedge.
+    :return: The surface area of the spherical wedge.
     """
     from math import pi
 
@@ -2573,7 +2583,7 @@ def calculate_volume_of_spherical_wedge(radius: float, angle: float) -> float:
 
     :param radius: The radius of the sphere from which the spherical wedge is a part.
     :param angle: The angle at the tip of the spherical wedge in radians.
-    :returns: The volume of the spherical wedge.
+    :return: The volume of the spherical wedge.
     """
     from math import pi
 
@@ -2586,7 +2596,7 @@ def calculate_circular_cylinder_volume(radius: float, height: float) -> float:
 
     :param radius: The radius of the base of the cylinder.
     :param height: The height of the cylinder.
-    :returns: The volume of the circular cylinder.
+    :return: The volume of the circular cylinder.
     """
     from math import pi
 
@@ -2598,7 +2608,7 @@ def calculate_regular_dodecahedron_volume(edge_length: float) -> float:
     Calculate the volume of a regular dodecahedron.
 
     :param edge_length: The length of an edge of the dodecahedron.
-    :returns: The volume of the regular dodecahedron.
+    :return: The volume of the regular dodecahedron.
     """
     from math import sqrt
 
@@ -2610,7 +2620,7 @@ def calculate_regular_icosahedron_volume(edge_length: float) -> float:
     Calculate the volume of a regular icosahedron.
 
     :param edge_length: The length of an edge of the icosahedron.
-    :returns: The volume of the regular icosahedron.
+    :return: The volume of the regular icosahedron.
     """
     from math import sqrt
 
@@ -2669,7 +2679,7 @@ def calculate_sum_of_natural_numbers_upto_n(n: int) -> int:
     Calculate the sum of all natural numbers up to and including n.
 
     :param n: The upper limit of the natural numbers to sum.
-    :returns: The sum of all natural numbers up to and including n.
+    :return: The sum of all natural numbers up to and including n.
     """
     return n * (n + 1) // 2
 
@@ -2681,7 +2691,7 @@ def calculate_area_of_trapezium(base1: float, base2: float, height: float) -> fl
     :param base1: The length of the first base of the trapezium.
     :param base2: The length of the second base of the trapezium.
     :param height: The height of the trapezium.
-    :returns: The area of the trapezium.
+    :return: The area of the trapezium.
     """
     return 0.5 * (base1 + base2) * height
 
@@ -2694,7 +2704,7 @@ def calculate_circumference_of_ellipse(
 
     :param semi_major_axis: The length of the semi-major axis of the ellipse.
     :param semi_minor_axis: The length of the semi-minor axis of the ellipse.
-    :returns: An approximation of the circumference of the ellipse.
+    :return: An approximation of the circumference of the ellipse.
     """
     import math
 
@@ -2713,7 +2723,7 @@ def calculate_sum_of_n_power_four(n: int) -> int:
     Calculate the sum of the first n natural numbers raised to the power of 4.
 
     :param n: The number of terms in the series.
-    :returns: The sum of the series.
+    :return: The sum of the series.
     """
     return sum(i**4 for i in range(1, n + 1))
 
@@ -2724,7 +2734,7 @@ def calculate_spherical_crown_volume(r: float, h: float) -> float:
 
     :param r: The radius of the base of the spherical crown.
     :param h: The height of the spherical crown.
-    :returns: The volume of the spherical crown.
+    :return: The volume of the spherical crown.
     """
     from math import pi
 
@@ -2738,7 +2748,7 @@ def calculate_circular_trapezoid_area(a: float, b: float, h: float) -> float:
     :param a: The length of the smaller base of the trapezoid.
     :param b: The length of the larger base of the trapezoid.
     :param h: The height of the trapezoid.
-    :returns: The area of the circular trapezoid.
+    :return: The area of the circular trapezoid.
     """
     return 0.5 * (a + b) * h
 
@@ -2748,7 +2758,7 @@ def calculate_pentagonal_number(n: int) -> int:
     Calculate the nth pentagonal number.
 
     :param n: The term of the pentagonal number to calculate.
-    :returns: The nth pentagonal number.
+    :return: The nth pentagonal number.
     """
     return n * (3 * n - 1) // 2
 
@@ -2759,7 +2769,7 @@ def calculate_cycloid_arc_length(r: float, theta: float) -> float:
 
     :param r: The radius of the generating circle.
     :param theta: The angle in radians.
-    :returns: The arc length of the cycloid.
+    :return: The arc length of the cycloid.
     """
     from math import sin
 
@@ -2802,7 +2812,7 @@ def calculate_circular_helix_length(radius: float, pitch: float, turns: int) -> 
     :param turns: The total number of turns in the helix.
     :return: The length of the circular helix.
     """
-    from math import sqrt, pi
+    from math import pi, sqrt
 
     return sqrt((2 * pi * radius) ** 2 + pitch**2) * turns
 
@@ -2835,7 +2845,7 @@ def calculate_sum_of_n_power_five(n: int) -> int:
     Calculate the sum of the first n natural numbers raised to the power of five.
 
     :param n: The number of terms in the series.
-    :returns: The sum of the series.
+    :return: The sum of the series.
     """
     return sum(i**5 for i in range(1, n + 1))
 
@@ -2846,7 +2856,7 @@ def calculate_spherical_segment_volume(radius: float, height: float) -> float:
 
     :param radius: The radius of the sphere.
     :param height: The height of the spherical segment.
-    :returns: The volume of the spherical segment.
+    :return: The volume of the spherical segment.
     """
     from math import pi
 
@@ -2859,7 +2869,7 @@ def calculate_cosine_wave_amplitude(frequency: float, time: float) -> float:
 
     :param frequency: The frequency of the cosine wave.
     :param time: The time at which to calculate the amplitude.
-    :returns: The amplitude of the cosine wave.
+    :return: The amplitude of the cosine wave.
     """
     from math import cos, pi
 
@@ -2871,7 +2881,7 @@ def calculate_volume_of_regular_octahedron(edge_length: float) -> float:
     Calculate the volume of a regular octahedron.
 
     :param edge_length: The length of an edge of the octahedron.
-    :returns: The volume of the octahedron.
+    :return: The volume of the octahedron.
     """
     return (2 * (edge_length**3)) / (3 * (2**0.5))
 
@@ -2881,7 +2891,7 @@ def calculate_sum_of_inverse_squares(n: int) -> float:
     Calculate the sum of the inverse squares of the first n natural numbers.
 
     :param n: The number of terms in the series.
-    :returns: The sum of the series.
+    :return: The sum of the series.
     """
     return sum(1 / i**2 for i in range(1, n + 1))
 
@@ -2891,7 +2901,7 @@ def calculate_sum_of_n_power_six(n: int) -> int:
     Calculate the sum of the first n natural numbers raised to the power of six.
 
     :param n: The number of terms in the series.
-    :returns: The sum of the series.
+    :return: The sum of the series.
     """
     return sum(i**6 for i in range(1, n + 1))
 
@@ -2905,7 +2915,7 @@ def calculate_spherical_shell_mass(
     :param density: The density of the material of the spherical shell.
     :param outer_radius: The outer radius of the spherical shell.
     :param inner_radius: The inner radius of the spherical shell.
-    :returns: The mass of the spherical shell.
+    :return: The mass of the spherical shell.
     """
     from math import pi
 
@@ -2922,7 +2932,7 @@ def calculate_velocity_final(
     :param velocity_initial: The initial velocity of the object.
     :param acceleration: The acceleration of the object.
     :param time: The time over which the acceleration is applied.
-    :returns: The final velocity of the object.
+    :return: The final velocity of the object.
     """
     return velocity_initial + acceleration * time
 
@@ -2934,7 +2944,7 @@ def calculate_centripetal_force(mass: float, velocity: float, radius: float) -> 
     :param mass: The mass of the object.
     :param velocity: The velocity of the object.
     :param radius: The radius of the circle along which the object is moving.
-    :returns: The centripetal force exerted on the object.
+    :return: The centripetal force exerted on the object.
     """
     return mass * (velocity**2) / radius
 
@@ -2946,7 +2956,7 @@ def calculate_bernoulli_number(n: int) -> float:
     Note: This implementation is not optimized for large values of n due to its recursive nature.
 
     :param n: The order of the Bernoulli number to calculate.
-    :returns: The nth Bernoulli number.
+    :return: The nth Bernoulli number.
     """
     if n == 0:
         return 1
@@ -2967,7 +2977,7 @@ def calculate_sum_of_n_triangular_numbers(n: int) -> int:
     Calculate the sum of the first n triangular numbers.
 
     :param n: The number of triangular numbers to sum up.
-    :returns: The sum of the first n triangular numbers.
+    :return: The sum of the first n triangular numbers.
     """
     return n * (n + 1) * (n + 2) // 6
 
@@ -2978,7 +2988,7 @@ def calculate_surface_area_of_spherical_sector(radius: float, height: float) -> 
 
     :param radius: The radius of the sphere.
     :param height: The height of the spherical cap.
-    :returns: The surface area of the spherical sector.
+    :return: The surface area of the spherical sector.
     """
     from math import pi
 
@@ -2991,7 +3001,7 @@ def calculate_sum_of_n_powers(n: int, power: int) -> int:
 
     :param n: The number of terms.
     :param power: The power to which each term is raised.
-    :returns: The sum of the first n natural numbers raised to the specified power.
+    :return: The sum of the first n natural numbers raised to the specified power.
     """
     return sum([i**power for i in range(1, n + 1)])
 
@@ -3143,7 +3153,9 @@ def calculate_leibniz_pi_approximation(n: int) -> float:
 # calculus
 
 
-def calculate_integral_of_polynomial(coefficients: list, variable: str = "x") -> str:
+def calculate_integral_of_polynomial(
+    coefficients: list[float], variable: str = "x"
+) -> str:
     """
     Calculate the indefinite integral of a polynomial function.
     The function calculates the indefinite integral of a polynomial function given its coefficients.
@@ -3171,7 +3183,7 @@ def calculate_integral_of_polynomial(coefficients: list, variable: str = "x") ->
     return integral
 
 
-def calculate_derivative_of_polynomial(coefficients: list) -> list:
+def calculate_derivative_of_polynomial(coefficients: list[float]) -> list:
     """
     Calculate the derivative of a polynomial function.
 
@@ -3186,70 +3198,6 @@ def calculate_derivative_of_polynomial(coefficients: list) -> list:
     return derivative
 
 
-def calculate_limit_at_point(
-    func: callable, point: float, precision: float = 1e-7
-) -> float:
-    """
-    Calculate the limit of a function at a given point.
-
-    This function calculates the limit of a given function at a specified point.
-    The function to be evaluated should be provided as a callable, and the point at which the limit
-    is to be calculated should be specified. The precision for the calculation can also be provided.
-    The function returns the limit of the function at the specified point.
-
-    :param func: A callable function for which the limit is to be calculated.
-    :param point: The point at which the limit is to be calculated.
-    :param precision: The precision for calculating the limit.
-    :return: The limit of the function at the given point.
-    """
-    return (func(point + precision) - func(point)) / precision
-
-
-def calculate_area_under_curve(
-    func: callable, start: float, end: float, num_rectangles: int = 1000
-) -> float:
-    """
-    Calculate the area under a curve between two points.
-
-    This function calculates the area under a curve represented by a callable function between two points.
-    The method used for calculation is the Riemann sum, where the interval is divided into a specified number
-    of rectangles, and the area under the curve is approximated by the sum of the areas of these rectangles.
-
-    :param func: A callable function representing the curve.
-    :param start: The starting point of the interval.
-    :param end: The ending point of the interval.
-    :param num_rectangles: The number of rectangles to use for the approximation.
-    :return: The approximate area under the curve between the start and end points.
-    """
-    width = (end - start) / num_rectangles
-    area = sum(func(start + i * width) for i in range(num_rectangles)) * width
-    return area
-
-
-def calculate_volume_of_revolution(
-    func: callable, start: float, end: float, num_slices: int = 1000
-) -> float:
-    """
-    Calculate the volume of a solid of revolution.
-
-    This function calculates the volume of a solid formed by revolving a curve around the x-axis.
-    The curve is represented by a callable function, and the volume is calculated between two points.
-    The method used for calculation is the disk method, where the volume is approximated by summing
-    the volumes of cylindrical disks formed by slicing the solid perpendicular to the axis of revolution.
-
-    :param func: A callable function representing the curve to be revolved.
-    :param start: The starting point of the interval.
-    :param end: The ending point of the interval.
-    :param num_slices: The number of slices to use for the approximation.
-    :return: The approximate volume of the solid of revolution.
-    """
-    import math
-
-    dx = (end - start) / num_slices
-    volume = sum(math.pi * (func(start + i * dx) ** 2) * dx for i in range(num_slices))
-    return volume
-
-
 def calculate_exponential_growth(
     initial_amount: float, growth_rate: float, time: float
 ) -> float:
@@ -3259,7 +3207,7 @@ def calculate_exponential_growth(
     :param initial_amount: The initial amount before growth.
     :param growth_rate: The rate of growth per time period.
     :param time: The time period over which the growth is calculated.
-    :returns: The amount after growth over the specified time period.
+    :return: The amount after growth over the specified time period.
     """
     return initial_amount * (1 + growth_rate) ** time
 
@@ -3270,7 +3218,7 @@ def calculate_logarithmic_growth(value: float, base: float) -> float:
 
     :param value: The value to calculate the logarithm for.
     :param base: The base of the logarithm.
-    :returns: The logarithm of the value with the specified base.
+    :return: The logarithm of the value with the specified base.
     """
     import math
 
@@ -3286,7 +3234,7 @@ def calculate_derivative_of_exponential_function(
     :param base: The base of the exponential function.
     :param exponent: The exponent of the exponential function.
     :param at_point: The point at which to calculate the derivative.
-    :returns: The value of the derivative at the specified point.
+    :return: The value of the derivative at the specified point.
     """
     import math
 
@@ -3298,7 +3246,7 @@ def calculate_derivative_of_log(x: float) -> float:
     Calculate the derivative of the natural logarithm function at a given point.
 
     :param x: The point at which to evaluate the derivative of the natural logarithm.
-    :returns: The value of the derivative of the natural logarithm at the given point.
+    :return: The value of the derivative of the natural logarithm at the given point.
     """
     return 1 / x
 
@@ -3313,7 +3261,7 @@ def calculate_volume_of_parallelepiped_from_sides(
     :param b: Length of the second side.
     :param c: Length of the third side.
     :param angle: Angle between sides a and b in radians.
-    :returns: The volume of the parallelepiped.
+    :return: The volume of the parallelepiped.
     """
     from math import sin
 
@@ -3325,7 +3273,7 @@ def calculate_integral_of_sin(x: float) -> float:
     Calculate the indefinite integral of the sine function.
 
     :param x: The upper limit of integration.
-    :returns: The value of the indefinite integral of sine from 0 to x.
+    :return: The value of the indefinite integral of sine from 0 to x.
     """
     from math import cos
 
@@ -3337,7 +3285,7 @@ def calculate_euler_number_power(x: float) -> float:
     Calculate the value of the Euler's number (e) raised to the power of x.
 
     :param x: The exponent to which Euler's number is raised.
-    :returns: The value of e^x.
+    :return: The value of e^x.
     """
     from math import exp
 
@@ -3350,7 +3298,7 @@ def calculate_derivative_of_trig_function(function: str, at_point: float) -> flo
 
     :param function: A string representing the trigonometric function. Supported functions are 'sin', 'cos', and 'tan'.
     :param at_point: The point at which to evaluate the derivative.
-    :returns: The value of the derivative at the specified point.
+    :return: The value of the derivative at the specified point.
     """
     import math
 
@@ -3370,7 +3318,7 @@ def calculate_volume_of_paraboloid(height: float, radius: float) -> float:
 
     :param height: The height of the paraboloid.
     :param radius: The radius of the base of the paraboloid.
-    :returns: The volume of the paraboloid.
+    :return: The volume of the paraboloid.
     """
     import math
 
@@ -3382,7 +3330,7 @@ def calculate_surface_area_of_hemisphere(radius: float) -> float:
     Calculate the surface area of a hemisphere given its radius.
 
     :param radius: The radius of the hemisphere.
-    :returns: The surface area of the hemisphere.
+    :return: The surface area of the hemisphere.
     """
     import math
 
@@ -3398,7 +3346,7 @@ def calculate_exponential_decay(
     :param initial_amount: The initial amount before decay.
     :param decay_rate: The rate of decay, where 0 < decay_rate < 1.
     :param time: The time over which the decay occurs.
-    :returns: The remaining amount after decay.
+    :return: The remaining amount after decay.
     """
     import math
 
@@ -3410,7 +3358,7 @@ def calculate_hyperbolic_sine(x: float) -> float:
     Calculate the hyperbolic sine of a given value.
 
     :param x: The value to calculate the hyperbolic sine for.
-    :returns: The hyperbolic sine of x.
+    :return: The hyperbolic sine of x.
     """
     import math
 
@@ -3471,7 +3419,7 @@ def calculate_surface_area_of_circular_cylinder(radius: float, height: float) ->
 
     :param radius: The radius of the circular base of the cylinder.
     :param height: The height of the cylinder.
-    :returns: The surface area of the circular cylinder.
+    :return: The surface area of the circular cylinder.
     """
     import math
 
@@ -3486,7 +3434,7 @@ def calculate_circular_cone_lateral_surface_area(
 
     :param radius: The radius of the base of the cone.
     :param slant_height: The slant height of the cone.
-    :returns: The lateral surface area of the circular cone.
+    :return: The lateral surface area of the circular cone.
     """
     import math
 
@@ -3550,7 +3498,7 @@ def calculate_surface_area_of_spheroid(a: float, b: float) -> float:
     :param b: semi-minor axis of the spheroid
     :return: surface area of the spheroid
     """
-    from math import pi, sqrt, log, asin
+    from math import asin, log, pi, sqrt
 
     if a == b:  # Sphere
         return 4 * pi * a**2
@@ -3674,7 +3622,10 @@ def calculate_elliptic_arc_length(a: float, b: float, phi: float) -> float:
 
 
 def calculate_triple_integral(
-    func, x_range: tuple, y_range: tuple, z_range: tuple
+    func,
+    x_range: tuple[float, ...],
+    y_range: tuple[float, ...],
+    z_range: tuple[float, ...],
 ) -> float:
     """
     Calculate the triple integral of a given function over specified ranges.
@@ -3711,7 +3662,7 @@ def calculate_volume_of_spherical_sector(radius: float, height: float) -> float:
     return (1 / 3) * pi * height**2 * (3 * radius - height)
 
 
-def calculate_length_of_vector(vector: tuple) -> float:
+def calculate_length_of_vector(vector: tuple[float, ...]) -> float:
     """
     Calculate the length (magnitude) of a vector in n-dimensional space.
 
@@ -3721,24 +3672,6 @@ def calculate_length_of_vector(vector: tuple) -> float:
     from math import sqrt
 
     return sqrt(sum(comp**2 for comp in vector))
-
-
-def calculate_curl_of_vector_field(F: tuple, point: tuple) -> tuple:
-    """
-    Calculate the curl of a vector field at a given point.
-
-    :param F: A tuple of functions representing the vector field components (Fx, Fy, Fz).
-    :param point: A tuple representing the point (x, y, z) at which to calculate the curl.
-    :return: A tuple representing the curl vector at the given point.
-    """
-    from sympy import symbols, diff
-
-    x, y, z = symbols("x y z")
-    Fx, Fy, Fz = F
-    curl_x = diff(Fz.subs(z, point[2]), y) - diff(Fy.subs(y, point[1]), z)
-    curl_y = diff(Fx.subs(x, point[0]), z) - diff(Fz.subs(z, point[2]), x)
-    curl_z = diff(Fy.subs(y, point[1]), x) - diff(Fx.subs(x, point[0]), y)
-    return curl_x, curl_y, curl_z
 
 
 def calculate_volume_of_spherical_cap(radius: float, height: float) -> float:
@@ -3815,7 +3748,7 @@ def calculate_surface_area_of_regular_pyramid(
 
     :param base_area: The area of the base of the pyramid.
     :param slant_height: The slant height of the pyramid.
-    :returns: The total surface area of the pyramid.
+    :return: The total surface area of the pyramid.
     """
     perimeter = (4 * base_area) ** 0.5  # Assuming the base is a square for simplicity
     return base_area + 0.5 * perimeter * slant_height
@@ -3829,7 +3762,7 @@ def calculate_circumradius_of_regular_polygon(
 
     :param side_length: The length of a side of the polygon.
     :param num_sides: The number of sides of the polygon.
-    :returns: The circumradius of the polygon.
+    :return: The circumradius of the polygon.
     """
     from math import pi, sin
 
@@ -3844,116 +3777,9 @@ def calculate_circle_radius_inscribed_in_polygon(
 
     :param area: The area of the polygon.
     :param perimeter: The perimeter of the polygon.
-    :returns: The radius of the inscribed circle.
+    :return: The radius of the inscribed circle.
     """
     return area / perimeter
-
-
-def calculate_tangent_at_point(
-    function: callable, x_value: float, h: float = 1e-5
-) -> float:
-    """
-    Calculate the tangent (derivative) of a given function at a specific point.
-
-    :param function: A callable representing the function f(x).
-    :param x_value: The x-coordinate at which to calculate the tangent.
-    :param h: A small step size to approximate the derivative, default is 1e-5.
-    :return: The slope of the tangent line at the given x-coordinate.
-    """
-    return (function(x_value + h) - function(x_value - h)) / (2 * h)
-
-
-def calculate_integral_simpsons_rule(
-    function: callable, a: float, b: float, n: int = 1000
-) -> float:
-    """
-    Approximate the definite integral of a function over an interval [a, b] using Simpson's rule.
-
-    :param function: A callable representing the function f(x) to integrate.
-    :param a: The lower limit of integration.
-    :param b: The upper limit of integration.
-    :param n: The number of subintervals to use, default is 1000. Must be even.
-    :return: The approximate value of the integral.
-    """
-    h = (b - a) / n
-    s = function(a) + function(b)
-
-    for i in range(1, n, 2):
-        s += 4 * function(a + i * h)
-    for i in range(2, n - 1, 2):
-        s += 2 * function(a + i * h)
-
-    return s * h / 3
-
-
-def calculate_volume_of_revolved_curve(
-    function: callable, a: float, b: float, n: int = 1000
-) -> float:
-    """
-    Calculate the volume of a solid obtained by revolving a curve around the x-axis.
-
-    :param function: A callable representing the function y = f(x) defining the curve.
-    :param a: The lower limit of the x-coordinate.
-    :param b: The upper limit of the x-coordinate.
-    :param n: The number of subintervals to use for approximation, default is 1000.
-    :return: The volume of the solid of revolution.
-    """
-    from math import pi
-
-    h = (b - a) / n
-    volume = 0
-
-    for i in range(n):
-        x_i = a + i * h
-        volume += (function(x_i) ** 2) * h
-
-    return volume * pi
-
-
-def calculate_length_of_curve(
-    function: callable, a: float, b: float, n: int = 1000
-) -> float:
-    """
-    Approximate the length of a curve between two points.
-
-    :param function: A callable representing the function y = f(x).
-    :param a: The starting x-coordinate of the curve.
-    :param b: The ending x-coordinate of the curve.
-    :param n: The number of intervals to divide the curve into, default is 1000.
-    :return: The approximate length of the curve.
-    """
-    h = (b - a) / n
-    length = 0
-
-    for i in range(n):
-        x_i = a + i * h
-        x_ip1 = x_i + h
-        length += ((x_ip1 - x_i) ** 2 + (function(x_ip1) - function(x_i)) ** 2) ** 0.5
-
-    return length
-
-
-def calculate_area_between_two_curves(
-    function1: callable, function2: callable, a: float, b: float, n: int = 1000
-) -> float:
-    """
-    Calculate the area between two curves from x = a to x = b.
-
-    :param function1: A callable representing the upper function y = f(x).
-    :param function2: A callable representing the lower function y = g(x).
-    :param a: The starting x-coordinate.
-    :param b: The ending x-coordinate.
-    :param n: The number of rectangles to use for approximation, default is 1000.
-    :return: The approximate area between the two curves.
-    """
-    h = (b - a) / n
-    area = 0
-
-    for i in range(n):
-        x_i = a + i * h
-        area += abs(function1(x_i) - function2(x_i)) * h
-
-    return area
 
 
 def calculate_circumference_of_polygon(side_length: float, num_sides: int) -> float:
@@ -3988,7 +3814,7 @@ def calculate_area_of_regular_polygon(side_length: float, num_sides: int) -> flo
     :param num_sides: The number of sides of the polygon.
     :return: The area of the regular polygon.
     """
-    from math import tan, pi
+    from math import pi, tan
 
     return (num_sides * side_length**2) / (4 * tan(pi / num_sides))
 
@@ -4025,7 +3851,7 @@ def calculate_tangent_of_hyperbola(x: float) -> float:
     Calculate the tangent of a hyperbola at a given point.
 
     :param x: The x-coordinate of the point on the hyperbola.
-    :returns: The tangent of the hyperbola at the given point.
+    :return: The tangent of the hyperbola at the given point.
     """
     return 1 / x
 
@@ -4035,7 +3861,7 @@ def calculate_exponential_integral(x: float) -> float:
     Calculate the exponential integral of a given value.
 
     :param x: The value to calculate the exponential integral for.
-    :returns: The exponential integral of the given value.
+    :return: The exponential integral of the given value.
     """
     from scipy.integrate import quad
 
@@ -4047,10 +3873,10 @@ def calculate_logarithmic_integral(x: float) -> float:
     Calculate the logarithmic integral of a given value.
 
     :param x: The value to calculate the logarithmic integral for.
-    :returns: The logarithmic integral of the given value.
+    :return: The logarithmic integral of the given value.
     """
-    from scipy.integrate import quad
     import numpy as np
+    from scipy.integrate import quad
 
     return quad(lambda t: 1 / np.log(t), 2, x)
 
@@ -4060,7 +3886,7 @@ def calculate_surface_area_of_circular_disk(radius: float) -> float:
     Calculate the surface area of a circular disk.
 
     :param radius: The radius of the circular disk.
-    :returns: The surface area of the circular disk.
+    :return: The surface area of the circular disk.
     """
     import math
 
@@ -4234,7 +4060,7 @@ def is_square(n: int) -> bool:
     Check if a number is a perfect square.
 
     :param n: The number to check.
-    :returns: True if n is a perfect square, False otherwise.
+    :return: True if n is a perfect square, False otherwise.
     """
     return int(n**0.5) ** 2 == n
 
@@ -4247,7 +4073,7 @@ def digital_root(n: int) -> int:
     Given n, repeatedly add all its digits until the result has only one digit.
 
     :param n: The number to calculate the digital root of.
-    :returns: The digital root of n.
+    :return: The digital root of n.
     """
     while n > 9:
         n = sum(int(digit) for digit in str(n))
@@ -4262,7 +4088,7 @@ def euler_phi_n_up_to(n: int) -> list:
     less than or equal to n that are coprime to n.
 
     :param n: The upper limit of the range to calculate φ(n) for.
-    :returns: A list of values of φ(n) for all numbers from 1 to n.
+    :return: A list of values of φ(n) for all numbers from 1 to n.
     """
     phi = list(range(n + 1))
     for i in range(2, n + 1):
@@ -4279,7 +4105,7 @@ def sum_of_proper_divisors(n: int) -> int:
     A proper divisor of a number is a divisor that is strictly less than the number.
 
     :param n: The number to calculate the sum of proper divisors for.
-    :returns: The sum of all proper divisors of n.
+    :return: The sum of all proper divisors of n.
     """
     divisors_sum = 1  # 1 is a proper divisor of every number
     for i in range(2, int(n**0.5) + 1):
@@ -4296,7 +4122,7 @@ def aliquot_sequence(n: int, length: int) -> list:
 
     :param n: The starting number of the sequence.
     :param length: The length of the sequence to generate.
-    :returns: A list representing the aliquot sequence starting at n of the specified length.
+    :return: A list representing the aliquot sequence starting at n of the specified length.
     """
     sequence = [n]
     for _ in range(1, length):
@@ -4310,7 +4136,7 @@ def is_palindrome_number(n: int) -> bool:
     Check if a given number is a palindrome.
 
     :param n: The number to check.
-    :returns: True if n is a palindrome, False otherwise.
+    :return: True if n is a palindrome, False otherwise.
     """
     return str(n) == str(n)[::-1]
 
@@ -4320,7 +4146,7 @@ def calculate_digit_sum(n: int) -> int:
     Calculate the sum of the digits of a given number.
 
     :param n: The number whose digit sum is to be calculated.
-    :returns: The sum of the digits of n.
+    :return: The sum of the digits of n.
     """
     return sum(int(digit) for digit in str(n))
 
@@ -4332,7 +4158,7 @@ def is_armstrong_number(n: int) -> bool:
     An Armstrong number is a number that is the sum of its own digits each raised to the power of the number of digits.
 
     :param n: The number to check.
-    :returns: True if n is an Armstrong number, False otherwise.
+    :return: True if n is an Armstrong number, False otherwise.
     """
     digits = [int(digit) for digit in str(n)]
     return sum(digit ** len(digits) for digit in digits) == n
@@ -4343,7 +4169,7 @@ def calculate_num_divisors(n: int) -> int:
     Calculate the number of divisors of a given number.
 
     :param n: The number whose divisors are to be calculated.
-    :returns: The number of divisors of n.
+    :return: The number of divisors of n.
     """
     divisors = 0
     for i in range(1, int(n**0.5) + 1):
@@ -4359,7 +4185,7 @@ def is_abundant_number(n: int) -> bool:
     An abundant number is a number for which the sum of its proper divisors is greater than the number itself.
 
     :param n: The number to check.
-    :returns: True if n is abundant, False otherwise.
+    :return: True if n is abundant, False otherwise.
     """
     divisors_sum = sum(i for i in range(1, n) if n % i == 0)
     return divisors_sum > n
@@ -4530,7 +4356,7 @@ def is_even(number: int) -> bool:
     Check if a number is even.
 
     :param number: The number to check.
-    :returns: True if the number is even, False otherwise.
+    :return: True if the number is even, False otherwise.
     """
     return number % 2 == 0
 
@@ -4540,7 +4366,7 @@ def is_odd(number: int) -> bool:
     Check if a number is odd.
 
     :param number: The number to check.
-    :returns: True if the number is odd, False otherwise.
+    :return: True if the number is odd, False otherwise.
     """
     return number % 2 != 0
 
@@ -4550,7 +4376,7 @@ def prime_count_up_to(n: int) -> int:
     Count the number of prime numbers less than or equal to n.
 
     :param n: The upper limit to count prime numbers up to.
-    :returns: The count of prime numbers less than or equal to n.
+    :return: The count of prime numbers less than or equal to n.
     """
     if n < 2:
         return 0
@@ -4571,7 +4397,7 @@ def next_prime(n: int) -> int:
     Find the next prime number greater than n.
 
     :param n: The number to find the next prime of.
-    :returns: The next prime number after n.
+    :return: The next prime number after n.
     """
     next_number = n + 1
     while not is_prime(next_number):
@@ -4585,7 +4411,7 @@ def coprime(a: int, b: int) -> bool:
 
     :param a: The first number.
     :param b: The second number.
-    :returns: True if a and b are coprime, False otherwise.
+    :return: True if a and b are coprime, False otherwise.
     """
     while b:
         a, b = b, a % b
@@ -4692,7 +4518,7 @@ def calculate_totient(n: int) -> int:
     Calculate Euler's Totient Function for a given number.
 
     :param n: The number to calculate the totient for
-    :returns: The value of Euler's Totient Function for n
+    :return: The value of Euler's Totient Function for n
     """
     result = n
     p = 2
@@ -4713,7 +4539,7 @@ def modular_inverse(a: int, m: int) -> int:
 
     :param a: The number to find the inverse of
     :param m: The modulo
-    :returns: The modular multiplicative inverse of a modulo m
+    :return: The modular multiplicative inverse of a modulo m
     """
     m0, x0, x1 = m, 0, 1
     if m == 1:
@@ -4730,7 +4556,7 @@ def calculate_prime_gap(n: int) -> int:
     Calculate the gap between a given prime number and the next prime number.
 
     :param n: The starting prime number to calculate the gap from.
-    :returns: The gap between the given prime number and the next prime number.
+    :return: The gap between the given prime number and the next prime number.
     """
     current = n + 1
     while not is_prime(current):
@@ -4743,7 +4569,7 @@ def calculate_carmichael_function(n: int) -> int:
     Calculate the Carmichael function of a given number.
 
     :param n: The number to calculate the Carmichael function for.
-    :returns: The value of the Carmichael function for the given number.
+    :return: The value of the Carmichael function for the given number.
     """
 
     def lcm(x: int, y: int) -> int:
@@ -4773,7 +4599,7 @@ def calculate_legendre_symbol(a: int, p: int) -> int:
 
     :param a: The numerator of the Legendre symbol.
     :param p: The denominator of the Legendre symbol, which must be an odd prime.
-    :returns: The value of the Legendre symbol.
+    :return: The value of the Legendre symbol.
     """
     if a % p == 0:
         return 0
@@ -4788,7 +4614,7 @@ def calculate_square(number: int) -> int:
     Calculate the square of a given number.
 
     :param number: The number to be squared.
-    :returns: The square of the given number.
+    :return: The square of the given number.
     """
     return number**2
 
@@ -4799,7 +4625,7 @@ def is_triangular_number(number: int) -> bool:
     A triangular number is of the form n(n+1)/2 for some n.
 
     :param number: The number to check.
-    :returns: True if the number is triangular, False otherwise.
+    :return: True if the number is triangular, False otherwise.
     """
     n = (-1 + (1 + 8 * number) ** 0.5) / 2
     return n.is_integer()
@@ -4810,7 +4636,7 @@ def calculate_digit_factorial_sum(number: int) -> int:
     Calculate the sum of the factorials of each digit in a number.
 
     :param number: The number whose digit factorials are to be summed.
-    :returns: The sum of the factorials of the digits of the number.
+    :return: The sum of the factorials of the digits of the number.
     """
 
     def factorial(n: int) -> int:
@@ -4827,7 +4653,7 @@ def is_pandigital(number: int) -> bool:
     Determine if a number is pandigital, meaning it contains each digit from 1 to n exactly once.
 
     :param number: The number to check.
-    :returns: True if the number is pandigital, False otherwise.
+    :return: True if the number is pandigital, False otherwise.
     """
     number_str = str(number)
     digit_set = set(number_str)
@@ -4846,7 +4672,7 @@ def calculate_fermat_last_theorem(n: int, limit: int = 100) -> list:
 
     :param n: The exponent in Fermat's Last Theorem.
     :param limit: The upper limit for a, b, and c to be checked.
-    :returns: A list of tuples (a, b, c) that are solutions to the equation, if any.
+    :return: A list of tuples (a, b, c) that are solutions to the equation, if any.
     """
     solutions = []
     if n > 2:
@@ -4863,7 +4689,7 @@ def euler_totient(n: int) -> int:
     Calculate the Euler's Totient function of a number.
 
     :param n: The number to calculate the Euler's Totient for
-    :returns: The value of Euler's Totient function for n
+    :return: The value of Euler's Totient function for n
     """
     result = n
     p = 2
@@ -4911,7 +4737,7 @@ def modular_pow(base: int, exponent: int, modulus: int) -> int:
     :param base: The base number
     :param exponent: The exponent
     :param modulus: The modulus
-    :returns: The result of (base ** exponent) % modulus
+    :return: The result of (base ** exponent) % modulus
     """
     result = 1
     base = base % modulus
@@ -5018,7 +4844,7 @@ def calculate_diagonal_of_square(side_length: float) -> float:
     Calculate the length of the diagonal of a square.
 
     :param side_length: The length of one side of the square.
-    :returns: The length of the diagonal of the square.
+    :return: The length of the diagonal of the square.
     """
     return (2**0.5) * side_length
 
@@ -5028,7 +4854,7 @@ def calculate_surface_area_of_regular_octahedron(edge_length: float) -> float:
     Calculate the surface area of a regular octahedron.
 
     :param edge_length: The length of an edge of the octahedron.
-    :returns: The surface area of the octahedron.
+    :return: The surface area of the octahedron.
     """
     return 2 * (3**0.5) * edge_length**2
 
@@ -5038,7 +4864,7 @@ def calculate_edge_length_of_cube_from_volume(volume: float) -> float:
     Calculate the edge length of a cube given its volume.
 
     :param volume: The volume of the cube.
-    :returns: The edge length of the cube.
+    :return: The edge length of the cube.
     """
     return volume ** (1 / 3)
 
@@ -5048,7 +4874,7 @@ def calculate_perimeter_of_equilateral_triangle(side_length: float) -> float:
     Calculate the perimeter of an equilateral triangle.
 
     :param side_length: The length of a side of the equilateral triangle.
-    :returns: The perimeter of the equilateral triangle.
+    :return: The perimeter of the equilateral triangle.
     """
     return 3 * side_length
 
@@ -5112,7 +4938,7 @@ def calculate_diagonal_of_hexagon(side_length: float) -> float:
     Calculate the diagonal length of a regular hexagon given its side length.
 
     :param side_length: The length of a side of the hexagon.
-    :returns: The length of the diagonal of the hexagon.
+    :return: The length of the diagonal of the hexagon.
     """
     return 2 * side_length
 
@@ -5122,7 +4948,7 @@ def calculate_edge_length_of_octahedron_from_volume(volume: float) -> float:
     Calculate the edge length of a regular octahedron given its volume.
 
     :param volume: The volume of the octahedron.
-    :returns: The edge length of the octahedron.
+    :return: The edge length of the octahedron.
     """
     from math import sqrt
 
@@ -5134,7 +4960,7 @@ def calculate_inscribed_sphere_radius_in_tetrahedron(edge_length: float) -> floa
     Calculate the radius of the inscribed sphere (incircle) in a regular tetrahedron given its edge length.
 
     :param edge_length: The length of an edge of the tetrahedron.
-    :returns: The radius of the inscribed sphere.
+    :return: The radius of the inscribed sphere.
     """
     from math import sqrt
 
@@ -5188,7 +5014,7 @@ def calculate_volume_of_cuboid(length: float, width: float, height: float) -> fl
     :param length: The length of the cuboid.
     :param width: The width of the cuboid.
     :param height: The height of the cuboid.
-    :returns: The volume of the cuboid.
+    :return: The volume of the cuboid.
     """
     return length * width * height
 
@@ -5198,7 +5024,7 @@ def calculate_perimeter_of_circle(radius: float) -> float:
     Calculate the perimeter (circumference) of a circle given its radius.
 
     :param radius: The radius of the circle
-    :returns: The perimeter of the circle
+    :return: The perimeter of the circle
     """
     from math import pi
 
@@ -5332,7 +5158,7 @@ def calculate_diagonal_of_polygon(side_length: float, number_of_sides: int) -> f
     :param number_of_sides: The total number of sides (or vertices) of the polygon.
     :return: The length of the diagonal of the polygon.
     """
-    from math import tan, pi
+    from math import pi, tan
 
     return 2 * side_length * tan(pi / number_of_sides)
 
@@ -5371,7 +5197,7 @@ def calculate_circle_radius_inscribed_in_rectangle(
 
     :param length: The length of the rectangle.
     :param width: The width of the rectangle.
-    :returns: The radius of the inscribed circle.
+    :return: The radius of the inscribed circle.
     """
     # The radius of the inscribed circle is half the length of the shorter side of the rectangle.
     return min(length, width) / 2
@@ -5428,7 +5254,7 @@ def calculate_surface_area_of_cube(edge_length: float) -> float:
     Calculate the surface area of a cube.
 
     :param edge_length: The length of an edge of the cube.
-    :returns: The surface area of the cube.
+    :return: The surface area of the cube.
     """
     return 6 * (edge_length**2)
 
@@ -5555,22 +5381,6 @@ def calculate_fixed_point(
     return x0
 
 
-def calculate_mobius_transformation(
-    z: complex, a: complex, b: complex, c: complex, d: complex
-) -> complex:
-    """
-    Calculate the Mobius transformation of a complex number.
-
-    :param z: The complex number to transform.
-    :param a: The 'a' parameter in the Mobius transformation.
-    :param b: The 'b' parameter in the Mobius transformation.
-    :param c: The 'c' parameter in the Mobius transformation.
-    :param d: The 'd' parameter in the Mobius transformation.
-    :return: The transformed complex number.
-    """
-    return (a * z + b) / (c * z + d)
-
-
 def calculate_klein_bottle_area(radius: float) -> float:
     """
     Calculate the surface area of a Klein bottle.
@@ -5606,7 +5416,7 @@ def calculate_homology_group(rank: int) -> str:
     Calculate the homology group of a topological space based on its rank.
 
     :param rank: The rank of the homology group, typically denoted as an integer.
-    :returns: A string representation of the homology group, assuming it's a finitely generated abelian group.
+    :return: A string representation of the homology group, assuming it's a finitely generated abelian group.
 
     The rank of the homology group is a fundamental concept in algebraic topology, representing the number of
     "holes" of a given dimension in a topological space. This function simplifies the concept by returning a
@@ -5627,7 +5437,7 @@ def calculate_euler_characteristic(vertices: int, edges: int, faces: int) -> int
     :param vertices: The number of vertices in the polyhedron.
     :param edges: The number of edges in the polyhedron.
     :param faces: The number of faces in the polyhedron.
-    :returns: The Euler characteristic of the polyhedron.
+    :return: The Euler characteristic of the polyhedron.
 
     The Euler characteristic is a topological invariant, a number that describes a topological space's
     shape or structure regardless of the way it is bent. It is calculated for a polyhedron by subtracting
@@ -5640,7 +5450,7 @@ def calculate_fundamental_group_of_torus() -> str:
     """
     Calculate the fundamental group of a torus.
 
-    :returns: A string representation of the fundamental group of a torus.
+    :return: A string representation of the fundamental group of a torus.
 
     The fundamental group of a torus is an important concept in algebraic topology, representing the set of
     all loops on a torus up to continuous deformation. For a torus, this group is represented by Z x Z,
@@ -5658,7 +5468,7 @@ def calculate_covering_space_number(base_space: str) -> int | float:
     simplifies the concept by providing predefined outcomes for a circle and a torus.
 
     :param base_space: The name of the base space, expected to be either "circle" or "torus".
-    :returns: The number of covering spaces for the given base space.
+    :return: The number of covering spaces for the given base space.
     """
     if base_space == "circle":
         return float("inf")  # Infinite number of covering spaces for a circle
@@ -5673,7 +5483,7 @@ def calculate_borsuk_ulam_theorem_points(sphere_dimension: int) -> str:
     Apply the Borsuk-Ulam theorem to find the number of points with matching conditions.
 
     :param sphere_dimension: The dimension of the sphere to apply the Borsuk-Ulam theorem.
-    :returns: A string indicating the outcome of applying the Borsuk-Ulam theorem.
+    :return: A string indicating the outcome of applying the Borsuk-Ulam theorem.
 
     The Borsuk-Ulam theorem states that for any continuous function from an n-dimensional sphere to
     Euclidean n-space, there exists a pair of antipodal points on the sphere that are mapped to the same
@@ -5690,7 +5500,7 @@ def calculate_homotopy_group_sphere(n: int) -> str:
     Calculate the n-th homotopy group of a sphere.
 
     :param n: The dimension of the homotopy group.
-    :returns: A string representation of the n-th homotopy group of a sphere.
+    :return: A string representation of the n-th homotopy group of a sphere.
 
     The homotopy groups of spheres are fundamental objects in algebraic topology.
     For n=0, the group is trivial. For n=1, it is isomorphic to the integers.
@@ -5714,7 +5524,7 @@ def calculate_knot_group(knot: str) -> str:
     topological properties of the knot.
 
     :param knot: The name or type of the knot.
-    :returns: A string representation of the fundamental group of the knot.
+    :return: A string representation of the fundamental group of the knot.
     """
     if knot.lower() == "unknot":
         return "Trivial group"
@@ -5731,7 +5541,7 @@ def calculate_euler_poincare_characteristic(space: str) -> int:
     Calculate the Euler-Poincaré characteristic of a given topological space.
 
     :param space: The name or type of the topological space.
-    :returns: An integer representing the Euler-Poincaré characteristic of the space.
+    :return: An integer representing the Euler-Poincaré characteristic of the space.
 
     The Euler-Poincaré characteristic is a topological invariant, a number that describes
     a topological space's shape or structure regardless of the way it is bent.
@@ -5751,7 +5561,7 @@ def calculate_genus_of_orientable_surface(euler_char: int) -> int:
     Calculate the genus of an orientable surface based on its Euler characteristic.
 
     :param euler_char: The Euler characteristic of the surface.
-    :returns: An integer representing the genus of the surface.
+    :return: An integer representing the genus of the surface.
 
     The genus of an orientable surface is a measure of the maximum number of non-intersecting
     simple closed curves that can be drawn on the surface without separating it.
@@ -5765,7 +5575,7 @@ def calculate_mobius_band_length(width: float, radius: float) -> float:
 
     :param width: The width of the Möbius band.
     :param radius: The radius from the center of the Möbius strip to the middle of the band.
-    :returns: The length of the central circle of the Möbius band as a float.
+    :return: The length of the central circle of the Möbius band as a float.
 
     The function calculates the length of the central circle of a Möbius band, which is simply the circumference
     of a circle with the given radius.
@@ -5831,7 +5641,7 @@ def calculate_genus(euler_characteristic: int) -> int:
     Calculate the genus of a closed orientable surface.
 
     :param euler_characteristic: The Euler characteristic of the surface.
-    :returns: The genus of the surface.
+    :return: The genus of the surface.
 
     The genus is a topological property that represents the maximum number of non-intersecting simple closed
     curves that can be drawn on the surface without separating it.
@@ -5845,7 +5655,7 @@ def calculate_betti_number(euler_characteristic: int, dimension: int) -> int:
 
     :param euler_characteristic: The Euler characteristic of the space.
     :param dimension: The dimension for which to calculate the Betti number.
-    :returns: The Betti number for the given dimension.
+    :return: The Betti number for the given dimension.
 
     The Betti numbers are topological invariants that generalize the notion of connectivity.
     """
@@ -5865,7 +5675,7 @@ def calculate_covering_space_degree(
 
     :param base_space_genus: The genus of the base space.
     :param covering_space_genus: The genus of the covering space.
-    :returns: The degree of the covering map.
+    :return: The degree of the covering map.
 
     The degree of a covering map is the number of times the covering space covers the base space.
     """
@@ -5988,7 +5798,7 @@ def calculate_covering_space_lifts(base_space: str, covering_space: str) -> int:
     return lifts.get((base_space, covering_space), 0)
 
 
-def calculate_wedge_product_dimension(spaces: list) -> int:
+def calculate_wedge_product_dimension(spaces: list[int]) -> int:
     """
     Calculate the dimension of the wedge product of a list of topological spaces.
 
@@ -6068,7 +5878,7 @@ def calculate_homotopy_equivalence_spaces(n: int) -> int:
     return 2**n
 
 
-def calculate_winding_number(path: list, point: tuple) -> int:
+def calculate_winding_number(path: list[list[float]], point: list[float]) -> int:
     """
     Calculate the winding number of a closed path around a given point.
 
@@ -6486,7 +6296,7 @@ def calculate_modulus(a: int, b: int) -> int:
 
     :param a: The dividend in the modulus operation.
     :param b: The divisor in the modulus operation.
-    :returns: The remainder after dividing `a` by `b`.
+    :return: The remainder after dividing `a` by `b`.
     """
     return a % b
 
@@ -6497,7 +6307,7 @@ def calculate_power(base: float, exponent: float) -> float:
 
     :param base: The base value.
     :param exponent: The exponent value.
-    :returns: The result of `base` raised to the power of `exponent`.
+    :return: The result of `base` raised to the power of `exponent`.
     """
     return base**exponent
 
@@ -6508,7 +6318,7 @@ def find_greatest_common_divisor(a: int, b: int) -> int:
 
     :param a: First integer.
     :param b: Second integer.
-    :returns: The greatest common divisor of `a` and `b`.
+    :return: The greatest common divisor of `a` and `b`.
     """
     while b:
         a, b = b, a % b
@@ -6786,7 +6596,7 @@ def calculate_cubic_polynomial_value(
     :param c: Coefficient of x.
     :param d: Constant term.
     :param x: The value at which to evaluate the polynomial.
-    :returns: The value of the cubic polynomial at x.
+    :return: The value of the cubic polynomial at x.
     """
     return a * x**3 + b * x**2 + c * x + d
 
@@ -6798,7 +6608,7 @@ def calculate_geometric_progression_nth_term(a: float, r: float, n: int) -> floa
     :param a: The first term of the geometric progression.
     :param r: The common ratio of the geometric progression.
     :param n: The term number to find.
-    :returns: The nth term of the geometric progression.
+    :return: The nth term of the geometric progression.
     """
     return a * r ** (n - 1)
 
@@ -6810,7 +6620,7 @@ def calculate_arithmetic_progression_nth_term(a: float, d: float, n: int) -> flo
     :param a: The first term of the arithmetic progression.
     :param d: The common difference of the arithmetic progression.
     :param n: The term number to find.
-    :returns: The nth term of the arithmetic progression.
+    :return: The nth term of the arithmetic progression.
     """
     return a + (n - 1) * d
 
@@ -6958,7 +6768,7 @@ def calculate_euclidean_distance_2d(
     :param y1: The y-coordinate of the first point.
     :param x2: The x-coordinate of the second point.
     :param y2: The y-coordinate of the second point.
-    :returns: The Euclidean distance between the two points.
+    :return: The Euclidean distance between the two points.
     """
     return ((x2 - x1) ** 2 + (y2 - y1) ** 2) ** 0.5
 
@@ -6968,7 +6778,7 @@ def calculate_nth_triangular_number(n: int) -> int:
     Calculate the nth triangular number.
 
     :param n: The term of the triangular number to calculate.
-    :returns: The nth triangular number.
+    :return: The nth triangular number.
     """
     return n * (n + 1) // 2
 
@@ -6978,7 +6788,7 @@ def calculate_coprime_count(n: int) -> int:
     Calculate the number of positive integers less than or equal to n that are coprime to n.
 
     :param n: The integer to find coprimes for.
-    :returns: The count of positive integers less than or equal to n that are coprime to n.
+    :return: The count of positive integers less than or equal to n that are coprime to n.
     """
     count = 0
     for i in range(1, n + 1):
@@ -7046,7 +6856,9 @@ def calculate_modular_multiplicative_inverse(a: int, m: int) -> int:
     return -1
 
 
-def calculate_least_squares_slope(x_values: list, y_values: list) -> float:
+def calculate_least_squares_slope(
+    x_values: list[float], y_values: list[float]
+) -> float:
     """
     Calculate the slope of the least squares regression line for a given set of data points.
 
@@ -7079,7 +6891,7 @@ def calculate_nth_power_sum(n: int, power: int) -> int:
     return sum(i**power for i in range(1, n + 1))
 
 
-def calculate_vector_magnitude(vector: list) -> float:
+def calculate_vector_magnitude(vector: list[float]) -> float:
     """
     Calculate the magnitude (or length) of a vector.
 
@@ -7108,7 +6920,7 @@ def calculate_hypotenuse_length(a: float, b: float) -> float:
 
 
 def calculate_least_squares_regression_intercept(
-    x_values: list, y_values: list
+    x_values: list[float], y_values: list[float]
 ) -> float:
     """
     Calculate the y-intercept (b0) of the least squares regression line from given x and y values.
@@ -7127,7 +6939,7 @@ def calculate_least_squares_regression_intercept(
     return b0
 
 
-def calculate_vector_length(vector: list) -> float:
+def calculate_vector_length(vector: list[float]) -> float:
     """
     Calculate the length (magnitude) of a vector.
 
@@ -7137,7 +6949,7 @@ def calculate_vector_length(vector: list) -> float:
     return sum(component**2 for component in vector) ** 0.5
 
 
-def calculate_least_squares_regression_slope(x: list, y: list) -> float:
+def calculate_least_squares_regression_slope(x: list[float], y: list[float]) -> float:
     """
     Calculate the slope of the least squares regression line for a given set of data points.
 
@@ -7157,7 +6969,7 @@ def calculate_least_squares_regression_slope(x: list, y: list) -> float:
     return slope
 
 
-def calculate_vector_dot_product(vector_a: list, vector_b: list) -> float:
+def calculate_vector_dot_product(vector_a: list[float], vector_b: list[float]) -> float:
     """
     Calculate the dot product of two vectors.
 
@@ -7170,7 +6982,7 @@ def calculate_vector_dot_product(vector_a: list, vector_b: list) -> float:
     return sum(a * b for a, b in zip(vector_a, vector_b))
 
 
-def calculate_mean_absolute_deviation(data: list) -> float:
+def calculate_mean_absolute_deviation(data: list[float]) -> float:
     """
     Calculate the mean absolute deviation of a dataset.
 
@@ -7183,7 +6995,7 @@ def calculate_mean_absolute_deviation(data: list) -> float:
     return sum(abs(x - mean) for x in data) / len(data)
 
 
-def calculate_euclidean_norm(vector: list) -> float:
+def calculate_euclidean_norm(vector: list[float]) -> float:
     """
     Calculate the Euclidean norm (or Euclidean length) of a vector.
 
@@ -7230,7 +7042,7 @@ def calculate_greatest_common_divisor(a: int, b: int) -> int:
 # set_theory
 
 
-def union_of_sets(set_a: set, set_b: set) -> set:
+def union_of_sets(set_a: set[str], set_b: set[str]) -> set:
     """
     Calculate the union of two sets.
 
@@ -7241,7 +7053,7 @@ def union_of_sets(set_a: set, set_b: set) -> set:
     return set_a.union(set_b)
 
 
-def intersection_of_sets(set_a: set, set_b: set) -> set:
+def intersection_of_sets(set_a: set[str], set_b: set[str]) -> set:
     """
     Calculate the intersection of two sets.
 
@@ -7252,7 +7064,7 @@ def intersection_of_sets(set_a: set, set_b: set) -> set:
     return set_a.intersection(set_b)
 
 
-def difference_of_sets(set_a: set, set_b: set) -> set:
+def difference_of_sets(set_a: set[str], set_b: set[str]) -> set:
     """
     Calculate the difference between two sets.
 
@@ -7263,7 +7075,7 @@ def difference_of_sets(set_a: set, set_b: set) -> set:
     return set_a.difference(set_b)
 
 
-def symmetric_difference_of_sets(set_a: set, set_b: set) -> set:
+def symmetric_difference_of_sets(set_a: set[str], set_b: set[str]) -> set:
     """
     Calculate the symmetric difference of two sets.
 
@@ -7274,18 +7086,18 @@ def symmetric_difference_of_sets(set_a: set, set_b: set) -> set:
     return set_a.symmetric_difference(set_b)
 
 
-def is_disjoint(A: set, B: set) -> bool:
+def is_disjoint(set_a: set[str], set_b: set[str]) -> bool:
     """
     Determine if two sets have no elements in common.
 
-    :param A: First set
-    :param B: Second set
+    :param set_a: First set
+    :param set_b: Second set
     :return: True if A and B have no common elements, False otherwise
     """
-    return A.isdisjoint(B)
+    return set_a.isdisjoint(set_b)
 
 
-def set_complement(universal_set: set, subset: set) -> set:
+def set_complement(universal_set: set[str], subset: set[str]) -> set:
     """
     Calculate the complement of a subset within a universal set.
 
@@ -7296,7 +7108,7 @@ def set_complement(universal_set: set, subset: set) -> set:
     return universal_set - subset
 
 
-def cartesian_product(set_a: set, set_b: set) -> set:
+def cartesian_product(set_a: set[str], set_b: set[str]) -> set:
     """
     Calculate the Cartesian product of two sets.
 
@@ -7307,7 +7119,7 @@ def cartesian_product(set_a: set, set_b: set) -> set:
     return {(a, b) for a in set_a for b in set_b}
 
 
-def power_set(input_set: set) -> set:
+def power_set(input_set: set[str]) -> set:
     """
     Calculate the power set of a given set.
 
@@ -7324,7 +7136,7 @@ def power_set(input_set: set) -> set:
     }
 
 
-def is_superset(super_set: set, sub_set: set) -> bool:
+def is_superset(super_set: set[str], sub_set: set[str]) -> bool:
     """
     Determine if one set is a superset of another.
 
@@ -7335,7 +7147,7 @@ def is_superset(super_set: set, sub_set: set) -> bool:
     return super_set.issuperset(sub_set)
 
 
-def is_proper_subset(sub_set: set, super_set: set) -> bool:
+def is_proper_subset(sub_set: set[str], super_set: set[str]) -> bool:
     """
     Determine if one set is a proper subset of another.
 
@@ -7346,7 +7158,7 @@ def is_proper_subset(sub_set: set, super_set: set) -> bool:
     return sub_set.issubset(super_set) and sub_set != super_set
 
 
-def set_cardinality(s: set) -> int:
+def set_cardinality(s: set[str]) -> int:
     """
     Calculate the cardinality (number of elements) of a set.
 
@@ -7356,7 +7168,7 @@ def set_cardinality(s: set) -> int:
     return len(s)
 
 
-def is_element_of_set(element: int, s: set) -> bool:
+def is_element_of_set(element: int, s: set[int]) -> bool:
     """
     Check if an element is a member of a given set.
 
@@ -7367,7 +7179,7 @@ def is_element_of_set(element: int, s: set) -> bool:
     return element in s
 
 
-def set_power_set(s: set) -> set:
+def set_power_set(s: set[str]) -> set:
     """
     Calculate the power set of a given set. The power set contains all subsets of a set.
 
@@ -7379,7 +7191,7 @@ def set_power_set(s: set) -> set:
     return set(chain.from_iterable(combinations(s, r) for r in range(len(s) + 1)))
 
 
-def disjoint_sets(s1: set, s2: set) -> bool:
+def disjoint_sets(s1: set[str], s2: set[str]) -> bool:
     """
     Determine if two sets are disjoint. Two sets are disjoint if they have no elements in common.
 
@@ -7390,7 +7202,7 @@ def disjoint_sets(s1: set, s2: set) -> bool:
     return s1.isdisjoint(s2)
 
 
-def cartesian_product_set(s1: set, s2: set) -> set:
+def cartesian_product_set(s1: set[str], s2: set[str]) -> set:
     """
     Calculate the Cartesian product of two sets. The Cartesian product of two sets is a set of all ordered pairs
     where the first element of each pair is from the first set and the second element is from the second set.
@@ -7404,7 +7216,7 @@ def cartesian_product_set(s1: set, s2: set) -> set:
     return set(product(s1, s2))
 
 
-def set_is_empty(s: set) -> bool:
+def set_is_empty(s: set[str]) -> bool:
     """
     Determine if a given set is empty.
 
@@ -7414,7 +7226,7 @@ def set_is_empty(s: set) -> bool:
     return len(s) == 0
 
 
-def set_max_element(s: set) -> int:
+def set_max_element(s: set[int]) -> int:
     """
     Find the maximum element in a non-empty set of integers.
 
@@ -7424,7 +7236,7 @@ def set_max_element(s: set) -> int:
     return max(s)
 
 
-def set_min_element(s: set) -> int:
+def set_min_element(s: set[int]) -> int:
     """
     Find the minimum element in a non-empty set of integers.
 
@@ -7434,7 +7246,7 @@ def set_min_element(s: set) -> int:
     return min(s)
 
 
-def set_element_belongs(s: set, element: int) -> bool:
+def set_element_belongs(s: set[int], element: int) -> bool:
     """
     Check if an element belongs to a set.
 
@@ -7445,7 +7257,7 @@ def set_element_belongs(s: set, element: int) -> bool:
     return element in s
 
 
-def set_clear(s: set) -> set:
+def set_clear(s: set[str]) -> set:
     """
     Clear all elements from a set, making it an empty set.
 
@@ -7456,34 +7268,34 @@ def set_clear(s: set) -> set:
     return s
 
 
-def set_relative_complement(A: set, B: set) -> set:
+def set_relative_complement(set_a: set[str], set_b: set[str]) -> set:
     """
     Calculate the relative complement of set B in set A.
 
-    The relative complement of B in A (also called the set difference of A and B)
-    is the set of elements in A, but not in B.
+    The relative complement of set_b in set_a (also called the set difference of set_a and set_b)
+    is the set of elements in set_a, but not in set_b.
 
-    :param A: The first set
-    :param B: The second set
-    :return: A set containing elements that are in A but not in B
+    :param set_a: The first set
+    :param set_b: The second set
+    :return: A set containing elements that are in set_a but not in set_b
     """
-    return A.difference(B)
+    return set_a.difference(set_b)
 
 
-def is_proper_superset(A: set, B: set) -> bool:
+def is_proper_superset(set_a: set[str], set_b: set[str]) -> bool:
     """
-    Determine if set A is a proper superset of set B.
+    Determine if set_a is a proper superset of set_b.
 
-    A proper superset of a set B is a superset of B that is not equal to B.
+    A proper superset of a set is a superset that is not equal to the initial set.
 
-    :param A: The first set
-    :param B: The second set
-    :return: True if A is a proper superset of B, False otherwise
+    :param set_a: The first set
+    :param set_b: The second set
+    :return: True if set_a is a proper superset of set_b, False otherwise
     """
-    return A > B
+    return set_a > set_b
 
 
-def set_cartesian_product(set_a: set, set_b: set) -> set:
+def set_cartesian_product(set_a: set[str], set_b: set[str]) -> set:
     """
     Calculate the Cartesian product of two sets A and B.
 
@@ -7497,30 +7309,30 @@ def set_cartesian_product(set_a: set, set_b: set) -> set:
     return {(a, b) for a in set_a for b in set_b}
 
 
-def set_is_disjoint(A: set, B: set) -> bool:
+def set_is_disjoint(set_a: set[str], set_b: set[str]) -> bool:
     """
-    Determine if two sets A and B are disjoint.
+    Determine if two sets set_a and set_b are disjoint.
 
     Two sets are disjoint if they have no elements in common.
 
-    :param A: The first set
-    :param B: The second set
-    :return: True if A and B are disjoint, False otherwise
+    :param set_a: The first set
+    :param set_b: The second set
+    :return: True if set_a and set_b are disjoint, False otherwise
     """
-    return A.isdisjoint(B)
+    return set_a.isdisjoint(set_b)
 
 
-def set_union_multiple(*sets: set) -> set:
+def set_union_multiple(sets: list[set[str]]) -> set:
     """
     Find the union of multiple sets.
 
     :param sets: An arbitrary number of sets to find the union of.
     :return: A set containing all unique elements from all provided sets.
     """
-    return set().union(*sets)
+    return set().union(sets)
 
 
-def set_intersection_multiple(*sets: set) -> set:
+def set_intersection_multiple(sets: list[set[str]]) -> set:
     """
     Find the intersection of multiple sets.
 
@@ -7529,10 +7341,10 @@ def set_intersection_multiple(*sets: set) -> set:
     """
     if not sets:
         return set()
-    return set.intersection(*sets)
+    return set().intersection(sets)
 
 
-def set_union(a: set, b: set) -> set:
+def set_union(a: set[str], b: set[str]) -> set:
     """
     Returns the union of two sets.
 
@@ -7543,7 +7355,7 @@ def set_union(a: set, b: set) -> set:
     return a.union(b)
 
 
-def set_intersection(a: set, b: set) -> set:
+def set_intersection(a: set[str], b: set[str]) -> set:
     """
     Returns the intersection of two sets.
 
@@ -7554,7 +7366,7 @@ def set_intersection(a: set, b: set) -> set:
     return a.intersection(b)
 
 
-def set_difference(a: set, b: set) -> set:
+def set_difference(a: set[str], b: set[str]) -> set:
     """
     Returns the difference of two sets.
 
@@ -7565,7 +7377,7 @@ def set_difference(a: set, b: set) -> set:
     return a.difference(b)
 
 
-def set_symmetric_difference(a: set, b: set) -> set:
+def set_symmetric_difference(a: set[str], b: set[str]) -> set:
     """
     Returns the symmetric difference of two sets.
 
@@ -7576,7 +7388,7 @@ def set_symmetric_difference(a: set, b: set) -> set:
     return a.symmetric_difference(b)
 
 
-def is_subset(a: set, b: set) -> bool:
+def is_subset(a: set[str], b: set[str]) -> bool:
     """
     Determines if set a is a subset of set b.
 
@@ -7587,86 +7399,66 @@ def is_subset(a: set, b: set) -> bool:
     return a.issubset(b)
 
 
-def set_is_equal(A: set, B: set) -> bool:
+def set_is_equal(set_a: set[str], set_b: set[str]) -> bool:
     """
     Determine if two sets are equal.
 
-    :param A: First set to compare
-    :param B: Second set to compare
-    :return: True if sets A and B contain exactly the same elements, False otherwise
+    :param set_a: First set to compare
+    :param set_b: Second set to compare
+    :return: True if sets set_a and set_b contain exactly the same elements, False otherwise
     """
-    return A == B
+    return set_a == set_b
 
 
-def set_subset_relation(A: set, B: set) -> str:
+def set_subset_relation(set_a: set[str], set_b: set[str]) -> str:
     """
     Determine the subset relation between two sets.
 
-    :param A: First set
-    :param B: Second set
-    :return: A string indicating the subset relation ('A is a subset of B', 'B is a subset of A', 'A and B are equal', or 'No subset relation')
+    :param set_a: First set
+    :param set_b: Second set
+    :return: A string indicating the subset relation.
     """
-    if A == B:
-        return "A and B are equal"
-    elif A.issubset(B):
-        return "A is a subset of B"
-    elif B.issubset(A):
-        return "B is a subset of A"
+    if set_a == set_b:
+        return "set_a and set_b are equal"
+    elif set_a.issubset(set_b):
+        return "set_a is a subset of set_b"
+    elif set_b.issubset(set_a):
+        return "set_b is a subset of set_a"
     else:
         return "No subset relation"
 
 
-def set_complement_universe(A: set, U: set) -> set:
+def set_complement_universe(set_a: set[str], set_u: set[str]) -> set:
     """
-    Calculate the complement of a set A with respect to the universe set U.
+    Calculate the complement of a set_a with respect to the universe set set_u.
 
-    :param A: The set for which to find the complement
-    :param U: The universe set relative to which the complement is calculated
-    :return: The complement of set A with respect to U
+    :param set_a: The set for which to find the complement
+    :param set_u: The universe set relative to which the complement is calculated
+    :return: The complement of set_a with respect to set_u
     """
-    return U - A
+    return set_u - set_a
 
 
-def set_partition(A: set, predicates: list) -> list:
+def set_is_proper_superset(set_a: set[str], set_b: set[str]) -> bool:
     """
-    Partition a set based on a list of predicates.
+    Determine if set_a is a proper superset of set_b.
 
-    :param A: The set to partition
-    :param predicates: A list of functions that take an element of A as input and return a boolean
-    :return: A list of sets, each containing elements for which the corresponding predicate returns True
+    :param set_a: The first set to be compared.
+    :param set_b: The second set, which is compared against the first set.
+    :return: True if set_a is a proper superset of set_b, False otherwise.
     """
-    partitions = []
-    for predicate in predicates:
-        partition = {x for x in A if predicate(x)}
-        A -= partition
-        partitions.append(partition)
-    if (
-        A
-    ):  # If there are remaining elements not covered by predicates, add them as a separate partition
-        partitions.append(A)
-    return partitions
+    return set_a > set_b
 
 
-def set_is_proper_superset(A: set, B: set) -> bool:
+def symmetric_difference(set_a: set[str], set_b: set[str]) -> set:
     """
-    Determine if set A is a proper superset of set B.
+    Calculate the symmetric difference between two sets set_a and set_b.
 
-    :param A: The first set to be compared.
-    :param B: The second set, which is compared against the first set.
-    :return: True if A is a proper superset of B, False otherwise.
+    :param set_a: The first set.
+    :param set_b: The second set.
+    :return: A new set containing elements that are in either set_a or set_b but not in both.
     """
-    return A > B
-
-
-def symmetric_difference(A: set, B: set) -> set:
-    """
-    Calculate the symmetric difference between two sets A and B.
-
-    :param A: The first set.
-    :param B: The second set.
-    :return: A new set containing elements that are in either A or B but not in both.
-    """
-    return A.symmetric_difference(B)
+    return set_a.symmetric_difference(set_b)
 
 
 # probability theory
@@ -7918,7 +7710,7 @@ def calculate_probability_of_no_success(p_success: float, trials: int) -> float:
 
 
 def calculate_mean_of_discrete_random_variable(
-    values: list, probabilities: list
+    values: list[int], probabilities: list[float]
 ) -> float:
     """
     Calculate the mean (expected value) of a discrete random variable.
@@ -7970,7 +7762,7 @@ def calculate_normal_distribution_probability(
     :param x: Point at which to evaluate the density.
     :return: The probability density at point x.
     """
-    from math import exp, sqrt, pi
+    from math import exp, pi, sqrt
 
     return exp(-0.5 * ((x - mu) / sigma) ** 2) / (sigma * sqrt(2 * pi))
 
@@ -8143,15 +7935,13 @@ def calculate_poisson_probability(lambda_: float, k: int) -> float:
 # statistics
 
 
-def calculate_variance_sample_or_population(
-    values: list[float], sample: bool = True
-) -> float:
+def calculate_variance_sample_or_population(values: list[float], sample: bool) -> float:
     """
     Calculate the variance of a list of numbers.
 
     :param values: A list of numbers
     :param sample: Boolean indicating if the variance is for a sample (True) or population (False)
-    :returns: The variance of the numbers
+    :return: The variance of the numbers
     """
     n = len(values)
     mean_value = calculate_mean(values)
@@ -8160,20 +7950,20 @@ def calculate_variance_sample_or_population(
 
 
 def calculate_standard_deviation_sample_or_population(
-    values: list[float], sample: bool = True
+    values: list[float], sample: bool
 ) -> float:
     """
     Calculate the standard deviation of a list of numbers.
 
     :param values: A list of numbers
     :param sample: Boolean indicating if the standard deviation is for a sample (True) or population (False)
-    :returns: The standard deviation of the numbers
+    :return: The standard deviation of the numbers
     """
     variance = calculate_variance_sample_or_population(values, sample)
     return variance**0.5
 
 
-def calculate_population_variance(data: list) -> float:
+def calculate_population_variance(data: list[float]) -> float:
     """
     Calculate the population variance of a dataset.
 
@@ -8185,7 +7975,7 @@ def calculate_population_variance(data: list) -> float:
     return variance
 
 
-def calculate_sample_variance(data: list) -> float:
+def calculate_sample_variance(data: list[float]) -> float:
     """
     Calculate the sample variance of a dataset.
 
@@ -8197,7 +7987,7 @@ def calculate_sample_variance(data: list) -> float:
     return variance
 
 
-def calculate_population_standard_deviation(data: list) -> float:
+def calculate_population_standard_deviation(data: list[float]) -> float:
     """
     Calculate the population standard deviation of a dataset.
 
@@ -8208,7 +7998,7 @@ def calculate_population_standard_deviation(data: list) -> float:
     return variance**0.5
 
 
-def calculate_sample_standard_deviation(data: list) -> float:
+def calculate_sample_standard_deviation(data: list[float]) -> float:
     """
     Calculate the sample standard deviation of a dataset.
 
@@ -8219,7 +8009,7 @@ def calculate_sample_standard_deviation(data: list) -> float:
     return variance**0.5
 
 
-def calculate_mean_absolute_error(actual: list, predicted: list) -> float:
+def calculate_mean_absolute_error(actual: list[float], predicted: list[float]) -> float:
     """
     Calculate the mean absolute error (MAE) between actual and predicted values.
 
@@ -8230,7 +8020,9 @@ def calculate_mean_absolute_error(actual: list, predicted: list) -> float:
     return sum(abs(a - p) for a, p in zip(actual, predicted)) / len(actual)
 
 
-def calculate_root_mean_square_error(actual: list, predicted: list) -> float:
+def calculate_root_mean_square_error(
+    actual: list[float], predicted: list[float]
+) -> float:
     """
     Calculate the root-mean-square error (RMSE) between actual and predicted values.
 
@@ -8241,7 +8033,7 @@ def calculate_root_mean_square_error(actual: list, predicted: list) -> float:
     return (sum((a - p) ** 2 for a, p in zip(actual, predicted)) / len(actual)) ** 0.5
 
 
-def calculate_sample_covariance(x: list, y: list) -> float:
+def calculate_sample_covariance(x: list[float], y: list[float]) -> float:
     """
     Calculate the sample covariance between two lists.
 
@@ -8255,7 +8047,7 @@ def calculate_sample_covariance(x: list, y: list) -> float:
     return sum((xi - mean_x) * (yi - mean_y) for xi, yi in zip(x, y)) / (n - 1)
 
 
-def calculate_mean_squared_error(y_true: list, y_pred: list) -> float:
+def calculate_mean_squared_error(y_true: list[float], y_pred: list[float]) -> float:
     """
     Calculate the mean squared error between true and predicted values.
 
@@ -8267,7 +8059,7 @@ def calculate_mean_squared_error(y_true: list, y_pred: list) -> float:
     return mse
 
 
-def calculate_pearson_correlation(x: list, y: list) -> float:
+def calculate_pearson_correlation(x: list[float], y: list[float]) -> float:
     """
     Calculate the Pearson correlation coefficient between two lists.
 
@@ -8288,7 +8080,7 @@ def calculate_pearson_correlation(x: list, y: list) -> float:
     return numerator / denominator
 
 
-def calculate_root_mean_square(values: list) -> float:
+def calculate_root_mean_square(values: list[float]) -> float:
     """
     Calculate the root-mean-square of a list of values.
 
@@ -8299,7 +8091,7 @@ def calculate_root_mean_square(values: list) -> float:
     return rms
 
 
-def calculate_sample_skewness(data: list) -> float:
+def calculate_sample_skewness(data: list[float]) -> float:
     """
     Calculate the sample skewness of a dataset.
 
@@ -8314,7 +8106,7 @@ def calculate_sample_skewness(data: list) -> float:
     return skewness
 
 
-def calculate_kurtosis(data: list) -> float:
+def calculate_kurtosis(data: list[float]) -> float:
     """
     Calculate the kurtosis of a dataset.
 
@@ -8336,39 +8128,39 @@ def calculate_z_score(value: float, mean: float, std_dev: float) -> float:
     :param value: The value to calculate the Z-score for.
     :param mean: The mean of the dataset.
     :param std_dev: The standard deviation of the dataset.
-    :returns: The Z-score of the value.
+    :return: The Z-score of the value.
     """
     return (value - mean) / std_dev
 
 
-def calculate_coefficient_of_variation(data: list) -> float:
+def calculate_coefficient_of_variation(data: list[float]) -> float:
     """
     Calculate the coefficient of variation of a dataset.
 
     :param data: A list of numerical values representing the dataset.
-    :returns: The coefficient of variation as a float.
+    :return: The coefficient of variation as a float.
     """
     mean = sum(data) / len(data)
     std_dev = (sum((x - mean) ** 2 for x in data) / len(data)) ** 0.5
     return std_dev / mean
 
 
-def calculate_population_mean(data: list) -> float:
+def calculate_population_mean(data: list[float]) -> float:
     """
     Calculate the mean (average) of a population data set.
 
     :param data: A list of numerical values representing the population data.
-    :returns: The mean of the population data as a float.
+    :return: The mean of the population data as a float.
     """
     return sum(data) / len(data)
 
 
-def calculate_sample_standard_error(data: list) -> float:
+def calculate_sample_standard_error(data: list[float]) -> float:
     """
     Calculate the standard error of a sample data set.
 
     :param data: A list of numerical values representing the sample data.
-    :returns: The standard error of the sample data as a float.
+    :return: The standard error of the sample data as a float.
     """
     from statistics import stdev
 
@@ -8376,13 +8168,15 @@ def calculate_sample_standard_error(data: list) -> float:
     return stdev(data) / n**0.5
 
 
-def calculate_coefficient_of_determination(y_true: list, y_pred: list) -> float:
+def calculate_coefficient_of_determination(
+    y_true: list[float], y_pred: list[float]
+) -> float:
     """
     Calculate the coefficient of determination (R^2) for a set of true and predicted values.
 
     :param y_true: A list of true values.
     :param y_pred: A list of predicted values corresponding to the true values.
-    :returns: The coefficient of determination as a float.
+    :return: The coefficient of determination as a float.
     """
     y_mean = sum(y_true) / len(y_true)
     total_sum_of_squares = sum((yi - y_mean) ** 2 for yi in y_true)
@@ -8390,12 +8184,12 @@ def calculate_coefficient_of_determination(y_true: list, y_pred: list) -> float:
     return 1 - (residual_sum_of_squares / total_sum_of_squares)
 
 
-def calculate_population_median(data: list) -> float:
+def calculate_population_median(data: list[float]) -> float:
     """
     Calculate the median of a population data set.
 
     :param data: A list of numerical values representing the population data.
-    :returns: The median value of the data set.
+    :return: The median value of the data set.
     """
     sorted_data = sorted(data)
     n = len(sorted_data)
@@ -8406,13 +8200,13 @@ def calculate_population_median(data: list) -> float:
     return median
 
 
-def calculate_sample_correlation(x: list, y: list) -> float:
+def calculate_sample_correlation(x: list[float], y: list[float]) -> float:
     """
     Calculate the sample correlation coefficient between two variables.
 
     :param x: A list of numerical values representing the first variable.
     :param y: A list of numerical values representing the second variable.
-    :returns: The sample correlation coefficient between x and y.
+    :return: The sample correlation coefficient between x and y.
     """
     n = len(x)
     sum_x = sum(x)
@@ -8425,12 +8219,12 @@ def calculate_sample_correlation(x: list, y: list) -> float:
     return numerator / denominator
 
 
-def calculate_population_range(data: list) -> float:
+def calculate_population_range(data: list[float]) -> float:
     """
     Calculate the range of a population data set.
 
     :param data: A list of numerical values representing the population data.
-    :returns: The range of the population data as a float.
+    :return: The range of the population data as a float.
     """
     return max(data) - min(data)
 
@@ -8441,17 +8235,17 @@ def calculate_sample_proportion(successes: int, trials: int) -> float:
 
     :param successes: The number of successes in the sample.
     :param trials: The total number of trials or observations in the sample.
-    :returns: The proportion of successes as a float.
+    :return: The proportion of successes as a float.
     """
     return successes / trials
 
 
-def calculate_interquartile_range(data: list) -> float:
+def calculate_interquartile_range(data: list[float]) -> float:
     """
     Calculate the interquartile range of a data set.
 
     :param data: A list of numerical values.
-    :returns: The interquartile range of the data as a float.
+    :return: The interquartile range of the data as a float.
     """
     import numpy as np
 
@@ -8460,12 +8254,49 @@ def calculate_interquartile_range(data: list) -> float:
     return q3 - q1
 
 
-def calculate_weighted_mean(values: list, weights: list) -> float:
+def calculate_weighted_mean(values: list[float], weights: list[float]) -> float:
     """
     Calculate the weighted mean of a data set.
 
     :param values: A list of numerical values.
     :param weights: A list of weights corresponding to the values.
-    :returns: The weighted mean of the data as a float.
+    :return: The weighted mean of the data as a float.
     """
     return sum(value * weight for value, weight in zip(values, weights)) / sum(weights)
+
+
+if __name__ == "__main__":
+    import sys
+    from inspect import getmembers, isfunction
+
+    from tulip_agent.function_analyzer import FunctionAnalyzer
+
+    current_module = sys.modules[__name__]
+    print(current_module)
+    functions = [
+        (n, f)
+        for n, f in getmembers(current_module, isfunction)
+        if f.__module__ == "__main__"
+    ]
+    print(f"Number of functions: {len(functions)}")
+    print(f"Functions: {functions}")
+    print(f"Number of duplicate functions: {len(functions) - len(set(functions))}")
+
+    fa = FunctionAnalyzer()
+    for name, function in functions:
+        print(name)
+        description = fa.analyze_function(function)
+        print(description)
+
+    module_name = "mte"
+    too_long = [
+        [name, len(module_name + "__" + name)]
+        for name, _ in functions
+        if len(module_name + "__" + name) > 64
+    ]
+    if too_long:
+        print("Names too long for:")
+        c = 0
+        for name, ln in too_long:
+            print(f"{c} -- {name} -- [{ln}/64]")
+            c += 1

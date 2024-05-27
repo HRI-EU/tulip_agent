@@ -35,13 +35,12 @@ import json
 import logging
 import os
 import sys
-
-import chromadb
-
 from inspect import getmembers, isfunction
-from os.path import dirname, abspath
+from os.path import abspath, dirname
 from pathlib import Path
 from typing import Callable, Optional
+
+import chromadb
 
 from .embed import embed
 from .function_analyzer import FunctionAnalyzer

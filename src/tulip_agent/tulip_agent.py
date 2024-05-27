@@ -272,6 +272,7 @@ class NaiveTulipAgent(TulipAgent):
                 tools=[self.search_tools_description],
                 tool_choice={"type": "function", "function": {"name": "search_tools"}},
             )
+            _msgs.append(function_response)
             response_message = function_response.choices[0].message
             tool_calls = response_message.tool_calls
 
@@ -280,14 +281,15 @@ class NaiveTulipAgent(TulipAgent):
                 logger.info(
                     f"Tool search invalid: Returned {lntc} instead of 1 search call. Retrying."
                 )
-                _msgs.append(
-                    {
-                        "tool_call_id": tool_calls[0].id,
-                        "role": "tool",
-                        "name": "search_tools",
-                        "content": "Error: Invalid number of tool calls; return a single call to `search_tools`.",
-                    }
-                )
+                for tool_call in tool_calls:
+                    _msgs.append(
+                        {
+                            "tool_call_id": tool_call.id,
+                            "role": "tool",
+                            "name": "search_tools",
+                            "content": "Error: Invalid number of tool calls; return a single call to `search_tools`.",
+                        }
+                    )
             # Try running search for tools from tool call
             else:
                 try:

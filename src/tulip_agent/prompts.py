@@ -46,7 +46,6 @@ c) generate a Python function using the `create_tool` function, which will be ad
 Obey the following rules:
 1) Use tools whenever possible.
 2) Make use of your capabilities to search and generate tools.
-3) After creating new tools retrieve their exact documentation via the tool search.
 """
 
 

@@ -174,7 +174,7 @@ class ToolLibrary:
         self,
         function: Callable,
         module_name: str,
-    ) -> None:
+    ) -> dict:
         module_path = os.path.abspath(sys.modules[module_name].__file__)
         function_id = f"{module_name}__{function.__name__}"
         self.functions[function_id] = function
@@ -201,12 +201,13 @@ class ToolLibrary:
             "function_name": function.__name__,
         }
         logger.info(f"Added function {function_id} to collection {self.collection}.")
+        return function_data
 
     def load_functions_from_file(
         self,
         module_name: str,
         function_names: Optional[list[str]] = None,
-    ) -> None:
+    ) -> list[dict]:
         if module_name in sys.modules:
             module = importlib.reload(sys.modules[module_name])
         else:
@@ -223,8 +224,11 @@ class ToolLibrary:
                 for _, f in getmembers(module, isfunction)
                 if f.__module__ == module_name
             ]
+        tool_descriptions = []
         for f in functions:
-            self._add_function(function=f, module_name=module_name)
+            tool_description = self._add_function(function=f, module_name=module_name)
+            tool_descriptions.append(tool_description)
+        return tool_descriptions
 
     def remove_function(
         self,

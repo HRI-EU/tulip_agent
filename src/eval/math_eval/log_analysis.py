@@ -216,7 +216,10 @@ def assess_data(
         r.function_precision = (
             len(relevant_tools) / len(tool_call_names) if tool_call_names else 0.0
         )
-        r.function_recall = len(relevant_tools) / len(gtf_data[r.task]["functions"])
+        if len(gtf_data[r.task]["functions"]) > 0:
+            r.function_recall = len(relevant_tools) / len(gtf_data[r.task]["functions"])
+        else:
+            r.function_recall = 0.0
     return results, {k: gtf_data[k]["name"] for k in gtf_data}
 
 
@@ -234,6 +237,7 @@ def plot(
     tasks: dict,
     criteria: dict,
     colors: list[str],
+    math_benchmark: bool,
 ) -> None:
     number_agents = len(agents)
     width = 0.05
@@ -242,6 +246,13 @@ def plot(
         "M": "Medium",
         "H": "Hard",
     }
+    split_index = 2
+
+    if math_benchmark:
+        # TODO get all levels automatically from log/history
+        levels = {"1": "Level 1"}
+        split_index = 1
+
     x = np.arange(len(levels))
     fig, axs = plt.subplots(len(criteria), sharex=True, sharey=False, figsize=(10, 5))
     for ci, criterion in enumerate(criteria):
@@ -254,7 +265,7 @@ def plot(
                             float(getattr(d, criterion))
                             for d in data
                             if d.agent == agent
-                            and tasks[d.task].split(".")[-2] == level
+                            and tasks[d.task].split(".")[-split_index] == level
                         ]
                     )
                     for level in levels
@@ -304,6 +315,7 @@ def main(
     agents: list,
     criteria: dict,
     colors: list,
+    math_benchmark: bool,
 ) -> None:
     res = extract_data_from_log(log_file=log_file, model=model)
     res, tasks = assess_data(results=res, ground_truth=ground_truth)
@@ -316,6 +328,7 @@ def main(
         tasks=tasks,
         criteria=criteria,
         colors=colors,
+        math_benchmark=math_benchmark,
     )
 
 
@@ -343,6 +356,9 @@ def analyze(log_file: str, ground_truth: str) -> None:
 
 
 if __name__ == "__main__":
+
+    MATH_benchmark = True
+
     with open("math_eval_settings.yaml", "rt") as mes:
         settings = yaml.safe_load(mes.read())
     log_folder = settings["log_folder"]
@@ -361,19 +377,27 @@ if __name__ == "__main__":
             if history_data[log_name]["agents"][a]
         ]
         colors = [history_data[log_name]["colors"][a] for a in agents]
+
+    criteria = {
+            "costs": "Costs [$]",
+            "function_recall": "Recall",
+            "function_precision": "Precision",
+            "correctness": "Correct",
+        }
+    if MATH_benchmark:
+        criteria = {
+            "costs": "Costs [$]",
+            "correctness": "Correct",
+        }
     main(
         log_file=log,
         model=model,
         ground_truth=settings["ground_truth"],
         plot_file="math.eval.png",
         agents=agents,
-        criteria={
-            "costs": "Costs [$]",
-            "function_recall": "Recall",
-            "function_precision": "Precision",
-            "correctness": "Correct",
-        },
+        criteria=criteria,
         colors=colors,
+        math_benchmark=MATH_benchmark,
     )
     img_name = log_name[:-3] + "png"
     shutil.copy("math.eval.png", f"{log_folder}/{img_name}")

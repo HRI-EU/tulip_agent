@@ -1,10 +1,12 @@
-# Ablation settings for math eval
+# Settings for math eval
 
 ground_truth: math_tasks.json
-tools: math_tools
 log_folder: logs
 log_file: null
 task_filter: null
+
+tools: math_tools
+model: "gpt-3.5-turbo-0125"
 
 agents:
     BaseAgent: True

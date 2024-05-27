@@ -84,7 +84,7 @@ class ToolAgent(LlmAgent, ABC):
                     logger.error(f"Invalid tool `{func_name}` resulting in error: {e}")
                     function_response = f"Error: {func_name} is not a valid tool. Use only the tools available."
                     func_name = "invalid_tool_call"
-                    self.messages[-1].tool_calls[0].function.name = func_name
+                    tool_call.function.name = func_name
                 except Exception as e:
                     logger.error(e)
                     function_response = f"Error: Invalid tool call for {func_name}: {e}"

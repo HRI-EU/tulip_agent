@@ -163,7 +163,7 @@ class TulipAgent(LlmAgent, ABC):
                 )
                 if error:
                     func_name = "invalid_tool_call"
-                    self.messages[-1].tool_calls[0].function.name = func_name
+                    tool_call.function.name = func_name
                 self.messages.append(
                     {
                         "tool_call_id": tool_call.id,

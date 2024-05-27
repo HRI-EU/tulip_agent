@@ -1197,11 +1197,11 @@ def calculate_sum_of_even_numbers(n: int) -> int:
     return n * (n + 1)
 
 
-def calculate_product_of_n_numbers(*args: int) -> int:
+def calculate_product_of_n_numbers(args: list[int]) -> int:
     """
     Calculate the product of n given numbers.
 
-    :param args: A variable number of integers to be multiplied.
+    :param args: A list with a variable number of integers to be multiplied.
     :return: The product of the given numbers.
     """
     product = 1

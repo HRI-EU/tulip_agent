@@ -62,7 +62,9 @@ def create_benchmark_task(subcategory, level, max_tasks=None):
             "task": content["problem"],
             "raw_solution": content["solution"],
             "functions": [],
-            "name": f"{subcategory}_{file.name.split('.')[0]}",
+            "name": f"{subcategory}.{file.name.split('.')[0]}.{level}",
+            "category": subcategory,
+            "level": level,
             "valid_solutions": solutions
         }
         benchmark_tasks.append(new_task)
@@ -75,4 +77,4 @@ def create_benchmark_task(subcategory, level, max_tasks=None):
 
 if __name__ == "__main__":
     for level in range(1,6):
-        create_benchmark_task(subcategory='prealgebra', level=level, max_tasks=10)
+        create_benchmark_task(subcategory='prealgebra', level=level, max_tasks=None)

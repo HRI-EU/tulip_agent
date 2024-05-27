@@ -3,7 +3,9 @@
         "task": "What is the value of $n$ such that $10^n = 10^{-5}\\times \\sqrt{\\frac{10^{73}}{0.001}}$?",
         "raw_solution": "We will simplify the fraction inside the square root first. Since $0.001=10^{-3}$, we can rewrite the fraction as $\\frac{10^{73}}{10^{-3}}=10^{76}$. The entire equation becomes $10^n=10^{-5}\\times \\sqrt{10^{76}}$. Taking the square root of $10^{76}$ gives us \\[\\sqrt{10^{76}} = \\sqrt{10^{38\\cdot 2}} = \\sqrt{(10^{38})^2} = 10^{38}.\\] Therefore, our equation now is $10^n=10^{-5}\\times 10^{38}$. The right hand side becomes $10^{-5+38}=10^{33}$. The equation becomes $10^n=10^{33}$, so $n=\\boxed{33}$.",
         "functions": [],
-        "name": "prealgebra_1219",
+        "name": "prealgebra.1219.5",
+        "category": "prealgebra",
+        "level": 5,
         "valid_solutions": [
             "33"
         ]
@@ -12,7 +14,9 @@
         "task": "What is the smallest positive integer $x$ that, when multiplied by $400$, produces a product that is a multiple of $576$?",
         "raw_solution": "Begin by factoring the two numbers. $400$ factors into $2^4\\cdot5^2$, while $576$ factors into $2^6\\cdot3^2$. In order for $400x$ to be a multiple of $576$, the prime factorization of $400x$ must include the entire prime factorization of $576$.  Since the prime factorization of 576 has two more 2's and two more 3's than the prime factorization of 400, we know that the prime factorization of $x$ must include at least two 2's and at least two 3's.  So, the smallest possible $x$ is $2^2\\cdot3^2=4\\cdot9=\\boxed{36}$.\n\nChecking our answer to make sure that $400\\cdot (2^2\\cdot 3^2)$ is a multiple of 576, we see that $$400(2^2\\cdot 3^2) =2^4\\cdot 5^2\\cdot 2^2\\cdot 3^2 = 5^2(2^4\\cdot 2^2\\cdot 3^2) = 5^2(2^6\\cdot 3^2) = 25\\cdot 576.$$",
         "functions": [],
-        "name": "prealgebra_341",
+        "name": "prealgebra.341.5",
+        "category": "prealgebra",
+        "level": 5,
         "valid_solutions": [
             "36"
         ]
@@ -21,7 +25,9 @@
         "task": "A state requires that all boat licenses consist of the letter A or M followed by any five digits. What is the number of groups of letters and numbers available for boat licenses?",
         "raw_solution": "There are two choices for the letter, followed by ten choices of a digit for each of the next five slots. Thus, there are $2 \\cdot 10^5 = \\boxed{200000}$ combinations.",
         "functions": [],
-        "name": "prealgebra_1672",
+        "name": "prealgebra.1672.5",
+        "category": "prealgebra",
+        "level": 5,
         "valid_solutions": [
             "200000"
         ]
@@ -30,7 +36,9 @@
         "task": "There are 4 representatives from each of 4 companies at a convention. At the start of the convention, every person shakes hands once with every person except the other representatives from their company. How many handshakes are there?",
         "raw_solution": "All 16 people shake hands with 12 other people (everyone except themselves and the other representatives from their company).  In multiplying $16 \\times 12$, each handshake is counted twice, so we divide by two to get the answer of $\\dfrac{16 \\times 12}{2} = \\boxed{96}$ handshakes.",
         "functions": [],
-        "name": "prealgebra_643",
+        "name": "prealgebra.643.5",
+        "category": "prealgebra",
+        "level": 5,
         "valid_solutions": [
             "96"
         ]
@@ -39,7 +47,9 @@
         "task": "The arithmetic mean of 12 scores is 82. When the highest and lowest scores are  removed, the new mean becomes 84. If the highest of the 12 scores is 98, what is the lowest score?",
         "raw_solution": "If the mean of the $12$ scores is $82$, then the sum of the $12$ scores is $82\\times12$. After the two scores are removed, the sum of the $10$ remaining scores is $84\\times10=840$. The sum of the two removed scores is $$82\\times12-840=4(41\\times6-210)=4(246-210)=4(36)=144.$$ Since one of the removed scores is $98$, the other removed score is $144-98=\\boxed{46}$.",
         "functions": [],
-        "name": "prealgebra_626",
+        "name": "prealgebra.626.5",
+        "category": "prealgebra",
+        "level": 5,
         "valid_solutions": [
             "46"
         ]
@@ -48,7 +58,9 @@
         "task": "In the diagram shown, $\\overrightarrow{OA}\\perp\\overrightarrow{OC}$ and $\\overrightarrow{OB}\\perp\\overrightarrow{OD}$. If $\\angle{AOD}$ is 3.5 times $\\angle{BOC}$, what is $\\angle{AOD}$? [asy]\nunitsize(1.5cm);\ndefaultpen(linewidth(.7pt)+fontsize(10pt));\ndotfactor=4;\n\npair O=(0,0), A=dir(0), B=dir(50), C=dir(90), D=dir(140);\npair[] dots={O,A,B,C,D};\n\ndot(dots);\ndraw(O--1.2*D,EndArrow(4));\ndraw(O--1.2*B,EndArrow(4));\ndraw(O--1.2*C,EndArrow(4));\ndraw(O--1.2*A,EndArrow(4));\n\nlabel(\"$D$\",D,SW);\nlabel(\"$C$\",C,W);\nlabel(\"$B$\",B,E);\nlabel(\"$A$\",A,N);\nlabel(\"$O$\",O,S);\n[/asy]",
         "raw_solution": "Let $x$ denote the measure in degrees of $\\angle BOC$.  Because $\\angle BOD$ and $\\angle COA$ are right angles, $\\angle COD$ and $\\angle BOA$ each measure $90-x$ degrees.  Therefore $\\angle AOD=x+(90-x)+(90-x)$ degrees.  Solving \\[\n3.5x=x+90-x+90-x\n\\]we find $x=180/4.5=40$.  Therefore $\\angle AOD=180^\\circ-40^\\circ=\\boxed{140\\text{ degrees}}$.",
         "functions": [],
-        "name": "prealgebra_1853",
+        "name": "prealgebra.1853.5",
+        "category": "prealgebra",
+        "level": 5,
         "valid_solutions": [
             "140\\text{ degrees"
         ]
@@ -57,7 +69,9 @@
         "task": "Every June 1, an ecologist takes a census of the number of wrens in a state park. She noticed that the number is decreasing by $40\\%$ each year. If this trend continues, in what year will the census show that the number of wrens is less than $10\\%$ of what it was on June 1, 2004?",
         "raw_solution": "After one year, there will be $60\\%$ left. After two years, there will be $36\\%$ left. After three years, there will be $21.6\\%$ left.\n\nAs we can see, these are just increasing powers of $60\\%$, the next year will not dip below $10\\%$, because $60\\% > 50\\%$, and $21.6 > 20$.  However, without calculating it exactly, you know that it will be less than $16.6\\%$, and thus, it will take 5 years - meaning that in $\\boxed{2009}$, the total number of wrens will drop below $10\\%$ of what it originally was.",
         "functions": [],
-        "name": "prealgebra_464",
+        "name": "prealgebra.464.5",
+        "category": "prealgebra",
+        "level": 5,
         "valid_solutions": [
             "2009"
         ]
@@ -66,7 +80,9 @@
         "task": "Let $d$ be a positive number such that when $109$ is divided by $d$, the remainder is $4.$ Compute the sum of all possible two-digit values of $d$.",
         "raw_solution": "If 4 is subtracted from 109, the result is 105. Then each of the two-digit numbers that will divide 109 with a remainder of 4 will divide 105 exactly. Thus, the problem is equivalent to finding all two-digit divisors of 105. Since the prime factors of 105 are 3, 5, and 7, the divisors are $3\\times5$, $3\\times7$, and $5\\times7$, or $15, 21,\\text{and }35$ with a sum of $\\boxed{71}$.",
         "functions": [],
-        "name": "prealgebra_338",
+        "name": "prealgebra.338.5",
+        "category": "prealgebra",
+        "level": 5,
         "valid_solutions": [
             "71"
         ]
@@ -75,7 +91,9 @@
         "task": "In the diagram, $AB$ is parallel to $DC,$ and $ACE$ is a straight line. What is the value of $x?$ [asy]\ndraw((0,0)--(-.5,5)--(8,5)--(6.5,0)--cycle);\ndraw((-.5,5)--(8.5,-10/7));\nlabel(\"$A$\",(-.5,5),W);\nlabel(\"$B$\",(8,5),E);\nlabel(\"$C$\",(6.5,0),S);\nlabel(\"$D$\",(0,0),SW);\nlabel(\"$E$\",(8.5,-10/7),S);\ndraw((2,0)--(3,0),Arrow);\ndraw((3,0)--(4,0),Arrow);\ndraw((2,5)--(3,5),Arrow);\nlabel(\"$x^\\circ$\",(0.1,4));\ndraw((3,5)--(4,5),Arrow);\nlabel(\"$115^\\circ$\",(0,0),NE);\nlabel(\"$75^\\circ$\",(8,5),SW);\nlabel(\"$105^\\circ$\",(6.5,0),E);\n[/asy]",
         "raw_solution": "Since $\\angle ACE$ is a straight angle, $$\\angle ACB=180^{\\circ}-105^{\\circ}=75^{\\circ}.$$In $\\triangle ABC,$ \\begin{align*}\n\\angle BAC &= 180^{\\circ}-\\angle ABC - \\angle ACB \\\\\n&= 180^{\\circ}-75^{\\circ}-75^{\\circ} \\\\\n&= 30^{\\circ}.\n\\end{align*}Since $AB$ is parallel to $DC,$ we have $$\\angle ACD = \\angle BAC = 30^{\\circ}$$due to alternate angles. In $\\triangle ADC,$ \\begin{align*}\n\\angle DAC &= 180^{\\circ}-\\angle ADC - \\angle ACD \\\\\n&= 180^{\\circ}-115^{\\circ}-30^{\\circ} \\\\\n&= 35^{\\circ}.\n\\end{align*}Thus, the value of $x$ is $\\boxed{35}.$ [asy]\ndraw((0,0)--(-.5,5)--(8,5)--(6.5,0)--cycle);\ndraw((-.5,5)--(8.5,-10/7));\nlabel(\"$A$\",(-.5,5),W);\nlabel(\"$B$\",(8,5),E);\nlabel(\"$C$\",(6.5,0),S);\nlabel(\"$D$\",(0,0),SW);\nlabel(\"$E$\",(8.5,-10/7),S);\ndraw((2,0)--(3,0),Arrow);\ndraw((3,0)--(4,0),Arrow);\ndraw((2,5)--(3,5),Arrow);\nlabel(\"$x^\\circ$\",(0.1,4));\ndraw((3,5)--(4,5),Arrow);\nlabel(\"$115^\\circ$\",(0,0),NE);\nlabel(\"$75^\\circ$\",(8,5),SW);\nlabel(\"$105^\\circ$\",(6.5,0),E);\n[/asy]",
         "functions": [],
-        "name": "prealgebra_778",
+        "name": "prealgebra.778.5",
+        "category": "prealgebra",
+        "level": 5,
         "valid_solutions": [
             "35"
         ]
@@ -84,7 +102,9 @@
         "task": "In the diagram below, $\\overline{AB}\\parallel \\overline{CD}$ and $\\angle AXE$ is $108^\\circ$ less than 3 times $\\angle CYX$.  Find $\\angle BXY$.\n\n[asy]\n\nunitsize(1inch);\n\npair A,B,C,D,X,Y,EE,F;\n\nA = (0,0);\n\nB=(1,0);\n\nC = (0,0.8);\n\nD=(1,0.8);\n\nEE = (0.35,-0.3);\n\nF = (0.8,1.1);\n\ndraw(EE--F);\n\ndraw(A--B);\n\ndraw(C--D);\n\ndot(A);\n\ndot(B);\n\ndot(C);\n\ndot(D);\n\ndot(EE);\n\ndot(F);\n\nlabel(\"$E$\",EE,S);\n\nlabel(\"$F$\",F,N);\n\nX = intersectionpoint(A--B,EE--F);\n\nY = intersectionpoint(C--D,EE--F);\n\nlabel(\"$X$\",X,NNW);\n\nlabel(\"$Y$\",Y,NNW);\n\nlabel(\"$A$\",A,W);\n\nlabel(\"$B$\",B,E);\n\nlabel(\"$C$\",C,W);\n\nlabel(\"$D$\",D,E);\n\ndot(X);\n\ndot(Y);\n\n[/asy]",
         "raw_solution": "Since $\\overline{AB}\\parallel\\overline{CD}$, we have $\\angle AXE = \\angle CYX$.  Letting $x = \\angle AXE$, we have $x = 3x - 108^\\circ$.  Solving this equation gives $x = 54^\\circ$.  We therefore have $\\angle BXY = \\angle AXE = \\boxed{54^\\circ}$.",
         "functions": [],
-        "name": "prealgebra_1644",
+        "name": "prealgebra.1644.5",
+        "category": "prealgebra",
+        "level": 5,
         "valid_solutions": [
             "54^\\circ"
         ]

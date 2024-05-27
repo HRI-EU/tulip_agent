@@ -3,7 +3,9 @@
         "task": "What is the greatest common factor of 30, 90 and 75?",
         "raw_solution": "We factor the numbers: \\[30=2\\cdot3\\cdot5, \\quad 90=2\\cdot3^2\\cdot5, \\quad 75=3\\cdot5^2.\\]  Taking the highest factor that occurs in all of the numbers, we have that the GCF is $3\\cdot5=\\boxed{15}$.",
         "functions": [],
-        "name": "prealgebra_137",
+        "name": "prealgebra.137.2",
+        "category": "prealgebra",
+        "level": 2,
         "valid_solutions": [
             "15"
         ]
@@ -12,7 +14,9 @@
         "task": "How many degrees are in each interior angle of a regular hexagon?",
         "raw_solution": "The sum of the angle measures in a hexagon is $180(6-2) = 720$ degrees.  The angles of a regular hexagon are congruent, so each measures $720^\\circ/6 = \\boxed{120^\\circ}$.",
         "functions": [],
-        "name": "prealgebra_91",
+        "name": "prealgebra.91.2",
+        "category": "prealgebra",
+        "level": 2,
         "valid_solutions": [
             "120^\\circ"
         ]
@@ -21,7 +25,9 @@
         "task": "A car travels 192 miles on 6 gallons of gas. How far can it travel on 8 gallons of gas?",
         "raw_solution": "$\\frac{8}{6}=\\frac{4}{3}$ so 8 gallons is $4/3$ as much gas as 6 gallons is. Since the distance that a car can travel is directly proportional to the amount of gas that it has, if a car can travel $192$ miles on 6 gallons of gas, it can travel $192 \\cdot \\frac{4}{3}=64 \\cdot 4 = \\boxed{256}$ miles on 8 gallons of gas.",
         "functions": [],
-        "name": "prealgebra_36",
+        "name": "prealgebra.36.2",
+        "category": "prealgebra",
+        "level": 2,
         "valid_solutions": [
             "256"
         ]
@@ -30,7 +36,9 @@
         "task": "Find the value of $x$ such that $\\sqrt{x - 2} = 8$.",
         "raw_solution": "Squaring both sides of the equation $\\sqrt{x - 2} = 8$, we get $x - 2 = 8^2 = 64$, so $x = 64 + 2 = \\boxed{66}$.",
         "functions": [],
-        "name": "prealgebra_314",
+        "name": "prealgebra.314.2",
+        "category": "prealgebra",
+        "level": 2,
         "valid_solutions": [
             "66"
         ]
@@ -39,7 +47,9 @@
         "task": "The measures of the interior angles of a particular triangle are in a 5:6:7 ratio. What is the measure, in degrees, of the smallest interior angle?",
         "raw_solution": "Choose $k$ so that the smallest angle measures $5k$ degrees.  Then the measures of the other two angles are $6k$ degrees and $7k$ degrees.  Since the measures of the angles in a triangle sum to 180 degrees, we have $5k+6k+7k=180\\implies 18k=180\\implies k=10$.  The smallest angle measures $5k=5(10)=\\boxed{50}$ degrees.",
         "functions": [],
-        "name": "prealgebra_385",
+        "name": "prealgebra.385.2",
+        "category": "prealgebra",
+        "level": 2,
         "valid_solutions": [
             "50"
         ]
@@ -48,7 +58,9 @@
         "task": "Mark has $\\frac{3}{4}$ of a dollar and Carolyn has $\\frac{3}{10}$ of a dollar. How many dollars do they have altogether? (Give your answer as a decimal.)",
         "raw_solution": "Mark has $\\frac{3}{4}$ of a dollar, or $75$ cents.\n\nCarolyn has $\\frac{3}{10}$ of a dollar, or $30$ cents.\n\nTogether, they have $75+30=105$ cents, or $\\boxed{\\$1.05}.$",
         "functions": [],
-        "name": "prealgebra_1989",
+        "name": "prealgebra.1989.2",
+        "category": "prealgebra",
+        "level": 2,
         "valid_solutions": [
             "\\$1.05"
         ]
@@ -57,7 +69,9 @@
         "task": "Find the least common multiple of 8 and 15.",
         "raw_solution": "$8 = 2^3$, $15 = 3^1 \\cdot 5^1$, so lcm$[8, 15] = 2^3 \\cdot 3^1 \\cdot 5^1 = \\boxed{120}$.\n\nNotice that, since 8 and 15 have no common factors (greater than 1), their least common multiple is equal to their product.",
         "functions": [],
-        "name": "prealgebra_179",
+        "name": "prealgebra.179.2",
+        "category": "prealgebra",
+        "level": 2,
         "valid_solutions": [
             "120"
         ]
@@ -66,7 +80,9 @@
         "task": "Simplify $2w+4w+6w+8w+10w+12$.",
         "raw_solution": "We have to be careful!  We can combine all the $w$ terms to get \\[2w+4w+6w+8w+10w+12 = (2+4+6+8+10)w + 12 = \\boxed{30w+12},\\] but we can't combine the 12 with anything!",
         "functions": [],
-        "name": "prealgebra_222",
+        "name": "prealgebra.222.2",
+        "category": "prealgebra",
+        "level": 2,
         "valid_solutions": [
             "30w+12"
         ]
@@ -75,7 +91,9 @@
         "task": "The noon temperatures for seven consecutive days were $80^{\\circ}$, $79^{\\circ}$, $81^{\\circ}$, $85^{\\circ}$, $87^{\\circ}$, $89^{\\circ}$, and $87^{\\circ}$ Fahrenheit. What is the mean noon temperature, in degrees Fahrenheit, for the week?",
         "raw_solution": "Writing each temperature as 80 degrees plus or minus some number of degrees, the sum of the temperatures is  \\begin{align*}\n80+79&+81+85+87+89+87 \\\\&= 80 +(80-1) + (80+1) + (80+5) \\\\\n&\\qquad+ (80+7)+(80+9)+(80+7)\\\\\n&=7\\cdot 80 + (-1+1+5+7+9+7)\\\\\n&=7\\cdot 80 + 28.\n\\end{align*} So, the mean of the 7 temperatures is  \\[\\frac{7\\cdot 80 + 28}{7} = \\frac{7\\cdot 80}{7} + \\frac{28}{7} = \\boxed{84}.\\]",
         "functions": [],
-        "name": "prealgebra_1051",
+        "name": "prealgebra.1051.2",
+        "category": "prealgebra",
+        "level": 2,
         "valid_solutions": [
             "84"
         ]
@@ -84,7 +102,9 @@
         "task": "What is the value of $\\sqrt{3^3 + 3^3 + 3^3}$?",
         "raw_solution": "Since $3^3 = 3\\times 3\\times 3 = 3\\times 9 = 27$, then  \\[ \\sqrt{3^3+3^3+3^3} = \\sqrt{27+27+27}=\\sqrt{81}=\\boxed{9}. \\]",
         "functions": [],
-        "name": "prealgebra_760",
+        "name": "prealgebra.760.2",
+        "category": "prealgebra",
+        "level": 2,
         "valid_solutions": [
             "9"
         ]

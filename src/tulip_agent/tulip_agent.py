@@ -250,6 +250,7 @@ class NaiveTulipAgent(TulipAgent):
     def query(
         self,
         prompt: str,
+        tool_search_retries: int = 3,
     ) -> str:
         logger.info(f"{self.__class__.__name__} received query: {prompt}")
 
@@ -264,20 +265,55 @@ class NaiveTulipAgent(TulipAgent):
                 "content": f"Search for appropriate tools for reacting to the following user request: {prompt}.",
             },
         ]
-        function_response = self._get_response(
-            msgs=_msgs,
-            tools=[self.search_tools_description],
-            tool_choice={"type": "function", "function": {"name": "search_tools"}},
-        )
-        response_message = function_response.choices[0].message
-        tool_calls = response_message.tool_calls
-        assert (
-            lntc := len(tool_calls)
-        ) == 1, f"Not exactly one tool search executed, but {lntc}."
+        tools, retries = None, 0
+        while not tools:
+            function_response = self._get_response(
+                msgs=_msgs,
+                tools=[self.search_tools_description],
+                tool_choice={"type": "function", "function": {"name": "search_tools"}},
+            )
+            response_message = function_response.choices[0].message
+            tool_calls = response_message.tool_calls
 
-        tools = self.execute_search_tool_call(
-            tool_calls=tool_calls, track_history=False
-        )
+            # More than one tool call - several searches should be combined in one call
+            if (lntc := len(tool_calls)) > 1:
+                logger.info(
+                    f"Tool search invalid: Returned {lntc} instead of 1 search call. Retrying."
+                )
+                _msgs.append(
+                    {
+                        "tool_call_id": tool_calls[0].id,
+                        "role": "tool",
+                        "name": "search_tools",
+                        "content": "Error: Invalid number of tool calls; return a single call to `search_tools`.",
+                    }
+                )
+            # Try running search for tools from tool call
+            else:
+                try:
+                    tools = self.execute_search_tool_call(
+                        tool_calls=tool_calls, track_history=False
+                    )
+                    break
+                except Exception as e:
+                    logger.info(
+                        f"Invalid tool call for `search_tools`: `{e}`. Retrying."
+                    )
+                    _msgs.append(
+                        {
+                            "tool_call_id": tool_calls[0].id,
+                            "role": "tool",
+                            "name": "search_tools",
+                            "content": f"Error: Invalid tool call for `search_tools`: {e}",
+                        }
+                    )
+            retries += 1
+            if retries >= tool_search_retries:
+                error_message = (
+                    f"Aborting: Searching for tools failed {tool_search_retries} times."
+                )
+                logger.error(error_message)
+                return error_message
 
         # Run with tools
         self.messages.append(

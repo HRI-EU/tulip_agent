@@ -1,0 +1,92 @@
+[
+    {
+        "task": "The table shown is partially filled in with the results of a survey done by the radio station KMAT. How many of the females surveyed listen to this station?\n\n\\begin{tabular}{| l | c | r |}\n\\hline\n& listen & don't listen \\\\\n\\hline\nmales & 62 & \\\\ \\hline\nfemales & & 102 \\\\ \\hline\ntotal & 130 & 150 \\\\\n\\hline\n\\end{tabular}",
+        "raw_solution": "Since there were a total of $130$ people surveyed who listen to this station and we know that $62$ of them are male, $130-62=\\boxed{68}$ of the females surveyed said that they listen to this station.",
+        "functions": [],
+        "name": "prealgebra_1058",
+        "valid_solutions": [
+            "68"
+        ]
+    },
+    {
+        "task": "Compute:  $8 + 6(3-8)^2$.",
+        "raw_solution": "We tackle the parentheses, then the exponent, then the product, then the sum: \\begin{align*}\n8+6(3-8)^2 &= 8 + 6(-5)^2\\\\\n&= 8+6\\cdot 25\\\\\n&= 8+150\\\\\n&=\\boxed{158}.\n\\end{align*}",
+        "functions": [],
+        "name": "prealgebra_653",
+        "valid_solutions": [
+            "158"
+        ]
+    },
+    {
+        "task": "What is the largest multiple of 7 less than 50?",
+        "raw_solution": "Dividing 50 by 7 will give us an answer of 7 with a remainder of 1. $$50=7\\cdot 7 +1$$Because the answer must be less than 50, $7\\cdot 7=\\boxed{49}$ must be our answer.",
+        "functions": [],
+        "name": "prealgebra_296",
+        "valid_solutions": [
+            "49"
+        ]
+    },
+    {
+        "task": "At 11:00 a.m. how many degrees are in the smaller angle formed by the minute hand and the hour hand of the clock?",
+        "raw_solution": "The minute hand is pointing directly at the 12 and the hour hand is pointing directly at the 11.  Therefore, the angle they form is $\\frac{1}{12}$ of a full revolution, which is $\\frac{1}{12}\\times 360^\\circ=\\boxed{30}$ degrees.",
+        "functions": [],
+        "name": "prealgebra_489",
+        "valid_solutions": [
+            "30"
+        ]
+    },
+    {
+        "task": "In the six-digit integer $3A6,\\!792$, what is the largest digit $A$ so that the six-digit integer will be divisible by 3?",
+        "raw_solution": "The sum of the digits of the integer is $A+27$, so the integer is divisible by $3$ if $A$ is 0, 3, 6, or 9, since these are the only possible values of the digit $A$ that make $A + 27$ divisible by 3. The largest of these is $\\boxed{9}$.",
+        "functions": [],
+        "name": "prealgebra_699",
+        "valid_solutions": [
+            "9"
+        ]
+    },
+    {
+        "task": "A designer has 3 fabric colors he may use for a dress: red, green, and blue. Four different patterns are available for the dress. If each dress design requires exactly one color and one pattern, how many different dress designs are possible?",
+        "raw_solution": "For each fabric color, the designer can choose one of four patterns. Thus, as there are three potential fabric colors, the designer can create $3 \\cdot 4 = \\boxed{12}$ different dress designs.",
+        "functions": [],
+        "name": "prealgebra_353",
+        "valid_solutions": [
+            "12"
+        ]
+    },
+    {
+        "task": "What is the value of $n$ in the equation $n + (n + 1) + (n + 2) = 9$?",
+        "raw_solution": "$n+(n+1)+(n+2)=3n+3$.  So $3n+3=9\\Rightarrow n=\\boxed{2}$.",
+        "functions": [],
+        "name": "prealgebra_35",
+        "valid_solutions": [
+            "2"
+        ]
+    },
+    {
+        "task": "We are given that $$54+(98\\div14)+(23\\cdot 17)-200-(312\\div 6)=200.$$Now, let's remove the parentheses:  $$54+98\\div14+23\\cdot 17-200-312\\div 6.$$What does this expression equal?",
+        "raw_solution": "Notice how the parentheses are only around pairs of numbers that are being multiplied or divided. Since multiplication and division are performed before addition and subtraction, it doesn't matter if we remove the parentheses. That's why  \\begin{align*}\n&54+(98\\div14)+(23\\cdot 17)-200-(312\\div 6)\\\\\n&=54+98\\div14+23\\cdot17-200-312\\div 6\\\\\n&=\\boxed{200}.\\end{align*}",
+        "functions": [],
+        "name": "prealgebra_989",
+        "valid_solutions": [
+            "200"
+        ]
+    },
+    {
+        "task": "How many obtuse interior angles are in an obtuse triangle?",
+        "raw_solution": "By definition, an obtuse triangle contains one obtuse interior angle. It cannot contain more than one because an obtuse angle has measure greater than 90 degrees and the sum of all the interior angles in any triangle is 180 degrees. Thus, there is $\\boxed{1}$ obtuse angle.",
+        "functions": [],
+        "name": "prealgebra_1174",
+        "valid_solutions": [
+            "1"
+        ]
+    },
+    {
+        "task": "In $\\triangle PQR,$ the sum of $\\angle P$ and $\\angle Q$ is $60^\\circ.$ What is the measure of $\\angle R?$",
+        "raw_solution": "The sum of the three angles in any triangle is always $180^\\circ.$ In $\\triangle PQR,$ the sum of $\\angle P$ and $\\angle Q$ is $60^\\circ,$ and thus $\\angle R$ must measure $$180^\\circ - 60^\\circ = \\boxed{120^\\circ}.$$",
+        "functions": [],
+        "name": "prealgebra_566",
+        "valid_solutions": [
+            "120^\\circ"
+        ]
+    }
+]

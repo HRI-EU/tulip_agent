@@ -29,7 +29,10 @@ def create_benchmark_task(subcategory, level, max_tasks=None):
     :return: None
     """
 
-    benchmark_task_file = f"MATH_benchmarks/benchmark_{subcategory}_{level}.json"
+    suffix = ""
+    if max_tasks:
+        suffix = f"_{max_tasks}_tasks"
+    benchmark_task_file = f"MATH_benchmarks/benchmark_{subcategory}_{level}{suffix}.json"
 
     cwd = Path.cwd()
     path = os.path.join(Path(cwd).parents[2], f"data/MATH/train/{subcategory}")
@@ -72,4 +75,4 @@ def create_benchmark_task(subcategory, level, max_tasks=None):
 
 if __name__ == "__main__":
     for level in range(1,6):
-        create_benchmark_task(subcategory='prealgebra', level=level, max_tasks=None)
+        create_benchmark_task(subcategory='prealgebra', level=level, max_tasks=10)

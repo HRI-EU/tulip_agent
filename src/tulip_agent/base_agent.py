@@ -49,6 +49,7 @@ class LlmAgent(ABC):
         instructions: str,
         model: str = BASE_LANGUAGE_MODEL,
         temperature: float = BASE_TEMPERATURE,
+        api_interaction_limit: int = 100,
     ) -> None:
         self.model = model
         self.temperature = temperature
@@ -59,6 +60,9 @@ class LlmAgent(ABC):
         if self.instructions:
             self.messages.append({"role": "system", "content": self.instructions})
 
+        self.api_interaction_limit = api_interaction_limit
+        self.api_interaction_counter = 0
+
     def _get_response(
         self,
         msgs: list[dict[str, str]],
@@ -67,6 +71,7 @@ class LlmAgent(ABC):
         model: str = None,
         temperature: float = None,
     ):
+        self.api_interaction_counter += 1
         response = None
         while not response:
             params = {

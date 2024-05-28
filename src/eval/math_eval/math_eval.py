@@ -48,7 +48,6 @@ from tulip_agent import (
     NaiveTulipAgent,
     ToolLibrary,
 )
-from tulip_agent.constants import BASE_LANGUAGE_MODEL
 
 
 # Set up agent loggers to save logs to file for analysis
@@ -64,7 +63,9 @@ TOOLS_FILENAME = SETTINGS["tools"]
 tools = importlib.import_module(TOOLS_FILENAME)
 
 
-def run_math_eval(task_file: str, agents: list[str], task_filter: list[str]):
+def run_math_eval(
+    task_file: str, agents: list[str], task_filter: list[str], model: str
+):
     functions = [
         getattr(tools, n)
         for n, f in getmembers(tools, isfunction)
@@ -93,36 +94,45 @@ def run_math_eval(task_file: str, agents: list[str], task_filter: list[str]):
             print(f"{res=}")
 
     if "BaseAgent" in agents:
-        _run(agent_class=BaseAgent, setup_args={})
+        _run(
+            agent_class=BaseAgent,
+            setup_args={"model": model},
+        )
 
     if "NaiveToolAgent" in agents:
-        _run(agent_class=NaiveToolAgent, setup_args={"functions": functions})
+        _run(
+            agent_class=NaiveToolAgent,
+            setup_args={"model": model, "functions": functions},
+        )
 
     if "CotToolAgent" in agents:
-        _run(agent_class=CotToolAgent, setup_args={"functions": functions})
+        _run(
+            agent_class=CotToolAgent,
+            setup_args={"model": model, "functions": functions},
+        )
 
     if "MinimalTulipAgent" in agents:
         _run(
             agent_class=MinimalTulipAgent,
-            setup_args={"tool_library": tulip, "top_k_functions": 5},
+            setup_args={"model": model, "tool_library": tulip, "top_k_functions": 5},
         )
 
     if "NaiveTulipAgent" in agents:
         _run(
             agent_class=NaiveTulipAgent,
-            setup_args={"tool_library": tulip, "top_k_functions": 5},
+            setup_args={"model": model, "tool_library": tulip, "top_k_functions": 5},
         )
 
     if "CotTulipAgent" in agents:
         _run(
             agent_class=CotTulipAgent,
-            setup_args={"tool_library": tulip, "top_k_functions": 5},
+            setup_args={"model": model, "tool_library": tulip, "top_k_functions": 5},
         )
 
     if "AutoTulipAgent" in agents:
         _run(
             agent_class=AutoTulipAgent,
-            setup_args={"tool_library": tulip, "top_k_functions": 5},
+            setup_args={"model": model, "tool_library": tulip, "top_k_functions": 5},
         )
 
 
@@ -131,6 +141,7 @@ def main():
         task_file=SETTINGS["ground_truth"],
         agents=[a for a in SETTINGS["agents"] if SETTINGS["agents"][a]],
         task_filter=SETTINGS["task_filter"],
+        model=SETTINGS["model"],
     )
     # back up log
     log_folder = SETTINGS["log_folder"]
@@ -144,7 +155,6 @@ def main():
     else:
         history = {}
     history[log_name] = SETTINGS
-    history[log_name]["model"] = BASE_LANGUAGE_MODEL
     with open(history_path, "w") as h:
         json.dump(history, h, indent=4)
 

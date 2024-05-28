@@ -51,11 +51,13 @@ class ToolAgent(LlmAgent, ABC):
         instructions: str,
         model: str = BASE_LANGUAGE_MODEL,
         temperature: float = BASE_TEMPERATURE,
+        api_interaction_limit: int = 100,
     ) -> None:
         super().__init__(
             instructions=instructions,
             model=model,
             temperature=temperature,
+            api_interaction_limit=api_interaction_limit,
         )
         self.function_analyzer = FunctionAnalyzer()
         self.tools = {f.__name__: f for f in functions}
@@ -74,6 +76,11 @@ class ToolAgent(LlmAgent, ABC):
 
         while tool_calls:
             self.messages.append(response_message)
+
+            if self.api_interaction_counter >= self.api_interaction_limit:
+                error_message = f"Error: Reached API interaction limit of {self.api_interaction_limit}."
+                logger.error(error_message)
+                return error_message
 
             for tool_call in tool_calls:
                 func_name = tool_call.function.name
@@ -121,6 +128,7 @@ class NaiveToolAgent(ToolAgent):
         instructions: Optional[str] = None,
         model: str = BASE_LANGUAGE_MODEL,
         temperature: float = BASE_TEMPERATURE,
+        api_interaction_limit: int = 100,
     ) -> None:
         super().__init__(
             functions=functions,
@@ -129,6 +137,7 @@ class NaiveToolAgent(ToolAgent):
             ),
             model=model,
             temperature=temperature,
+            api_interaction_limit=api_interaction_limit,
         )
 
     def query(
@@ -147,6 +156,7 @@ class CotToolAgent(ToolAgent):
         instructions: Optional[str] = None,
         model: str = BASE_LANGUAGE_MODEL,
         temperature: float = BASE_TEMPERATURE,
+        api_interaction_limit: int = 100,
     ) -> None:
         super().__init__(
             instructions=(
@@ -157,6 +167,7 @@ class CotToolAgent(ToolAgent):
             functions=functions,
             model=model,
             temperature=temperature,
+            api_interaction_limit=api_interaction_limit,
         )
 
     def query(

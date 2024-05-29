@@ -164,13 +164,19 @@ class TulipAgent(LlmAgent, ABC):
 
             for tool_call in tool_calls:
                 func_name = tool_call.function.name
-                func_args = json.loads(tool_call.function.arguments)
-                function_response, error = self.tool_library.execute(
-                    function_id=func_name, function_args=func_args
-                )
-                if error:
+                try:
+                    func_args = json.loads(tool_call.function.arguments)
+                    function_response, error = self.tool_library.execute(
+                        function_id=func_name, function_args=func_args
+                    )
+                    if error:
+                        func_name = "invalid_tool_call"
+                        tool_call.function.name = func_name
+                except json.decoder.JSONDecodeError as e:
+                    logger.error(e)
                     func_name = "invalid_tool_call"
                     tool_call.function.name = func_name
+                    function_response = f"Error: Invalid arguments for {func_name}: {e}"
                 self.messages.append(
                     {
                         "tool_call_id": tool_call.id,
@@ -692,7 +698,23 @@ class AutoTulipAgent(TulipAgent):
 
             for tool_call in tool_calls:
                 func_name = tool_call.function.name
-                func_args = json.loads(tool_call.function.arguments)
+                try:
+                    func_args = json.loads(tool_call.function.arguments)
+                except json.decoder.JSONDecodeError as e:
+                    logger.error(e)
+                    func_name = "invalid_tool_call"
+                    tool_call.function.name = func_name
+                    function_response = f"Error: Invalid arguments for {func_name}: {e}"
+                    self.messages.append(
+                        {
+                            "tool_call_id": tool_call.id,
+                            "role": "tool",
+                            "name": func_name,
+                            "content": function_response,
+                        }
+                    )
+                    continue
+
                 cud_lookup = {
                     "create_tool": {
                         "log_message": f"Creating tool: {str(func_args)}",
@@ -746,7 +768,7 @@ class AutoTulipAgent(TulipAgent):
                             "tool_call_id": tool_call.id,
                             "role": "tool",
                             "name": func_name,
-                            "content": f"{status}",
+                            "content": status,
                         }
                     )
                 else:

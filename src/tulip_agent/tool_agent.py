@@ -84,14 +84,19 @@ class ToolAgent(LlmAgent, ABC):
 
             for tool_call in tool_calls:
                 func_name = tool_call.function.name
-                func_args = json.loads(tool_call.function.arguments)
                 try:
+                    func_args = json.loads(tool_call.function.arguments)
                     function_response = self.tools[func_name](**func_args)
-                except KeyError as e:
-                    logger.error(f"Invalid tool `{func_name}` resulting in error: {e}")
-                    function_response = f"Error: {func_name} is not a valid tool. Use only the tools available."
+                except json.decoder.JSONDecodeError as e:
+                    logger.error(e)
                     func_name = "invalid_tool_call"
                     tool_call.function.name = func_name
+                    function_response = f"Error: Invalid arguments for {func_name}: {e}"
+                except KeyError as e:
+                    logger.error(f"Invalid tool `{func_name}` resulting in error: {e}")
+                    func_name = "invalid_tool_call"
+                    tool_call.function.name = func_name
+                    function_response = f"Error: {func_name} is not a valid tool. Use only the tools available."
                 except Exception as e:
                     logger.error(e)
                     function_response = f"Error: Invalid tool call for {func_name}: {e}"

@@ -31,10 +31,13 @@
 Basic LLM agent.
 """
 import logging
+import time
 from abc import ABC, abstractmethod
 from typing import Optional
 
-from openai import OpenAI, OpenAIError
+from openai import BadRequestError, OpenAI, OpenAIError
+from openai.types.chat.chat_completion import ChatCompletion, Choice
+from openai.types.chat.chat_completion_message import ChatCompletionMessage
 
 from .constants import BASE_LANGUAGE_MODEL, BASE_TEMPERATURE
 from .prompts import BASE_PROMPT
@@ -62,6 +65,7 @@ class LlmAgent(ABC):
 
         self.api_interaction_limit = api_interaction_limit
         self.api_interaction_counter = 0
+        self.max_retries = 5
 
     def _get_response(
         self,
@@ -72,7 +76,7 @@ class LlmAgent(ABC):
         temperature: float = None,
     ):
         self.api_interaction_counter += 1
-        response = None
+        response, retries = None, 0
         while not response:
             params = {
                 "model": model if model else self.model,
@@ -84,8 +88,29 @@ class LlmAgent(ABC):
                 params["tool_choice"] = tool_choice
             try:
                 response = self.openai_client.chat.completions.create(**params)
+            # Return error message for bad requests, e.g., repetitive inputs or context window exceeded
+            except BadRequestError as e:
+                logger.error(f"{type(e).__name__}: {e}")
+                return ChatCompletion(
+                    id="abort",
+                    choices=[
+                        Choice(
+                            finish_reason="stop",
+                            index=0,
+                            message=ChatCompletionMessage(
+                                content=f"{type(e).__name__}: {e}", role="assistant"
+                            ),
+                        )
+                    ],
+                    created=int(time.time()),
+                    model=self.model,
+                    object="chat.completion",
+                )
             except OpenAIError as e:
-                logger.error(e)
+                logger.error(f"{type(e).__name__}: {e}")
+                retries += 1
+                if retries >= self.max_retries:
+                    raise e
         logger.info(
             f"Usage for {response.id} in tokens: "
             f"{response.usage.prompt_tokens} prompt and {response.usage.completion_tokens} completion."

@@ -151,7 +151,11 @@ class ToolLibrary:
                         for fd in new_function_descriptions.values()
                     ],
                     embeddings=[
-                        embed(fd["function"]["description"])
+                        embed(
+                            self.functions[fd["function"]["name"]].__name__
+                            + ":\n"
+                            + fd["function"]["description"]
+                        )
                         for fd in new_function_descriptions.values()
                     ],
                     metadatas=[
@@ -183,7 +187,11 @@ class ToolLibrary:
         self.function_descriptions[function_id] = function_data
         self.collection.add(
             documents=json.dumps(function_data, indent=4),
-            embeddings=[embed(function_data["function"]["description"])],
+            embeddings=[
+                embed(
+                    function.__name__ + ":\n" + function_data["function"]["description"]
+                )
+            ],
             metadatas=[
                 {
                     "description": str(function_data),

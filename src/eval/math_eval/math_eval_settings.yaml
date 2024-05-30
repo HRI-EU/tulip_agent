@@ -9,12 +9,13 @@ tools: math_tools
 model: "gpt-3.5-turbo-0125"
 
 agents:
-    BaseAgent: True
-    NaiveToolAgent: True
+    BaseAgent: False
+    NaiveToolAgent: False
     CotToolAgent: True
-    MinimalTulipAgent: True
-    NaiveTulipAgent: True
+    MinimalTulipAgent: False
+    NaiveTulipAgent: False
     CotTulipAgent: True
+    PrunedCotTulipAgent: True
     AutoTulipAgent: False
 
 colors:
@@ -24,4 +25,5 @@ colors:
     MinimalTulipAgent: "#9999ff"
     NaiveTulipAgent: "#9966ff"
     CotTulipAgent: "#9933ff"
-    AutoTulipAgent: "#9900ff"
+    PrunedCotTulipAgent: "#9900ff"
+    AutoTulipAgent: "#9900cc"

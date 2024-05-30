@@ -40,6 +40,7 @@ from .base_agent import LlmAgent
 from .constants import BASE_LANGUAGE_MODEL, BASE_TEMPERATURE
 from .prompts import (
     AUTO_TULIP_PROMPT,
+    PRUNED_TASK_DECOMPOSITION,
     RECURSIVE_TASK_DECOMPOSITION,
     SOLVE_WITH_TOOLS,
     TASK_DECOMPOSITION,
@@ -438,6 +439,72 @@ class CotTulipAgent(TulipAgent):
 
         # Get tasks from user input and initiate recursive tool search
         tasks = self.decompose_task(task=prompt, base_prompt=TASK_DECOMPOSITION)
+        tool_calls = self.get_search_tool_calls(tasks)
+        tools = self.recursively_search_tool(tool_calls=tool_calls, depth=0)
+
+        # Run with tools
+        self.messages.append(
+            {
+                "role": "user",
+                "content": SOLVE_WITH_TOOLS.format(steps=tasks),
+            }
+        )
+        return self.run_with_tools(tools=tools)
+
+
+class PrunedCotTulipAgent(CotTulipAgent):
+    def __init__(
+        self,
+        model: str = BASE_LANGUAGE_MODEL,
+        temperature: float = BASE_TEMPERATURE,
+        api_interaction_limit: int = 100,
+        tool_library: ToolLibrary = None,
+        top_k_functions: int = 3,
+        search_similarity_threshold: float = 0.35,
+        instructions: Optional[str] = None,
+    ) -> None:
+        super().__init__(
+            instructions=(
+                TULIP_COT_PROMPT + "\n\n" + instructions
+                if instructions
+                else TULIP_COT_PROMPT
+            ),
+            model=model,
+            temperature=temperature,
+            api_interaction_limit=api_interaction_limit,
+            tool_library=tool_library,
+            top_k_functions=top_k_functions,
+            search_similarity_threshold=search_similarity_threshold,
+        )
+
+    def query(
+        self,
+        prompt: str,
+    ) -> str:
+        logger.info(f"{self.__class__.__name__} received query: {prompt}")
+
+        # Find most relevant tools based on initial query for pruning the task decomposition
+        tool_names = self.tool_library.search(problem_description=prompt, top_k=25)[
+            "ids"
+        ][0]
+        tool_names = [tn.split("__")[1] for tn in tool_names]
+        print(f"{tool_names=}")
+        # Task decomposition w pruning
+        self.messages.append(
+            {
+                "role": "user",
+                "content": PRUNED_TASK_DECOMPOSITION.format(
+                    prompt=prompt,
+                    tool_names=", ".join(tool_names),
+                ),
+            }
+        )
+        actions_response = self._get_response(msgs=self.messages)
+        actions_response_message = actions_response.choices[0].message
+        self.messages.append(actions_response_message)
+        tasks = actions_response_message.content
+
+        # Recursively search for tools
         tool_calls = self.get_search_tool_calls(tasks)
         tools = self.recursively_search_tool(tool_calls=tool_calls, depth=0)
 

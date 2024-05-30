@@ -46,6 +46,7 @@ from tulip_agent import (
     MinimalTulipAgent,
     NaiveToolAgent,
     NaiveTulipAgent,
+    PrunedCotTulipAgent,
     ToolLibrary,
 )
 
@@ -126,6 +127,12 @@ def run_math_eval(
     if "CotTulipAgent" in agents:
         _run(
             agent_class=CotTulipAgent,
+            setup_args={"model": model, "tool_library": tulip, "top_k_functions": 5},
+        )
+
+    if "PrunedCotTulipAgent" in agents:
+        _run(
+            agent_class=PrunedCotTulipAgent,
             setup_args={"model": model, "tool_library": tulip, "top_k_functions": 5},
         )
 

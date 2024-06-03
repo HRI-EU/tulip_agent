@@ -178,6 +178,7 @@ class TulipAgent(LlmAgent, ABC):
                     func_name = "invalid_tool_call"
                     tool_call.function.name = func_name
                     function_response = f"Error: Invalid arguments for {func_name}: {e}"
+                    func_args = "(n.a., invalid)"
                 self.messages.append(
                     {
                         "tool_call_id": tool_call.id,

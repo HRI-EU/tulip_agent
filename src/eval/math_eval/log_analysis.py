@@ -250,7 +250,13 @@ def plot(
 
     if math_benchmark:
         # TODO get all levels automatically from log/history
-        levels = {"1": "Level 1"}
+        levels = {
+            "1": "Level 1",
+            "2": "Level 2",
+            "3": "Level 3",
+            "4": "Level 4",
+            "5": "Level 5",
+        }
         split_index = 1
 
     x = np.arange(len(levels))

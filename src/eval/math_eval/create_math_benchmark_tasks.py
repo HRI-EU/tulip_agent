@@ -19,12 +19,12 @@ from pathlib import Path
 import json
 import re
 
-def create_benchmark_task(subcategory, level, max_tasks=None):
+def create_benchmark_task(subcategory, levels, max_tasks=None):
     """
     Creat TULIP eval compatible .json from the MATH benchmark tasks.
 
     :param subcategory:  the category of tasks from MATH.
-    :param level:  the level of the tasks from MATH.
+    :param levels:  list of levels of the tasks from MATH.
     :param max_tasks:  maximal number of tasks create. (default=None creates all available)
     :return: None
     """
@@ -32,19 +32,27 @@ def create_benchmark_task(subcategory, level, max_tasks=None):
     suffix = ""
     if max_tasks:
         suffix = f"_{max_tasks}_tasks"
-    benchmark_task_file = f"MATH_benchmarks/benchmark_{subcategory}_{level}{suffix}.json"
+    benchmark_task_file = f"MATH_benchmarks/benchmark_{subcategory}_{levels[0]}-{levels[-1]}{suffix}.json"
 
     cwd = Path.cwd()
     path = os.path.join(Path(cwd).parents[2], f"data/MATH/train/{subcategory}")
     dir = Path(path)
 
     benchmark_tasks = []
+    level_counters = [0 for _ in levels]
     for file_counter, file in enumerate(dir.glob('*.json')):
-        if max_tasks and len(benchmark_tasks) == max_tasks:
+        if max_tasks and sum(level_counters) == max_tasks * len(levels):
             break
         content = json.loads(file.read_text())
-        if content["level"] != f"Level {level}":
+        level_int = int(content["level"][-1])
+
+        if level_int not in levels:
             continue
+        if max_tasks and level_counters[level_int-1] == max_tasks:
+            continue
+
+        level_counters[level_int-1] += 1
+
 
         # print(file.name)
         # print("Problem:\n", content["problem"])
@@ -62,19 +70,20 @@ def create_benchmark_task(subcategory, level, max_tasks=None):
             "task": content["problem"],
             "raw_solution": content["solution"],
             "functions": [],
-            "name": f"{subcategory}.{file.name.split('.')[0]}.{level}",
+            "name": f"{subcategory}.{file.name.split('.')[0]}.{level_int}",
             "category": subcategory,
-            "level": level,
+            "level": level_int,
             "valid_solutions": solutions
         }
         benchmark_tasks.append(new_task)
 
-    print(f"Created {len(benchmark_tasks)} from '{subcategory}' Level '{level}', saving to '{benchmark_task_file}'")
+    print(level_counters)
+    print(f"Created {len(benchmark_tasks)} from '{subcategory}' Levels '{levels}', saving to '{benchmark_task_file}'")
     if len(benchmark_tasks) > 0:
         with open(benchmark_task_file, "w") as file:
             json.dump(benchmark_tasks, file, indent=4)
 
 
 if __name__ == "__main__":
-    for level in range(1,6):
-        create_benchmark_task(subcategory='prealgebra', level=level, max_tasks=None)
+    levels = [1,2,3,4,5]
+    create_benchmark_task(subcategory='prealgebra', levels=levels, max_tasks=10)

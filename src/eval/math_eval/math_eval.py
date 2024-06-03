@@ -46,6 +46,7 @@ from tulip_agent import (
     MinimalTulipAgent,
     NaiveToolAgent,
     NaiveTulipAgent,
+    PrunedCotTulipAgent,
     ToolLibrary,
 )
 
@@ -64,7 +65,11 @@ tools = importlib.import_module(TOOLS_FILENAME)
 
 
 def run_math_eval(
-    task_file: str, agents: list[str], task_filter: list[str], model: str
+    task_file: str,
+    agents: list[str],
+    task_filter: list[str],
+    model: str,
+    number_of_runs: int,
 ):
     functions = [
         getattr(tools, n)
@@ -85,13 +90,16 @@ def run_math_eval(
 
     def _run(agent_class, setup_args: dict) -> None:
         print(f" {agent_class.__name__} ".center(40, "="))
-        for query in queries:
-            if task_filter and queries[query]["name"] not in task_filter:
-                continue
-            agent = agent_class(**setup_args)
-            print(agent_class.__name__, "--", queries[query]["name"], "--", query)
-            res = agent.query(query)
-            print(f"{res=}")
+        for r in range(number_of_runs):
+            for query in queries:
+                if task_filter and queries[query]["name"] not in task_filter:
+                    continue
+                agent = agent_class(**setup_args)
+                print(
+                    f"{agent_class.__name__} -- {queries[query]['name']} -- {query} -- run [{r+1}/{number_of_runs}]"
+                )
+                res = agent.query(query)
+                print(f"{res=}")
 
     if "BaseAgent" in agents:
         _run(
@@ -129,6 +137,12 @@ def run_math_eval(
             setup_args={"model": model, "tool_library": tulip, "top_k_functions": 5},
         )
 
+    if "PrunedCotTulipAgent" in agents:
+        _run(
+            agent_class=PrunedCotTulipAgent,
+            setup_args={"model": model, "tool_library": tulip, "top_k_functions": 5},
+        )
+
     if "AutoTulipAgent" in agents:
         _run(
             agent_class=AutoTulipAgent,
@@ -137,11 +151,13 @@ def run_math_eval(
 
 
 def main():
+    number_of_runs = SETTINGS["number_of_runs"]
     run_math_eval(
         task_file=SETTINGS["ground_truth"],
         agents=[a for a in SETTINGS["agents"] if SETTINGS["agents"][a]],
         task_filter=SETTINGS["task_filter"],
         model=SETTINGS["model"],
+        number_of_runs=number_of_runs,
     )
     # back up log
     log_folder = SETTINGS["log_folder"]

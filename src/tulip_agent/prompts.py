@@ -104,6 +104,16 @@ Return a numbered list of steps.
 """
 
 
+PRUNED_TASK_DECOMPOSITION = """\
+Considering the following user request, what are the necessary atomic actions you need to execute?
+`{prompt}`
+Keep in mind that you have access to a variety of tools, including, but not limited to, the following selection:
+{tool_names}
+You have access to further tools, which you can find via a search.
+Make sure to include all necessary steps and return a numbered list of these steps.
+"""
+
+
 SOLVE_WITH_TOOLS = """\
 Now use the tools to fulfill the user request. Adhere exactly to the following steps:
 {steps}

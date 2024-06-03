@@ -2,6 +2,7 @@
 
 
 ground_truth: MATH_benchmarks/benchmark_prealgebra_1-5.json
+number_of_runs: 1
 log_folder: logs
 log_file: null
 task_filter: null
@@ -16,6 +17,7 @@ agents:
     MinimalTulipAgent: True
     NaiveTulipAgent: True
     CotTulipAgent: True
+    PrunedCotTulipAgent: True
     AutoTulipAgent: False
 
 colors:
@@ -25,4 +27,5 @@ colors:
     MinimalTulipAgent: "#9999ff"
     NaiveTulipAgent: "#9966ff"
     CotTulipAgent: "#9933ff"
-    AutoTulipAgent: "#9900ff"
+    PrunedCotTulipAgent: "#9900ff"
+    AutoTulipAgent: "#9900cc"

@@ -40,6 +40,7 @@ from .base_agent import LlmAgent
 from .constants import BASE_LANGUAGE_MODEL, BASE_TEMPERATURE
 from .prompts import (
     AUTO_TULIP_PROMPT,
+    INFORMED_TASK_DECOMPOSITION,
     PRUNED_TASK_DECOMPOSITION,
     RECURSIVE_TASK_DECOMPOSITION,
     SOLVE_WITH_TOOLS,
@@ -50,6 +51,7 @@ from .prompts import (
     TOOL_SEARCH,
     TOOL_UPDATE,
     TULIP_COT_PROMPT,
+    TULIP_COT_PROMPT_ONE_SHOT,
 )
 from .tool_library import ToolLibrary
 
@@ -453,6 +455,54 @@ class CotTulipAgent(TulipAgent):
         return self.run_with_tools(tools=tools)
 
 
+class InformedCotTulipAgent(CotTulipAgent):
+    def __init__(
+        self,
+        model: str = BASE_LANGUAGE_MODEL,
+        temperature: float = BASE_TEMPERATURE,
+        api_interaction_limit: int = 100,
+        tool_library: ToolLibrary = None,
+        top_k_functions: int = 3,
+        search_similarity_threshold: float = 0.35,
+        instructions: Optional[str] = None,
+    ) -> None:
+        super().__init__(
+            instructions=(
+                TULIP_COT_PROMPT + "\n\n" + instructions
+                if instructions
+                else TULIP_COT_PROMPT
+            ),
+            model=model,
+            temperature=temperature,
+            api_interaction_limit=api_interaction_limit,
+            tool_library=tool_library,
+            top_k_functions=top_k_functions,
+            search_similarity_threshold=search_similarity_threshold,
+        )
+
+    def query(
+        self,
+        prompt: str,
+    ) -> str:
+        logger.info(f"{self.__class__.__name__} received query: {prompt}")
+
+        # Get tasks from user input and initiate recursive tool search
+        tasks = self.decompose_task(
+            task=prompt, base_prompt=INFORMED_TASK_DECOMPOSITION
+        )
+        tool_calls = self.get_search_tool_calls(tasks)
+        tools = self.recursively_search_tool(tool_calls=tool_calls, depth=0)
+
+        # Run with tools
+        self.messages.append(
+            {
+                "role": "user",
+                "content": SOLVE_WITH_TOOLS.format(steps=tasks),
+            }
+        )
+        return self.run_with_tools(tools=tools)
+
+
 class PrunedCotTulipAgent(CotTulipAgent):
     def __init__(
         self,
@@ -505,6 +555,54 @@ class PrunedCotTulipAgent(CotTulipAgent):
         tasks = actions_response_message.content
 
         # Recursively search for tools
+        tool_calls = self.get_search_tool_calls(tasks)
+        tools = self.recursively_search_tool(tool_calls=tool_calls, depth=0)
+
+        # Run with tools
+        self.messages.append(
+            {
+                "role": "user",
+                "content": SOLVE_WITH_TOOLS.format(steps=tasks),
+            }
+        )
+        return self.run_with_tools(tools=tools)
+
+
+class OneShotCotTulipAgent(CotTulipAgent):
+    def __init__(
+        self,
+        model: str = BASE_LANGUAGE_MODEL,
+        temperature: float = BASE_TEMPERATURE,
+        api_interaction_limit: int = 100,
+        tool_library: ToolLibrary = None,
+        top_k_functions: int = 3,
+        search_similarity_threshold: float = 0.35,
+        instructions: Optional[str] = None,
+    ) -> None:
+        super().__init__(
+            instructions=(
+                TULIP_COT_PROMPT_ONE_SHOT + "\n\n" + instructions
+                if instructions
+                else TULIP_COT_PROMPT_ONE_SHOT
+            ),
+            model=model,
+            temperature=temperature,
+            api_interaction_limit=api_interaction_limit,
+            tool_library=tool_library,
+            top_k_functions=top_k_functions,
+            search_similarity_threshold=search_similarity_threshold,
+        )
+
+    def query(
+        self,
+        prompt: str,
+    ) -> str:
+        logger.info(f"{self.__class__.__name__} received query: {prompt}")
+
+        # Get tasks from user input and initiate recursive tool search
+        tasks = self.decompose_task(
+            task=prompt, base_prompt=INFORMED_TASK_DECOMPOSITION
+        )
         tool_calls = self.get_search_tool_calls(tasks)
         tools = self.recursively_search_tool(tool_calls=tool_calls, depth=0)
 

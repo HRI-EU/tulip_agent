@@ -60,6 +60,25 @@ Provide generic task descriptions to ensure that you find generic tools.
 """
 
 
+TULIP_COT_PROMPT_ONE_SHOT = """\
+You are a helpful agent who has access to an abundance of tools.
+Always adhere to the following procedure:
+1. Break the user request down into atomic tasks.
+2. Search your tool library for appropriate tools for these atomic tasks using the `search_tools` function. \
+Provide generic task descriptions to ensure that you find generic tools.
+3. Whenever possible use the tools found to solve the atomic tasks.
+4. Respond to the user with the final result, never with an intermediate result.
+
+Consider the following example for the user request "What is 2 + 3 / 4?":
+1. Break the user request down into the following atomic actions: ["divide 3 by 4", "add the result to 2"]
+2. Search the tool library for tools with these descriptions: ["divide two numbers", "add two numbers"]
+3. Use the tools found:
+   a) divide(3, 4) returns 0.75
+   b) add(2, .75) returns 2.75
+4. Respond to the user with the result: "The result of 2 + 3 / 4 is 2.75."
+"""
+
+
 TOOL_COT_PROMPT = """\
 You are a helpful agent who has access to an abundance of tools.
 Always adhere to the following procedure:
@@ -101,6 +120,15 @@ RECURSIVE_TASK_DECOMPOSITION = """\
 Considering the following task, what are the necessary steps you need to execute?
 `{prompt}`
 Return a numbered list of steps.
+"""
+
+
+INFORMED_TASK_DECOMPOSITION = """\
+Considering the following user request, what are the necessary atomic actions you need to execute?
+`{prompt}`
+Return a numbered list of steps.
+Note that you have access to a library with math tools.
+These action descriptions will be used to search for suitable tools in the tool library.
 """
 
 

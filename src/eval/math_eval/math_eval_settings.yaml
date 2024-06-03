@@ -1,7 +1,7 @@
 # Settings for math eval
 
 
-ground_truth: MATH_benchmarks/benchmark_prealgebra_1_10_tasks.json
+ground_truth: MATH_benchmarks/benchmark_prealgebra_1-5.json
 log_folder: logs
 log_file: null
 task_filter: null

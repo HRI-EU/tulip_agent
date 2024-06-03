@@ -488,7 +488,6 @@ class PrunedCotTulipAgent(CotTulipAgent):
             "ids"
         ][0]
         tool_names = [tn.split("__")[1] for tn in tool_names]
-        print(f"{tool_names=}")
         # Task decomposition w pruning
         self.messages.append(
             {

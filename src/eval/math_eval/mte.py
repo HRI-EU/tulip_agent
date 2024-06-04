@@ -1320,7 +1320,7 @@ def calculate_volume_of_torus(major_radius: float, minor_radius: float) -> float
     """
     Calculate the volume of a torus given its major and minor radii.
 
-    :param major_radius: The major radius of the torus (distance from the center of the tube to the center of the torus).
+    :param major_radius: The major radius of the torus (distance from the tube's center to the center of the torus).
     :param minor_radius: The minor radius of the torus (radius of the tube).
     :return: The volume of the torus.
     """
@@ -1935,7 +1935,7 @@ def calculate_torus_volume(major_radius: float, minor_radius: float) -> float:
     """
     Calculate the volume of a torus.
 
-    :param major_radius: The major radius of the torus (distance from the center of the tube to the center of the torus)
+    :param major_radius: The major radius of the torus (distance from the tube's center to the center of the torus)
     :param minor_radius: The minor radius of the torus (radius of the tube)
     :return: The volume of the torus
     """
@@ -2019,7 +2019,7 @@ def calculate_surface_area_of_torus(major_radius: float, minor_radius: float) ->
     """
     Calculate the surface area of a torus given its major and minor radii.
 
-    :param major_radius: The major radius of the torus (distance from the center of the tube to the center of the torus).
+    :param major_radius: The major radius of the torus (distance from the tube's center to the center of the torus).
     :param minor_radius: The minor radius of the torus (radius of the tube).
     :return: The surface area of the torus.
     """
@@ -3983,7 +3983,8 @@ def is_perfect_number(n: int) -> bool:
     """
     Check if a given number is a perfect number.
 
-    A perfect number is a positive integer that is equal to the sum of its proper divisors, excluding the number itself.
+    A perfect number is a positive integer that is equal to the sum of its proper divisors,
+    excluding the number itself.
 
     :param n: The number to check.
     :return: True if n is a perfect number, False otherwise.
@@ -4287,7 +4288,8 @@ def is_friendly_pair(a: int, b: int) -> bool:
     """
     Check if two numbers are a friendly pair (amicable numbers but with a different definition).
 
-    Two numbers are a friendly pair if the ratios of the sum of their proper divisors to the numbers themselves are equal.
+    Two numbers are a friendly pair if the ratios of the sum of their proper divisors
+    to the numbers themselves are equal.
 
     :param a: First number.
     :param b: Second number.
@@ -4302,7 +4304,8 @@ def is_happy_number(n: int) -> bool:
     """
     Determine if a number is a "happy number".
 
-    A happy number is defined as a number which eventually reaches 1 when replaced by the sum of the square of each digit.
+    A happy number is defined as a number which eventually reaches 1 when replaced by
+    the sum of the square of each digit.
 
     :param n: The number to check.
     :return: True if n is a happy number, False otherwise.
@@ -5619,7 +5622,8 @@ def calculate_kirchhoff_index(graph: list[list[int]]) -> float:
     """
     Calculate the Kirchhoff index of a graph.
 
-    :param graph: A square adjacency matrix representing the graph, where graph[i][j] is 1 if there is an edge between vertices i and j, and 0 otherwise.
+    :param graph: A square adjacency matrix representing the graph, where graph[i][j] is 1 if
+        there is an edge between vertices i and j, and 0 otherwise.
     :return: The Kirchhoff index of the graph.
     """
     import numpy as np
@@ -5702,7 +5706,8 @@ def calculate_wedge_sum_euler_characteristic(components: list[int]) -> int:
     """
     Calculate the Euler characteristic of a wedge sum of spaces given their Euler characteristics.
 
-    The Euler characteristic of a wedge sum is the sum of the Euler characteristics of its components minus the number of components minus 1.
+    The Euler characteristic of a wedge sum is the sum of the Euler characteristics
+    of its components minus the number of components minus 1.
 
     :param components: A list of Euler characteristics of the components.
     :return: The Euler characteristic of the wedge sum.
@@ -5727,7 +5732,8 @@ def calculate_covering_space_euler_characteristic(base: int, sheets: int) -> int
     """
     Calculate the Euler characteristic of a covering space.
 
-    The Euler characteristic of a covering space is the product of the Euler characteristic of the base space and the number of sheets.
+    The Euler characteristic of a covering space is the product of the Euler characteristic
+    of the base space and the number of sheets.
 
     :param base: The Euler characteristic of the base space.
     :param sheets: The number of sheets in the covering space.
@@ -5964,8 +5970,10 @@ def calculate_torus_knot_complexity(p: int, q: int) -> int:
     Calculate the complexity (minimum crossing number) of a (p, q)-torus knot.
     Note: The formula for the complexity of a (p, q)-torus knot is gcd(p, q) * (min(p, q) - 1).
 
-    :param p: The first parameter of the torus knot, representing the number of times it wraps around the axis of symmetry.
-    :param q: The second parameter of the torus knot, representing the number of times it wraps around a circle in the interior of the torus.
+    :param p: The first parameter of the torus knot, representing the number of times
+        it wraps around the axis of symmetry.
+    :param q: The second parameter of the torus knot, representing the number of times
+        it wraps around a circle in the interior of the torus.
     :return: The minimum crossing number of the torus knot.
     """
     from math import gcd
@@ -5996,7 +6004,8 @@ def calculate_covering_space_degree_of_torus(k: int) -> int:
     """
     Calculate the degree of a k-sheeted covering space of the torus.
 
-    The degree of a covering space of the torus corresponds to the number of times the covering space wraps around the torus.
+    The degree of a covering space of the torus corresponds to the number of times
+    the covering space wraps around the torus.
 
     :param k: The number of sheets in the covering space
     :return: The degree of the covering space
@@ -6032,7 +6041,8 @@ def calculate_genus_of_orientable_double_cover(k: int) -> int:
     """
     Calculate the genus of the orientable double cover of a non-orientable surface with k cross-caps.
 
-    The genus of the orientable double cover of a non-orientable surface can be calculated based on the number of cross-caps.
+    The genus of the orientable double cover of a non-orientable surface can be calculated
+    based on the number of cross-caps.
 
     :param k: The number of cross-caps on the non-orientable surface
     :return: The genus of the orientable double cover
@@ -6494,7 +6504,8 @@ def calculate_logistic_growth(
     """
     Calculate the population at a given time using the logistic growth model.
 
-    This function models population growth that starts exponentially but levels off as the population approaches a carrying capacity.
+    This function models population growth that starts exponentially but levels off
+    as the population approaches a carrying capacity.
 
     :param initial_population: The initial population size
     :param growth_rate: The rate at which the population grows
@@ -7028,7 +7039,8 @@ def calculate_greatest_common_divisor(a: int, b: int) -> int:
     """
     Calculate the Greatest Common Divisor (GCD) of two integers.
 
-    The GCD of two integers a and b is the largest positive integer that divides both a and b without leaving a remainder.
+    The GCD of two integers a and b is the largest positive integer that divides both
+    a and b without leaving a remainder.
 
     :param a: First integer.
     :param b: Second integer.
@@ -7536,7 +7548,8 @@ def calculate_conditional_probability(p_a_given_b: float, p_b: float) -> float:
 
 def calculate_permutation_count(n: int, r: int) -> int:
     """
-    Calculate the number of ways to choose a sample of r items from a set of n items without replacement and where the order of selection matters.
+    Calculate the number of ways to choose a sample of r items from a set of n items
+    without replacement and where the order of selection matters.
 
     :param n: Total number of items.
     :param r: Number of items to select.
@@ -7549,7 +7562,8 @@ def calculate_permutation_count(n: int, r: int) -> int:
 
 def calculate_combination_count(n: int, r: int) -> int:
     """
-    Calculate the number of ways to choose a sample of r items from a set of n items without replacement and where the order of selection does not matter.
+    Calculate the number of ways to choose a sample of r items from a set of n items
+    without replacement and where the order of selection does not matter.
 
     :param n: Total number of items.
     :param r: Number of items to select.
@@ -7588,7 +7602,8 @@ def calculate_variance_of_discrete_random_variable(
     probabilities: list[float], outcomes: list[float], expected_value: float
 ) -> float:
     """
-    Calculate the variance of a discrete random variable given a list of probabilities, their corresponding outcomes, and the expected value of the random variable.
+    Calculate the variance of a discrete random variable given a list of probabilities,
+    their corresponding outcomes, and the expected value of the random variable.
 
     :param probabilities: A list of probabilities for each outcome.
     :param outcomes: A list of outcomes.

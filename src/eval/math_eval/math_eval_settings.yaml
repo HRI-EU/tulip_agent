@@ -1,7 +1,7 @@
 # Settings for math eval
 
 ground_truth: math_tasks.json
-number_of_runs: 1
+number_of_runs: 3
 log_folder: logs
 log_file: null
 task_filter: null

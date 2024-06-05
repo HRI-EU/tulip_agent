@@ -103,6 +103,19 @@ class Result:
         )
 
 
+def interquartile_mean(values: list) -> float:
+    lnv = len(values)
+    q = lnv // 4
+    if lnv % 4 == 0:
+        nums = values[q:-q]
+        return sum(nums) / (2 * q)
+    else:
+        q_ = lnv / 4
+        w = q + 1 - q_
+        nums = [values[q] * w] + values[q + 1 : -(q + 1)] + [values[-(q + 1)] * w]
+        return sum(nums) / (2 * q_)
+
+
 def extract_data_from_log(log_file: str, model: str) -> list[Result]:
     results = []
     tool_library_costs = calc_costs_for_tool_library()
@@ -249,13 +262,24 @@ def plot(
             _ = axs[ci].bar(
                 x - (number_agents - 1) / 2 * width + width * ai,
                 [
-                    statistics.mean(
-                        [
-                            float(getattr(d, criterion))
-                            for d in data
-                            if d.agent == agent
-                            and tasks[d.task].split(".")[-2] == level
-                        ]
+                    (
+                        interquartile_mean(
+                            [
+                                float(getattr(d, criterion))
+                                for d in data
+                                if d.agent == agent
+                                and tasks[d.task].split(".")[-2] == level
+                            ]
+                        )
+                        if criterion == "costs"
+                        else statistics.mean(
+                            [
+                                float(getattr(d, criterion))
+                                for d in data
+                                if d.agent == agent
+                                and tasks[d.task].split(".")[-2] == level
+                            ]
+                        )
                     )
                     for level in levels
                 ],

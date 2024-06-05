@@ -43,9 +43,11 @@ from tulip_agent import (
     BaseAgent,
     CotToolAgent,
     CotTulipAgent,
+    InformedCotTulipAgent,
     MinimalTulipAgent,
     NaiveToolAgent,
     NaiveTulipAgent,
+    OneShotCotTulipAgent,
     PrunedCotTulipAgent,
     ToolLibrary,
 )
@@ -70,6 +72,7 @@ def run_math_eval(
     task_filter: list[str],
     model: str,
     number_of_runs: int,
+    log_file: str,
 ):
     functions = [
         getattr(tools, n)
@@ -100,6 +103,7 @@ def run_math_eval(
                 )
                 res = agent.query(query)
                 print(f"{res=}")
+            shutil.copy("math.eval.log", log_file)
 
     if "BaseAgent" in agents:
         _run(
@@ -137,9 +141,21 @@ def run_math_eval(
             setup_args={"model": model, "tool_library": tulip, "top_k_functions": 5},
         )
 
+    if "InformedCotTulipAgent" in agents:
+        _run(
+            agent_class=InformedCotTulipAgent,
+            setup_args={"model": model, "tool_library": tulip, "top_k_functions": 5},
+        )
+
     if "PrunedCotTulipAgent" in agents:
         _run(
             agent_class=PrunedCotTulipAgent,
+            setup_args={"model": model, "tool_library": tulip, "top_k_functions": 5},
+        )
+
+    if "OneShotCotTulipAgent" in agents:
+        _run(
+            agent_class=OneShotCotTulipAgent,
             setup_args={"model": model, "tool_library": tulip, "top_k_functions": 5},
         )
 
@@ -151,6 +167,12 @@ def run_math_eval(
 
 
 def main():
+    # back up log
+    log_folder = SETTINGS["log_folder"]
+    Path(log_folder).mkdir(parents=True, exist_ok=True)
+    log_name = "math.eval." + datetime.now().strftime("%Y%m%d-%H%M") + ".log"
+    log_file = f"{log_folder}/{log_name}"
+    # run
     number_of_runs = SETTINGS["number_of_runs"]
     run_math_eval(
         task_file=SETTINGS["ground_truth"],
@@ -158,12 +180,8 @@ def main():
         task_filter=SETTINGS["task_filter"],
         model=SETTINGS["model"],
         number_of_runs=number_of_runs,
+        log_file=log_file,
     )
-    # back up log
-    log_folder = SETTINGS["log_folder"]
-    log_name = "math.eval." + datetime.now().strftime("%Y%m%d-%H%M") + ".log"
-    Path(log_folder).mkdir(parents=True, exist_ok=True)
-    shutil.copy("math.eval.log", f"{log_folder}/{log_name}")
     # track settings
     if os.path.exists((history_path := log_folder + "/history.json")):
         with open(history_path, "r") as h:

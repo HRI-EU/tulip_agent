@@ -38,8 +38,7 @@ sqOptInRules = ["PY03", "PY04"]
 sqOptOutDirs = [
     ".venv/",
     "src/eval/robo_eval/AttentiveSupport",
-    "src/eval/math_eval/math_tools_extended.py",
-    "src/eval/math_eval/mte.py",
+    "src/eval/robo_eval/tools.py",
 ]
 
 copyright = """\

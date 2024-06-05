@@ -17,7 +17,9 @@ agents:
     MinimalTulipAgent: True
     NaiveTulipAgent: True
     CotTulipAgent: True
+    InformedCotTulipAgent: True
     PrunedCotTulipAgent: True
+    OneShotCotTulipAgent: True
     AutoTulipAgent: False
 
 colors:
@@ -27,5 +29,7 @@ colors:
     MinimalTulipAgent: "#9999ff"
     NaiveTulipAgent: "#9966ff"
     CotTulipAgent: "#9933ff"
-    PrunedCotTulipAgent: "#9900ff"
-    AutoTulipAgent: "#9900cc"
+    InformedCotTulipAgent: "#9900ff"
+    PrunedCotTulipAgent: "#cc66ff"
+    OneShotCotTulipAgent: "#cc33ff"
+    AutoTulipAgent: "#660066"

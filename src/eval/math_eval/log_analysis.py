@@ -338,11 +338,11 @@ def main(
     )
 
 
-def analyze(log_file: str, ground_truth: str) -> None:
+def analyze(log_file: str, ground_truth: str, model: str) -> None:
     with open(ground_truth, "r") as gtf:
         gtf_data_ = json.load(gtf)
         task_ids = {e["task"]: e["name"] for e in gtf_data_}
-    res = extract_data_from_log(log_file=log_file)
+    res = extract_data_from_log(log_file=log_file, model=model)
     res, tasks = assess_data(results=res, ground_truth=ground_truth)
     for r in res:
         if r.agent != "CotTulipAgent":

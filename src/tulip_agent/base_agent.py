@@ -57,7 +57,10 @@ class LlmAgent(ABC):
         self.model = model
         self.temperature = temperature
         self.instructions = instructions
-        self.openai_client = OpenAI()
+        self.openai_client = OpenAI(
+            timeout=60,
+            max_retries=10,
+        )
 
         self.messages = []
         if self.instructions:

@@ -2,7 +2,7 @@
 
 
 ground_truth: MATH_benchmarks/benchmark_prealgebra_1-5.json
-number_of_runs: 1
+number_of_runs: 3
 log_folder: logs
 log_file: null
 task_filter: null

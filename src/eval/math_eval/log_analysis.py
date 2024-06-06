@@ -103,6 +103,19 @@ class Result:
         )
 
 
+def interquartile_mean(values: list) -> float:
+    lnv = len(values)
+    q = lnv // 4
+    if lnv % 4 == 0:
+        nums = values[q:-q]
+        return sum(nums) / (2 * q)
+    else:
+        q_ = lnv / 4
+        w = q + 1 - q_
+        nums = [values[q] * w] + values[q + 1 : -(q + 1)] + [values[-(q + 1)] * w]
+        return sum(nums) / (2 * q_)
+
+
 def extract_data_from_log(log_file: str, model: str) -> list[Result]:
     results = []
     tool_library_costs = calc_costs_for_tool_library()
@@ -274,7 +287,9 @@ def plot(
                 ]
 
             info_string = f"{criterion}\t{agent}\t{[len(l) for l in bar_values]}\t"
-            bar_values = [statistics.mean(l) for l in bar_values]
+            # bar_values = [statistics.mean(l) for l in bar_values]
+            bar_values = [interquartile_mean(l) for l in bar_values]
+
             info_string += f"{[l for l in bar_values]}"
             print(info_string)
             _ = axs[ci].bar(

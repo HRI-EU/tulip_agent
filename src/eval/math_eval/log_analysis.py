@@ -252,10 +252,10 @@ def plot(
         # TODO get all levels automatically from log/history
         levels = {
             "1": "Level 1",
-            "2": "Level 2",
-            "3": "Level 3",
-            "4": "Level 4",
-            "5": "Level 5",
+            # "2": "Level 2",
+            # "3": "Level 3",
+            # "4": "Level 4",
+            # "5": "Level 5",
         }
         split_index = 1
 
@@ -263,19 +263,23 @@ def plot(
     fig, axs = plt.subplots(len(criteria), sharex=True, sharey=False, figsize=(10, 5))
     for ci, criterion in enumerate(criteria):
         for ai, agent in enumerate(agents):
-            _ = axs[ci].bar(
-                x - (number_agents - 1) / 2 * width + width * ai,
-                [
-                    statistics.mean(
+            bar_values = [
                         [
                             float(getattr(d, criterion))
                             for d in data
                             if d.agent == agent
                             and tasks[d.task].split(".")[-split_index] == level
                         ]
-                    )
                     for level in levels
-                ],
+                ]
+
+            info_string = f"{criterion}\t{agent}\t{[len(l) for l in bar_values]}\t"
+            bar_values = [statistics.mean(l) for l in bar_values]
+            info_string += f"{[l for l in bar_values]}"
+            print(info_string)
+            _ = axs[ci].bar(
+                x - (number_agents - 1) / 2 * width + width * ai,
+                bar_values,
                 width,
                 color=colors[ai],
                 label=agent,

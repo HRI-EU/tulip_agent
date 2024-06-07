@@ -139,7 +139,9 @@ class TestToolLibrary(unittest.TestCase):
             file_imports=[("example_tools", ["slow"])],
             default_timeout=1,
         )
-        res, error = tulip.execute(function_id="example_tools__slow", function_args={})
+        res, error = tulip.execute(
+            function_id="example_tools__slow", function_args={"duration": 2}
+        )
         self.assertEqual(error, True, "Function execution succeeded despite timeout.")
         self.assertEqual(
             res,

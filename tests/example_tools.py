@@ -73,13 +73,14 @@ def divide(a: float, b: float) -> float:
     return a / b
 
 
-def slow() -> str:
+def slow(duration: int) -> str:
     """
     A function that takes some time to execute.
 
+    :param duration: Duration the function takes to complete
     :return: Completion message
     """
     import time
 
-    time.sleep(5)
+    time.sleep(duration)
     return "Done"

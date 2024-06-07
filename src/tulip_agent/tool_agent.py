@@ -30,6 +30,7 @@
 """
 Agent variations with tool access as a baseline.
 """
+import concurrent.futures
 import json
 import logging
 from abc import ABC
@@ -64,6 +65,10 @@ class ToolAgent(LlmAgent, ABC):
         self.tool_descriptions = [
             self.function_analyzer.analyze_function(f) for f in functions
         ]
+        self.tool_timeout: int = 60
+        self.tool_timeout_message: str = (
+            "Error: The tool did not return a response within the specified timeout."
+        )
 
     def run_with_tools(self):
         response = self._get_response(
@@ -84,22 +89,36 @@ class ToolAgent(LlmAgent, ABC):
 
             for tool_call in tool_calls:
                 func_name = tool_call.function.name
-                try:
-                    func_args = json.loads(tool_call.function.arguments)
-                    function_response = self.tools[func_name](**func_args)
-                except json.decoder.JSONDecodeError as e:
-                    logger.error(e)
-                    func_name = "invalid_tool_call"
-                    tool_call.function.name = func_name
-                    function_response = f"Error: Invalid arguments for {func_name}: {e}"
-                except KeyError as e:
-                    logger.error(f"Invalid tool `{func_name}` resulting in error: {e}")
-                    func_name = "invalid_tool_call"
-                    tool_call.function.name = func_name
-                    function_response = f"Error: {func_name} is not a valid tool. Use only the tools available."
-                except Exception as e:
-                    logger.error(e)
-                    function_response = f"Error: Invalid tool call for {func_name}: {e}"
+
+                with concurrent.futures.ThreadPoolExecutor() as executor:
+                    try:
+                        func_args = json.loads(tool_call.function.arguments)
+                        future = executor.submit(self.tools[func_name], **func_args)
+                        function_response = future.result(timeout=self.tool_timeout)
+                    except json.decoder.JSONDecodeError as e:
+                        logger.error(e)
+                        func_name = "invalid_tool_call"
+                        tool_call.function.name = func_name
+                        function_response = (
+                            f"Error: Invalid arguments for {func_name}: {e}"
+                        )
+                    except KeyError as e:
+                        logger.error(
+                            f"Invalid tool `{func_name}` resulting in error: {e}"
+                        )
+                        func_name = "invalid_tool_call"
+                        tool_call.function.name = func_name
+                        function_response = f"Error: {func_name} is not a valid tool. Use only the tools available."
+                    except concurrent.futures.TimeoutError as e:
+                        logger.error(
+                            f"{type(e).__name__}: {func_name} did not return a result before timeout."
+                        )
+                        function_response = self.tool_timeout_message
+                    except Exception as e:
+                        logger.error(e)
+                        function_response = (
+                            f"Error: Invalid tool call for {func_name}: {e}"
+                        )
                 self.messages.append(
                     {
                         "tool_call_id": tool_call.id,

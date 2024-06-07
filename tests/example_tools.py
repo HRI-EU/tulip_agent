@@ -71,3 +71,16 @@ def divide(a: float, b: float) -> float:
     :return: The quotient of a and b.
     """
     return a / b
+
+
+def slow(duration: int) -> str:
+    """
+    A function that takes some time to execute.
+
+    :param duration: Duration the function takes to complete
+    :return: Completion message
+    """
+    import time
+
+    time.sleep(duration)
+    return "Done"

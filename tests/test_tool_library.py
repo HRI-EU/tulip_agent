@@ -33,7 +33,7 @@ import unittest
 from tulip_agent.tool_library import ToolLibrary
 
 
-class TestCore(unittest.TestCase):
+class TestToolLibrary(unittest.TestCase):
     def setUp(self):
         tulip = ToolLibrary(chroma_sub_dir="test/")
         tulip.chroma_client.delete_collection("tulip")
@@ -50,6 +50,7 @@ class TestCore(unittest.TestCase):
                 "example_tools__subtract",
                 "example_tools__multiply",
                 "example_tools__divide",
+                "example_tools__slow",
             },
             "Initializing tool library with functions failed.",
         )
@@ -76,6 +77,7 @@ class TestCore(unittest.TestCase):
                 "example_tools__subtract",
                 "example_tools__multiply",
                 "example_tools__divide",
+                "example_tools__slow",
             },
             "Loading entire file failed.",
         )
@@ -112,6 +114,7 @@ class TestCore(unittest.TestCase):
                 "example_tools__subtract",
                 "example_tools__multiply",
                 "example_tools__divide",
+                "example_tools__slow",
             },
             "Removing function failed.",
         )
@@ -128,6 +131,53 @@ class TestCore(unittest.TestCase):
             res,
             4.0,
             "Function execution via tool library failed.",
+        )
+
+    def test_execute_timeout(self):
+        tulip = ToolLibrary(
+            chroma_sub_dir="test/",
+            file_imports=[("example_tools", ["slow"])],
+            default_timeout=1,
+        )
+        res, error = tulip.execute(function_id="example_tools__slow", function_args={})
+        self.assertEqual(error, True, "Function execution succeeded despite timeout.")
+        self.assertEqual(
+            res,
+            "Error: The tool did not return a response within the specified timeout.",
+            "Timeout did not return correct error message.",
+        )
+
+    def test_execute_unknown_tool(self):
+        tulip = ToolLibrary(
+            chroma_sub_dir="test/", file_imports=[("example_tools", [])]
+        )
+        res, error = tulip.execute(
+            function_id="example_tools__unknown", function_args={}
+        )
+        self.assertEqual(error, True, "Calling unknown function not caught.")
+        self.assertEqual(
+            res,
+            "Error: example_tools__unknown is not a valid tool. Use only the tools available.",
+            "Catching unknown function did not return correct error message.",
+        )
+
+    def test_execute_invalid_arguments(self):
+        tulip = ToolLibrary(
+            chroma_sub_dir="test/", file_imports=[("example_tools", ["multiply"])]
+        )
+        res, error = tulip.execute(
+            function_id="example_tools__multiply", function_args={"a": 1, "wrong": 2}
+        )
+        self.assertEqual(
+            error, True, "Function execution succeeded despite wrong arguments."
+        )
+        self.assertEqual(
+            res,
+            (
+                "Error: Invalid tool call for example_tools__multiply: multiply() "
+                "got an unexpected keyword argument 'wrong'"
+            ),
+            "Catching call with invalid arguments did not return correct error message.",
         )
 
     def test_update_function(self):

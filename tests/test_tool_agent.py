@@ -29,7 +29,7 @@
 #
 import unittest
 
-from example_tools import add
+from example_tools import add, slow
 from tulip_agent import CotToolAgent, NaiveToolAgent
 
 
@@ -61,6 +61,16 @@ class TestCore(unittest.TestCase):
         agent = CotToolAgent(functions=[add])
         res = agent.query(prompt="What is 2+2?")
         self._check_res(res, agent.messages)
+
+    def test_naive_tool_timeout(self):
+        agent = NaiveToolAgent(functions=[slow])
+        agent.tool_timeout = 1
+        _ = agent.query(prompt="Run the slow function with a duration of 10.")
+        self.assertEqual(
+            "Error: The tool did not return a response within the specified timeout.",
+            agent.messages[-2]["content"],
+            "Timeout failed.",
+        )
 
 
 if __name__ == "__main__":

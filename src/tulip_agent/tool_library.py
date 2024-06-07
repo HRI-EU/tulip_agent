@@ -327,10 +327,18 @@ class ToolLibrary:
     def update_function(
         self,
         function_id: str,
+        timeout: int = None,
+        timeout_message: str = None,
     ) -> dict:
         module_name = self.function_origins[function_id]["module_name"]
         module = sys.modules[module_name]
         function_name = self.function_origins[function_id]["function_name"]
+        timeout = timeout if timeout else self.timeout_settings[function_id]["timeout"]
+        timeout_message = (
+            timeout_message
+            if timeout_message
+            else self.timeout_settings[function_id]["timeout_message"]
+        )
 
         module_occurrences = len(
             [
@@ -348,11 +356,14 @@ class ToolLibrary:
         module = importlib.reload(module)
         f_ = getattr(module, function_name)
 
-        self.functions[function_id] = f_
-        f_description = self.function_analyzer.analyze_function(f_)
-        f_description["function"]["name"] = function_id
-        self.function_descriptions[function_id] = f_description
-        return f_description
+        self.remove_function(function_id)
+        function_data = self._add_function(
+            function=f_,
+            module_name=module.__name__,
+            timeout=timeout,
+            timeout_message=timeout_message,
+        )
+        return function_data
 
     def search(
         self,

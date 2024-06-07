@@ -319,6 +319,7 @@ class ToolLibrary:
         self.collection.delete(ids=[function_id])
         self.functions.pop(function_id)
         self.function_descriptions.pop(function_id)
+        self.timeout_settings.pop(function_id)
         logger.info(
             f"Removed function {function_id} from collection {self.collection}."
         )

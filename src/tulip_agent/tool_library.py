@@ -30,6 +30,7 @@
 """
 The tool library (tulip) for the agent
 """
+import concurrent.futures
 import importlib
 import json
 import logging
@@ -56,11 +57,34 @@ class ToolLibrary:
         file_imports: list[tuple[str, Optional[list[str]]]] = None,
         chroma_base_dir: str = dirname(dirname(dirname(abspath(__file__))))
         + "/data/chroma/",
+        default_timeout: int = 60,
+        default_timeout_message: str = (
+            "Error: The tool did not return a response within the specified timeout."
+        ),
+        timeout_settings: dict = None,
     ) -> None:
+        """
+        Initialize the tool library: set up the vector store and load the tool information.
+
+        :param chroma_sub_dir: A specific subfolder for the tool library.
+        :param file_imports: List of tuples with a module name from which to load tools from and
+            an optional list of tools to load. If no tools are specified, all tools are loaded.
+        :param chroma_base_dir: Absolute path to the tool library folder.
+        :param default_timeout: Execution timeout for tools.
+        :param default_timeout_message: Default message returned in case of tool execution timeout.
+        :param timeout_settings: Tool-specific timeout settings of the form
+            {"module_name__tool_name": {"timeout": seconds, "timeout_message": string}}
+            NOTE: overriding existing timeout settings is not supported
+        """
         self.function_analyzer = FunctionAnalyzer()
         self.functions = {}
         self.function_descriptions = {}
         self.function_origins = {}
+
+        # timeout settings
+        self.default_timeout = default_timeout
+        self.default_timeout_message = default_timeout_message
+        self.timeout_settings = timeout_settings if timeout_settings else {}
 
         # import tools from file
         if file_imports:
@@ -107,6 +131,8 @@ class ToolLibrary:
             module_path = md["path"]
             function_name = md["name"]
             identifier = md["identifier"]
+            timeout = md["timeout"]
+            timeout_message = md["timeout_message"]
             if identifier not in self.function_origins:
                 self.function_origins[identifier] = {
                     "module_name": module_name,
@@ -131,9 +157,12 @@ class ToolLibrary:
                     )
                     self.remove_function(identifier)
                     continue
-            else:
-                self.functions[identifier] = self.functions[identifier]
+            self.timeout_settings[identifier] = {
+                "timeout": timeout,
+                "timeout_message": timeout_message,
+            }
 
+        # load new functions into vector store
         if self.functions:
             new_functions = {
                 n: d for n, d in self.functions.items() if n not in loaded_functions_ids
@@ -144,6 +173,12 @@ class ToolLibrary:
                 if n not in loaded_functions_ids
             }
             if new_functions:
+                for f in new_function_descriptions:
+                    if f not in self.timeout_settings:
+                        self.timeout_settings[f] = {
+                            "timeout": self.default_timeout,
+                            "timeout_message": self.default_timeout_message,
+                        }
                 logger.info(f"Embedding new functions: {new_functions}")
                 self.collection.add(
                     documents=[
@@ -165,6 +200,10 @@ class ToolLibrary:
                             "module": self.function_origins[f]["module_name"],
                             "path": self.function_origins[f]["module_path"],
                             "name": self.function_origins[f]["function_name"],
+                            "timeout": self.timeout_settings[f]["timeout"],
+                            "timeout_message": self.timeout_settings[f][
+                                "timeout_message"
+                            ],
                         }
                         for f in new_function_descriptions
                     ],
@@ -178,6 +217,8 @@ class ToolLibrary:
         self,
         function: Callable,
         module_name: str,
+        timeout: int = None,
+        timeout_message: str = None,
     ) -> dict:
         module_path = os.path.abspath(sys.modules[module_name].__file__)
         function_id = f"{module_name}__{function.__name__}"
@@ -185,6 +226,16 @@ class ToolLibrary:
         function_data = self.function_analyzer.analyze_function(function)
         function_data["function"]["name"] = function_id
         self.function_descriptions[function_id] = function_data
+
+        self.timeout_settings[function_id] = {
+            "timeout": timeout if timeout is not None else self.default_timeout,
+            "timeout_message": (
+                timeout_message
+                if timeout_message is not None
+                else self.default_timeout_message
+            ),
+        }
+
         self.collection.add(
             documents=json.dumps(function_data, indent=4),
             embeddings=[
@@ -199,15 +250,21 @@ class ToolLibrary:
                     "module": module_name,
                     "path": module_path,
                     "name": function.__name__,
+                    "timeout": self.timeout_settings[function_id]["timeout"],
+                    "timeout_message": self.timeout_settings[function_id][
+                        "timeout_message"
+                    ],
                 }
             ],
             ids=[function_id],
         )
+
         self.function_origins[function_id] = {
             "module_name": module_name,
             "module_path": module_path,
             "function_name": function.__name__,
         }
+
         logger.info(f"Added function {function_id} to collection {self.collection}.")
         return function_data
 
@@ -215,6 +272,7 @@ class ToolLibrary:
         self,
         module_name: str,
         function_names: Optional[list[str]] = None,
+        timeout_settings: dict = None,
     ) -> list[dict]:
         if module_name in sys.modules:
             module = importlib.reload(sys.modules[module_name])
@@ -233,8 +291,24 @@ class ToolLibrary:
                 if f.__module__ == module_name
             ]
         tool_descriptions = []
+        timeout_settings = timeout_settings or {}
         for f in functions:
-            tool_description = self._add_function(function=f, module_name=module_name)
+            timeout = (
+                timeout_settings[f.__name__]["timeout"]
+                if f.__name__ in timeout_settings
+                else self.default_timeout
+            )
+            timeout_message = (
+                timeout_settings[f.__name__]["timeout_message"]
+                if f.__name__ in timeout_settings
+                else self.default_timeout_message
+            )
+            tool_description = self._add_function(
+                function=f,
+                module_name=module_name,
+                timeout=timeout,
+                timeout_message=timeout_message,
+            )
             tool_descriptions.append(tool_description)
         return tool_descriptions
 
@@ -310,15 +384,29 @@ class ToolLibrary:
         function_id: str,
         function_args: dict,
     ) -> tuple:
-        try:
-            res = self.functions[function_id](**function_args)
-            error = False
-        except KeyError as e:
-            logger.error(e)
-            res = f"Error: {function_id} is not a valid tool. Use only the tools available."
-            error = True
-        except Exception as e:
-            logger.error(e)
-            res = f"Error: Invalid tool call for {function_id}: {e}"
-            error = True
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            try:
+                future = executor.submit(self.functions[function_id], **function_args)
+            except KeyError as e:
+                logger.error(f"{type(e).__name__}: {e}")
+                return (
+                    f"Error: {function_id} is not a valid tool. Use only the tools available.",
+                    True,
+                )
+            except Exception as e:
+                logger.error(f"{type(e).__name__}: {e}")
+                return f"Error: Invalid tool call for {function_id}: {e}", True
+            try:
+                res = future.result(
+                    timeout=self.timeout_settings[function_id]["timeout"]
+                )
+                error = False
+            except concurrent.futures.TimeoutError as e:
+                logger.error(
+                    f"{type(e).__name__}: {function_id} did not return a result before timeout."
+                )
+                return self.timeout_settings[function_id]["timeout_message"], True
+            except Exception as e:
+                logger.error(f"{type(e).__name__}: {e}")
+                return f"Error: Invalid tool call for {function_id}: {e}", True
         return res, error

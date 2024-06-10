@@ -249,14 +249,14 @@ def plot(
     colors: list[str],
 ) -> None:
     number_agents = len(agents)
-    width = 0.05
+    width = 0.1
     levels = {
         "E": "Easy",
         "M": "Medium",
         "H": "Hard",
     }
     x = np.arange(len(levels))
-    fig, axs = plt.subplots(len(criteria), sharex=True, sharey=False, figsize=(10, 5))
+    fig, axs = plt.subplots(len(criteria), sharex=True, sharey=False, figsize=(5, 6))
     for ci, criterion in enumerate(criteria):
         for ai, agent in enumerate(agents):
             _ = axs[ci].bar(

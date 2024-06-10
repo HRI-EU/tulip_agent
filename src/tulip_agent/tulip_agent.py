@@ -190,7 +190,10 @@ class TulipAgent(LlmAgent, ABC):
                     }
                 )
                 logger.info(
-                    f"Function {func_name} returned `{str(function_response)}` for arguments {func_args}."
+                    (
+                        f"Function {func_name} returned `{str(function_response)}` "
+                        f"for arguments {tool_call.function.arguments}."
+                    )
                 )
 
             response = self._get_response(
@@ -952,7 +955,10 @@ class AutoTulipAgent(TulipAgent):
                         }
                     )
                     logger.info(
-                        f"Function {func_name} returned `{str(function_response)}` for arguments {func_args}."
+                        (
+                            f"Function {func_name} returned `{str(function_response)}` "
+                            f"for arguments {tool_call.function.arguments}."
+                        )
                     )
 
             response = self._get_response(

@@ -256,37 +256,31 @@ def plot(
     fig, axs = plt.subplots(len(criteria), sharex=True, sharey=False, figsize=(5, 6))
     for ci, criterion in enumerate(criteria):
         for ai, agent in enumerate(agents):
-            _ = axs[ci].bar(
-                x - (number_agents - 1) / 2 * width + width * ai,
+            scores = [
                 [
-                    (
-                        interquartile_mean(
-                            [
-                                float(getattr(d, criterion))
-                                for d in data
-                                if d.agent == agent
-                                and tasks[d.task].split(".")[-2] == level
-                            ]
-                        )
-                        if criterion == "costs"
-                        else statistics.mean(
-                            [
-                                float(getattr(d, criterion))
-                                for d in data
-                                if d.agent == agent
-                                and tasks[d.task].split(".")[-2] == level
-                            ]
-                        )
-                    )
-                    for level in levels
-                ],
-                width,
+                    float(getattr(d, criterion))
+                    for d in data
+                    if d.agent == agent and tasks[d.task].split(".")[-2] == level
+                ]
+                for level in levels
+            ]
+            processed = [
+                interquartile_mean(s) if criterion == "costs" else statistics.mean(s)
+                for s in scores
+            ]
+            number_of_scores = [len(e) for e in scores]
+            processed_rounded = [round(e, 4) for e in processed]
+            print(f"{criterion} - {agent} - {number_of_scores} - {processed_rounded}")
+            _ = axs[ci].bar(
+                x=x - (number_agents - 1) / 2 * width + width * ai,
+                height=processed,
+                width=width,
                 color=colors[ai],
                 label=agent,
             )
         axs[ci].set_ylabel(criteria[criterion])
     fig.legend(
-        axs[0].get_children(),
+        handles=axs[0].get_children(),
         labels=agents,
         loc="upper center",
         ncol=number_agents,

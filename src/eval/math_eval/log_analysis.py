@@ -27,7 +27,6 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
-import ast
 import importlib
 import json
 import logging.config
@@ -156,9 +155,7 @@ def extract_data_from_log(log_file: str, model: str) -> list[Result]:
                     .split()[2]
                     .replace("`", "")
                 )
-                tool_arguments = ast.literal_eval(
-                    log_line.split(" for arguments ")[-1][:-1]
-                )
+                tool_arguments = json.loads(log_line.split(" for arguments ")[-1][:-1])
                 tools_called.append(
                     ToolCall(
                         name=tool_name, arguments=tool_arguments, result=tool_result

@@ -65,7 +65,9 @@ OAI_PRICES = {
         "input": 10 / 1_000_000,
         "output": 30 / 1_000_000,
     },
-    "ada_embed": 0.1 / 1_000_000,
+    "text-embedding-ada-002": 0.1 / 1_000_000,
+    "text-embedding-3-small": 0.02 / 1_000_000,
+    "text-embedding-3-large": 0.13 / 1_000_000,
 }
 
 
@@ -81,6 +83,7 @@ class Result:
     agent: str
     task: str
     model: str
+    embedding_model: str
     input_tokens: int
     completion_tokens: int
     embedding_tokens: int
@@ -96,7 +99,7 @@ class Result:
             (
                 OAI_PRICES[self.model]["input"] * self.input_tokens
                 + OAI_PRICES[self.model]["output"] * self.completion_tokens
-                + OAI_PRICES["ada_embed"] * self.embedding_tokens
+                + OAI_PRICES[self.embedding_model] * self.embedding_tokens
             ),
             2,
         )
@@ -115,7 +118,9 @@ def interquartile_mean(values: list) -> float:
         return sum(nums) / (2 * q_)
 
 
-def extract_data_from_log(log_file: str, model: str) -> list[Result]:
+def extract_data_from_log(
+    log_file: str, model: str, embedding_model: str
+) -> list[Result]:
     results = []
     tool_library_costs = calc_costs_for_tool_library()
     with open(log_file, "r") as f:
@@ -177,6 +182,7 @@ def extract_data_from_log(log_file: str, model: str) -> list[Result]:
             agent=agent,
             task=query,
             model=model,
+            embedding_model=embedding_model,
             input_tokens=in_tokens,
             completion_tokens=out_tokens,
             embedding_tokens=embed_tokens,
@@ -322,13 +328,16 @@ def find_most_recent_log(directory: str) -> str:
 def main(
     log_file: str,
     model: str,
+    embedding_model: str,
     ground_truth: str,
     plot_file: str,
     agents: list,
     criteria: dict,
     colors: list,
 ) -> None:
-    res = extract_data_from_log(log_file=log_file, model=model)
+    res = extract_data_from_log(
+        log_file=log_file, model=model, embedding_model=embedding_model
+    )
     res, tasks = assess_data(results=res, ground_truth=ground_truth)
     for r in res:
         print(r)
@@ -342,11 +351,13 @@ def main(
     )
 
 
-def analyze(log_file: str, ground_truth: str, model: str) -> None:
+def analyze(log_file: str, ground_truth: str, model: str, embedding_model: str) -> None:
     with open(ground_truth, "r") as gtf:
         gtf_data_ = json.load(gtf)
         task_ids = {e["task"]: e["name"] for e in gtf_data_}
-    res = extract_data_from_log(log_file=log_file, model=model)
+    res = extract_data_from_log(
+        log_file=log_file, model=model, embedding_model=embedding_model
+    )
     res, tasks = assess_data(results=res, ground_truth=ground_truth)
     for r in res:
         if r.agent != "CotTulipAgent":
@@ -366,10 +377,17 @@ def analyze(log_file: str, ground_truth: str, model: str) -> None:
 
 
 def sanity_check_results(
-    log_file: str, ground_truth: str, model: str, agents: list[str], runs: int = 3
+    log_file: str,
+    ground_truth: str,
+    model: str,
+    embedding_model: str,
+    agents: list[str],
+    runs: int = 3,
 ) -> bool:
     sane = True
-    results = extract_data_from_log(log_file=log_file, model=model)
+    results = extract_data_from_log(
+        log_file=log_file, model=model, embedding_model=embedding_model
+    )
     results_sorted = {}
     for r in results:
         if r.task not in results_sorted:
@@ -410,6 +428,7 @@ if __name__ == "__main__":
         history_data = json.load(f)
         log_name = log.split("/")[-1]
         model = history_data[log_name]["model"]
+        embedding_model = history_data[log_name]["embedding_model"]
         agents = [
             a
             for a in history_data[log_name]["agents"]
@@ -419,6 +438,7 @@ if __name__ == "__main__":
     passed = sanity_check_results(
         log_file=log,
         model=model,
+        embedding_model=embedding_model,
         ground_truth=settings["ground_truth"],
         agents=agents,
     )
@@ -427,6 +447,7 @@ if __name__ == "__main__":
     main(
         log_file=log,
         model=model,
+        embedding_model=embedding_model,
         ground_truth=settings["ground_truth"],
         plot_file="math.eval.png",
         agents=agents,

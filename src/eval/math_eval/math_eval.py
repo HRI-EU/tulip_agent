@@ -71,6 +71,7 @@ def run_math_eval(
     agents: list[str],
     task_filter: list[str],
     model: str,
+    embedding_model: str,
     number_of_runs: int,
     log_file: str,
     tulip_top_k: int,
@@ -88,9 +89,10 @@ def run_math_eval(
         queries = {e["task"]: e for e in tasks_}
 
     tulip = ToolLibrary(
-        chroma_sub_dir="math_eval/",
+        chroma_sub_dir=f"math_eval_{embedding_model}/",
         file_imports=[(TOOLS_FILENAME, [])],
         chroma_base_dir="../../../data/chroma/",
+        embedding_model=embedding_model,
     )
 
     def _run(agent_class, setup_args: dict) -> None:
@@ -154,6 +156,7 @@ def main():
         agents=[a for a in SETTINGS["agents"] if SETTINGS["agents"][a]],
         task_filter=SETTINGS["task_filter"],
         model=SETTINGS["model"],
+        embedding_model=SETTINGS["embedding_model"],
         number_of_runs=number_of_runs,
         log_file=log_file,
         tulip_top_k=SETTINGS["tulip_top_k"],

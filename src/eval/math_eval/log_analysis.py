@@ -126,6 +126,11 @@ def extract_data_from_log(log_file: str, model: str) -> list[Result]:
         if "returns response" in log_message:
             parts.append(current)
             current = []
+        # handle cases without a response log
+        if len(current) > 1 and "received query: " in log_message:
+            current.pop()
+            parts.append(current)
+            current = [log_message]
     for p in parts:
         agent = p[0].split(" - INFO - ")[-1].split()[0]
         query = p[0].split("received query: ")[-1]

@@ -357,6 +357,38 @@ def analyze(log_file: str, ground_truth: str, model: str) -> None:
         print("\n")
 
 
+def sanity_check_results(
+    log_file: str, ground_truth: str, model: str, agents: list[str], runs: int = 3
+) -> bool:
+    sane = True
+    results = extract_data_from_log(log_file=log_file, model=model)
+    results_sorted = {}
+    for r in results:
+        if r.task not in results_sorted:
+            results_sorted[r.task] = {r.agent: [r]}
+        else:
+            if r.agent not in results_sorted[r.task]:
+                results_sorted[r.task][r.agent] = [r]
+            else:
+                results_sorted[r.task][r.agent].append(r)
+    with open(ground_truth, "r") as gtf:
+        gtf_data_ = json.load(gtf)
+    for task in gtf_data_:
+        if task["task"] not in results_sorted:
+            print(f"`{task}`: no results")
+            sane = False
+            continue
+        for agent in agents:
+            if agent not in results_sorted[task["task"]]:
+                print(f"`{task['task']}` - {agent}: no results")
+                sane = False
+                continue
+            if (number_found := len(results_sorted[task["task"]][agent])) != runs:
+                print(f"`{task['task']}` - {agent}: only [{number_found}/{runs}]")
+                sane = False
+    return sane
+
+
 if __name__ == "__main__":
     with open("math_eval_settings.yaml", "rt") as mes:
         settings = yaml.safe_load(mes.read())
@@ -376,19 +408,27 @@ if __name__ == "__main__":
             if history_data[log_name]["agents"][a]
         ]
         colors = [history_data[log_name]["colors"][a] for a in agents]
-    main(
+    passed = sanity_check_results(
         log_file=log,
         model=model,
         ground_truth=settings["ground_truth"],
-        plot_file="math.eval.png",
         agents=agents,
-        criteria={
-            "costs": "Costs [$]",
-            "function_recall": "Recall",
-            "function_precision": "Precision",
-            "correctness": "Correct",
-        },
-        colors=colors,
     )
-    img_name = log_name[:-3] + "png"
-    shutil.copy("math.eval.png", f"{log_folder}/{img_name}")
+    print(f"Sanity check - number of results matches tasks: {passed}")
+    if passed:
+        main(
+            log_file=log,
+            model=model,
+            ground_truth=settings["ground_truth"],
+            plot_file="math.eval.png",
+            agents=agents,
+            criteria={
+                "costs": "Costs [$]",
+                "function_recall": "Recall",
+                "function_precision": "Precision",
+                "correctness": "Correct",
+            },
+            colors=colors,
+        )
+        img_name = log_name[:-3] + "png"
+        shutil.copy("math.eval.png", f"{log_folder}/{img_name}")

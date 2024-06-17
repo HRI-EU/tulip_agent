@@ -43,6 +43,7 @@ from typing import Callable, Optional
 
 import chromadb
 
+from .constants import BASE_EMBEDDING_MODEL
 from .embed import embed
 from .function_analyzer import FunctionAnalyzer
 
@@ -57,6 +58,7 @@ class ToolLibrary:
         file_imports: list[tuple[str, Optional[list[str]]]] = None,
         chroma_base_dir: str = dirname(dirname(dirname(abspath(__file__))))
         + "/data/chroma/",
+        embedding_model: str = BASE_EMBEDDING_MODEL,
         default_timeout: int = 60,
         default_timeout_message: str = (
             "Error: The tool did not return a response within the specified timeout."
@@ -70,12 +72,15 @@ class ToolLibrary:
         :param file_imports: List of tuples with a module name from which to load tools from and
             an optional list of tools to load. If no tools are specified, all tools are loaded.
         :param chroma_base_dir: Absolute path to the tool library folder.
+        :param embedding_model: Name of the embedding model used. Defaults to the one specified in constants.
         :param default_timeout: Execution timeout for tools.
         :param default_timeout_message: Default message returned in case of tool execution timeout.
         :param timeout_settings: Tool-specific timeout settings of the form
             {"module_name__tool_name": {"timeout": seconds, "timeout_message": string}}
             NOTE: overriding existing timeout settings is not supported
         """
+        self.embedding_model = embedding_model
+
         self.function_analyzer = FunctionAnalyzer()
         self.functions = {}
         self.function_descriptions = {}
@@ -187,9 +192,10 @@ class ToolLibrary:
                     ],
                     embeddings=[
                         embed(
-                            self.functions[fd["function"]["name"]].__name__
+                            text=self.functions[fd["function"]["name"]].__name__
                             + ":\n"
-                            + fd["function"]["description"]
+                            + fd["function"]["description"],
+                            embedding_model=self.embedding_model,
                         )
                         for fd in new_function_descriptions.values()
                     ],
@@ -240,7 +246,10 @@ class ToolLibrary:
             documents=json.dumps(function_data, indent=4),
             embeddings=[
                 embed(
-                    function.__name__ + ":\n" + function_data["function"]["description"]
+                    text=function.__name__
+                    + ":\n"
+                    + function_data["function"]["description"],
+                    embedding_model=self.embedding_model,
                 )
             ],
             metadatas=[
@@ -371,7 +380,9 @@ class ToolLibrary:
         top_k: int = 1,
         similarity_threshold: float = None,
     ):
-        query_embedding = embed(problem_description)
+        query_embedding = embed(
+            text=problem_description, embedding_model=self.embedding_model
+        )
         res = self.collection.query(
             query_embeddings=[query_embedding],
             n_results=top_k,

@@ -73,6 +73,8 @@ def run_math_eval(
     model: str,
     number_of_runs: int,
     log_file: str,
+    tulip_top_k: int,
+    search_similarity_threshold: float,
 ):
     functions = [
         getattr(tools, n)
@@ -133,6 +135,8 @@ def run_math_eval(
                 setup_args={
                     "model": model,
                     "tool_library": tulip,
+                    "top_k_functions": tulip_top_k,
+                    "search_similarity_threshold": search_similarity_threshold,
                 },
             )
 
@@ -152,6 +156,8 @@ def main():
         model=SETTINGS["model"],
         number_of_runs=number_of_runs,
         log_file=log_file,
+        tulip_top_k=SETTINGS["tulip_top_k"],
+        search_similarity_threshold=SETTINGS["search_similarity_threshold"],
     )
     # track settings
     if os.path.exists((history_path := log_folder + "/history.json")):

@@ -9,12 +9,15 @@ task_filter: null
 tools: math_tools
 model: "gpt-3.5-turbo-0125"
 
+tulip_top_k: 5
+search_similarity_threshold: null
+
 agents:
-    BaseAgent: False
-    NaiveToolAgent: False
+    BaseAgent: True
+    NaiveToolAgent: True
     CotToolAgent: True
-    MinimalTulipAgent: False
-    NaiveTulipAgent: False
+    MinimalTulipAgent: True
+    NaiveTulipAgent: True
     CotTulipAgent: True
     InformedCotTulipAgent: True
     PrunedCotTulipAgent: True

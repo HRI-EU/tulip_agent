@@ -419,21 +419,21 @@ if __name__ == "__main__":
         ground_truth=settings["ground_truth"],
         agents=agents,
     )
-    print(f"Sanity check - number of results matches tasks: {passed}")
-    if passed:
-        main(
-            log_file=log,
-            model=model,
-            ground_truth=settings["ground_truth"],
-            plot_file="math.eval.png",
-            agents=agents,
-            criteria={
-                "costs": "Costs [$]",
-                "function_recall": "Recall",
-                "function_precision": "Precision",
-                "correctness": "Correct",
-            },
-            colors=colors,
-        )
-        img_name = log_name[:-3] + "png"
-        shutil.copy("math.eval.png", f"{log_folder}/{img_name}")
+    if passed is False:
+        raise ValueError("Sanity check failed - number of results does not match tasks")
+    main(
+        log_file=log,
+        model=model,
+        ground_truth=settings["ground_truth"],
+        plot_file="math.eval.png",
+        agents=agents,
+        criteria={
+            "costs": "Costs [$]",
+            "function_recall": "Recall",
+            "function_precision": "Precision",
+            "correctness": "Correct",
+        },
+        colors=colors,
+    )
+    img_name = log_name[:-3] + "png"
+    shutil.copy("math.eval.png", f"{log_folder}/{img_name}")

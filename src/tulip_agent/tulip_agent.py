@@ -220,6 +220,7 @@ class MinimalTulipAgent(TulipAgent):
         api_interaction_limit: int = 100,
         tool_library: ToolLibrary = None,
         top_k_functions: int = 10,
+        search_similarity_threshold: float = None,
         instructions: Optional[str] = None,
     ) -> None:
         super().__init__(
@@ -231,6 +232,7 @@ class MinimalTulipAgent(TulipAgent):
             api_interaction_limit=api_interaction_limit,
             tool_library=tool_library,
             top_k_functions=top_k_functions,
+            search_similarity_threshold=search_similarity_threshold,
         )
 
     def query(
@@ -260,6 +262,7 @@ class NaiveTulipAgent(TulipAgent):
         api_interaction_limit: int = 100,
         tool_library: ToolLibrary = None,
         top_k_functions: int = 3,
+        search_similarity_threshold: float = None,
         instructions: Optional[str] = None,
     ) -> None:
         super().__init__(
@@ -271,6 +274,7 @@ class NaiveTulipAgent(TulipAgent):
             api_interaction_limit=api_interaction_limit,
             tool_library=tool_library,
             top_k_functions=top_k_functions,
+            search_similarity_threshold=search_similarity_threshold,
         )
 
     def query(
@@ -629,6 +633,7 @@ class AutoTulipAgent(TulipAgent):
         api_interaction_limit: int = 100,
         tool_library: ToolLibrary = None,
         top_k_functions: int = 1,
+        search_similarity_threshold: float = None,
         instructions: Optional[str] = None,
     ) -> None:
         super().__init__(
@@ -642,6 +647,7 @@ class AutoTulipAgent(TulipAgent):
             api_interaction_limit=api_interaction_limit,
             tool_library=tool_library,
             top_k_functions=top_k_functions,
+            search_similarity_threshold=search_similarity_threshold,
         )
         self.create_tool_description = {
             "type": "function",

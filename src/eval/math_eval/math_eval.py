@@ -111,59 +111,30 @@ def run_math_eval(
             setup_args={"model": model},
         )
 
-    if "NaiveToolAgent" in agents:
-        _run(
-            agent_class=NaiveToolAgent,
-            setup_args={"model": model, "functions": functions},
-        )
+    for agent_class in (NaiveToolAgent, CotToolAgent):
+        if agent_class.__name__ in agents:
+            _run(
+                agent_class=agent_class,
+                setup_args={"model": model, "functions": functions},
+            )
 
-    if "CotToolAgent" in agents:
-        _run(
-            agent_class=CotToolAgent,
-            setup_args={"model": model, "functions": functions},
-        )
-
-    if "MinimalTulipAgent" in agents:
-        _run(
-            agent_class=MinimalTulipAgent,
-            setup_args={"model": model, "tool_library": tulip, "top_k_functions": 5},
-        )
-
-    if "NaiveTulipAgent" in agents:
-        _run(
-            agent_class=NaiveTulipAgent,
-            setup_args={"model": model, "tool_library": tulip, "top_k_functions": 5},
-        )
-
-    if "CotTulipAgent" in agents:
-        _run(
-            agent_class=CotTulipAgent,
-            setup_args={"model": model, "tool_library": tulip, "top_k_functions": 5},
-        )
-
-    if "InformedCotTulipAgent" in agents:
-        _run(
-            agent_class=InformedCotTulipAgent,
-            setup_args={"model": model, "tool_library": tulip, "top_k_functions": 5},
-        )
-
-    if "PrunedCotTulipAgent" in agents:
-        _run(
-            agent_class=PrunedCotTulipAgent,
-            setup_args={"model": model, "tool_library": tulip, "top_k_functions": 5},
-        )
-
-    if "OneShotCotTulipAgent" in agents:
-        _run(
-            agent_class=OneShotCotTulipAgent,
-            setup_args={"model": model, "tool_library": tulip, "top_k_functions": 5},
-        )
-
-    if "AutoTulipAgent" in agents:
-        _run(
-            agent_class=AutoTulipAgent,
-            setup_args={"model": model, "tool_library": tulip, "top_k_functions": 5},
-        )
+    for agent_class in (
+        MinimalTulipAgent,
+        NaiveTulipAgent,
+        CotTulipAgent,
+        InformedCotTulipAgent,
+        PrunedCotTulipAgent,
+        OneShotCotTulipAgent,
+        AutoTulipAgent,
+    ):
+        if agent_class.__name__ in agents:
+            _run(
+                agent_class=agent_class,
+                setup_args={
+                    "model": model,
+                    "tool_library": tulip,
+                },
+            )
 
 
 def main():

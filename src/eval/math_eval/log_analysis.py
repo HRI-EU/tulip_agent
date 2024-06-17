@@ -259,6 +259,7 @@ def plot(
     }
     x = np.arange(len(levels))
     fig, axs = plt.subplots(len(criteria), sharex=True, sharey=False, figsize=(5, 6))
+    handles = []
     for ci, criterion in enumerate(criteria):
         for ai, agent in enumerate(agents):
             scores = [
@@ -276,16 +277,18 @@ def plot(
             number_of_scores = [len(e) for e in scores]
             processed_rounded = [round(e, 4) for e in processed]
             print(f"{criterion} - {agent} - {number_of_scores} - {processed_rounded}")
-            _ = axs[ci].bar(
+            bar = axs[ci].bar(
                 x=x - (number_agents - 1) / 2 * width + width * ai,
                 height=processed,
                 width=width,
                 color=colors[ai],
                 label=agent,
             )
+            if ci == 0:  # Only add the legend info from the first subplot
+                handles.append(bar)
         axs[ci].set_ylabel(criteria[criterion])
     fig.legend(
-        handles=axs[0].get_children(),
+        handles=[h[0] for h in handles],
         labels=agents,
         loc="upper center",
         ncol=number_agents,

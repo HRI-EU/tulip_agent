@@ -121,9 +121,9 @@ def extract_data_from_log(log_file: str, model: str) -> list[Result]:
     with open(log_file, "r") as f:
         logs = f.read()
     parts, current = [], []
-    for line in logs.strip().split("\n2024-"):
-        current.append(line)
-        if "returns response" in line:
+    for log_message in logs.strip().split("\n2024-"):
+        current.append(log_message)
+        if "returns response" in log_message:
             parts.append(current)
             current = []
     for p in parts:

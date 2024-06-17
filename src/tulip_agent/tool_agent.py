@@ -84,7 +84,9 @@ class ToolAgent(LlmAgent, ABC):
 
             if self.api_interaction_counter >= self.api_interaction_limit:
                 error_message = f"Error: Reached API interaction limit of {self.api_interaction_limit}."
-                logger.error(error_message)
+                logger.error(
+                    f"{self.__class__.__name__} returns response: {error_message}"
+                )
                 return error_message
 
             for tool_call in tool_calls:

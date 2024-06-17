@@ -253,7 +253,7 @@ def plot(
     math_benchmark: bool,
 ) -> None:
     number_agents = len(agents)
-    width = 0.05
+    width = 0.1
     levels = {
         "E": "Easy",
         "M": "Medium",
@@ -273,7 +273,7 @@ def plot(
         split_index = 1
 
     x = np.arange(len(levels))
-    fig, axs = plt.subplots(len(criteria), sharex=True, sharey=False, figsize=(10, 5))
+    fig, axs = plt.subplots(len(criteria), sharex=True, sharey=False, figsize=(5, 6))
     for ci, criterion in enumerate(criteria):
         for ai, agent in enumerate(agents):
             bar_values = [

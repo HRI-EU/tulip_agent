@@ -37,11 +37,10 @@ from tulip_agent import AutoTulipAgent, ToolLibrary
 logging.basicConfig(level=logging.INFO)
 
 tasks = [
-    """What is 765*19**3?""",
     """What is the square root of 23456789?""",
-    """Change the square root function to correctly work for negative numbers.""",
+    """Change the square root tool to correctly work for negative numbers.""",
     """Calculate the square root of -200.""",
-    """Delete the square root function.""",
+    """Delete the square root tool.""",
 ]
 
 tulip = ToolLibrary(chroma_sub_dir="auto/")

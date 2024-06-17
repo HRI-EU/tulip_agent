@@ -359,7 +359,7 @@ class CotTulipAgent(TulipAgent):
         api_interaction_limit: int = 100,
         tool_library: ToolLibrary = None,
         top_k_functions: int = 3,
-        search_similarity_threshold: float = 0.35,
+        search_similarity_threshold: float = None,
         instructions: Optional[str] = None,
     ) -> None:
         super().__init__(
@@ -466,7 +466,7 @@ class InformedCotTulipAgent(CotTulipAgent):
         api_interaction_limit: int = 100,
         tool_library: ToolLibrary = None,
         top_k_functions: int = 3,
-        search_similarity_threshold: float = 0.35,
+        search_similarity_threshold: float = None,
         instructions: Optional[str] = None,
     ) -> None:
         super().__init__(
@@ -514,7 +514,7 @@ class PrunedCotTulipAgent(CotTulipAgent):
         api_interaction_limit: int = 100,
         tool_library: ToolLibrary = None,
         top_k_functions: int = 3,
-        search_similarity_threshold: float = 0.35,
+        search_similarity_threshold: float = None,
         instructions: Optional[str] = None,
     ) -> None:
         super().__init__(
@@ -579,7 +579,7 @@ class OneShotCotTulipAgent(CotTulipAgent):
         api_interaction_limit: int = 100,
         tool_library: ToolLibrary = None,
         top_k_functions: int = 3,
-        search_similarity_threshold: float = 0.35,
+        search_similarity_threshold: float = None,
         instructions: Optional[str] = None,
     ) -> None:
         super().__init__(

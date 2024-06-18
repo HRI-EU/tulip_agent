@@ -99,10 +99,12 @@ class ToolAgent(LlmAgent, ABC):
                         function_response = future.result(timeout=self.tool_timeout)
                     except json.decoder.JSONDecodeError as e:
                         logger.error(e)
+                        generated_func_name = func_name
                         func_name = "invalid_tool_call"
                         tool_call.function.name = func_name
+                        tool_call.function.arguments = {}
                         function_response = (
-                            f"Error: Invalid arguments for {func_name}: {e}"
+                            f"Error: Invalid arguments for {func_name} (previously {generated_func_name}): {e}"
                         )
                     except KeyError as e:
                         logger.error(

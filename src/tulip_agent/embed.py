@@ -40,11 +40,11 @@ logger = logging.getLogger(__name__)
 openai_client = OpenAI()
 
 
-def embed(text: str):
+def embed(text: str, embedding_model: str = BASE_EMBEDDING_MODEL):
     response = openai_client.embeddings.create(
-        model=BASE_EMBEDDING_MODEL, input=text, encoding_format="float"
+        model=embedding_model, input=text, encoding_format="float"
     )
     logger.info(
-        f"Usage for embedding in tokens: " f"{response.usage.prompt_tokens} prompt."
+        f"Usage for embedding in tokens: {response.usage.prompt_tokens} prompt."
     )
     return response.data[0].embedding

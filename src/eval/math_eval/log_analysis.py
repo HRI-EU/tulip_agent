@@ -66,7 +66,9 @@ OAI_PRICES = {
         "input": 10 / 1_000_000,
         "output": 30 / 1_000_000,
     },
-    "ada_embed": 0.1 / 1_000_000,
+    "text-embedding-ada-002": 0.1 / 1_000_000,
+    "text-embedding-3-small": 0.02 / 1_000_000,
+    "text-embedding-3-large": 0.13 / 1_000_000,
 }
 
 
@@ -82,6 +84,7 @@ class Result:
     agent: str
     task: str
     model: str
+    embedding_model: str
     input_tokens: int
     completion_tokens: int
     embedding_tokens: int
@@ -97,7 +100,7 @@ class Result:
             (
                 OAI_PRICES[self.model]["input"] * self.input_tokens
                 + OAI_PRICES[self.model]["output"] * self.completion_tokens
-                + OAI_PRICES["ada_embed"] * self.embedding_tokens
+                + OAI_PRICES[self.embedding_model] * self.embedding_tokens
             ),
             2,
         )
@@ -116,17 +119,24 @@ def interquartile_mean(values: list) -> float:
         return sum(nums) / (2 * q_)
 
 
-def extract_data_from_log(log_file: str, model: str) -> list[Result]:
+def extract_data_from_log(
+    log_file: str, model: str, embedding_model: str
+) -> list[Result]:
     results = []
     tool_library_costs = calc_costs_for_tool_library()
     with open(log_file, "r") as f:
         logs = f.read()
     parts, current = [], []
-    for line in logs.strip().split("\n2024-"):
-        current.append(line)
-        if "returns response" in line:
+    for log_message in logs.strip().split("\n2024-"):
+        current.append(log_message)
+        if "returns response" in log_message:
             parts.append(current)
             current = []
+        # handle cases without a response log
+        if len(current) > 1 and "received query: " in log_message:
+            current.pop()
+            parts.append(current)
+            current = [log_message]
     for p in parts:
         agent = p[0].split(" - INFO - ")[-1].split()[0]
         query = p[0].split("received query: ")[-1]
@@ -156,9 +166,7 @@ def extract_data_from_log(log_file: str, model: str) -> list[Result]:
                     .split()[2]
                     .replace("`", "")
                 )
-                tool_arguments = ast.literal_eval(
-                    log_line.split(" for arguments ")[-1][:-1]
-                )
+                tool_arguments = json.loads(log_line.split(" for arguments ")[-1][:-1])
                 tools_called.append(
                     ToolCall(
                         name=tool_name, arguments=tool_arguments, result=tool_result
@@ -175,6 +183,7 @@ def extract_data_from_log(log_file: str, model: str) -> list[Result]:
             agent=agent,
             task=query,
             model=model,
+            embedding_model=embedding_model,
             input_tokens=in_tokens,
             completion_tokens=out_tokens,
             embedding_tokens=embed_tokens,
@@ -276,6 +285,25 @@ def plot(
     fig, axs = plt.subplots(len(criteria), sharex=True, sharey=False, figsize=(5, 6))
     for ci, criterion in enumerate(criteria):
         for ai, agent in enumerate(agents):
+            scores = [
+                [
+                    float(getattr(d, criterion))
+                    for d in data
+                    if d.agent == agent and tasks[d.task].split(".")[-2] == level
+                ]
+                for level in levels
+            ]
+            processed = [
+                interquartile_mean(s) if criterion == "costs" else statistics.mean(s)
+                for s in scores
+            ]
+            number_of_scores = [len(e) for e in scores]
+            processed_rounded = [round(e, 4) for e in processed]
+            print(f"{criterion} - {agent} - {number_of_scores} - {processed_rounded}")
+            bar = axs[ci].bar(
+                x=x - (number_agents - 1) / 2 * width + width * ai,
+                height=processed,
+                width=width,
             bar_values = [
                         [
                             float(getattr(d, criterion))
@@ -299,9 +327,11 @@ def plot(
                 color=colors[ai],
                 label=agent,
             )
+            if ci == 0:  # Only add the legend info from the first subplot
+                handles.append(bar)
         axs[ci].set_ylabel(criteria[criterion])
     fig.legend(
-        axs[0].get_children(),
+        handles=[h[0] for h in handles],
         labels=agents,
         loc="upper center",
         ncol=number_agents,
@@ -335,6 +365,7 @@ def find_most_recent_log(directory: str) -> str:
 def main(
     log_file: str,
     model: str,
+    embedding_model: str,
     ground_truth: str,
     plot_file: str,
     agents: list,
@@ -342,7 +373,9 @@ def main(
     colors: list,
     math_benchmark: bool,
 ) -> None:
-    res = extract_data_from_log(log_file=log_file, model=model)
+    res = extract_data_from_log(
+        log_file=log_file, model=model, embedding_model=embedding_model
+    )
     res, tasks = assess_data(results=res, ground_truth=ground_truth)
     for r in res:
         print(r)
@@ -357,11 +390,13 @@ def main(
     )
 
 
-def analyze(log_file: str, ground_truth: str, model: str) -> None:
+def analyze(log_file: str, ground_truth: str, model: str, embedding_model: str) -> None:
     with open(ground_truth, "r") as gtf:
         gtf_data_ = json.load(gtf)
         task_ids = {e["task"]: e["name"] for e in gtf_data_}
-    res = extract_data_from_log(log_file=log_file, model=model)
+    res = extract_data_from_log(
+        log_file=log_file, model=model, embedding_model=embedding_model
+    )
     res, tasks = assess_data(results=res, ground_truth=ground_truth)
     for r in res:
         if r.agent != "CotTulipAgent":
@@ -380,6 +415,45 @@ def analyze(log_file: str, ground_truth: str, model: str) -> None:
         print("\n")
 
 
+def sanity_check_results(
+    log_file: str,
+    ground_truth: str,
+    model: str,
+    embedding_model: str,
+    agents: list[str],
+    runs: int = 3,
+) -> bool:
+    sane = True
+    results = extract_data_from_log(
+        log_file=log_file, model=model, embedding_model=embedding_model
+    )
+    results_sorted = {}
+    for r in results:
+        if r.task not in results_sorted:
+            results_sorted[r.task] = {r.agent: [r]}
+        else:
+            if r.agent not in results_sorted[r.task]:
+                results_sorted[r.task][r.agent] = [r]
+            else:
+                results_sorted[r.task][r.agent].append(r)
+    with open(ground_truth, "r") as gtf:
+        gtf_data_ = json.load(gtf)
+    for task in gtf_data_:
+        if task["task"] not in results_sorted:
+            print(f"`{task}`: no results")
+            sane = False
+            continue
+        for agent in agents:
+            if agent not in results_sorted[task["task"]]:
+                print(f"`{task['task']}` - {agent}: no results")
+                sane = False
+                continue
+            if (number_found := len(results_sorted[task["task"]][agent])) != runs:
+                print(f"`{task['task']}` - {agent}: only [{number_found}/{runs}]")
+                sane = False
+    return sane
+
+
 if __name__ == "__main__":
 
     MATH_benchmark = True
@@ -396,6 +470,7 @@ if __name__ == "__main__":
         history_data = json.load(f)
         log_name = log.split("/")[-1]
         model = history_data[log_name]["model"]
+        embedding_model = history_data[log_name]["embedding_model"]
         agents = [
             a
             for a in history_data[log_name]["agents"]
@@ -414,9 +489,19 @@ if __name__ == "__main__":
             "costs": "Costs [$]",
             "correctness": "Correct",
         }
+    passed = sanity_check_results(
+        log_file=log,
+        model=model,
+        embedding_model=embedding_model,
+        ground_truth=settings["ground_truth"],
+        agents=agents,
+    )
+    if passed is False:
+        raise ValueError("Sanity check failed - number of results does not match tasks")
     main(
         log_file=log,
         model=model,
+        embedding_model=embedding_model,
         ground_truth=settings["ground_truth"],
         plot_file="math.eval.png",
         agents=agents,

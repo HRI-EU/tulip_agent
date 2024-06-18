@@ -162,7 +162,9 @@ class TulipAgent(LlmAgent, ABC):
 
             if self.api_interaction_counter >= self.api_interaction_limit:
                 error_message = f"Error: Reached API interaction limit of {self.api_interaction_limit}."
-                logger.error(error_message)
+                logger.error(
+                    f"{self.__class__.__name__} returns response: {error_message}"
+                )
                 return error_message
 
             for tool_call in tool_calls:
@@ -177,10 +179,13 @@ class TulipAgent(LlmAgent, ABC):
                         tool_call.function.name = func_name
                 except json.decoder.JSONDecodeError as e:
                     logger.error(e)
+                    generated_func_name = func_name
                     func_name = "invalid_tool_call"
                     tool_call.function.name = func_name
-                    function_response = f"Error: Invalid arguments for {func_name}: {e}"
-                    func_args = "(n.a., invalid)"
+                    tool_call.function.arguments = {}
+                    function_response = (
+                        f"Error: Invalid arguments for {func_name} (previously {generated_func_name}): {e}"
+                    )
                 self.messages.append(
                     {
                         "tool_call_id": tool_call.id,
@@ -218,6 +223,7 @@ class MinimalTulipAgent(TulipAgent):
         api_interaction_limit: int = 100,
         tool_library: ToolLibrary = None,
         top_k_functions: int = 10,
+        search_similarity_threshold: float = None,
         instructions: Optional[str] = None,
     ) -> None:
         super().__init__(
@@ -229,6 +235,7 @@ class MinimalTulipAgent(TulipAgent):
             api_interaction_limit=api_interaction_limit,
             tool_library=tool_library,
             top_k_functions=top_k_functions,
+            search_similarity_threshold=search_similarity_threshold,
         )
 
     def query(
@@ -258,6 +265,7 @@ class NaiveTulipAgent(TulipAgent):
         api_interaction_limit: int = 100,
         tool_library: ToolLibrary = None,
         top_k_functions: int = 3,
+        search_similarity_threshold: float = None,
         instructions: Optional[str] = None,
     ) -> None:
         super().__init__(
@@ -269,6 +277,7 @@ class NaiveTulipAgent(TulipAgent):
             api_interaction_limit=api_interaction_limit,
             tool_library=tool_library,
             top_k_functions=top_k_functions,
+            search_similarity_threshold=search_similarity_threshold,
         )
 
     def query(
@@ -359,7 +368,7 @@ class CotTulipAgent(TulipAgent):
         api_interaction_limit: int = 100,
         tool_library: ToolLibrary = None,
         top_k_functions: int = 3,
-        search_similarity_threshold: float = 0.35,
+        search_similarity_threshold: float = None,
         instructions: Optional[str] = None,
     ) -> None:
         super().__init__(
@@ -466,7 +475,7 @@ class InformedCotTulipAgent(CotTulipAgent):
         api_interaction_limit: int = 100,
         tool_library: ToolLibrary = None,
         top_k_functions: int = 3,
-        search_similarity_threshold: float = 0.35,
+        search_similarity_threshold: float = None,
         instructions: Optional[str] = None,
     ) -> None:
         super().__init__(
@@ -514,7 +523,7 @@ class PrunedCotTulipAgent(CotTulipAgent):
         api_interaction_limit: int = 100,
         tool_library: ToolLibrary = None,
         top_k_functions: int = 3,
-        search_similarity_threshold: float = 0.35,
+        search_similarity_threshold: float = None,
         instructions: Optional[str] = None,
     ) -> None:
         super().__init__(
@@ -579,7 +588,7 @@ class OneShotCotTulipAgent(CotTulipAgent):
         api_interaction_limit: int = 100,
         tool_library: ToolLibrary = None,
         top_k_functions: int = 3,
-        search_similarity_threshold: float = 0.35,
+        search_similarity_threshold: float = None,
         instructions: Optional[str] = None,
     ) -> None:
         super().__init__(
@@ -627,6 +636,7 @@ class AutoTulipAgent(TulipAgent):
         api_interaction_limit: int = 100,
         tool_library: ToolLibrary = None,
         top_k_functions: int = 1,
+        search_similarity_threshold: float = None,
         instructions: Optional[str] = None,
     ) -> None:
         super().__init__(
@@ -640,6 +650,7 @@ class AutoTulipAgent(TulipAgent):
             api_interaction_limit=api_interaction_limit,
             tool_library=tool_library,
             top_k_functions=top_k_functions,
+            search_similarity_threshold=search_similarity_threshold,
         )
         self.create_tool_description = {
             "type": "function",
@@ -861,7 +872,9 @@ class AutoTulipAgent(TulipAgent):
 
             if self.api_interaction_counter >= self.api_interaction_limit:
                 error_message = f"Error: Reached API interaction limit of {self.api_interaction_limit}."
-                logger.error(error_message)
+                logger.error(
+                    f"{self.__class__.__name__} returns response: {error_message}"
+                )
                 return error_message
 
             for tool_call in tool_calls:
@@ -870,9 +883,13 @@ class AutoTulipAgent(TulipAgent):
                     func_args = json.loads(tool_call.function.arguments)
                 except json.decoder.JSONDecodeError as e:
                     logger.error(e)
+                    generated_func_name = func_name
                     func_name = "invalid_tool_call"
                     tool_call.function.name = func_name
-                    function_response = f"Error: Invalid arguments for {func_name}: {e}"
+                    tool_call.function.arguments = {}
+                    function_response = (
+                        f"Error: Invalid arguments for {func_name} (previously {generated_func_name}): {e}"
+                    )
                     self.messages.append(
                         {
                             "tool_call_id": tool_call.id,

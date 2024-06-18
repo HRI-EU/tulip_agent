@@ -84,7 +84,9 @@ class ToolAgent(LlmAgent, ABC):
 
             if self.api_interaction_counter >= self.api_interaction_limit:
                 error_message = f"Error: Reached API interaction limit of {self.api_interaction_limit}."
-                logger.error(error_message)
+                logger.error(
+                    f"{self.__class__.__name__} returns response: {error_message}"
+                )
                 return error_message
 
             for tool_call in tool_calls:
@@ -97,10 +99,12 @@ class ToolAgent(LlmAgent, ABC):
                         function_response = future.result(timeout=self.tool_timeout)
                     except json.decoder.JSONDecodeError as e:
                         logger.error(e)
+                        generated_func_name = func_name
                         func_name = "invalid_tool_call"
                         tool_call.function.name = func_name
+                        tool_call.function.arguments = {}
                         function_response = (
-                            f"Error: Invalid arguments for {func_name}: {e}"
+                            f"Error: Invalid arguments for {func_name} (previously {generated_func_name}): {e}"
                         )
                     except KeyError as e:
                         logger.error(

@@ -30,6 +30,7 @@
 import importlib
 import json
 import logging.config
+import math
 import os
 import re
 import shutil
@@ -257,14 +258,14 @@ def plot(
     colors: list[str],
 ) -> None:
     number_agents = len(agents)
-    width = 0.1
+    width = 0.08
     levels = {
         "E": "Easy",
         "M": "Medium",
         "H": "Hard",
     }
     x = np.arange(len(levels))
-    fig, axs = plt.subplots(len(criteria), sharex=True, sharey=False, figsize=(5, 6))
+    fig, axs = plt.subplots(len(criteria), sharex=True, sharey=False, figsize=(11, 6))
     handles = []
     for ci, criterion in enumerate(criteria):
         for ai, agent in enumerate(agents):
@@ -297,7 +298,7 @@ def plot(
         handles=[h[0] for h in handles],
         labels=agents,
         loc="upper center",
-        ncol=number_agents,
+        ncol=math.ceil(number_agents / 2),
         title="Frameworks",
         borderaxespad=0.2,
     )

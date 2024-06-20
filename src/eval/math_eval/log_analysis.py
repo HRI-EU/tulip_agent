@@ -273,8 +273,8 @@ def plot(
     if math_benchmark:
         # TODO get all levels automatically from log/history
         levels = {
-            "1": "Level 1",
-            # "2": "Level 2",
+            # "1": "Level 1",
+            "2": "Level 2",
             # "3": "Level 3",
             # "4": "Level 4",
             # "5": "Level 5",
@@ -289,7 +289,7 @@ def plot(
                 [
                     float(getattr(d, criterion))
                     for d in data
-                    if d.agent == agent and tasks[d.task].split(".")[-2] == level
+                    if d.agent == agent and tasks[d.task].split(".")[-split_index] == level
                 ]
                 for level in levels
             ]
@@ -304,15 +304,8 @@ def plot(
                 x=x - (number_agents - 1) / 2 * width + width * ai,
                 height=processed,
                 width=width,
-            bar_values = [
-                        [
-                            float(getattr(d, criterion))
-                            for d in data
-                            if d.agent == agent
-                            and tasks[d.task].split(".")[-split_index] == level
-                        ]
-                    for level in levels
-                ]
+                bar_values = scores
+            )
 
             info_string = f"{criterion}\t{agent}\t{[len(l) for l in bar_values]}\t"
             # bar_values = [statistics.mean(l) for l in bar_values]
@@ -458,6 +451,10 @@ if __name__ == "__main__":
 
     MATH_benchmark = True
 
+    logs_to_plot = [
+        "math.eval.20240605-1241.log",
+    ]
+
     with open("math_eval_settings.yaml", "rt") as mes:
         settings = yaml.safe_load(mes.read())
     log_folder = settings["log_folder"]
@@ -466,6 +463,8 @@ if __name__ == "__main__":
         if settings["log_file"]
         else find_most_recent_log(directory=log_folder)
     )
+
+    log_folder = "logs"
     with open(log_folder + "/history.json", "r") as f:
         history_data = json.load(f)
         log_name = log.split("/")[-1]

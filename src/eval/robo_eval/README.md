@@ -13,3 +13,7 @@
     ```
 5. Run in interactive mode from `robo_eval`: `python -i robo_eval.py`
 6. Run an example: `auto_tulip_agent.query("hand the glass_blue over to Felix")`
+
+## Example
+
+![Screenshots](robot-example.png)

@@ -27,39 +27,3 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
-"""
-TulipAgent robotics eval
-"""
-import logging.config
-
-import tools
-import yaml
-from AttentiveSupport.src.gpt_config import system_prompt
-
-from tulip_agent import CotTulipAgent, ToolLibrary
-
-
-# Set up agent loggers to save logs to file for analysis
-with open("logging_config.yaml", "rt") as log_config:
-    config = yaml.safe_load(log_config.read())
-logging.config.dictConfig(config)
-
-
-if __name__ == "__main__":
-    tools.SIMULATION.run()
-
-    tulip = ToolLibrary(
-        chroma_sub_dir="robo_eval/",
-        file_imports=[("tools", [])],
-        chroma_base_dir="../../../data/chroma/",
-    )
-
-    print(" AUTO TULIP ".center(40, "="))
-    tulip_agent = CotTulipAgent(
-        tool_library=tulip,
-        top_k_functions=3,
-        instructions=system_prompt,
-    )
-    print(f"📝 Instructions: \n{tulip_agent.instructions}")
-    # tulip_res = tulip_agent.query("hand the glass_blue over to Felix")
-    # print(f"{tulip_res=}")

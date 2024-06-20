@@ -442,7 +442,7 @@ if __name__ == "__main__":
         embedding_model=embedding_model,
         ground_truth=settings["ground_truth"],
         agents=agents,
-        runs=settings["number_of_runs"],
+        runs=history_data[log_name]["number_of_runs"],
     )
     if passed is False:
         raise ValueError("Sanity check failed - number of results does not match tasks")

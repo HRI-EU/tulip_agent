@@ -5,34 +5,36 @@
 [![License](https://img.shields.io/pypi/l/cobras?style=flat-square)](https://opensource.org/license/bsd-3-clause)
 [![Code Style](https://img.shields.io/badge/code_style-black-black?style=flat-square)](https://github.com/psf/black)
 
-A reference implementation for the `tulip agent`, an LLM-backed agent with access to a large number of tools via a tool library. \
-This approach is helpful whenever the number of tools available exceeds the LLM's context window or would
-otherwise lead to challenges for the LLM to find the right tool for the task.
+A reference implementation for the `tulip agent`, an LLM-backed agent with access to a large number of tools via a tool library.
+This approach reduces costs, enables the use of tool sets that exceed API limits or context windows, and increases flexibility with regard to the tool set used.
 
-## Contents
-* `src`
-  * `tulip_agent`
-    * `function_analyzer`: Python function introspection for generating tool descriptions
-    * `tool_library`: Vector store for managing tools
-    * `prompts`: Collection of the prompts used
-    * `base_agent`: Baseline agent without tools
-      * `BaseAgent`: LLM agent without tool access
-    * `tool_agent`: Agents with tool access
-      * `NaiveToolAgent`: Uses regular tool descriptions in its system prompt
-      * `CotToolAgent`: Extends the `NaiveToolAgent` with a planning step that decomposes the user input into subtasks
-    * `tulip_agent`: Agents with access to a tool library
-      * `MinimalTulipAgent`: Minimal implementation; searches for tools based on user input directly
-      * `NaiveTulipAgent`: Naive implementation; searches for tools with a separate tool call
-      * `CotTulipAgent`: COT implementation; derives a plan for the necessary steps and searches for suitable tools
-      * `AutoTulipAgent`: Fully autonomous variant; can use the search tool at any time and modify its tool library with CRUD operations
-  * `eval`
-    * `math_eval`: Math evaluation
-    * `robo_eval`: Robotics evaluation using tools created for [AttentiveSupport](https://github.com/HRI-EU/AttentiveSupport)
-* `examples`:
-  * `calculator_example` and `calculator`: A minimalistic application example with a calculator
-  * `auto_example`: Demo for the `AutoTulipAgent` editing its own tool library
-* `tests`: Unit tests
-* `docs`: Project website sources - deployed via GitHub Pages
+## Key components
+🔬 **Function analysis** \
+Generate OpenAI API compatible tool descriptions for Python functions via introspection
+
+🌷 **Tool library** \
+Combines a vector store for semantic search among tools and tool execution
+
+🤖 **Agents**
+* Baseline, without tool library
+  * `BaseAgent`: LLM agent without tool access
+  * `NaiveToolAgent`: Includes tool descriptions for all tools available
+  * `CotToolAgent`: Extends the `NaiveToolAgent` with a planning step that decomposes the user input into subtasks
+* Tulip variations with access to a tool library
+  * `MinimalTulipAgent`: Minimal implementation; searches for tools based on the user input directly
+  * `NaiveTulipAgent`: Naive implementation; searches for tools with a separate tool call
+  * `CotTulipAgent`: COT implementation; derives a plan for the necessary steps and searches for suitable tools
+  * `InformedCotTulipAgent`: Same as `CotTulipAgent`, but with a brief description of the tool library's contents
+  * `PrunedCotTulipAgent`: Same as `CotTulipAgent`, but pruned with tool names based on an initial search with the user request
+  * `OneShotCotTulipAgent`: Same as `CotTulipAgent`, but the system prompt included a brief example
+  * `AutoTulipAgent`: Fully autonomous variant; can use the search tool at any time and modify its tool library with CRUD operations
+
+📊 **Evaluation**
+* `math_eval`: Math evaluation
+* `robo_eval`: Robotics evaluation using tools created for [AttentiveSupport](https://github.com/HRI-EU/AttentiveSupport)
+
+📝 **Examples** \
+See `./examples`
 
 
 ## Setup
@@ -47,7 +49,7 @@ otherwise lead to challenges for the LLM to find the right tool for the task.
 * Linting: [ruff](https://github.com/astral-sh/ruff)
 * Formatting: [black](https://github.com/psf/black)
 * Import sorting: [isort](https://github.com/PyCQA/isort)
-* Tests: Run with `poetry run python -m unittest discover tests/`
+* Tests: Run with `(poetry run) python -m unittest discover tests/`
 
 
 ## Known issues

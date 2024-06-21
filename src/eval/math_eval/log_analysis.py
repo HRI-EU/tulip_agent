@@ -104,7 +104,7 @@ class Result:
                 + OAI_PRICES[self.model]["output"] * self.completion_tokens
                 + OAI_PRICES[self.embedding_model] * self.embedding_tokens
             ),
-            2,
+            5,
         )
 
 

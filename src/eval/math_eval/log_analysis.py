@@ -43,6 +43,8 @@ from typing import Optional
 
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
+import seaborn as sns
 import tiktoken
 import yaml
 
@@ -352,6 +354,60 @@ def main(
     )
 
 
+def plot_cost_distribution(
+    log_file: str,
+    ground_truth: str,
+    model: str,
+    embedding_model: str,
+    agents: list[str],
+):
+    with open(ground_truth, "r") as gtf:
+        gtf_data_ = json.load(gtf)
+        task_ids = {e["task"]: e["name"] for e in gtf_data_}
+    results = extract_data_from_log(
+        log_file=log_file, model=model, embedding_model=embedding_model
+    )
+    sorted_results = {
+        "E": {},
+        "M": {},
+        "H": {},
+    }
+    for res in results:
+        if res.agent not in agents:
+            continue
+        task_id = task_ids[res.task]
+        level = task_id[4]
+        if res.agent not in sorted_results[level]:
+            sorted_results[level][res.agent] = [res.costs]
+        else:
+            sorted_results[level][res.agent].append(res.costs)
+    dataframes = {
+        level: pd.DataFrame(sorted_results[level]) for level in sorted_results.keys()
+    }
+
+    fig, axes = plt.subplots(1, len(dataframes), figsize=(14, 6), sharey=True)
+
+    for cdf, level in enumerate(dataframes):
+        df = dataframes[level]
+        for column in df.columns:
+            sns.histplot(
+                df[column],
+                kde=True,
+                label=column,
+                stat="density",
+                common_norm=False,
+                ax=axes[cdf],
+            )
+        axes[cdf].set_title(level)
+        axes[cdf].set_xlabel("Value")
+        if cdf == 0:
+            axes[cdf].set_ylabel("Density")
+        axes[cdf].legend()
+
+    plt.tight_layout()
+    plt.show()
+
+
 def analyze(log_file: str, ground_truth: str, model: str, embedding_model: str) -> None:
     with open(ground_truth, "r") as gtf:
         gtf_data_ = json.load(gtf)
@@ -446,6 +502,13 @@ if __name__ == "__main__":
     )
     if passed is False:
         raise ValueError("Sanity check failed - number of results does not match tasks")
+    plot_cost_distribution(
+        log_file=log,
+        model=model,
+        embedding_model=embedding_model,
+        ground_truth=history_data[log_name]["ground_truth"],
+        agents=agents,
+    )
     main(
         log_file=log,
         model=model,

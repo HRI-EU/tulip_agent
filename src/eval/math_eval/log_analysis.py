@@ -440,7 +440,7 @@ if __name__ == "__main__":
         log_file=log,
         model=model,
         embedding_model=embedding_model,
-        ground_truth=settings["ground_truth"],
+        ground_truth=history_data[log_name]["ground_truth"],
         agents=agents,
         runs=history_data[log_name]["number_of_runs"],
     )
@@ -450,7 +450,7 @@ if __name__ == "__main__":
         log_file=log,
         model=model,
         embedding_model=embedding_model,
-        ground_truth=settings["ground_truth"],
+        ground_truth=history_data[log_name]["ground_truth"],
         plot_file="math.eval.png",
         agents=agents,
         criteria={

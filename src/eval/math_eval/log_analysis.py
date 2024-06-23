@@ -68,6 +68,10 @@ OAI_PRICES = {
         "input": 10 / 1_000_000,
         "output": 30 / 1_000_000,
     },
+    "gpt-4o-2024-05-13": {
+        "input": 5 / 1_000_000,
+        "output": 15 / 1_000_000,
+    },
     "text-embedding-ada-002": 0.1 / 1_000_000,
     "text-embedding-3-small": 0.02 / 1_000_000,
     "text-embedding-3-large": 0.13 / 1_000_000,

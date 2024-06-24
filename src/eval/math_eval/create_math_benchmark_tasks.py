@@ -79,11 +79,11 @@ def create_benchmark_task(subcategory, levels, max_tasks=None):
 
     print(level_counters)
     print(f"Created {len(benchmark_tasks)} from '{subcategory}' Levels '{levels}', saving to '{benchmark_task_file}'")
-    if len(benchmark_tasks) > 0:
-        with open(benchmark_task_file, "w") as file:
-            json.dump(benchmark_tasks, file, indent=4)
+    # if len(benchmark_tasks) > 0:
+    #     with open(benchmark_task_file, "w") as file:
+    #         json.dump(benchmark_tasks, file, indent=4)
 
 
 if __name__ == "__main__":
     levels = [1,2,3,4,5]
-    create_benchmark_task(subcategory='prealgebra', levels=levels, max_tasks=10)
+    create_benchmark_task(subcategory='prealgebra', levels=levels, max_tasks=None)

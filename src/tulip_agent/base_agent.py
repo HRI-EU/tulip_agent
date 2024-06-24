@@ -112,6 +112,7 @@ class LlmAgent(ABC):
             except OpenAIError as e:
                 logger.error(f"{type(e).__name__}: {e}")
                 retries += 1
+                time.sleep(retries/4)
                 if retries >= self.max_retries:
                     raise e
         logger.info(

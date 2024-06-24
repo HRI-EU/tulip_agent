@@ -1,7 +1,7 @@
 # Settings for math eval
 
 
-ground_truth: MATH_benchmarks/benchmark_prealgebra_1-5.json
+ground_truth: MATH_benchmarks/benchmark_prealgebra_1.json
 number_of_runs: 3
 log_folder: logs
 log_file: null
@@ -9,7 +9,7 @@ task_filter: null
 
 tools: math_tools
 model: "gpt-3.5-turbo-0125"
-embedding_model: "text-embedding-ada-002"
+embedding_model: "text-embedding-3-large"
 
 tulip_top_k: 5
 search_similarity_threshold: null

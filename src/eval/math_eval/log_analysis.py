@@ -283,6 +283,7 @@ def plot(
 
     x = np.arange(len(levels))
     fig, axs = plt.subplots(len(criteria), sharex=True, sharey=False, figsize=(5, 6))
+    handles = []
     for ci, criterion in enumerate(criteria):
         for ai, agent in enumerate(agents):
             scores = [

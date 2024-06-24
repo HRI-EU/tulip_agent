@@ -177,15 +177,14 @@ class TulipAgent(LlmAgent, ABC):
                     if error:
                         func_name = "invalid_tool_call"
                         tool_call.function.name = func_name
+                        tool_call.function.arguments = {}
                 except json.decoder.JSONDecodeError as e:
                     logger.error(e)
                     generated_func_name = func_name
                     func_name = "invalid_tool_call"
                     tool_call.function.name = func_name
                     tool_call.function.arguments = {}
-                    function_response = (
-                        f"Error: Invalid arguments for {func_name} (previously {generated_func_name}): {e}"
-                    )
+                    function_response = f"Error: Invalid arguments for {func_name} (previously {generated_func_name}): {e}"
                 self.messages.append(
                     {
                         "tool_call_id": tool_call.id,
@@ -887,9 +886,7 @@ class AutoTulipAgent(TulipAgent):
                     func_name = "invalid_tool_call"
                     tool_call.function.name = func_name
                     tool_call.function.arguments = {}
-                    function_response = (
-                        f"Error: Invalid arguments for {func_name} (previously {generated_func_name}): {e}"
-                    )
+                    function_response = f"Error: Invalid arguments for {func_name} (previously {generated_func_name}): {e}"
                     self.messages.append(
                         {
                             "tool_call_id": tool_call.id,
@@ -963,6 +960,7 @@ class AutoTulipAgent(TulipAgent):
                     if error:
                         func_name = "invalid_tool_call"
                         tool_call.function.name = func_name
+                        tool_call.function.arguments = {}
                     self.messages.append(
                         {
                             "tool_call_id": tool_call.id,

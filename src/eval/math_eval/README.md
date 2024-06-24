@@ -12,6 +12,15 @@
 
 ## Results
 ![math eval plot](math.eval.png)
+```yaml
+# Settings
+number_of_runs: 5
+tools: math_tools
+model: "gpt-3.5-turbo-0125"
+embedding_model: "text-embedding-3-large"
+tulip_top_k: 5
+search_similarity_threshold: null
+```
 
 Note: To avoid a bias towards the tulip architecture, the costs for creating the tool library
 are currently added to the embeddings costs of **every single** query, even though it could be reused

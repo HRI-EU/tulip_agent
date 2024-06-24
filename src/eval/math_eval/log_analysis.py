@@ -31,6 +31,7 @@ import ast
 import importlib
 import json
 import logging.config
+import math
 import os
 import re
 import shutil
@@ -43,6 +44,8 @@ from typing import Optional
 
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
+import seaborn as sns
 import tiktoken
 import yaml
 
@@ -65,6 +68,10 @@ OAI_PRICES = {
     "gpt-4-turbo-2024-04-09": {
         "input": 10 / 1_000_000,
         "output": 30 / 1_000_000,
+    },
+    "gpt-4o-2024-05-13": {
+        "input": 5 / 1_000_000,
+        "output": 15 / 1_000_000,
     },
     "text-embedding-ada-002": 0.1 / 1_000_000,
     "text-embedding-3-small": 0.02 / 1_000_000,
@@ -102,7 +109,7 @@ class Result:
                 + OAI_PRICES[self.model]["output"] * self.completion_tokens
                 + OAI_PRICES[self.embedding_model] * self.embedding_tokens
             ),
-            2,
+            5,
         )
 
 
@@ -262,7 +269,7 @@ def plot(
     math_benchmark: bool,
 ) -> None:
     number_agents = len(agents)
-    width = 0.1
+    width = 0.08
     levels = {
         "E": "Easy",
         "M": "Medium",
@@ -282,7 +289,7 @@ def plot(
         split_index = 1
 
     x = np.arange(len(levels))
-    fig, axs = plt.subplots(len(criteria), sharex=True, sharey=False, figsize=(5, 6))
+    fig, axs = plt.subplots(len(criteria), sharex=True, sharey=False, figsize=(11, 6))
     handles = []
     for ci, criterion in enumerate(criteria):
         for ai, agent in enumerate(agents):
@@ -328,7 +335,7 @@ def plot(
         handles=[h[0] for h in handles],
         labels=agents,
         loc="upper center",
-        ncol=number_agents,
+        ncol=math.ceil(number_agents / 2),
         title="Frameworks",
         borderaxespad=0.2,
     )
@@ -382,6 +389,60 @@ def main(
         colors=colors,
         math_benchmark=math_benchmark,
     )
+
+
+def plot_cost_distribution(
+    log_file: str,
+    ground_truth: str,
+    model: str,
+    embedding_model: str,
+    agents: list[str],
+):
+    with open(ground_truth, "r") as gtf:
+        gtf_data_ = json.load(gtf)
+        task_ids = {e["task"]: e["name"] for e in gtf_data_}
+    results = extract_data_from_log(
+        log_file=log_file, model=model, embedding_model=embedding_model
+    )
+    sorted_results = {
+        "E": {},
+        "M": {},
+        "H": {},
+    }
+    for res in results:
+        if res.agent not in agents:
+            continue
+        task_id = task_ids[res.task]
+        level = task_id[4]
+        if res.agent not in sorted_results[level]:
+            sorted_results[level][res.agent] = [res.costs]
+        else:
+            sorted_results[level][res.agent].append(res.costs)
+    dataframes = {
+        level: pd.DataFrame(sorted_results[level]) for level in sorted_results.keys()
+    }
+
+    fig, axes = plt.subplots(1, len(dataframes), figsize=(14, 6), sharey=True)
+
+    for cdf, level in enumerate(dataframes):
+        df = dataframes[level]
+        for column in df.columns:
+            sns.histplot(
+                df[column],
+                kde=True,
+                label=column,
+                stat="density",
+                common_norm=False,
+                ax=axes[cdf],
+            )
+        axes[cdf].set_title(level)
+        axes[cdf].set_xlabel("Value")
+        if cdf == 0:
+            axes[cdf].set_ylabel("Density")
+        axes[cdf].legend()
+
+    plt.tight_layout()
+    plt.show()
 
 
 def analyze(log_file: str, ground_truth: str, model: str, embedding_model: str) -> None:
@@ -493,17 +554,24 @@ if __name__ == "__main__":
         log_file=log,
         model=model,
         embedding_model=embedding_model,
-        ground_truth=settings["ground_truth"],
+        ground_truth=history_data[log_name]["ground_truth"],
         agents=agents,
-        runs=settings["number_of_runs"],
+        runs=history_data[log_name]["number_of_runs"],
     )
     if passed is False:
         raise ValueError("Sanity check failed - number of results does not match tasks")
+    plot_cost_distribution(
+        log_file=log,
+        model=model,
+        embedding_model=embedding_model,
+        ground_truth=history_data[log_name]["ground_truth"],
+        agents=agents,
+    )
     main(
         log_file=log,
         model=model,
         embedding_model=embedding_model,
-        ground_truth=settings["ground_truth"],
+        ground_truth=history_data[log_name]["ground_truth"],
         plot_file="math.eval.png",
         agents=agents,
         criteria=criteria,

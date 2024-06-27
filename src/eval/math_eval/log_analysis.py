@@ -97,6 +97,7 @@ class Result:
     embedding_tokens: int
     tools_called: list[ToolCall]
     response: str
+    ground_truth: Optional[list[str]] = None
     costs: Optional[float] = None
     function_precision: Optional[float] = None
     function_recall: Optional[float] = None
@@ -198,7 +199,7 @@ def extract_data_from_log(
             response=response,
         )
         results.append(r)
-        logger.info(f"Retrieved data for {r.agent} on `{r.task}`.")
+        # logger.info(f"Retrieved data for {r.agent} on `{r.task}`.")
     return results
 
 
@@ -229,12 +230,19 @@ def assess_data(
         gtf_data_ = json.load(gtf)
         gtf_data = {e["task"]: e for e in gtf_data_}
     for r in results:
-        logger.info(f"Assessing {r.agent} on `{r.task}`.")
+        # logger.info(f"Assessing {r.agent} on `{r.task}`.")
         if r.task not in gtf_data:
             logger.warning(f"No ground truth found for {r.task}")
             continue
+        r.ground_truth = [str(vs) for vs in gtf_data[r.task]["valid_solutions"]]
+
+        try:
+            answer_string = r.response.split("<result>")[-1]
+        except:
+            print(f"-------- NO <RESULT> {r.agent}\n{answer_string}")
+            answer_string = r.response
         r.correctness = any(
-            str(vs) in r.response for vs in gtf_data[r.task]["valid_solutions"]
+            str(vs) in answer_string for vs in gtf_data[r.task]["valid_solutions"]
         )
         tool_call_names = [t.name for t in r.tools_called]
         relevant_tools = list(
@@ -278,15 +286,12 @@ def plot(
     split_index = 2
 
     if math_benchmark:
-        # TODO get all levels automatically from log/history
-        levels = {
-            # "1": "Level 1",
-            "2": "Level 2",
-            # "3": "Level 3",
-            # "4": "Level 4",
-            # "5": "Level 5",
-        }
         split_index = 1
+        found_lvls = sorted(set([tasks[t].split(".")[-split_index] for t in tasks]))
+        levels = {}
+        for l in found_lvls:
+            levels[l] = f"Level {l}"
+
 
     x = np.arange(len(levels))
     fig, axs = plt.subplots(len(criteria), sharex=True, sharey=False, figsize=(11, 6))
@@ -302,28 +307,16 @@ def plot(
                 for level in levels
             ]
             processed = [
-                interquartile_mean(s) if criterion == "costs" else statistics.mean(s)
+                interquartile_mean(s) #if criterion == "costs" else statistics.mean(s)
                 for s in scores
             ]
             number_of_scores = [len(e) for e in scores]
             processed_rounded = [round(e, 4) for e in processed]
             print(f"{criterion} - {agent} - {number_of_scores} - {processed_rounded}")
+
             bar = axs[ci].bar(
-                x=x - (number_agents - 1) / 2 * width + width * ai,
-                height=processed,
-                width=width,
-                bar_values = scores
-            )
-
-            info_string = f"{criterion}\t{agent}\t{[len(l) for l in bar_values]}\t"
-            # bar_values = [statistics.mean(l) for l in bar_values]
-            bar_values = [interquartile_mean(l) for l in bar_values]
-
-            info_string += f"{[l for l in bar_values]}"
-            print(info_string)
-            _ = axs[ci].bar(
                 x - (number_agents - 1) / 2 * width + width * ai,
-                bar_values,
+                processed,
                 width,
                 color=colors[ai],
                 label=agent,
@@ -335,7 +328,7 @@ def plot(
         handles=[h[0] for h in handles],
         labels=agents,
         loc="upper center",
-        ncol=math.ceil(number_agents / 2),
+        ncol=math.ceil(number_agents / 1),
         title="Frameworks",
         borderaxespad=0.2,
     )
@@ -364,27 +357,39 @@ def find_most_recent_log(directory: str) -> str:
 
 
 def main(
-    log_file: str,
+    log_files: list[str],
     model: str,
     embedding_model: str,
-    ground_truth: str,
+    ground_truths: list[str],
     plot_file: str,
     agents: list,
     criteria: dict,
     colors: list,
     math_benchmark: bool,
 ) -> None:
-    res = extract_data_from_log(
-        log_file=log_file, model=model, embedding_model=embedding_model
-    )
-    res, tasks = assess_data(results=res, ground_truth=ground_truth)
-    for r in res:
-        print(r)
+    all_results = []
+    all_tasks = dict()
+
+    for idx, (log_file, ground_truth) in enumerate(zip(log_files, ground_truths)):
+        res = extract_data_from_log(
+            log_file=log_file, model=model, embedding_model=embedding_model
+        )
+        res, tasks = assess_data(results=res, ground_truth=ground_truth)
+
+        all_results.extend(res)
+        all_tasks.update(tasks)
+
+        with open(f"./logs/failures_{idx}.txt", "w") as file:
+            for r in res:
+                if not r.correctness and r.agent == "CotTulipAgent":
+                    file.write(f"------ TASK {tasks[r.task]}\n{r.task}\nResponse:\n{r.response}\nGT:{r.ground_truth}\nTools:\n{r.tools_called}\n\n")
+
+
     plot(
-        data=res,
+        data=all_results,
         output_file=plot_file,
         agents=agents,
-        tasks=tasks,
+        tasks=all_tasks,
         criteria=criteria,
         colors=colors,
         math_benchmark=math_benchmark,
@@ -514,30 +519,38 @@ if __name__ == "__main__":
     MATH_benchmark = True
 
     logs_to_plot = [
-        "math.eval.20240605-1241.log",
+        "logs/math.eval.20240626-1646.log",
+        "logs/math.eval.20240627-1120.log",
     ]
+    logs_to_plot = None
 
     with open("math_eval_settings.yaml", "rt") as mes:
         settings = yaml.safe_load(mes.read())
     log_folder = settings["log_folder"]
-    log = (
-        log_folder + "/" + settings["log_file"]
-        if settings["log_file"]
-        else find_most_recent_log(directory=log_folder)
-    )
+    if not logs_to_plot:
+        logs_to_plot = [(
+            log_folder + "/" + settings["log_file"]
+            if settings["log_file"]
+            else find_most_recent_log(directory=log_folder)
+        )]
 
+    ground_truths = []
+    log_names = []
     log_folder = "logs"
     with open(log_folder + "/history.json", "r") as f:
         history_data = json.load(f)
-        log_name = log.split("/")[-1]
-        model = history_data[log_name]["model"]
-        embedding_model = history_data[log_name]["embedding_model"]
-        agents = [
-            a
-            for a in history_data[log_name]["agents"]
-            if history_data[log_name]["agents"][a]
-        ]
-        colors = [history_data[log_name]["colors"][a] for a in agents]
+        for log in logs_to_plot:
+            log_name = log.split("/")[-1]
+            log_names.append(log_name)
+            ground_truths.append(history_data[log_name]["ground_truth"])
+            model = history_data[log_name]["model"]
+            embedding_model = history_data[log_name]["embedding_model"]
+            agents = [
+                a
+                for a in history_data[log_name]["agents"]
+                if history_data[log_name]["agents"][a]
+            ]
+            colors = [history_data[log_name]["colors"][a] for a in agents]
 
     criteria = {
             "costs": "Costs [$]",
@@ -550,33 +563,36 @@ if __name__ == "__main__":
             "costs": "Costs [$]",
             "correctness": "Correct",
         }
-    passed = sanity_check_results(
-        log_file=log,
-        model=model,
-        embedding_model=embedding_model,
-        ground_truth=history_data[log_name]["ground_truth"],
-        agents=agents,
-        runs=history_data[log_name]["number_of_runs"],
-    )
-    if passed is False:
-        raise ValueError("Sanity check failed - number of results does not match tasks")
-    plot_cost_distribution(
-        log_file=log,
-        model=model,
-        embedding_model=embedding_model,
-        ground_truth=history_data[log_name]["ground_truth"],
-        agents=agents,
-    )
+    # passed = sanity_check_results(
+    #     log_file=log,
+    #     model=model,
+    #     embedding_model=embedding_model,
+    #     ground_truth=history_data[log_name]["ground_truth"],
+    #     agents=agents,
+    #     runs=history_data[log_name]["number_of_runs"],
+    # )
+    # if passed is False:
+    #     raise ValueError("Sanity check failed - number of results does not match tasks")
+    # plot_cost_distribution(
+    #     log_file=log,
+    #     model=model,
+    #     embedding_model=embedding_model,
+    #     ground_truth=history_data[log_name]["ground_truth"],
+    #     agents=agents,
+    # )
     main(
-        log_file=log,
+        log_files=logs_to_plot,
         model=model,
         embedding_model=embedding_model,
-        ground_truth=history_data[log_name]["ground_truth"],
+        ground_truths=ground_truths,
         plot_file="math.eval.png",
         agents=agents,
         criteria=criteria,
         colors=colors,
         math_benchmark=MATH_benchmark,
     )
-    img_name = log_name[:-3] + "png"
+    if MATH_benchmark:
+        img_name = "_".join(ln[:-3] for ln in log_names) + "_math_bench.png"
+    else:
+        img_name = log_name[:-3] + ".png"
     shutil.copy("math.eval.png", f"{log_folder}/{img_name}")

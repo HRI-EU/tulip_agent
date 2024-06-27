@@ -139,6 +139,7 @@ def run_math_eval(
                     "tool_library": tulip,
                     "top_k_functions": tulip_top_k,
                     "search_similarity_threshold": search_similarity_threshold,
+                    "api_interaction_limit": 50,
                 },
             )
 

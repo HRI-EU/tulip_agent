@@ -17,7 +17,33 @@
 import os
 from pathlib import Path
 import json
-import re
+import regex
+import numpy as np
+from latex2sympy2 import latex2sympy
+import copy
+
+
+def evaluate_latex_expression(latex_expression):
+    try:
+        # Parse the LaTeX expression
+        expression = latex2sympy(latex_expression)
+        # Evaluate the expression
+        result = expression.evalf()
+        all_returns = [str(expression),
+                       str(float(str(result))),
+                       str(float(str(result.round(4)))),
+                       str(float(int(result * 10000))/10000),
+                       str(float(str(result.round(2)))),
+                       str(float(int(result * 100)) / 100)
+                       ]
+        return all_returns
+    except Exception as e:
+        print(f"Error evaluating expression: {e}")
+
+def extract_nested_braces(content):
+    pattern = r'\{(?:[^{}]++|(?R))*\}'
+    matches = regex.findall(pattern, content)
+    return matches
 
 def create_benchmark_task(subcategory, levels, max_tasks=None):
     """
@@ -39,7 +65,7 @@ def create_benchmark_task(subcategory, levels, max_tasks=None):
     dir = Path(path)
 
     benchmark_tasks = []
-    level_counters = [0 for _ in levels]
+    level_counters = [0 for _ in [1,2,3,4,5]]
     for file_counter, file in enumerate(dir.glob('*.json')):
         if max_tasks and sum(level_counters) == max_tasks * len(levels):
             break
@@ -50,22 +76,127 @@ def create_benchmark_task(subcategory, levels, max_tasks=None):
             continue
         if max_tasks and level_counters[level_int-1] == max_tasks:
             continue
+        if "[asy]" in content["problem"]:
+            continue
 
         level_counters[level_int-1] += 1
 
-
-        # print(file.name)
-        # print("Problem:\n", content["problem"])
-        # print("Answer:")
-        # for sent in content["solution"].split(". "):
-        #     print(sent)
-
         # in the MATH files, the correct answer is marked with \boxed{ANSWER}
-        extracted_solution = re.search('boxed{(.+?)}', content["solution"]).group(1)
-        # print("Extracted solution:", extracted_solution)
+        print()
+        extracted_solution = extract_nested_braces(content["solution"].split("boxed")[-1])
+        print(extracted_solution)
+        extracted_solution = extracted_solution[0][1:-1]
+        print(extracted_solution)
+        # print("Raw:", content["solution"])
+        print("Extracted solution:", extracted_solution)
 
-        # create task in tulips benchmark format
         solutions = [extracted_solution]
+        # add fraction in clear format and as floating numbers
+        if 'frac' in extracted_solution:
+            evaluated = evaluate_latex_expression(extracted_solution)
+            if evaluated:
+                solutions.extend(evaluated)
+            else:
+                sp = extracted_solution.split("\\text")[0]
+                evaluated = evaluate_latex_expression(sp)
+                if evaluated:
+                    solutions.extend(evaluated)
+
+
+        # add numbers in different formant
+        if "\!" in extracted_solution:
+            stripped = copy.copy(extracted_solution).replace("\!", "")
+            solutions.append(stripped)
+            # solutions.append(copy.copy(extracted_solution).replace("\!", "").replace(",", "."))
+            if "," in stripped:
+                solutions.append(copy.copy(stripped).replace(",",""))
+
+        # add dollar values without the dollar
+        if "\$" in extracted_solution:
+            solutions.append(copy.copy(extracted_solution).replace("\$", ""))
+
+        # add percentages in different formats
+        if "\%" in extracted_solution:
+            solutions.append(copy.copy(extracted_solution).replace("\%", "%"))
+        if "\\%" in extracted_solution:
+            solutions.append(copy.copy(extracted_solution).replace("\\%", "%"))
+        if "\%" in extracted_solution:
+            solutions.append(copy.copy(extracted_solution).replace("\%", ""))
+        if "\\%" in extracted_solution:
+            solutions.append(copy.copy(extracted_solution).replace("\\%", ""))
+
+        # add angles without angle
+        if "^\\circ" in extracted_solution:
+            solutions.append(copy.copy(extracted_solution).replace("^\\circ", ""))
+        if "^{\\circ}" in extracted_solution:
+            solutions.append(copy.copy(extracted_solution).replace("^{\\circ}", ""))
+
+        # get numbers out of string
+        if 'frac' not in extracted_solution:
+            matches = regex.findall("[-+]?[.]?[\d]+(?:,\d\d\d)*[\.]?\d*(?:[eE][-+]?\d+)?", extracted_solution)
+            if len(matches) == 1:
+                solutions.extend(matches)
+
+        # remove trailing zeros of numbers
+        try:
+            solutions.append(str(float(copy.copy(extracted_solution))))
+        except:
+            pass
+
+        chars = ["+", "-"]
+        if any(c in extracted_solution for c in chars):
+            for c in chars:
+                idx = extracted_solution.find(c)
+                if idx > 0:
+                    copied = copy.copy(extracted_solution)
+                    copied = copied[:idx] + " " + copied[idx] + " " + copied[idx+1:]
+                    solutions.append(copied)
+
+
+        # remove \mbox
+        if "\\mbox" in extracted_solution:
+            removed = copy.copy(extracted_solution).replace("\\mbox{","")
+            if removed[-1] == "}":
+                removed = removed[:-1]
+            solutions.append(removed)
+
+        # add text without \text
+        if "text{" in extracted_solution:
+            removed = copy.copy(extracted_solution).replace("\\text{", "")
+            if removed[-1] == "}":
+                removed = removed[:-1]
+            solutions.append(removed)
+
+        new_solutions = []
+        for sol in solutions:
+            new_solutions.append(sol.strip())
+
+            # add small numbers as words and vice versa if it's not a fraction answer
+            if "frac" not in extracted_solution:
+                if sol in ["1", "1.0"]:
+                    new_solutions.append("one")
+                if sol in ["2", "2.0"]:
+                    new_solutions.append("two")
+                if sol in ["3", "3.0"]:
+                    new_solutions.append("three")
+                if sol in ["4", "4.0"]:
+                    new_solutions.append("four")
+                if sol in ["5", "5.0"]:
+                    new_solutions.append("five")
+                if sol == "one":
+                    new_solutions.append("1")
+                if sol == "two":
+                    new_solutions.append("2")
+                if sol == "three":
+                    new_solutions.append("3")
+                if sol == "four":
+                    new_solutions.append("4")
+                if sol == "five":
+                    new_solutions.append("5")
+
+        solutions = list(set(new_solutions))
+        print("All solutions:", solutions)
+        # create task in tulips benchmark format
         new_task = {
             "task": content["problem"],
             "raw_solution": content["solution"],
@@ -79,11 +210,12 @@ def create_benchmark_task(subcategory, levels, max_tasks=None):
 
     print(level_counters)
     print(f"Created {len(benchmark_tasks)} from '{subcategory}' Levels '{levels}', saving to '{benchmark_task_file}'")
-    # if len(benchmark_tasks) > 0:
-    #     with open(benchmark_task_file, "w") as file:
-    #         json.dump(benchmark_tasks, file, indent=4)
+    if len(benchmark_tasks) > 0:
+        with open(benchmark_task_file, "w") as file:
+            json.dump(benchmark_tasks, file, indent=4)
 
 
 if __name__ == "__main__":
-    levels = [1,2,3,4,5]
+    # levels = [1,2,3,4,5]
+    levels = [1]
     create_benchmark_task(subcategory='prealgebra', levels=levels, max_tasks=None)

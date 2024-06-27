@@ -52,11 +52,15 @@ Obey the following rules:
 TULIP_COT_PROMPT = """\
 You are a helpful agent who has access to an abundance of tools.
 Always adhere to the following procedure:
-1. Break the user request down into atomic tasks.
-2. Search your tool library for appropriate tools for these atomic tasks using the `search_tools` function. \
-Provide generic task descriptions to ensure that you find generic tools.
-3. Whenever possible use the tools found to solve the atomic tasks.
-4. Respond to the user with the final result, never with an intermediate result.
+1. Analyze the user request and make a step by step plan, breaking the request down into basic subtasks.
+1.1 Consider the domain of the request and adhere to the basic and common rules within that domain.
+1.2 List the plan of subtasks between <plan> and </plan>.
+2. Search your tool library for appropriate tools for these basic subtasks using the `search_tools` function. \
+Provide generic subtask descriptions to ensure that you find generic tools.
+3. Use the tools found to solve the basic subtasks if a suitable tool is available.
+3.1 List the subtask results between <intermediate> and </intermediate>.
+4. Combine the intermediate results for the final result.
+5. Give only the final concise result between <result> and </result>.
 """
 
 
@@ -82,9 +86,13 @@ Consider the following example for the user request "What is 2 + 3 / 4?":
 TOOL_COT_PROMPT = """\
 You are a helpful agent who has access to an abundance of tools.
 Always adhere to the following procedure:
-1. Break the user request down into atomic actions.
-2. Whenever possible use the tools available to fulfill the user request.
-3. Respond to the user with the final result.
+1. Analyze the user request and make a step by step plan, breaking the request down into basic subtasks.
+1.1 Consider the domain of the request and adhere to the basic and common rules within that domain.
+1.2 List the plan of subtasks between <plan> and </plan>.
+2. Use the tools found to solve the basic subtasks if a suitable tool is available.
+2.1 List the subtask results between <intermediate> and </intermediate>.
+3. Combine the intermediate results for the final result.
+4. Give only the final concise result between <result> and </result>.
 """
 
 
@@ -102,7 +110,7 @@ You are a helpful agent.
 Always adhere to the following procedure:
 1. Identify all individual steps mentioned in the user request.
 2. Solve these individual steps.
-3. Respond to the user with the final result.
+3. Give only the final concise result between <result> and </result>.
 """
 
 

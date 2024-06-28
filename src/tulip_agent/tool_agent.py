@@ -102,7 +102,7 @@ class ToolAgent(LlmAgent, ABC):
                         generated_func_name = func_name
                         func_name = "invalid_tool_call"
                         tool_call.function.name = func_name
-                        tool_call.function.arguments = {}
+                        tool_call.function.arguments = "{}"
                         function_response = f"Error: Invalid arguments for {func_name} (previously {generated_func_name}): {e}"
                     except KeyError as e:
                         logger.error(
@@ -111,7 +111,7 @@ class ToolAgent(LlmAgent, ABC):
                         generated_func_name = func_name
                         func_name = "invalid_tool_call"
                         tool_call.function.name = func_name
-                        tool_call.function.arguments = {}
+                        tool_call.function.arguments = "{}"
                         function_response = f"Error: {generated_func_name} is not a valid tool. Use only the tools available."
                     except concurrent.futures.TimeoutError as e:
                         logger.error(

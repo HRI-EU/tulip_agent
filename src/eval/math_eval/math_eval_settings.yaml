@@ -1,8 +1,7 @@
 # Settings for math eval
 
-
-ground_truth: MATH_benchmarks/benchmark_prealgebra_1-1.json
-number_of_runs: 1
+ground_truth: math_tasks.json
+number_of_runs: 3
 log_folder: logs
 log_file: null
 task_filter: null
@@ -15,15 +14,15 @@ tulip_top_k: 5
 search_similarity_threshold: null
 
 agents:
-    BaseAgent: False
-    NaiveToolAgent: False
+    BaseAgent: True
+    NaiveToolAgent: True
     CotToolAgent: True
-    MinimalTulipAgent: False
-    NaiveTulipAgent: False
+    MinimalTulipAgent: True
+    NaiveTulipAgent: True
     CotTulipAgent: True
-    InformedCotTulipAgent: False
-    PrunedCotTulipAgent: False
-    OneShotCotTulipAgent: False
+    InformedCotTulipAgent: True
+    PrunedCotTulipAgent: True
+    OneShotCotTulipAgent: True
     AutoTulipAgent: False
 
 colors:
@@ -34,6 +33,6 @@ colors:
     NaiveTulipAgent: "#9966ff"
     CotTulipAgent: "#9933ff"
     InformedCotTulipAgent: "#9900ff"
-    PrunedCotTulipAgent: "#cc66ff"
+    PrimedCotTulipAgent: "#cc66ff"
     OneShotCotTulipAgent: "#cc33ff"
     AutoTulipAgent: "#660066"

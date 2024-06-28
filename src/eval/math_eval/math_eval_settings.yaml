@@ -21,7 +21,7 @@ agents:
     NaiveTulipAgent: True
     CotTulipAgent: True
     InformedCotTulipAgent: True
-    PrunedCotTulipAgent: True
+    PrimedCotTulipAgent: True
     OneShotCotTulipAgent: True
     AutoTulipAgent: False
 
@@ -33,6 +33,6 @@ colors:
     NaiveTulipAgent: "#9966ff"
     CotTulipAgent: "#9933ff"
     InformedCotTulipAgent: "#9900ff"
-    PrunedCotTulipAgent: "#cc66ff"
+    PrimedCotTulipAgent: "#cc66ff"
     OneShotCotTulipAgent: "#cc33ff"
     AutoTulipAgent: "#660066"

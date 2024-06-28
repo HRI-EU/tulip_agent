@@ -514,7 +514,7 @@ class InformedCotTulipAgent(CotTulipAgent):
         return self.run_with_tools(tools=tools)
 
 
-class PrunedCotTulipAgent(CotTulipAgent):
+class PrimedCotTulipAgent(CotTulipAgent):
     def __init__(
         self,
         model: str = BASE_LANGUAGE_MODEL,

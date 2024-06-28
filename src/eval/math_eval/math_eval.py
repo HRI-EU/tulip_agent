@@ -48,7 +48,7 @@ from tulip_agent import (
     NaiveToolAgent,
     NaiveTulipAgent,
     OneShotCotTulipAgent,
-    PrunedCotTulipAgent,
+    PrimedCotTulipAgent,
     ToolLibrary,
 )
 
@@ -127,7 +127,7 @@ def run_math_eval(
         NaiveTulipAgent,
         CotTulipAgent,
         InformedCotTulipAgent,
-        PrunedCotTulipAgent,
+        PrimedCotTulipAgent,
         OneShotCotTulipAgent,
         AutoTulipAgent,
     ):

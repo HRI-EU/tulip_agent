@@ -25,7 +25,7 @@ Combines a vector store for semantic search among tools and tool execution
   * `NaiveTulipAgent`: Naive implementation; searches for tools with a separate tool call
   * `CotTulipAgent`: COT implementation; derives a plan for the necessary steps and searches for suitable tools
   * `InformedCotTulipAgent`: Same as `CotTulipAgent`, but with a brief description of the tool library's contents
-  * `PrunedCotTulipAgent`: Same as `CotTulipAgent`, but pruned with tool names based on an initial search with the user request
+  * `PrimedCotTulipAgent`: Same as `CotTulipAgent`, but pruned with tool names based on an initial search with the user request
   * `OneShotCotTulipAgent`: Same as `CotTulipAgent`, but the system prompt included a brief example
   * `AutoTulipAgent`: Fully autonomous variant; can use the search tool at any time and modify its tool library with CRUD operations
 

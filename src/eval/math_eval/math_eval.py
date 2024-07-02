@@ -119,7 +119,7 @@ def run_math_eval(
         if agent_class.__name__ in agents:
             _run(
                 agent_class=agent_class,
-                setup_args={"model": model, "functions": functions},
+                setup_args={"model": model, "functions": functions, "api_interaction_limit": 50},
             )
 
     for agent_class in (

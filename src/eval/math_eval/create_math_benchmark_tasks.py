@@ -217,5 +217,5 @@ def create_benchmark_task(subcategory, levels, max_tasks=None):
 
 if __name__ == "__main__":
     # levels = [1,2,3,4,5]
-    levels = [1]
+    levels = [1,2,3]
     create_benchmark_task(subcategory='prealgebra', levels=levels, max_tasks=None)

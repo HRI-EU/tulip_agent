@@ -1,13 +1,13 @@
 # Settings for math eval
 
 
-ground_truth: MATH_benchmarks/benchmark_prealgebra_1-1.json
+ground_truth: MATH_benchmarks/benchmark_prealgebra_1-2.json
 number_of_runs: 1
 log_folder: logs
 log_file: null
 task_filter: null
 
-tools: math_tools
+tools: math_tools_stripped
 model: "gpt-3.5-turbo-0125"
 #model: "gpt-4-turbo-2024-04-09"
 embedding_model: "text-embedding-3-large"
@@ -23,7 +23,7 @@ agents:
     NaiveTulipAgent: False
     CotTulipAgent: True
     InformedCotTulipAgent: False
-    PrimedCotTulipAgent: False
+    PrimedCotTulipAgent: True
     OneShotCotTulipAgent: False
     AutoTulipAgent: False
 

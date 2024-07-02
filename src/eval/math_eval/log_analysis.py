@@ -43,6 +43,7 @@ from inspect import getmembers, isfunction
 from typing import Optional
 
 import matplotlib.pyplot as plt
+from matplotlib.ticker import MultipleLocator
 import numpy as np
 import pandas as pd
 import seaborn as sns
@@ -117,6 +118,8 @@ class Result:
 def interquartile_mean(values: list) -> float:
     lnv = len(values)
     q = lnv // 4
+    if q == 0:
+        return 0.
     if lnv % 4 == 0:
         nums = values[q:-q]
         return sum(nums) / (2 * q)
@@ -236,11 +239,11 @@ def assess_data(
             continue
         r.ground_truth = [str(vs) for vs in gtf_data[r.task]["valid_solutions"]]
 
-        try:
-            answer_string = r.response.split("<result>")[-1]
-        except:
-            print(f"-------- NO <RESULT> {r.agent}\n{answer_string}")
-            answer_string = r.response
+        # try:
+        #     answer_string = r.response.split("<result>")[-1]
+        # except:
+        #     print(f"-------- NO <RESULT> {r.agent}\n{answer_string}")
+        answer_string = r.response
         r.correctness = any(
             str(vs) in answer_string for vs in gtf_data[r.task]["valid_solutions"]
         )
@@ -292,7 +295,6 @@ def plot(
         for l in found_lvls:
             levels[l] = f"Level {l}"
 
-
     x = np.arange(len(levels))
     fig, axs = plt.subplots(len(criteria), sharex=True, sharey=False, figsize=(11, 6))
     handles = []
@@ -324,6 +326,19 @@ def plot(
             if ci == 0:  # Only add the legend info from the first subplot
                 handles.append(bar)
         axs[ci].set_ylabel(criteria[criterion])
+        if criterion == "correctness":
+            axs[ci].set_ylim(0, 1.0)
+
+        axs[ci].set_axisbelow(True)
+        axs[ci].grid(which='major', axis='y', linestyle='--', linewidth=1, alpha=0.5)
+
+        # axs[ci].xaxis.set_major_locator(MultipleLocator(0.2))
+        # axs[0].xaxis.set_major_formatter('{x:.0f}')
+        # axs[0].xaxis.set_minor_locator(MultipleLocator(minor_grid_x))
+
+        # axs[0].yaxis.set_major_locator(MultipleLocator(major_grid_y))
+        # axs[0].yaxis.set_minor_locator(MultipleLocator(minor_grid_y))
+
     fig.legend(
         handles=[h[0] for h in handles],
         labels=agents,
@@ -335,6 +350,8 @@ def plot(
     plt.xticks(x, list(levels.values()), rotation=0)
     # plt.ylim(0, 1.0)
     plt.xlabel("Difficulty")
+
+
     plt.savefig(output_file, bbox_inches="tight")
 
 
@@ -519,8 +536,8 @@ if __name__ == "__main__":
     MATH_benchmark = True
 
     logs_to_plot = [
-        "logs/math.eval.20240626-1646.log",
-        "logs/math.eval.20240627-1120.log",
+        "logs/math.eval.20240701-1154.log",
+        "logs/math.eval.20240701-1507.log",
     ]
     logs_to_plot = None
 

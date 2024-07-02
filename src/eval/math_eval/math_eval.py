@@ -35,6 +35,7 @@ import shutil
 from datetime import datetime
 from inspect import getmembers, isfunction
 from pathlib import Path
+from types import ModuleType
 
 import yaml
 
@@ -59,17 +60,12 @@ with open("logging_config.yaml", "rt") as log_config:
 logging.config.dictConfig(config)
 
 
-# Import tools as specified in settings
-with open("math_eval_settings.yaml", "rt") as mes:
-    SETTINGS = yaml.safe_load(mes.read())
-TOOLS_FILENAME = SETTINGS["tools"]
-tools = importlib.import_module(TOOLS_FILENAME)
-
-
 def run_math_eval(
     task_file: str,
     agents: list[str],
     task_filter: list[str],
+    tool_module_name: str,
+    tool_module: ModuleType,
     model: str,
     embedding_model: str,
     number_of_runs: int,
@@ -78,9 +74,9 @@ def run_math_eval(
     search_similarity_threshold: float,
 ):
     functions = [
-        getattr(tools, n)
-        for n, f in getmembers(tools, isfunction)
-        if f.__module__ == tools.__name__
+        getattr(tool_module, n)
+        for n, f in getmembers(tool_module, isfunction)
+        if f.__module__ == tool_module.__name__
     ]
     print(f"{functions=}")
 
@@ -89,8 +85,8 @@ def run_math_eval(
         queries = {e["task"]: e for e in tasks_}
 
     tulip = ToolLibrary(
-        chroma_sub_dir=f"math_eval_{embedding_model}/",
-        file_imports=[(TOOLS_FILENAME, [])],
+        chroma_sub_dir=f"math_eval_{embedding_model}_{tool_module_name}/",
+        file_imports=[(tool_module_name, [])],
         chroma_base_dir="../../../data/chroma/",
         embedding_model=embedding_model,
     )
@@ -144,24 +140,30 @@ def run_math_eval(
             )
 
 
-def main():
+def main(settings_file: str = "math_eval_settings.yaml"):
+    with open(settings_file, "rt") as mes:
+        settings = yaml.safe_load(mes.read())
+    tool_module = importlib.import_module(settings["tools"])
+
     # back up log
-    log_folder = SETTINGS["log_folder"]
+    log_folder = settings["log_folder"]
     Path(log_folder).mkdir(parents=True, exist_ok=True)
     log_name = "math.eval." + datetime.now().strftime("%Y%m%d-%H%M") + ".log"
     log_file = f"{log_folder}/{log_name}"
     # run
-    number_of_runs = SETTINGS["number_of_runs"]
+    number_of_runs = settings["number_of_runs"]
     run_math_eval(
-        task_file=SETTINGS["ground_truth"],
-        agents=[a for a in SETTINGS["agents"] if SETTINGS["agents"][a]],
-        task_filter=SETTINGS["task_filter"],
-        model=SETTINGS["model"],
-        embedding_model=SETTINGS["embedding_model"],
+        task_file=settings["ground_truth"],
+        agents=[a for a in settings["agents"] if settings["agents"][a]],
+        task_filter=settings["task_filter"],
+        tool_module_name=settings["tools"],
+        tool_module=tool_module,
+        model=settings["model"],
+        embedding_model=settings["embedding_model"],
         number_of_runs=number_of_runs,
         log_file=log_file,
-        tulip_top_k=SETTINGS["tulip_top_k"],
-        search_similarity_threshold=SETTINGS["search_similarity_threshold"],
+        tulip_top_k=settings["tulip_top_k"],
+        search_similarity_threshold=settings["search_similarity_threshold"],
     )
     # track settings
     if os.path.exists((history_path := log_folder + "/history.json")):
@@ -169,7 +171,7 @@ def main():
             history = json.load(h)
     else:
         history = {}
-    history[log_name] = SETTINGS
+    history[log_name] = settings
     with open(history_path, "w") as h:
         json.dump(history, h, indent=4)
 

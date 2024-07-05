@@ -33,6 +33,7 @@ for creating descriptions usable with the OpenAI API
 
 Note: Only OPENAI_TYPES are supported as function inputs
 """
+import inspect
 import typing
 from dataclasses import dataclass
 
@@ -105,6 +106,7 @@ class FunctionAnalyzer:
         name = function_.__name__
 
         # analyze type hints
+        signature = inspect.signature(function_)
         type_hints = typing.get_type_hints(function_)
         type_hints.pop("return", None)
         required = [
@@ -115,6 +117,7 @@ class FunctionAnalyzer:
                 or typing.get_origin(type_hints[th]) is typing.Union
                 and type(None) in typing.get_args(type_hints[th])
             )
+            and signature.parameters.get(th).default is inspect.Parameter.empty
         ]
         type_hints_basic = {
             k: (

@@ -34,26 +34,32 @@ from tulip_agent.function_analyzer import FunctionAnalyzer
 
 
 def dummy_function(
+    required: int,
     texts: list[str],
     number: Union[int, float],
     str_one: Optional[str],
     str_two: str = None,
+    optional: int = 10,
 ) -> None:
     """
     Print some fine information.
 
     Some more information.
 
+    :param required: Simple required parameter.
     :param texts: A list of strings.
     :param number: Some number.
     :param str_one: An optional string.
     :param str_two: Another optional string.
+    :param optional: Optional parameter with default value.
     :return: Nothing.
     """
+    print(required)
     print(texts)
     print(number)
     print(str_one)
     print(str_two)
+    print(optional)
     return None
 
 
@@ -80,6 +86,7 @@ class TestCore(unittest.TestCase):
         self.assertEqual(
             res["function"]["parameters"]["required"],
             [
+                "required",
                 "texts",
                 "number",
             ],
@@ -91,10 +98,12 @@ class TestCore(unittest.TestCase):
         self.assertEqual(
             [k for k, _ in res["function"]["parameters"]["properties"].items()],
             [
+                "required",
                 "texts",
                 "number",
                 "str_one",
                 "str_two",
+                "optional",
             ],
             "Identifying parameters failed.",
         )

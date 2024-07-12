@@ -299,6 +299,7 @@ def plot(
     fig, axs = plt.subplots(len(criteria), sharex=True, sharey=False, figsize=(11, 6))
     handles = []
     for ci, criterion in enumerate(criteria):
+        values = []
         for ai, agent in enumerate(agents):
             scores = [
                 [
@@ -325,6 +326,14 @@ def plot(
             )
             if ci == 0:  # Only add the legend info from the first subplot
                 handles.append(bar)
+            values.extend(processed)
+
+        # horizontal lines
+        max_value = max(values)
+        y_line_positions = [0.25 * max_value, 0.5 * max_value, 0.75 * max_value]
+        for y_line_position in y_line_positions:
+            axs[ci].axhline(y=y_line_position, color="darkgrey", linestyle="--", linewidth=0.5)
+
         axs[ci].set_ylabel(criteria[criterion])
         if criterion == "correctness":
             axs[ci].set_ylim(0, 1.0)

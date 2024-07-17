@@ -46,9 +46,11 @@ from tulip_agent import (
     BaseAgent,
     CotToolAgent,
     CotTulipAgent,
+    InformedCotTulipAgent,
     MinimalTulipAgent,
     NaiveToolAgent,
     NaiveTulipAgent,
+    PrimedCotTulipAgent,
     ToolLibrary,
 )
 
@@ -76,7 +78,7 @@ def print_seperator(name: str) -> None:
 
 
 def run_comparison():
-    query = "What is 45342 * 23487 + 32478?"
+    query = "What is 45342 * 23487 + ((32478 - 2) * (-1) + 2)?"  # 1064915080
     print(query)
 
     print_seperator(name=BaseAgent.__name__)
@@ -93,16 +95,20 @@ def run_comparison():
     tulip = ToolLibrary(chroma_sub_dir="example/", file_imports=[("calculator", [])])
 
     type_k_combinations = (
-        (MinimalTulipAgent, 2),
-        (NaiveTulipAgent, 4),
-        (CotTulipAgent, 1),
-        (AutoTulipAgent, 1),
+        (MinimalTulipAgent, 5, 1),
+        (NaiveTulipAgent, 5, 1),
+        (CotTulipAgent, 5, 1),
+        (InformedCotTulipAgent, 5, 1),
+        (PrimedCotTulipAgent, 5, 1),
+        (CotTulipAgent, 5, 1),
+        (AutoTulipAgent, 5, 1),
     )
-    for agent_type, top_k in type_k_combinations:
+    for agent_type, top_k, sim_threshold in type_k_combinations:
         print_seperator(name=agent_type.__name__)
         tulip_agent = agent_type(
             tool_library=tulip,
             top_k_functions=top_k,
+            search_similarity_threshold=sim_threshold,
         )
         res = tulip_agent.query(query)
         print(f"{res=}")

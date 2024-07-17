@@ -112,33 +112,37 @@ Always adhere to the following procedure:
 TASK_DECOMPOSITION = """\
 Considering the following user request, what are the necessary atomic actions you need to execute?
 `{prompt}`
-Return a numbered list of steps.
+Return an ordered list of steps.
+Return valid JSON and use the key `subtasks`.
 """
 
 
 RECURSIVE_TASK_DECOMPOSITION = """\
 Considering the following task, what are the necessary steps you need to execute?
 `{prompt}`
-Return a numbered list of steps.
+Return an ordered list of steps.
+Return valid JSON and use the key `subtasks`.
 """
 
 
 INFORMED_TASK_DECOMPOSITION = """\
-Considering the following user request, what are the necessary atomic actions you need to execute?
+Considering the following user request, what are the necessary steps you need to execute?
 `{prompt}`
-Return a numbered list of steps.
+Return an ordered list of steps.
 Note that you have access to a library with math tools.
 These action descriptions will be used to search for suitable tools in the tool library.
+Return valid JSON and use the key `subtasks`.
 """
 
 
-PRUNED_TASK_DECOMPOSITION = """\
+PRIMED_TASK_DECOMPOSITION = """\
 Considering the following user request, what are the necessary atomic actions you need to execute?
 `{prompt}`
 Keep in mind that you have access to a variety of tools, including, but not limited to, the following selection:
 {tool_names}
 You have access to further tools, which you can find via a search.
-Make sure to include all necessary steps and return a numbered list of these steps.
+Make sure to include all necessary steps and return an ordered list of these steps.
+Return valid JSON and use the key `subtasks`.
 """
 
 

@@ -31,17 +31,22 @@
 TulipAgent variations; use a vector store as a tool library.
 """
 import ast
+import copy
 import json
 import logging
 from abc import ABC
 from typing import Optional
+
+from openai.types.chat.chat_completion_message_tool_call import (
+    ChatCompletionMessageToolCall,
+)
 
 from .base_agent import LlmAgent
 from .constants import BASE_LANGUAGE_MODEL, BASE_TEMPERATURE
 from .prompts import (
     AUTO_TULIP_PROMPT,
     INFORMED_TASK_DECOMPOSITION,
-    PRUNED_TASK_DECOMPOSITION,
+    PRIMED_TASK_DECOMPOSITION,
     RECURSIVE_TASK_DECOMPOSITION,
     SOLVE_WITH_TOOLS,
     TASK_DECOMPOSITION,
@@ -104,49 +109,51 @@ class TulipAgent(LlmAgent, ABC):
             },
         }
 
-    def search_tools(self, action_descriptions: list[str]):
-        json_res, hash_res = [], []
+    def search_tools(self, action_descriptions: list[str]) -> list[tuple[str, list]]:
+        json_res = {}
+        tools = []
         for action_description in action_descriptions:
+            if action_description in json_res:
+                tools.append((action_description, json_res[action_description]))
+                continue
             res = self.tool_library.search(
                 problem_description=action_description,
                 top_k=self.top_k_functions,
                 similarity_threshold=self.search_similarity_threshold,
             )["documents"]
             if res:
-                json_res_ = [json.loads(e) for e in res[0] if e not in hash_res]
-                hash_res.extend(res)
+                json_res_ = [json.loads(e) for e in res[0]]
                 logger.info(
                     f"Functions for `{action_description}`: {json.dumps(json_res_)}"
                 )
-                json_res.extend(json_res_)
-        return json_res
+                json_res[action_description] = json_res_
+                tools.append((action_description, json_res_))
+        return tools
 
     def execute_search_tool_call(
         self,
-        tool_calls: list,
+        tool_call: ChatCompletionMessageToolCall,
         track_history: bool,
-    ) -> list:
-        tools = []
-        for tool_call in tool_calls:
-            func = tool_call.function.name
-            args = json.loads(tool_call.function.arguments)
-            assert func == "search_tools", f"Unexpected tool call: {func}"
+    ) -> list[tuple[str, list]]:
+        func = tool_call.function.name
+        args = json.loads(tool_call.function.arguments)
+        assert func == "search_tools", f"Unexpected tool call: {func}"
 
-            # search tulip for function with args
-            logger.info(f"Tool search for: {str(args)}")
-            tools_ = self.search_tools(**args)
-            logger.info(f"Tools found: {str(tools_)}")
-            tools.extend(tools_)
-            if track_history:
-                self.messages.append(
-                    {
-                        "tool_call_id": tool_call.id,
-                        "role": "tool",
-                        "name": func,
-                        "content": "Successfully provided suitable tools.",
-                    }
-                )
-        return tools
+        # search tulip for function with args
+        logger.info(f"Tool search for: {str(args)}")
+        tasks_and_tools = self.search_tools(**args)
+        logger.info(f"Tools found: {str(tasks_and_tools)}")
+        # TODO: add details to feedback message - task: suitable tools
+        if track_history:
+            self.messages.append(
+                {
+                    "tool_call_id": tool_call.id,
+                    "role": "tool",
+                    "name": func,
+                    "content": "Successfully provided suitable tools.",
+                }
+            )
+        return tasks_and_tools
 
     def run_with_tools(self, tools: list[dict]) -> str:
         response = self._get_response(
@@ -184,7 +191,10 @@ class TulipAgent(LlmAgent, ABC):
                     func_name = "invalid_tool_call"
                     tool_call.function.name = func_name
                     tool_call.function.arguments = "{}"
-                    function_response = f"Error: Invalid arguments for {func_name} (previously {generated_func_name}): {e}"
+                    function_response = (
+                        f"Error: Invalid arguments for {func_name} "
+                        f"(previously {generated_func_name}): {e}"
+                    )
                 self.messages.append(
                     {
                         "tool_call_id": tool_call.id,
@@ -244,7 +254,7 @@ class MinimalTulipAgent(TulipAgent):
         logger.info(f"{self.__class__.__name__} received query: {prompt}")
 
         # Search for tools directly with user prompt; do not track the search
-        tools = self.search_tools(action_descriptions=[prompt])
+        tools = self.search_tools(action_descriptions=[prompt])[0][1]
 
         # Run with tools
         self.messages.append(
@@ -325,10 +335,21 @@ class NaiveTulipAgent(TulipAgent):
             # Try running search for tools from tool call
             else:
                 try:
-                    tools = self.execute_search_tool_call(
-                        tool_calls=tool_calls, track_history=False
+                    tools_ = self.execute_search_tool_call(
+                        tool_call=tool_calls[0], track_history=False
                     )
-                    break
+                    tools = [tool for partial in tools_ for tool in partial[1]]
+                    if tools:
+                        break
+                    else:
+                        _msgs.append(
+                            {
+                                "tool_call_id": tool_calls[0].id,
+                                "role": "tool",
+                                "name": "search_tools",
+                                "content": "Did not find any tools. Retry by paraphrasing.",
+                            }
+                        )
                 except Exception as e:
                     logger.info(
                         f"Invalid tool call for `search_tools`: `{e}`. Retrying."
@@ -369,6 +390,7 @@ class CotTulipAgent(TulipAgent):
         top_k_functions: int = 3,
         search_similarity_threshold: float = None,
         instructions: Optional[str] = None,
+        decomposition_prompt: str = RECURSIVE_TASK_DECOMPOSITION,
     ) -> None:
         super().__init__(
             instructions=(
@@ -383,30 +405,43 @@ class CotTulipAgent(TulipAgent):
             top_k_functions=top_k_functions,
             search_similarity_threshold=search_similarity_threshold,
         )
+        self.decomposition_prompt = decomposition_prompt
 
     def recursively_search_tool(
         self,
-        tool_calls: list,
+        tool_call: ChatCompletionMessageToolCall,
         depth: int,
         max_depth: int = 2,
-    ) -> list:
-        new_tools = []
-        for tc in tool_calls:
-            tools_ = self.execute_search_tool_call(tool_calls=[tc], track_history=True)
-            if not tools_ and depth < max_depth:
+    ) -> tuple[list, list]:
+        new_tools, new_tasks = [], []
+        tools_by_tasks = self.execute_search_tool_call(
+            tool_call=tool_call, track_history=True
+        )
+        for task, tools in tools_by_tasks:
+            if not tools and depth < max_depth:
                 subtasks = self.decompose_task(
-                    task=tc, base_prompt=RECURSIVE_TASK_DECOMPOSITION
+                    task=task,
+                    base_prompt=self.decomposition_prompt,
                 )
-                tool_calls = self.get_search_tool_calls(tasks=subtasks)
-                tools_ = self.recursively_search_tool(
-                    tool_calls=tool_calls,
+                subtask_str = ""
+                for c, subtask in enumerate(subtasks):
+                    subtask_str += f"{str(c+1)}. {subtask}"
+                tool_call = self.get_search_tool_call(tasks=subtask_str)
+                tools_, tasks_ = self.recursively_search_tool(
+                    tool_call=tool_call,
                     depth=depth + 1,
                     max_depth=max_depth,
                 )
-            for t in tools_:
-                if t not in new_tools:
-                    new_tools.append(t)
-        return new_tools
+                for t in tools_:
+                    if t not in new_tools:
+                        new_tools.append(t)
+                new_tasks.append(tasks_)
+            else:
+                for t in tools:
+                    if t not in new_tools:
+                        new_tools.append(t)
+                new_tasks.append(task)
+        return new_tools, new_tasks
 
     def decompose_task(
         self,
@@ -419,13 +454,16 @@ class CotTulipAgent(TulipAgent):
                 "content": base_prompt.format(prompt=task),
             }
         )
-        actions_response = self._get_response(msgs=self.messages)
+        actions_response = self._get_response(
+            msgs=self.messages, response_format="json"
+        )
         actions_response_message = actions_response.choices[0].message
         self.messages.append(actions_response_message)
         logger.info(f"{actions_response_message=}")
-        return actions_response_message.content
+        res = json.loads(actions_response_message.content)
+        return res["subtasks"]
 
-    def get_search_tool_calls(self, tasks: str):
+    def get_search_tool_call(self, tasks: str):
         self.messages.append(
             {
                 "role": "user",
@@ -443,7 +481,7 @@ class CotTulipAgent(TulipAgent):
         assert (
             lntc := len(tool_calls)
         ) == 1, f"Not exactly one tool search executed, but {lntc}."
-        return tool_calls
+        return tool_calls[0]
 
     def query(
         self,
@@ -452,15 +490,21 @@ class CotTulipAgent(TulipAgent):
         logger.info(f"{self.__class__.__name__} received query: {prompt}")
 
         # Get tasks from user input and initiate recursive tool search
-        tasks = self.decompose_task(task=prompt, base_prompt=TASK_DECOMPOSITION)
-        tool_calls = self.get_search_tool_calls(tasks)
-        tools = self.recursively_search_tool(tool_calls=tool_calls, depth=0)
+        tasks = self.decompose_task(task=prompt, base_prompt=self.decomposition_prompt)
+        tool_call = self.get_search_tool_call(tasks)
+        tools, general_tasks = self.recursively_search_tool(
+            tool_call=tool_call, depth=0
+        )
 
         # Run with tools
+        task_str = ""
+        for c, task in enumerate(tasks):
+            task_str += f"{str(c+1)}. {task} ({general_tasks[c]})\n"
+        logger.info(f"{task_str=}")
         self.messages.append(
             {
                 "role": "user",
-                "content": SOLVE_WITH_TOOLS.format(steps=tasks),
+                "content": SOLVE_WITH_TOOLS.format(steps=task_str),
             }
         )
         return self.run_with_tools(tools=tools)
@@ -476,6 +520,7 @@ class InformedCotTulipAgent(CotTulipAgent):
         top_k_functions: int = 3,
         search_similarity_threshold: float = None,
         instructions: Optional[str] = None,
+        decomposition_prompt: str = INFORMED_TASK_DECOMPOSITION,
     ) -> None:
         super().__init__(
             instructions=(
@@ -489,29 +534,8 @@ class InformedCotTulipAgent(CotTulipAgent):
             tool_library=tool_library,
             top_k_functions=top_k_functions,
             search_similarity_threshold=search_similarity_threshold,
+            decomposition_prompt=decomposition_prompt,
         )
-
-    def query(
-        self,
-        prompt: str,
-    ) -> str:
-        logger.info(f"{self.__class__.__name__} received query: {prompt}")
-
-        # Get tasks from user input and initiate recursive tool search
-        tasks = self.decompose_task(
-            task=prompt, base_prompt=INFORMED_TASK_DECOMPOSITION
-        )
-        tool_calls = self.get_search_tool_calls(tasks)
-        tools = self.recursively_search_tool(tool_calls=tool_calls, depth=0)
-
-        # Run with tools
-        self.messages.append(
-            {
-                "role": "user",
-                "content": SOLVE_WITH_TOOLS.format(steps=tasks),
-            }
-        )
-        return self.run_with_tools(tools=tools)
 
 
 class PrimedCotTulipAgent(CotTulipAgent):
@@ -524,6 +548,8 @@ class PrimedCotTulipAgent(CotTulipAgent):
         top_k_functions: int = 3,
         search_similarity_threshold: float = None,
         instructions: Optional[str] = None,
+        decomposition_prompt: str = PRIMED_TASK_DECOMPOSITION,
+        priming_top_k: int = 25,
     ) -> None:
         super().__init__(
             instructions=(
@@ -537,7 +563,10 @@ class PrimedCotTulipAgent(CotTulipAgent):
             tool_library=tool_library,
             top_k_functions=top_k_functions,
             search_similarity_threshold=search_similarity_threshold,
+            decomposition_prompt=decomposition_prompt,
         )
+        self.priming_top_k = priming_top_k
+        self.decomposition_prompt_raw = copy.copy(decomposition_prompt)
 
     def query(
         self,
@@ -546,36 +575,34 @@ class PrimedCotTulipAgent(CotTulipAgent):
         logger.info(f"{self.__class__.__name__} received query: {prompt}")
 
         # Find most relevant tools based on initial query for pruning the task decomposition
-        tool_names = self.tool_library.search(problem_description=prompt, top_k=25)[
-            "ids"
-        ][0]
+        tool_names = self.tool_library.search(
+            problem_description=prompt, top_k=self.priming_top_k
+        )["ids"][0]
         tool_names = [tn.split("__")[1] for tn in tool_names]
-        # Task decomposition w pruning
-        self.messages.append(
-            {
-                "role": "user",
-                "content": PRUNED_TASK_DECOMPOSITION.format(
-                    prompt=prompt,
-                    tool_names=", ".join(tool_names),
-                ),
-            }
+        self.decomposition_prompt = self.decomposition_prompt.format(
+            prompt=prompt,
+            tool_names=", ".join(tool_names),
         )
-        actions_response = self._get_response(msgs=self.messages)
-        actions_response_message = actions_response.choices[0].message
-        self.messages.append(actions_response_message)
-        tasks = actions_response_message.content
 
-        # Recursively search for tools
-        tool_calls = self.get_search_tool_calls(tasks)
-        tools = self.recursively_search_tool(tool_calls=tool_calls, depth=0)
+        # Task decomposition w priming
+        tasks = self.decompose_task(task=prompt, base_prompt=self.decomposition_prompt)
+        tool_call = self.get_search_tool_call(tasks)
+        tools, general_tasks = self.recursively_search_tool(
+            tool_call=tool_call, depth=0
+        )
 
         # Run with tools
+        task_str = ""
+        for c, task in enumerate(tasks):
+            task_str += f"{str(c+1)}. {task} ({general_tasks[c]})\n"
+        logger.info(f"{task_str=}")
         self.messages.append(
             {
                 "role": "user",
                 "content": SOLVE_WITH_TOOLS.format(steps=tasks),
             }
         )
+        self.decomposition_prompt = copy.copy(self.decomposition_prompt_raw)
         return self.run_with_tools(tools=tools)
 
 
@@ -603,28 +630,6 @@ class OneShotCotTulipAgent(CotTulipAgent):
             top_k_functions=top_k_functions,
             search_similarity_threshold=search_similarity_threshold,
         )
-
-    def query(
-        self,
-        prompt: str,
-    ) -> str:
-        logger.info(f"{self.__class__.__name__} received query: {prompt}")
-
-        # Get tasks from user input and initiate recursive tool search
-        tasks = self.decompose_task(
-            task=prompt, base_prompt=INFORMED_TASK_DECOMPOSITION
-        )
-        tool_calls = self.get_search_tool_calls(tasks)
-        tools = self.recursively_search_tool(tool_calls=tool_calls, depth=0)
-
-        # Run with tools
-        self.messages.append(
-            {
-                "role": "user",
-                "content": SOLVE_WITH_TOOLS.format(steps=tasks),
-            }
-        )
-        return self.run_with_tools(tools=tools)
 
 
 class AutoTulipAgent(TulipAgent):
@@ -886,7 +891,10 @@ class AutoTulipAgent(TulipAgent):
                     func_name = "invalid_tool_call"
                     tool_call.function.name = func_name
                     tool_call.function.arguments = "{}"
-                    function_response = f"Error: Invalid arguments for {func_name} (previously {generated_func_name}): {e}"
+                    function_response = (
+                        f"Error: Invalid arguments for {func_name} "
+                        f"(previously {generated_func_name}): {e}"
+                    )
                     self.messages.append(
                         {
                             "tool_call_id": tool_call.id,
@@ -926,10 +934,15 @@ class AutoTulipAgent(TulipAgent):
                     )
                 elif func_name == "search_tools":
                     logger.info(f"Tool search for: {str(func_args)}")
-                    tools_ = self.search_tools(**func_args)
-                    logger.info(f"Tools found: {str(tools_)}")
-                    self.tools.extend(tools_)
-                    tool_names_ = [td["function"]["name"] for td in tools_]
+                    new_tools = [
+                        tool
+                        for partial in self.search_tools(**func_args)
+                        for tool in partial[1]
+                        if tool not in self.tools
+                    ]
+                    logger.info(f"Tools found: {str(new_tools)}")
+                    self.tools.extend(new_tools)
+                    tool_names_ = [td["function"]["name"] for td in new_tools]
                     if tool_names_:
                         status = f"Successfully provided suitable tools: {tool_names_}."
                     else:

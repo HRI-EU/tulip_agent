@@ -499,7 +499,7 @@ class CotTulipAgent(TulipAgent):
         # Run with tools
         task_str = ""
         for c, task in enumerate(tasks):
-            task_str += f"{str(c+1)}. {task} ({general_tasks[c]})\n"
+            task_str += f"{str(c+1)}. {task}\n"
         logger.info(f"{task_str=}")
         self.messages.append(
             {
@@ -594,7 +594,7 @@ class PrimedCotTulipAgent(CotTulipAgent):
         # Run with tools
         task_str = ""
         for c, task in enumerate(tasks):
-            task_str += f"{str(c+1)}. {task} ({general_tasks[c]})\n"
+            task_str += f"{str(c+1)}. {task}\n"
         logger.info(f"{task_str=}")
         self.messages.append(
             {

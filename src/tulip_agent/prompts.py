@@ -129,7 +129,7 @@ INFORMED_TASK_DECOMPOSITION = """\
 Considering the following user request, what are the necessary steps you need to execute?
 `{prompt}`
 Return an ordered list of steps.
-Note that you have access to a library with math tools.
+Note that you have access to a tool library: {library_description}
 These action descriptions will be used to search for suitable tools in the tool library.
 Return valid JSON and use the key `subtasks`.
 """

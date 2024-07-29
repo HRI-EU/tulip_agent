@@ -534,7 +534,9 @@ class InformedCotTulipAgent(CotTulipAgent):
             tool_library=tool_library,
             top_k_functions=top_k_functions,
             search_similarity_threshold=search_similarity_threshold,
-            decomposition_prompt=decomposition_prompt,
+            decomposition_prompt=decomposition_prompt.replace(
+                "{library_description}", tool_library.description
+            ),
         )
 
 

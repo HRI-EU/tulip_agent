@@ -59,11 +59,12 @@ class ToolLibrary:
         chroma_base_dir: str = dirname(dirname(dirname(abspath(__file__))))
         + "/data/chroma/",
         embedding_model: str = BASE_EMBEDDING_MODEL,
+        description: Optional[str] = None,
         default_timeout: int = 60,
         default_timeout_message: str = (
             "Error: The tool did not return a response within the specified timeout."
         ),
-        timeout_settings: dict = None,
+        timeout_settings: Optional[dict] = None,
     ) -> None:
         """
         Initialize the tool library: set up the vector store and load the tool information.
@@ -73,12 +74,14 @@ class ToolLibrary:
             an optional list of tools to load. If no tools are specified, all tools are loaded.
         :param chroma_base_dir: Absolute path to the tool library folder.
         :param embedding_model: Name of the embedding model used. Defaults to the one specified in constants.
+        :param description: Natural language description of the tool library.
         :param default_timeout: Execution timeout for tools.
         :param default_timeout_message: Default message returned in case of tool execution timeout.
         :param timeout_settings: Tool-specific timeout settings of the form
             {"module_name__tool_name": {"timeout": seconds, "timeout_message": string}}
             NOTE: overriding existing timeout settings is not supported
         """
+        self.description = description
         self.embedding_model = embedding_model
 
         self.function_analyzer = FunctionAnalyzer()

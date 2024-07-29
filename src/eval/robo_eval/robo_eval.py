@@ -54,11 +54,11 @@ if __name__ == "__main__":
         chroma_base_dir="../../../data/chroma/",
     )
 
-    print(" AUTO TULIP ".center(40, "="))
     tulip_agent = CotTulipAgent(
         tool_library=tulip,
         top_k_functions=3,
         instructions=system_prompt,
+        model="gpt-4o",
     )
     print(f"📝 Instructions: \n{tulip_agent.instructions}")
     # tulip_res = tulip_agent.query("hand the glass_blue over to Felix")

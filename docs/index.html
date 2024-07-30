@@ -37,7 +37,7 @@
     <div class="container is-max-desktop">
       <div class="columns is-centered">
         <div class="column has-text-centered">
-          <h1 class="title is-1 publication-title">🌷🤖 Tulip Agent – Enabling LLM-Based Agents to Use Large Tool Libraries</h1>
+          <h1 class="title is-1 publication-title">🌷🤖 Tulip Agent - Enabling LLM-Based Agents to Solve Tasks Using Large Tool Libraries</h1>
           <div class="is-size-5 publication-authors">
 
             <span class="author-block">
@@ -46,6 +46,10 @@
 
             <span class="author-block">
               Daniel Tanneberg,
+            </span>
+
+            <span class="author-block">
+              Julian Eggert,
             </span>
 
             <span class="author-block">
@@ -94,7 +98,7 @@
 
               <!-- Code Link. -->
               <span class="link-block">
-                <a href="https://github.com/felixocker/tulip"
+                <a href="https://github.com/HRI-EU/tulip_agent"
                    class="external-link button is-normal is-rounded is-dark" target="_blank">
                   <span class="icon">
                       <i class="fab fa-github"></i>
@@ -138,10 +142,12 @@
         <h2 class="title is-3">Abstract</h2>
         <div class="content has-text-justified">
           <p>
-            We introduce <tt>tulip agent</tt>, an architecture for autonomous agents with access to vast amounts of tools via a tool library.
-            In contrast to state-of-the-art implementations, descriptions of available tools are not encoded into the system prompt, as this counts against the model's context window, may lead to needle-in-the-haystack issues for large numbers of tools, and results in static capabilities.
-            Instead, the <tt>tulip agent</tt> can search for suitable tools in its extensible tool library, exemplarily implemented as a vector store.
-            The architecture is evaluated regarding scalability using mathematical tasks and tools, and its generalizability is demonstrated via an application to robotics.
+            We introduce <tt>tulip agent</tt>, an architecture for autonomous LLM-based agents with Create, Read, Update, and Delete access to a tool library containing a potentially large number of tools.
+            In contrast to state-of-the-art implementations, <tt>tulip agent</tt> does not encode the descriptions of all available tools in the system prompt, which counts against the model's context window, or embed the entire prompt for retrieving suitable tools.
+            Instead, the <tt>tulip agent</tt> can recursively search for suitable tools in its extensible tool library, implemented exemplarily as a vector store.
+            <tt>tulip agent</tt> significantly reduces inference costs, allows using even large tool libraries, and enables the agent to adapt and extend the set of tools.
+            We evaluate the architecture with several ablation studies in a mathematics context and demonstrate its generalizability with an application to robotics.
+            A reference implementation and the benchmark are available via GitHub.
           </p>
         </div>
       </div>
@@ -149,7 +155,6 @@
   </div>
   <br>
 </section>
-
 
 <section class="hero body">
   <div class="container is-max-desktop">
@@ -161,6 +166,7 @@
 </section>
 
 
+
 <!-- System. -->
 <section class="section">
   <div class="container is-max-desktop">
@@ -170,61 +176,82 @@
         <div class="content has-text-justified">
           <p>
             The <tt>tulip agent</tt> architecture includes several key components:
-            the language model, the tool library, the tools themselves, a search module, and the function execution module.
+            the language model, the tool library, the tools themselves, a search module, the function execution module, and a tool introspection module.
           </p>
         </div>
       </div>
     </div>
-    <div class="column">
-      <img src="./static/images/architecture.png">
-      <p class="subtitle has-text-centered">
-        The <tt>tulip agent</tt> architecture.
-      </p>
-    </div>
+  </div>
+</section>
+
+<section class="hero body">
+  <div class="container is-max-desktop">
+    <img src="./static/images/architecture.png">
+    <h2 class="subtitle has-text-centered">
+      The <tt>tulip agent</tt> architecture.
+    </h2>
   </div>
 </section>
 
 
 
-<!-- System. -->
+<!-- Experiments and Findings. -->
 <section class="section">
   <div class="container is-max-desktop">
     <div class="columns is-centered has-text-centered">
       <div class="column">
-        <h2 class="title is-3">Evaluation</h2>
+        <h2 class="title is-3">Experiments and Findings</h2>
         <div class="content has-text-justified">
           <p>
-            Preliminary evaluation results on math tasks hint towards the following insights:
-            1) chain-of-thought reasoning significantly improves the results,
-            2) tools are a prerequisite for getting the final responses right, and
-            3) the <tt>tulip agent</tt> architecture significantly reduces costs, and the <tt>CotTulipAgent</tt> maintains correctness.
+            An evaluation on math tasks with several ablations yielded various insights:
+            1) tools are essential for solving complex tasks,
+            2) using a tool library significantly reduces costs,
+            3) task decomposition improves tool use,
+            4) language model performance influences the suitability of agent designs,
+            5) embedding model performance (on the high level of current OpenAI models) has little influence on tool retrieval,
+            6) better planning allows narrower search for tools, and
+            7) the <tt>tulip agent</tt> architecture is suited for continually creating tools and building a tool library on the fly.
+          </p>
+        </div>
+        <div>
+          <img src="./static/images/math.eval.png">
+          <p class="subtitle has-text-centered">
+            Excerpt of the results for several agents variants; run with <tt>gpt-3.5-turbo-0125</tt>, <tt>text-embedding-3-large</tt>, <tt>top_k = 5</tt>, and averaged across 5 runs.
+          </p>
+        </div>
+        <div class="column">
+          <div class="content has-text-justified">
+            <p>
+              <br>In addition to the math evaluation, we applied the <tt>tulip agent</tt> architecture for controlling a robot in several scenarios in simulation, showing promising results:
+            </p>
+          </div>
+        </div>
+        <div>
+          <img src="./static/images/robot-examples.png">
+          <p class="subtitle has-text-centered">
+            The <tt>CotTulipAgent</tt> controlling a supportive robot in simulation.
           </p>
         </div>
       </div>
-    </div>
-    <div class="column">
-      <img src="./static/images/math.eval.png">
-      <p class="subtitle has-text-centered">
-        Preliminary evaluation results.
-      </p>
     </div>
   </div>
 </section>
 
 
 
-<!-- Evaluation. -->
+<!-- Thanks. -->
 <footer class="footer">
   <div class="container">
     <div class="columns is-centered">
       <div class="column is-8">
         <div class="content">
-          <p>This page was built using the <a href="https://github.com/eliahuhorwitz/Academic-project-page-template">Academic Project Page Template.
+          <p>
+            This page was built using the <a href="https://github.com/eliahuhorwitz/Academic-project-page-template">Academic Project Page Template</a>.
           </p>
           <p>
             This website is licensed under a <a rel="license"
-                                                href="http://creativecommons.org/licenses/by-sa/4.0/">Creative
-            Commons Attribution-ShareAlike 4.0 International License</a>.
+                                                href="http://creativecommons.org/licenses/by-sa/4.0/">
+            Creative Commons Attribution-ShareAlike 4.0 International License</a>.
           </p>
         </div>
       </div>

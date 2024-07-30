@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/bin/bash
 #
 # Copyright (c) 2024, Honda Research Institute Europe GmbH
 #
@@ -27,39 +27,30 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
-"""
-TulipAgent robotics eval
-"""
-import logging.config
 
-import tools
-import yaml
-from AttentiveSupport.src.gpt_config import system_prompt
+# Setup the attentive support repo
+git clone git@github.com:HRI-EU/AttentiveSupport.git
+cd AttentiveSupport && bash build.sh
+cd ..
 
-from tulip_agent import CotTulipAgent, ToolLibrary
+# Make tools from attentive support repo available
+cp AttentiveSupport/src/tools.py tools.py
+file="tools.py"
+start_line=41
+end_line=44
+replacement='with open(Path(__file__).parent.resolve() / "AttentiveSupport" / "src" / "config.yaml", "r") as config:
+    config_data = yaml.safe_load(config)
+    SMILE_WS_PATH = Path(__file__).parent.resolve() / "AttentiveSupport" / config_data["install"]
+    print(f"{SMILE_WS_PATH=}")'
+temp_file=$(mktemp)
+awk -v start=$start_line -v end=$end_line -v repl="$replacement" '
+NR==start {print repl}
+NR<start || NR>end {print}
+' "$file" > "$temp_file"
+mv "$temp_file" "$file"
 
+echo "All set."
 
-# Set up agent loggers to save logs to file for analysis
-with open("logging_config.yaml", "rt") as log_config:
-    config = yaml.safe_load(log_config.read())
-logging.config.dictConfig(config)
-
-
-if __name__ == "__main__":
-    tools.SIMULATION.run()
-
-    tulip = ToolLibrary(
-        chroma_sub_dir="robo_eval/",
-        file_imports=[("tools", [])],
-        chroma_base_dir="../../../data/chroma/",
-    )
-
-    tulip_agent = CotTulipAgent(
-        tool_library=tulip,
-        top_k_functions=3,
-        instructions=system_prompt,
-        model="gpt-4o",
-    )
-    print(f"📝 Instructions: \n{tulip_agent.instructions}")
-    # tulip_res = tulip_agent.query("hand the glass_blue over to Felix")
-    # print(f"{tulip_res=}")
+# Run interactively
+source ../../../.venv/bin/activate
+python -i robo_eval.py

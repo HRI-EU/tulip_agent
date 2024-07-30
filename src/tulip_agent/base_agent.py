@@ -77,6 +77,7 @@ class LlmAgent(ABC):
         tool_choice: str = "auto",
         model: str = None,
         temperature: float = None,
+        response_format: str = None,
     ):
         self.api_interaction_counter += 1
         response, retries = None, 0
@@ -89,6 +90,8 @@ class LlmAgent(ABC):
             if tools:
                 params["tools"] = tools
                 params["tool_choice"] = tool_choice
+            if response_format == "json":
+                params["response_format"] = {"type": "json_object"}
             try:
                 response = self.openai_client.chat.completions.create(**params)
             # Return error message for bad requests, e.g., repetitive inputs or context window exceeded

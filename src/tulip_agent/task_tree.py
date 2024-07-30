@@ -38,13 +38,17 @@ class Task:
         description: str,
         predecessor: Optional[Task] = None,
         successor: Optional[Task] = None,
+        supertask: Optional[Task] = None,
+        original_wording: Optional[Task] = None,
     ) -> None:
         self.description = description
         self.predecessor: Optional[Task] = predecessor
         self.successor: Optional[Task] = successor
-        self.subtasks: Optional[list[Task]] = None
-        self.tool_candidates: Optional[list[dict]] = None
-        self.paraphrased_descriptions: list[str] = []
+        self.supertask: Optional[Task] = supertask
+        self.subtasks: list[Task] = []
+        self.tool_candidates: list[dict] = []
+        self.paraphrased_variants: list[Task] = []
+        self.original_wording: Optional[Task] = original_wording
 
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__} object {id(self)}: {self.description}>"
@@ -61,7 +65,7 @@ if __name__ == "__main__":
         "prepare a pineapple pizza",
         "turn on the radiator",
     ]
-    subtasks = [Task(description=d) for d in subtask_descriptions]
+    subtasks = [Task(description=d, supertask=t0) for d in subtask_descriptions]
     for s1, s2 in zip(subtasks, subtasks[1:]):
         s1.successor = s2
         s2.predecessor = s1

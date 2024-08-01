@@ -1,0 +1,30 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "Ocker"
+  given-names: "Felix"
+- family-names: "Tanneberg"
+  given-names: "Daniel"
+- family-names: "Eggert"
+  given-names: "Julian"
+- family-names: "Gienger"
+  given-names: "Michael"
+title: "tulip agent"
+version: 0.1.0
+url: "https://github.com/HRI-EU/tulip_agent"
+preferred-citation:
+  type: article
+  authors:
+  - family-names: "Ocker"
+    given-names: "Felix"
+  - family-names: "Tanneberg"
+    given-names: "Daniel"
+  - family-names: "Eggert"
+    given-names: "Julian"
+  - family-names: "Gienger"
+    given-names: "Michael"
+  doi: "10.48550/arXiv.2407.21778"
+  journal: "arXiv preprint arXiv:2407.21778"
+  month: 7
+  title: "Tulip Agent -- Enabling LLM-Based Agents to Solve Tasks Using Large Tool Libraries"
+  year: 2024

@@ -28,4 +28,4 @@ Only necessary once; automatically starts the interactive mode
 ## Example
 In the interactive mode, run, e.g.: `tulip_agent.query("hand the glass_blue over to Felix")`
 
-![Screenshots](robot-example.png)
+![Examples](../../../docs/static/images/robot-examples.png)

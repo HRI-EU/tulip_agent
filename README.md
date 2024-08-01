@@ -1,7 +1,8 @@
 # 🌷🤖 tulip agent
 
-![tulip banner](docs/tulip-banner.png)
+![tulip banner](docs/static/images/tulip-banner.png)
 
+[![Static Badge](https://img.shields.io/badge/arXiv-2407.21778-B31B1B?style=flat-square&logo=arxiv)](https://arxiv.org/abs/2407.21778)
 [![License](https://img.shields.io/pypi/l/cobras?style=flat-square)](https://opensource.org/license/bsd-3-clause)
 [![Code Style](https://img.shields.io/badge/code_style-black-black?style=flat-square)](https://github.com/psf/black)
 

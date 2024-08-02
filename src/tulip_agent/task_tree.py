@@ -31,6 +31,9 @@ from __future__ import annotations
 
 from typing import Optional
 
+import matplotlib.pyplot as plt
+import networkx as nx
+
 
 class Task:
     def __init__(
@@ -49,9 +52,38 @@ class Task:
         self.tool_candidates: list[dict] = []
         self.paraphrased_variants: list[Task] = []
         self.original_wording: Optional[Task] = original_wording
+        self.result: Optional[str] = None
 
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__} object {id(self)}: {self.description}>"
+
+    def _get_nodes_and_edges(self, task: Task) -> tuple:
+        nodes = [task]
+        edges = [[task, subtask] for subtask in task.subtasks]
+        for subtask in task.subtasks:
+            sn, se = self._get_nodes_and_edges(subtask)
+            nodes.extend(sn)
+            edges.extend(se)
+        return nodes, edges
+
+    def plot(self):
+        graph = nx.DiGraph()
+        nodes, edges = self._get_nodes_and_edges(self)
+        graph.add_nodes_from(nodes)
+        graph.add_edges_from(edges)
+        pos = nx.spring_layout(graph)
+        plt.figure(figsize=(8, 6))
+        nx.draw(
+            graph,
+            pos,
+            with_labels=True,
+            node_size=700,
+            node_color="lightblue",
+            font_size=10,
+            arrowstyle="-",
+            arrowsize=10,
+        )
+        plt.show()
 
 
 if __name__ == "__main__":
@@ -73,3 +105,4 @@ if __name__ == "__main__":
     for st in subtasks:
         print(st.__dict__)
     print(t0.__dict__)
+    t0.plot()

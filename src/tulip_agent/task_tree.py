@@ -57,9 +57,21 @@ class Task:
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__} object {id(self)}: {self.description}>"
 
+    def get_predecessors(self) -> list[Task]:
+        predecessors = []
+        node = self
+        while True:
+            if not node.predecessor:
+                break
+            predecessors.append(node.predecessor)
+            node = node.predecessor
+        return predecessors
+
     def _get_nodes_and_edges(self, task: Task) -> tuple:
         nodes = [task]
-        edges = [[task, subtask] for subtask in task.subtasks]
+        edges = [[task, subtask, {"edge_type": "subtask"}] for subtask in task.subtasks]
+        if task.predecessor:
+            edges.append([task.predecessor, task, {"edge_type": "successor"}])
         for subtask in task.subtasks:
             sn, se = self._get_nodes_and_edges(subtask)
             nodes.extend(sn)
@@ -73,16 +85,42 @@ class Task:
         graph.add_edges_from(edges)
         pos = nx.spring_layout(graph)
         plt.figure(figsize=(8, 6))
-        nx.draw(
+
+        subtask_edges = [
+            (u, v) for u, v, d in graph.edges(data=True) if d["edge_type"] == "subtask"
+        ]
+        successor_edges = [
+            (u, v)
+            for u, v, d in graph.edges(data=True)
+            if d["edge_type"] == "successor"
+        ]
+
+        nx.draw_networkx_nodes(
             graph,
             pos,
-            with_labels=True,
-            node_size=700,
+            nodelist=nodes,
+            node_shape="o",
             node_color="lightblue",
-            font_size=10,
-            arrowstyle="-",
-            arrowsize=10,
+            node_size=500,
         )
+        nx.draw_networkx_edges(
+            graph,
+            pos,
+            edgelist=subtask_edges,
+            arrowstyle="->",
+            arrowsize=20,
+            edge_color="black",
+        )
+        nx.draw_networkx_edges(
+            graph,
+            pos,
+            edgelist=successor_edges,
+            arrowstyle="->",
+            arrowsize=20,
+            style="dashed",
+            edge_color="grey",
+        )
+        nx.draw_networkx_labels(graph, pos, font_size=10)
         plt.show()
 
 

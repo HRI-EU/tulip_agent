@@ -87,8 +87,8 @@ class Task:
         nodes, edges = self._get_nodes_and_edges(self)
         graph.add_nodes_from(nodes)
         graph.add_edges_from(edges)
-        pos = nx.spring_layout(graph)
-        plt.figure(figsize=(8, 6))
+        pos = nx.spiral_layout(graph)
+        plt.figure(figsize=(16, 12))
 
         # Nodes and edges by types
         task_nodes = [n for n, d in graph.nodes(data=True) if d["node_type"] == "task"]

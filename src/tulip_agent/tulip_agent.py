@@ -55,9 +55,14 @@ from .prompts import (
     TOOL_PROMPT,
     TOOL_SEARCH,
     TOOL_UPDATE,
+    TREE_TULIP_AGGREGATE_PROMPT,
+    TREE_TULIP_DECOMPOSITION_PROMPT,
+    TREE_TULIP_SYSTEM_PROMPT,
+    TREE_TULIP_TASK_PROMPT,
     TULIP_COT_PROMPT,
     TULIP_COT_PROMPT_ONE_SHOT,
 )
+from .task_tree import Task, Tool
 from .tool_library import ToolLibrary
 
 
@@ -1009,3 +1014,148 @@ class AutoTulipAgent(TulipAgent):
             f"{self.__class__.__name__} returns response: {response_message.content}"
         )
         return response_message.content
+
+
+class TreeTulipAgent(TulipAgent):
+    def __init__(
+        self,
+        model: str = BASE_LANGUAGE_MODEL,
+        temperature: float = BASE_TEMPERATURE,
+        api_interaction_limit: int = 100,
+        tool_library: ToolLibrary = None,
+        top_k_functions: int = 5,
+        search_similarity_threshold: float = 2,
+        max_recursion_depth: int = 4,
+        max_paraphrases: int = 2,
+        instructions: Optional[str] = None,
+    ) -> None:
+        super().__init__(
+            instructions=(
+                TREE_TULIP_SYSTEM_PROMPT + "\n\n" + instructions
+                if instructions
+                else TREE_TULIP_SYSTEM_PROMPT
+            ),
+            model=model,
+            temperature=temperature,
+            api_interaction_limit=api_interaction_limit,
+            tool_library=tool_library,
+            top_k_functions=top_k_functions,
+            search_similarity_threshold=search_similarity_threshold,
+        )
+        self.max_recursion_depth = max_recursion_depth
+        self.max_paraphrases = max_paraphrases
+
+    def query(
+        self,
+        prompt: str,
+    ) -> str:
+        initial_task = Task(description=prompt)
+        print(initial_task.__dict__)
+        task = self.recurse(task=initial_task)
+        print(task.__dict__)
+        task.plot()
+        return task.result
+
+    def decompose_task(
+        self,
+        task: str,
+        tool_names: list[str],
+        previous_steps: list[str],
+        base_prompt: str = TREE_TULIP_DECOMPOSITION_PROMPT,
+    ) -> str:
+        previous_str = (
+            "\n".join([f"{str(c+1)}: {s}" for c, s in enumerate(previous_steps)])
+            if previous_steps
+            else "[]"
+        )
+        messages = [
+            {
+                "role": "system",
+                "content": TREE_TULIP_SYSTEM_PROMPT,
+            },
+            {
+                "role": "user",
+                "content": base_prompt.format(
+                    task=task, tools=tool_names, previous=previous_str
+                ),
+            },
+        ]
+        print(messages[-1]["content"])
+        response = self._get_response(msgs=messages, response_format="json")
+        decompose_response_message = response.choices[0].message
+        logger.info(f"{decompose_response_message=}")
+        res = json.loads(decompose_response_message.content)
+        return res["subtasks"]
+
+    def recurse(
+        self,
+        task: Task,
+    ) -> Task:
+        print(f"{task=}")
+
+        _, tools = self.search_tools(action_descriptions=[task.description])[0]
+
+        subtask_descriptions = self.decompose_task(
+            task=task.description,
+            tool_names=[t["function"]["name"] for t in tools],
+            previous_steps=[t.description for t in task.get_predecessors()],
+        )
+        if len(subtask_descriptions) == 1:
+            subtask_descriptions = []
+        print(f"{subtask_descriptions=}")
+
+        if subtask_descriptions:
+            subtasks = [
+                Task(description=d, supertask=task) for d in subtask_descriptions
+            ]
+            for s1, s2 in zip(subtasks, subtasks[1:]):
+                s1.successor = s2
+                s2.predecessor = s1
+            task.subtasks = subtasks
+            subtasks_ = [self.recurse(subtask) for subtask in task.subtasks]
+            task.subtasks = subtasks_
+            subtask_information = "\n".join(
+                f"{c+1}. {st.description}: {st.result}"
+                for c, st in enumerate(task.subtasks)
+            )
+            messages = [
+                {
+                    "role": "user",
+                    "content": TREE_TULIP_AGGREGATE_PROMPT.format(
+                        task=task.description,
+                        information=subtask_information,
+                    ),
+                },
+            ]
+            result = self._get_response(msgs=messages).choices[0].message.content
+            if not result:
+                # TODO: handle case of no result - replan
+                pass
+            task.result = result
+        else:
+            task.tool_candidates = [
+                Tool(name=t["function"]["name"], description=t) for t in tools
+            ]
+            print(f"{task.description} - {tools}")
+            if tools:
+                previous_info = "\n".join(
+                    [
+                        f"{c+1}. {p.description}: {p.result}"
+                        for c, p in enumerate(task.get_predecessors()[::-1])
+                    ]
+                )
+                messages = [
+                    {
+                        "role": "user",
+                        "content": TREE_TULIP_TASK_PROMPT.format(
+                            task=task.description, previous=previous_info
+                        ),
+                    },
+                ]
+                print(messages[-1]["content"])
+                response = self.run_with_tools(tools=tools, messages=messages)
+                task.result = response
+            else:
+                # TODO: paraphrase or generate tool
+                pass
+        return task

@@ -155,9 +155,15 @@ class TulipAgent(LlmAgent, ABC):
             )
         return tasks_and_tools
 
-    def run_with_tools(self, tools: list[dict]) -> str:
+    def run_with_tools(
+        self,
+        tools: list[dict],
+        messages: Optional[list] = None,
+    ) -> str:
+        if messages is None:
+            messages = self.messages
         response = self._get_response(
-            msgs=self.messages,
+            msgs=messages,
             tools=tools,
             tool_choice="auto",
         )
@@ -165,7 +171,7 @@ class TulipAgent(LlmAgent, ABC):
         tool_calls = response_message.tool_calls
 
         while tool_calls:
-            self.messages.append(response_message)
+            messages.append(response_message)
 
             if self.api_interaction_counter >= self.api_interaction_limit:
                 error_message = f"Error: Reached API interaction limit of {self.api_interaction_limit}."
@@ -195,7 +201,7 @@ class TulipAgent(LlmAgent, ABC):
                         f"Error: Invalid arguments for {func_name} "
                         f"(previously {generated_func_name}): {e}"
                     )
-                self.messages.append(
+                messages.append(
                     {
                         "tool_call_id": tool_call.id,
                         "role": "tool",
@@ -211,13 +217,13 @@ class TulipAgent(LlmAgent, ABC):
                 )
 
             response = self._get_response(
-                msgs=self.messages,
+                msgs=messages,
                 tools=tools,
                 tool_choice="auto",
             )
             response_message = response.choices[0].message
             tool_calls = response_message.tool_calls
-        self.messages.append(response_message)
+        messages.append(response_message)
         logger.info(
             f"{self.__class__.__name__} returns response: {response_message.content}"
         )

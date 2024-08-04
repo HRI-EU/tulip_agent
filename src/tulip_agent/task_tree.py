@@ -49,7 +49,7 @@ class Task:
         self.successor: Optional[Task] = successor
         self.supertask: Optional[Task] = supertask
         self.subtasks: list[Task] = []
-        self.tool_candidates: list[dict] = []
+        self.tool_candidates: list[Tool] = []
         self.paraphrased_variants: list[Task] = []
         self.original_wording: Optional[Task] = original_wording
         self.result: Optional[str] = None
@@ -68,8 +68,12 @@ class Task:
         return predecessors
 
     def _get_nodes_and_edges(self, task: Task) -> tuple:
-        nodes = [task]
+        nodes = [(task, {"node_type": "task"})]
+        nodes.extend([(tool, {"node_type": "tool"}) for tool in task.tool_candidates])
         edges = [[task, subtask, {"edge_type": "subtask"}] for subtask in task.subtasks]
+        edges.extend(
+            [[task, tool, {"edge_type": "tool"}] for tool in task.tool_candidates]
+        )
         if task.predecessor:
             edges.append([task.predecessor, task, {"edge_type": "successor"}])
         for subtask in task.subtasks:
@@ -86,6 +90,9 @@ class Task:
         pos = nx.spring_layout(graph)
         plt.figure(figsize=(8, 6))
 
+        # Nodes and edges by types
+        task_nodes = [n for n, d in graph.nodes(data=True) if d["node_type"] == "task"]
+        tool_nodes = [n for n, d in graph.nodes(data=True) if d["node_type"] == "tool"]
         subtask_edges = [
             (u, v) for u, v, d in graph.edges(data=True) if d["edge_type"] == "subtask"
         ]
@@ -94,13 +101,25 @@ class Task:
             for u, v, d in graph.edges(data=True)
             if d["edge_type"] == "successor"
         ]
+        tool_edges = [
+            (u, v) for u, v, d in graph.edges(data=True) if d["edge_type"] == "tool"
+        ]
 
+        # Draw
         nx.draw_networkx_nodes(
             graph,
             pos,
-            nodelist=nodes,
+            nodelist=task_nodes,
             node_shape="o",
             node_color="lightblue",
+            node_size=500,
+        )
+        nx.draw_networkx_nodes(
+            graph,
+            pos,
+            nodelist=tool_nodes,
+            node_shape="o",
+            node_color="lightgrey",
             node_size=500,
         )
         nx.draw_networkx_edges(
@@ -120,8 +139,30 @@ class Task:
             style="dashed",
             edge_color="grey",
         )
+        nx.draw_networkx_edges(
+            graph,
+            pos,
+            edgelist=tool_edges,
+            arrowstyle="->",
+            arrowsize=20,
+            style="dotted",
+            edge_color="grey",
+        )
         nx.draw_networkx_labels(graph, pos, font_size=10)
         plt.show()
+
+
+class Tool:
+    def __init__(
+        self,
+        name: str,
+        description: dict,
+    ) -> None:
+        self.name = name
+        self.description = description
+
+    def __repr__(self) -> str:
+        return f"<{self.__class__.__name__} object {id(self)}: {self.name}>"
 
 
 if __name__ == "__main__":
@@ -139,6 +180,8 @@ if __name__ == "__main__":
     for s1, s2 in zip(subtasks, subtasks[1:]):
         s1.successor = s2
         s2.predecessor = s1
+    for s in subtasks:
+        s.tool_candidates = [Tool(name=f"{s.description} tool", description={})]
     t0.subtasks = subtasks
     for st in subtasks:
         print(st.__dict__)

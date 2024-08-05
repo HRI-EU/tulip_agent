@@ -57,11 +57,17 @@ class Task:
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__} object {id(self)}: {self.description}>"
 
-    def get_predecessors(self) -> list[Task]:
+    def get_predecessors(
+        self,
+        include_higher_levels: bool = True,
+    ) -> list[Task]:
         predecessors = []
         node = self
         while True:
             if not node.predecessor:
+                if include_higher_levels and node.supertask:
+                    node = node.supertask
+                    continue
                 break
             predecessors.append(node.predecessor)
             node = node.predecessor
@@ -163,27 +169,3 @@ class Tool:
 
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__} object {id(self)}: {self.name}>"
-
-
-if __name__ == "__main__":
-    # example
-    q = "mix a margherita, prepare a pineapple pizza, and turn on the radiator"
-    t0 = Task(description=q)
-    print(t0.__dict__)
-    # eg, no tools found, decompose further
-    subtask_descriptions = [
-        "mix a margherita",
-        "prepare a pineapple pizza",
-        "turn on the radiator",
-    ]
-    subtasks = [Task(description=d, supertask=t0) for d in subtask_descriptions]
-    for s1, s2 in zip(subtasks, subtasks[1:]):
-        s1.successor = s2
-        s2.predecessor = s1
-    for s in subtasks:
-        s.tool_candidates = [Tool(name=f"{s.description} tool", description={})]
-    t0.subtasks = subtasks
-    for st in subtasks:
-        print(st.__dict__)
-    print(t0.__dict__)
-    t0.plot()

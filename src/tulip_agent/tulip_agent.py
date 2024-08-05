@@ -581,9 +581,9 @@ class PrimedCotTulipAgent(CotTulipAgent):
             problem_description=prompt, top_k=self.priming_top_k
         )["ids"][0]
         tool_names = [tn.split("__")[1] for tn in tool_names]
-        self.decomposition_prompt = self.decomposition_prompt.format(
-            prompt=prompt,
-            tool_names=", ".join(tool_names),
+        self.decomposition_prompt = self.decomposition_prompt.replace(
+            "{tool_names}",
+            ", ".join(tool_names),
         )
 
         # Task decomposition w priming

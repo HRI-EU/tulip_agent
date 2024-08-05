@@ -535,9 +535,17 @@ class InformedCotTulipAgent(CotTulipAgent):
             top_k_functions=top_k_functions,
             search_similarity_threshold=search_similarity_threshold,
             decomposition_prompt=decomposition_prompt.replace(
-                "{library_description}", tool_library.description
+                "{library_description}",
+                tool_library.description if tool_library.description else "",
             ),
         )
+        if not tool_library.description:
+            logger.warning(
+                (
+                    "No description set for the tool library. "
+                    "This is likely to impact the performance of the InformedCotTulipAgent."
+                )
+            )
 
 
 class PrimedCotTulipAgent(CotTulipAgent):

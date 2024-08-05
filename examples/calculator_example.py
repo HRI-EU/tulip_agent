@@ -50,6 +50,7 @@ from tulip_agent import (
     MinimalTulipAgent,
     NaiveToolAgent,
     NaiveTulipAgent,
+    OneShotCotTulipAgent,
     PrimedCotTulipAgent,
     ToolLibrary,
 )
@@ -78,7 +79,8 @@ def print_seperator(name: str) -> None:
 
 
 def run_comparison():
-    query = "What is 45342 * 23487 + ((32478 - 2) * (-1) + 2)?"  # 1064915080
+    # query = "What is 45342 * 23487 + ((32478 - 2) * (-1) + 2)?"  # 1064915080
+    query = "Find the value of $x$ such that $\sqrt{x - 2} = 8$."
     print(query)
 
     print_seperator(name=BaseAgent.__name__)
@@ -92,16 +94,20 @@ def run_comparison():
         res = agent.query(query)
         print(f"{res=}")
 
-    tulip = ToolLibrary(chroma_sub_dir="example/", file_imports=[("calculator", [])])
+    tulip = ToolLibrary(
+        chroma_sub_dir="example/",
+        file_imports=[("calculator", [])],
+        description="A tool library containing math tools.",
+    )
 
     type_k_combinations = (
-        (MinimalTulipAgent, 5, 1),
-        (NaiveTulipAgent, 5, 1),
-        (CotTulipAgent, 5, 1),
-        (InformedCotTulipAgent, 5, 1),
-        (PrimedCotTulipAgent, 5, 1),
-        (CotTulipAgent, 5, 1),
-        (AutoTulipAgent, 5, 1),
+        (MinimalTulipAgent, 5, 2),
+        (NaiveTulipAgent, 5, 2),
+        (CotTulipAgent, 5, 2),
+        (InformedCotTulipAgent, 5, 2),
+        (PrimedCotTulipAgent, 5, 2),
+        (OneShotCotTulipAgent, 5, 2),
+        (AutoTulipAgent, 5, 2),
     )
     for agent_type, top_k, sim_threshold in type_k_combinations:
         print_seperator(name=agent_type.__name__)

@@ -89,6 +89,7 @@ def run_math_eval(
         file_imports=[(tool_module_name, [])],
         chroma_base_dir="../../../data/chroma/",
         embedding_model=embedding_model,
+        description="A tool library containing math tools.",
     )
 
     def _run(agent_class, setup_args: dict) -> None:

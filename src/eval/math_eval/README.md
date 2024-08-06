@@ -11,7 +11,7 @@
 3. Analyze results and plot with `python log_analysis.py`; uses the most recent log file unless one is specified in `math_eval_settings.yaml`
 
 ## Results
-![math eval plot](math.eval.png)
+![math eval plot](../../../docs/static/images/math.eval.png)
 ```yaml
 # Settings
 number_of_runs: 5

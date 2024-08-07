@@ -75,6 +75,8 @@ If you cannot deduce the solution from the information provided return an empty 
 
 
 TREE_TULIP_PARAPHRASE_PROMPT = """\
+Paraphrase the following task so that it can better be matched to tool descriptions:
+{task}
 """
 
 

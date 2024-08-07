@@ -35,6 +35,7 @@ import copy
 import json
 import logging
 from abc import ABC
+from copy import deepcopy
 from typing import Optional
 
 from openai.types.chat.chat_completion_message_tool_call import (
@@ -57,6 +58,7 @@ from .prompts import (
     TOOL_UPDATE,
     TREE_TULIP_AGGREGATE_PROMPT,
     TREE_TULIP_DECOMPOSITION_PROMPT,
+    TREE_TULIP_PARAPHRASE_PROMPT,
     TREE_TULIP_SYSTEM_PROMPT,
     TREE_TULIP_TASK_PROMPT,
     TULIP_COT_PROMPT,
@@ -1026,7 +1028,8 @@ class TreeTulipAgent(TulipAgent):
         top_k_functions: int = 5,
         search_similarity_threshold: float = 2,
         max_recursion_depth: int = 4,
-        max_paraphrases: int = 2,
+        max_paraphrases: int = 1,
+        max_replans: int = 1,
         instructions: Optional[str] = None,
     ) -> None:
         super().__init__(
@@ -1044,6 +1047,7 @@ class TreeTulipAgent(TulipAgent):
         )
         self.max_recursion_depth = max_recursion_depth
         self.max_paraphrases = max_paraphrases
+        self.max_replans = max_replans
 
     def query(
         self,
@@ -1051,7 +1055,7 @@ class TreeTulipAgent(TulipAgent):
     ) -> str:
         initial_task = Task(description=prompt)
         print(initial_task.__dict__)
-        task = self.recurse(task=initial_task)
+        task = self.recurse(task=initial_task, recursion_level=0)
         print(task.__dict__)
         task.plot()
         return task.result
@@ -1090,8 +1094,14 @@ class TreeTulipAgent(TulipAgent):
     def recurse(
         self,
         task: Task,
+        recursion_level: int,
     ) -> Task:
         print(f"{task=}")
+
+        recursion_level += 1
+        if recursion_level > self.max_recursion_depth:
+            task.result = ""
+            return task
 
         _, tools = self.search_tools(action_descriptions=[task.description])[0]
 
@@ -1111,9 +1121,9 @@ class TreeTulipAgent(TulipAgent):
             for s1, s2 in zip(subtasks, subtasks[1:]):
                 s1.successor = s2
                 s2.predecessor = s1
-            task.subtasks = subtasks
-            subtasks_ = [self.recurse(subtask) for subtask in task.subtasks]
-            task.subtasks = subtasks_
+            task.subtasks = [
+                self.recurse(subtask, recursion_level) for subtask in subtasks
+            ]
             subtask_information = "\n".join(
                 f"{c+1}. {st.description}: {st.result}"
                 for c, st in enumerate(task.subtasks)
@@ -1156,6 +1166,23 @@ class TreeTulipAgent(TulipAgent):
                 response = self.run_with_tools(tools=tools, messages=messages)
                 task.result = response
             else:
-                # TODO: paraphrase or generate tool
-                pass
+                if len(task.paraphrased_variants) <= self.max_paraphrases:
+                    messages = [
+                        {
+                            "role": "user",
+                            "content": TREE_TULIP_PARAPHRASE_PROMPT.format(
+                                task=task.description,
+                            ),
+                        },
+                    ]
+                    # TODO: also include other prior wordings, retrieve from list of paraphrased_variants
+                    paraphrased_description = (
+                        self._get_response(msgs=messages).choices[0].message.content
+                    )
+                    task.paraphrased_variants.append(deepcopy(task))
+                    task.description = paraphrased_description
+                    return self.recurse(task, recursion_level)
+                else:
+                    # TODO: generate tool
+                    pass
         return task

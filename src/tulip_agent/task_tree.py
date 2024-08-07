@@ -42,7 +42,6 @@ class Task:
         predecessor: Optional[Task] = None,
         successor: Optional[Task] = None,
         supertask: Optional[Task] = None,
-        original_wording: Optional[Task] = None,
     ) -> None:
         self.description = description
         self.predecessor: Optional[Task] = predecessor
@@ -51,7 +50,6 @@ class Task:
         self.subtasks: list[Task] = []
         self.tool_candidates: list[Tool] = []
         self.paraphrased_variants: list[Task] = []
-        self.original_wording: Optional[Task] = original_wording
         self.result: Optional[str] = None
 
     def __repr__(self) -> str:

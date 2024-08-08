@@ -37,8 +37,8 @@ def dummy_function(
     required: int,
     texts: list[str],
     number: Union[int, float],
-    str_one: Optional[str],
-    str_two: str = None,
+    str_one: Optional[str] = None,
+    str_two: str = "a",
     optional: int = 10,
 ) -> None:
     """
@@ -64,7 +64,7 @@ def dummy_function(
 
 
 def nested_function(
-    nested: list[list[tuple[set[str]]]],
+    nested: list[list[list[set[str]]]],
 ) -> None:
     """
     Print some fine information.
@@ -80,6 +80,14 @@ class TestCore(unittest.TestCase):
 
     def setUp(self):
         self.fa = FunctionAnalyzer()
+
+    def test_function_description(self):
+        res = self.fa.analyze_function(dummy_function)
+        self.assertEqual(
+            res["function"]["description"],
+            "Print some fine information.\n\n    Some more information.",
+            "Identifying function description failed.",
+        )
 
     def test_required_identification(self):
         res = self.fa.analyze_function(dummy_function)
@@ -108,23 +116,38 @@ class TestCore(unittest.TestCase):
             "Identifying parameters failed.",
         )
 
-    def test_nested(self):
+    def test_parameter_type_origin(self):
         res = self.fa.analyze_function(nested_function)
         self.assertEqual(
             res["function"]["parameters"]["properties"]["nested"]["type"],
             "array",
             "Resolving parameter type origin failed.",
         )
+
+    def test_parameter_types_nested(self):
+        res = self.fa.analyze_function(nested_function)
         self.assertEqual(
             res["function"]["parameters"]["properties"]["nested"]["items"],
             {
-                "type": "array",
                 "items": {
+                    "items": {
+                        "items": {"type": "string"},
+                        "type": "array",
+                        "uniqueItems": True,
+                    },
                     "type": "array",
-                    "items": {"type": "array", "items": {"type": "string"}},
                 },
+                "type": "array",
             },
-            "Resolving nested parameters failed.",
+            "Resolving nested parameter types failed.",
+        )
+
+    def test_parameter_description(self):
+        res = self.fa.analyze_function(nested_function)
+        self.assertEqual(
+            res["function"]["parameters"]["properties"]["nested"]["description"],
+            "A four-dimensional array of strings.",
+            "Resolving parameter description failed.",
         )
 
 

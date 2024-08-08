@@ -116,7 +116,11 @@ class TulipAgent(LlmAgent, ABC):
             },
         }
 
-    def search_tools(self, action_descriptions: list[str]) -> list[tuple[str, list]]:
+    def search_tools(
+        self,
+        action_descriptions: list[str],
+        similarity_threshold: Optional[float] = None,
+    ) -> list[tuple[str, list]]:
         json_res = {}
         tools = []
         for action_description in action_descriptions:
@@ -126,7 +130,7 @@ class TulipAgent(LlmAgent, ABC):
             res = self.tool_library.search(
                 problem_description=action_description,
                 top_k=self.top_k_functions,
-                similarity_threshold=self.search_similarity_threshold,
+                similarity_threshold=similarity_threshold,
             )["documents"]
             if res:
                 json_res_ = [json.loads(e) for e in res[0]]
@@ -148,7 +152,9 @@ class TulipAgent(LlmAgent, ABC):
 
         # search tulip for function with args
         logger.info(f"Tool search for: {str(args)}")
-        tasks_and_tools = self.search_tools(**args)
+        tasks_and_tools = self.search_tools(
+            **args, similarity_threshold=self.search_similarity_threshold
+        )
         logger.info(f"Tools found: {str(tasks_and_tools)}")
         # TODO: add details to feedback message - task: suitable tools
         if track_history:
@@ -267,7 +273,10 @@ class MinimalTulipAgent(TulipAgent):
         logger.info(f"{self.__class__.__name__} received query: {prompt}")
 
         # Search for tools directly with user prompt; do not track the search
-        tools = self.search_tools(action_descriptions=[prompt])[0][1]
+        tools = self.search_tools(
+            action_descriptions=[prompt],
+            similarity_threshold=self.search_similarity_threshold,
+        )[0][1]
 
         # Run with tools
         self.messages.append(
@@ -951,7 +960,10 @@ class AutoTulipAgent(TulipAgent):
                     logger.info(f"Tool search for: {str(func_args)}")
                     new_tools = [
                         tool
-                        for partial in self.search_tools(**func_args)
+                        for partial in self.search_tools(
+                            **func_args,
+                            similarity_threshold=self.search_similarity_threshold,
+                        )
                         for tool in partial[1]
                         if tool not in self.tools
                     ]

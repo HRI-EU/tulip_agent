@@ -38,15 +38,16 @@ You are a helpful agent who has access to an abundance of tools.
 
 
 TREE_TULIP_DECOMPOSITION_PROMPT = """\
-Decompose the following task into subtasks:
+Decompose the following task into actionable subtasks:
 {task}
 You have access to tools such as the following:
 {tools}
-Plan based on the assumption that these prior subtasks have already been executed:
+Consider the following information from previous steps:
 {previous}
 
 Return an ordered list of steps described in natural language.
-Important: If decomposing further is not sensible return an emtpy list and do not execute the task.
+Important: If decomposing further is not sensible considering the available tools, \
+return an emtpy list and do not execute the task.
 Return valid JSON and use the key `subtasks`.
 """
 

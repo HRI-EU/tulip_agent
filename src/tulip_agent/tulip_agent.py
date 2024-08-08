@@ -1074,25 +1074,25 @@ class TreeTulipAgent(TulipAgent):
 
     def decompose_task(
         self,
-        task: str,
+        task: Task,
         tool_names: list[str],
-        previous_steps: list[str],
         base_prompt: str = TREE_TULIP_DECOMPOSITION_PROMPT,
     ) -> str:
-        previous_str = (
-            "\n".join([f"{str(c+1)}: {s}" for c, s in enumerate(previous_steps)])
-            if previous_steps
+        previous_info = (
+            "\n".join(
+                [
+                    f"{c + 1}. {p.description}: {p.result}"
+                    for c, p in enumerate(task.get_predecessors()[::-1])
+                ]
+            )
+            if task.get_predecessors()
             else "[]"
         )
         messages = [
             {
-                "role": "system",
-                "content": TREE_TULIP_SYSTEM_PROMPT,
-            },
-            {
                 "role": "user",
                 "content": base_prompt.format(
-                    task=task, tools=tool_names, previous=previous_str
+                    task=task, tools=tool_names, previous=previous_info
                 ),
             },
         ]
@@ -1115,12 +1115,13 @@ class TreeTulipAgent(TulipAgent):
             task.result = ""
             return task
 
+        _, generic_tools = self.search_tools(action_descriptions=[task.description])[0]
         _, tools = self.search_tools(action_descriptions=[task.description])[0]
 
+        # decompose if sensible
         subtask_descriptions = self.decompose_task(
-            task=task.description,
-            tool_names=[t["function"]["name"] for t in tools],
-            previous_steps=[t.description for t in task.get_predecessors()],
+            task=task,
+            tool_names=[t["function"]["name"] for t in generic_tools],
         )
         if len(subtask_descriptions) == 1:
             subtask_descriptions = []

@@ -1037,8 +1037,8 @@ class TreeTulipAgent(TulipAgent):
         temperature: float = BASE_TEMPERATURE,
         api_interaction_limit: int = 100,
         tool_library: ToolLibrary = None,
-        top_k_functions: int = 5,
-        search_similarity_threshold: float = 2,
+        top_k_functions: int = 3,
+        search_similarity_threshold: float = 1.25,
         max_recursion_depth: int = 4,
         max_paraphrases: int = 1,
         max_replans: int = 1,
@@ -1110,9 +1110,8 @@ class TreeTulipAgent(TulipAgent):
     ) -> Task:
         print(f"{task=}")
 
-        recursion_level += 1
         if recursion_level > self.max_recursion_depth:
-            task.result = ""
+            task.result = f"ERROR: Aborting decomposition beyond the level of `{task.description}`"
             return task
 
         _, generic_tools = self.search_tools(action_descriptions=[task.description])[0]
@@ -1135,8 +1134,15 @@ class TreeTulipAgent(TulipAgent):
                 s1.successor = s2
                 s2.predecessor = s1
             task.subtasks = [
-                self.recurse(subtask, recursion_level) for subtask in subtasks
+                self.recurse(subtask, recursion_level + 1) for subtask in subtasks
             ]
+            # backtrack
+            if any([st.result.startswith("ERROR: ") for st in task.subtasks]):
+                # TODO: if max_replans reached - add error message as result and return task to replan higher up
+                #  check via list of list as subtasks
+                # TODO: else replan on this level - create new subtask set based on feedback
+                pass
+            # aggregate subtask results
             subtask_information = "\n".join(
                 f"{c+1}. {st.description}: {st.result}"
                 for c, st in enumerate(task.subtasks)
@@ -1150,12 +1156,13 @@ class TreeTulipAgent(TulipAgent):
                     ),
                 },
             ]
-            result = self._get_response(msgs=messages).choices[0].message.content
-            if not result:
-                # TODO: handle case of no result - replan
-                pass
-            task.result = result
+            response = self._get_response(msgs=messages).choices[0].message.content
+            error_messages = [
+                st.result for st in task.subtasks if st.result.startswith("ERROR: ")
+            ]
+            task.result = response if response != '""' else "\n".join(error_messages)
         else:
+            # execute with tools
             task.tool_candidates = [
                 Tool(name=t["function"]["name"], description=t) for t in tools
             ]
@@ -1177,8 +1184,13 @@ class TreeTulipAgent(TulipAgent):
                 ]
                 print(messages[-1]["content"])
                 response = self.run_with_tools(tools=tools, messages=messages)
-                task.result = response
+                task.result = (
+                    response
+                    if response != '""'
+                    else f"ERROR: No suitable tool available for task `{task.description}`."
+                )
             else:
+                # paraphrase
                 if len(task.paraphrased_variants) <= self.max_paraphrases:
                     messages = [
                         {
@@ -1194,8 +1206,9 @@ class TreeTulipAgent(TulipAgent):
                     )
                     task.paraphrased_variants.append(deepcopy(task))
                     task.description = paraphrased_description
-                    return self.recurse(task, recursion_level)
+                    return self.recurse(task, recursion_level + 1)
                 else:
-                    # TODO: generate tool
+                    # create new tool
+                    # TODO: generate tool; should be able to return that tool cannot be generated
                     pass
         return task

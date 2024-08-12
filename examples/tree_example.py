@@ -48,6 +48,8 @@ agent = TreeTulipAgent(
     top_k_functions=3,
     search_similarity_threshold=1.25,
     max_recursion_depth=2,
+    max_paraphrases=1,
+    max_replans=1,
 )
 
 for task in tasks:

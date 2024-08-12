@@ -42,16 +42,16 @@ class TestCore(unittest.TestCase):
                 s2.predecessor = s1
             for s in subtasks:
                 s.tool_candidates = [Tool(name=f"{s.description} tool", description={})]
-            task.subtasks = subtasks
+            task.subtasks.append(subtasks)
 
         self.task = Task(description="t")
         self.task.tool_candidates = [
             Tool(name=f"{self.task.description} tool", description={})
         ]
         _add_subtasks(self.task, subtask_names=["t1", "t2", "t3"])
-        st2 = self.task.subtasks[1]
+        st2 = self.task.subtasks[-1][1]
         _add_subtasks(task=st2, subtask_names=["t2a", "t2b", "t2c"])
-        self.st2c = st2.subtasks[2]
+        self.st2c = st2.subtasks[-1][2]
 
     def test_get_predecessors_without_higher(self):
         predecessors = self.st2c.get_predecessors(include_higher_levels=False)

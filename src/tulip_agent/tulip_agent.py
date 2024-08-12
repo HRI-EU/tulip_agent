@@ -1133,11 +1133,11 @@ class TreeTulipAgent(TulipAgent):
             for s1, s2 in zip(subtasks, subtasks[1:]):
                 s1.successor = s2
                 s2.predecessor = s1
-            task.subtasks = [
-                self.recurse(subtask, recursion_level + 1) for subtask in subtasks
-            ]
+            task.subtasks.append(
+                [self.recurse(subtask, recursion_level + 1) for subtask in subtasks]
+            )
             # backtrack
-            if any([st.result.startswith("ERROR: ") for st in task.subtasks]):
+            if any([st.result.startswith("ERROR: ") for st in task.subtasks[-1]]):
                 # TODO: if max_replans reached - add error message as result and return task to replan higher up
                 #  check via list of list as subtasks
                 # TODO: else replan on this level - create new subtask set based on feedback
@@ -1145,7 +1145,7 @@ class TreeTulipAgent(TulipAgent):
             # aggregate subtask results
             subtask_information = "\n".join(
                 f"{c+1}. {st.description}: {st.result}"
-                for c, st in enumerate(task.subtasks)
+                for c, st in enumerate(task.subtasks[-1])
             )
             messages = [
                 {
@@ -1158,7 +1158,7 @@ class TreeTulipAgent(TulipAgent):
             ]
             response = self._get_response(msgs=messages).choices[0].message.content
             error_messages = [
-                st.result for st in task.subtasks if st.result.startswith("ERROR: ")
+                st.result for st in task.subtasks[-1] if st.result.startswith("ERROR: ")
             ]
             task.result = response if response != '""' else "\n".join(error_messages)
         else:

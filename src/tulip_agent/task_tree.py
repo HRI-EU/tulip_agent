@@ -47,7 +47,7 @@ class Task:
         self.predecessor: Optional[Task] = predecessor
         self.successor: Optional[Task] = successor
         self.supertask: Optional[Task] = supertask
-        self.subtasks: list[Task] = []
+        self.subtasks: list[list[Task]] = []
         self.tool_candidates: list[Tool] = []
         self.paraphrased_variants: list[Task] = []
         self.result: Optional[str] = None
@@ -74,16 +74,21 @@ class Task:
     def _get_nodes_and_edges(self, task: Task) -> tuple:
         nodes = [(task, {"node_type": "task"})]
         nodes.extend([(tool, {"node_type": "tool"}) for tool in task.tool_candidates])
-        edges = [[task, subtask, {"edge_type": "subtask"}] for subtask in task.subtasks]
+        edges = [
+            [task, subtask, {"edge_type": "subtask"}]
+            for subtask_list in task.subtasks
+            for subtask in subtask_list
+        ]
         edges.extend(
             [[task, tool, {"edge_type": "tool"}] for tool in task.tool_candidates]
         )
         if task.predecessor:
             edges.append([task.predecessor, task, {"edge_type": "successor"}])
-        for subtask in task.subtasks:
-            sn, se = self._get_nodes_and_edges(subtask)
-            nodes.extend(sn)
-            edges.extend(se)
+        for subtask_list in task.subtasks:
+            for subtask in subtask_list:
+                sn, se = self._get_nodes_and_edges(subtask)
+                nodes.extend(sn)
+                edges.extend(se)
         return nodes, edges
 
     def plot(self):

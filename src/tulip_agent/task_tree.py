@@ -82,6 +82,14 @@ class Task:
         edges.extend(
             [[task, tool, {"edge_type": "tool"}] for tool in task.tool_candidates]
         )
+        if task.paraphrased_variants:
+            nodes.append((task.paraphrased_variants[-1], {"node_type": "task"}))
+            edges.append(
+                [task, task.paraphrased_variants[-1], {"edge_type": "paraphrased"}]
+            )
+            sn, se = self._get_nodes_and_edges(task.paraphrased_variants[-1])
+            nodes.extend(sn)
+            edges.extend(se)
         if task.predecessor:
             edges.append([task.predecessor, task, {"edge_type": "successor"}])
         for subtask_list in task.subtasks:
@@ -101,6 +109,9 @@ class Task:
 
         # Nodes and edges by types
         task_nodes = [n for n, d in graph.nodes(data=True) if d["node_type"] == "task"]
+        paraphrased_nodes = [
+            n for n, d in graph.nodes(data=True) if d["node_type"] == "paraphrased_task"
+        ]
         tool_nodes = [n for n, d in graph.nodes(data=True) if d["node_type"] == "tool"]
         subtask_edges = [
             (u, v) for u, v, d in graph.edges(data=True) if d["edge_type"] == "subtask"
@@ -109,6 +120,11 @@ class Task:
             (u, v)
             for u, v, d in graph.edges(data=True)
             if d["edge_type"] == "successor"
+        ]
+        paraphrased_edges = [
+            (u, v)
+            for u, v, d in graph.edges(data=True)
+            if d["edge_type"] == "paraphrased"
         ]
         tool_edges = [
             (u, v) for u, v, d in graph.edges(data=True) if d["edge_type"] == "tool"
@@ -121,6 +137,14 @@ class Task:
             nodelist=task_nodes,
             node_shape="o",
             node_color="lightblue",
+            node_size=500,
+        )
+        nx.draw_networkx_nodes(
+            graph,
+            pos,
+            nodelist=paraphrased_nodes,
+            node_shape="o",
+            node_color="lightsalmon",
             node_size=500,
         )
         nx.draw_networkx_nodes(
@@ -147,6 +171,15 @@ class Task:
             arrowsize=20,
             style="dashed",
             edge_color="grey",
+        )
+        nx.draw_networkx_edges(
+            graph,
+            pos,
+            edgelist=paraphrased_edges,
+            arrowstyle="->",
+            arrowsize=20,
+            style="dotted",
+            edge_color="salmon",
         )
         nx.draw_networkx_edges(
             graph,

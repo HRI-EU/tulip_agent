@@ -53,6 +53,19 @@ Return valid JSON and use the key `subtasks`.
 
 
 TREE_TULIP_REPLAN_PROMPT = """\
+Decompose the following task into actionable subtasks:
+{task}
+You have access to tools such as the following:
+{tools}
+Consider the following information from previous steps:
+{previous}
+Note that the following decompositions failed, so you should adapt the plan accordingly:
+{failed}
+
+Return an ordered list of steps described in natural language.
+Important: If decomposing further is not sensible considering the available tools, \
+return an emtpy list and do not execute the task.
+Return valid JSON and use the key `subtasks`.
 """
 
 

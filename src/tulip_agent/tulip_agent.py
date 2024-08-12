@@ -59,6 +59,7 @@ from .prompts import (
     TREE_TULIP_AGGREGATE_PROMPT,
     TREE_TULIP_DECOMPOSITION_PROMPT,
     TREE_TULIP_PARAPHRASE_PROMPT,
+    TREE_TULIP_REPLAN_PROMPT,
     TREE_TULIP_SYSTEM_PROMPT,
     TREE_TULIP_TASK_PROMPT,
     TULIP_COT_PROMPT,
@@ -1076,7 +1077,7 @@ class TreeTulipAgent(TulipAgent):
         self,
         task: Task,
         tool_names: list[str],
-        base_prompt: str = TREE_TULIP_DECOMPOSITION_PROMPT,
+        base_prompt: str,
     ) -> str:
         previous_info = (
             "\n".join(
@@ -1115,13 +1116,31 @@ class TreeTulipAgent(TulipAgent):
             return task
 
         _, generic_tools = self.search_tools(action_descriptions=[task.description])[0]
-        _, tools = self.search_tools(action_descriptions=[task.description])[0]
+        _, tools = self.search_tools(
+            action_descriptions=[task.description],
+            similarity_threshold=self.search_similarity_threshold,
+        )[0]
 
         # decompose if sensible
-        subtask_descriptions = self.decompose_task(
-            task=task,
-            tool_names=[t["function"]["name"] for t in generic_tools],
-        )
+        if len(task.subtasks) == 0:
+            subtask_descriptions = self.decompose_task(
+                task=task,
+                tool_names=[t["function"]["name"] for t in generic_tools],
+                base_prompt=TREE_TULIP_DECOMPOSITION_PROMPT,
+            )
+        else:
+            # TODO: add failure info
+            failed = "\n".join(
+                [
+                    ", ".join([st.description for st in subtask_list])
+                    for subtask_list in task.subtasks
+                ]
+            )
+            subtask_descriptions = self.decompose_task(
+                task=task,
+                tool_names=[t["function"]["name"] for t in generic_tools],
+                base_prompt=TREE_TULIP_REPLAN_PROMPT.replace("{failed}", failed),
+            )
         if len(subtask_descriptions) == 1:
             subtask_descriptions = []
         print(f"{subtask_descriptions=}")
@@ -1138,10 +1157,18 @@ class TreeTulipAgent(TulipAgent):
             )
             # backtrack
             if any([st.result.startswith("ERROR: ") for st in task.subtasks[-1]]):
-                # TODO: if max_replans reached - add error message as result and return task to replan higher up
-                #  check via list of list as subtasks
-                # TODO: else replan on this level - create new subtask set based on feedback
-                pass
+                if len(task.subtasks) > self.max_replans:
+                    sequences = "\n".join(
+                        [
+                            " - ".join([st.description for st in subtask_list])
+                            for subtask_list in task.subtasks
+                        ]
+                    )
+                    # TODO: add failure info
+                    task.result = f"ERROR: Reached maximum replans. Invalid subplans tried are:\n{sequences}"
+                    return task
+                else:
+                    return self.recurse(task=task, recursion_level=recursion_level)
             # aggregate subtask results
             subtask_information = "\n".join(
                 f"{c+1}. {st.description}: {st.result}"
@@ -1191,7 +1218,7 @@ class TreeTulipAgent(TulipAgent):
                 )
             else:
                 # paraphrase
-                if len(task.paraphrased_variants) <= self.max_paraphrases:
+                if len(task.paraphrased_variants) < self.max_paraphrases:
                     messages = [
                         {
                             "role": "user",

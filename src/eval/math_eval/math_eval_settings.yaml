@@ -1,15 +1,17 @@
 # Settings for math eval
 
-
-ground_truth: MATH_benchmarks/benchmark_prealgebra_1-3.json
+benchmark_type: custom
+ground_truth: math_tasks.json
 number_of_runs: 1
 log_folder: logs
 log_file: null
 task_filter: null
+run_sanity_checks: true
+plot_cost_distribution: false
 
-tools: math_tools_stripped
-#model: "gpt-3.5-turbo-0125"
-model: "gpt-4-turbo-2024-04-09"
+tools: math_tools
+# other models: "gpt-3.5-turbo-0125", "gpt-4-turbo-2024-04-09", "gpt-4o-2024-05-13"
+model: "gpt-4o-mini-2024-07-18"
 embedding_model: "text-embedding-3-large"
 
 tulip_top_k: 5
@@ -17,14 +19,14 @@ search_similarity_threshold: null
 
 agents:
     BaseAgent: True
-    NaiveToolAgent: False
+    NaiveToolAgent: True
     CotToolAgent: True
-    MinimalTulipAgent: False
-    NaiveTulipAgent: False
+    MinimalTulipAgent: True
+    NaiveTulipAgent: True
     CotTulipAgent: True
-    InformedCotTulipAgent: False
+    InformedCotTulipAgent: True
     PrimedCotTulipAgent: True
-    OneShotCotTulipAgent: False
+    OneShotCotTulipAgent: True
     AutoTulipAgent: False
 
 colors:

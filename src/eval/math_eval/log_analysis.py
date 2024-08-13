@@ -74,6 +74,10 @@ OAI_PRICES = {
         "input": 5 / 1_000_000,
         "output": 15 / 1_000_000,
     },
+    "gpt-4o-mini-2024-07-18": {
+        "input": 0.15 / 1_000_000,
+        "output": 0.60 / 1_000_000,
+    },
     "text-embedding-ada-002": 0.1 / 1_000_000,
     "text-embedding-3-small": 0.02 / 1_000_000,
     "text-embedding-3-large": 0.13 / 1_000_000,
@@ -119,7 +123,7 @@ def interquartile_mean(values: list) -> float:
     lnv = len(values)
     q = lnv // 4
     if q == 0:
-        return 0.
+        return 0.0
     if lnv % 4 == 0:
         nums = values[q:-q]
         return sum(nums) / (2 * q)
@@ -305,12 +309,13 @@ def plot(
                 [
                     float(getattr(d, criterion))
                     for d in data
-                    if d.agent == agent and tasks[d.task].split(".")[-split_index] == level
+                    if d.agent == agent
+                    and tasks[d.task].split(".")[-split_index] == level
                 ]
                 for level in levels
             ]
             processed = [
-                interquartile_mean(s) #if criterion == "costs" else statistics.mean(s)
+                interquartile_mean(s) if criterion == "costs" else statistics.mean(s)
                 for s in scores
             ]
             number_of_scores = [len(e) for e in scores]
@@ -332,34 +337,28 @@ def plot(
         max_value = max(values)
         y_line_positions = [0.25 * max_value, 0.5 * max_value, 0.75 * max_value]
         for y_line_position in y_line_positions:
-            axs[ci].axhline(y=y_line_position, color="darkgrey", linestyle="--", linewidth=0.5)
+            axs[ci].axhline(
+                y=y_line_position, color="darkgrey", linestyle="--", linewidth=0.5
+            )
 
         axs[ci].set_ylabel(criteria[criterion])
         if criterion == "correctness":
             axs[ci].set_ylim(0, 1.0)
 
         axs[ci].set_axisbelow(True)
-        axs[ci].grid(which='major', axis='y', linestyle='--', linewidth=1, alpha=0.5)
-
-        # axs[ci].xaxis.set_major_locator(MultipleLocator(0.2))
-        # axs[0].xaxis.set_major_formatter('{x:.0f}')
-        # axs[0].xaxis.set_minor_locator(MultipleLocator(minor_grid_x))
-
-        # axs[0].yaxis.set_major_locator(MultipleLocator(major_grid_y))
-        # axs[0].yaxis.set_minor_locator(MultipleLocator(minor_grid_y))
+        axs[ci].grid(which="major", axis="y", linestyle="--", linewidth=1, alpha=0.5)
 
     fig.legend(
         handles=[h[0] for h in handles],
         labels=agents,
         loc="upper center",
-        ncol=math.ceil(number_agents / 1),
+        ncol=math.ceil(number_agents / 2),
         title="Frameworks",
         borderaxespad=0.2,
     )
     plt.xticks(x, list(levels.values()), rotation=0)
     # plt.ylim(0, 1.0)
     plt.xlabel("Difficulty")
-
 
     plt.savefig(output_file, bbox_inches="tight")
 
@@ -408,8 +407,14 @@ def main(
         with open(f"./logs/failures_{idx}.txt", "w") as file:
             for r in res:
                 if not r.correctness and r.agent == "CotTulipAgent":
-                    file.write(f"------ TASK {tasks[r.task]}\n{r.task}\nResponse:\n{r.response}\nGT:{r.ground_truth}\nTools:\n{r.tools_called}\n\n")
-
+                    file.write(
+                        (
+                            f"------ TASK {tasks[r.task]}\n{r.task}\n"
+                            f"Response:\n{r.response}\n"
+                            f"GT:{r.ground_truth}\n"
+                            f"Tools:\n{r.tools_called}\n\n"
+                        )
+                    )
 
     plot(
         data=all_results,
@@ -541,28 +546,28 @@ def sanity_check_results(
 
 
 if __name__ == "__main__":
-
-    MATH_benchmark = True
-
-    logs_to_plot = [
-        "logs/math.eval.20240701-1154.log",
-        "logs/math.eval.20240701-1507.log",
-    ]
-    logs_to_plot = None
-
     with open("math_eval_settings.yaml", "rt") as mes:
         settings = yaml.safe_load(mes.read())
+
+    benchmark_type = settings["benchmark_type"]
+    if benchmark_type not in (benchmark_types := ("custom", "math")):
+        raise ValueError(
+            f"Unknown benchmark type `{benchmark_type}`. Available options: {benchmark_types}"
+        )
+
     log_folder = settings["log_folder"]
+    logs_to_plot = []  # eg, "logs/math.eval.20240701-1154.log",
     if not logs_to_plot:
-        logs_to_plot = [(
-            log_folder + "/" + settings["log_file"]
-            if settings["log_file"]
-            else find_most_recent_log(directory=log_folder)
-        )]
+        logs_to_plot = [
+            (
+                log_folder + "/" + settings["log_file"]
+                if settings["log_file"]
+                else find_most_recent_log(directory=log_folder)
+            )
+        ]
 
     ground_truths = []
     log_names = []
-    log_folder = "logs"
     with open(log_folder + "/history.json", "r") as f:
         history_data = json.load(f)
         for log in logs_to_plot:
@@ -578,34 +583,42 @@ if __name__ == "__main__":
             ]
             colors = [history_data[log_name]["colors"][a] for a in agents]
 
-    criteria = {
+    if benchmark_type == "custom":
+        criteria = {
             "costs": "Costs [$]",
             "function_recall": "Recall",
             "function_precision": "Precision",
             "correctness": "Correct",
         }
-    if MATH_benchmark:
+    elif benchmark_type == "math":
         criteria = {
             "costs": "Costs [$]",
             "correctness": "Correct",
         }
-    # passed = sanity_check_results(
-    #     log_file=log,
-    #     model=model,
-    #     embedding_model=embedding_model,
-    #     ground_truth=history_data[log_name]["ground_truth"],
-    #     agents=agents,
-    #     runs=history_data[log_name]["number_of_runs"],
-    # )
-    # if passed is False:
-    #     raise ValueError("Sanity check failed - number of results does not match tasks")
-    # plot_cost_distribution(
-    #     log_file=log,
-    #     model=model,
-    #     embedding_model=embedding_model,
-    #     ground_truth=history_data[log_name]["ground_truth"],
-    #     agents=agents,
-    # )
+    else:
+        raise ValueError(f"Unknown benchmark type `{benchmark_type}`.")
+
+    if settings["run_sanity_checks"] is True:
+        passed = sanity_check_results(
+            log_file=log,
+            model=model,
+            embedding_model=embedding_model,
+            ground_truth=history_data[log_name]["ground_truth"],
+            agents=agents,
+            runs=history_data[log_name]["number_of_runs"],
+        )
+        if passed is False:
+            raise ValueError("Sanity check failed - number of results does not match tasks")
+
+    if settings["plot_cost_distribution"] is True:
+        plot_cost_distribution(
+            log_file=log,
+            model=model,
+            embedding_model=embedding_model,
+            ground_truth=history_data[log_name]["ground_truth"],
+            agents=agents,
+        )
+
     main(
         log_files=logs_to_plot,
         model=model,
@@ -615,10 +628,13 @@ if __name__ == "__main__":
         agents=agents,
         criteria=criteria,
         colors=colors,
-        math_benchmark=MATH_benchmark,
+        math_benchmark=(benchmark_type == "math"),
     )
-    if MATH_benchmark:
+
+    if benchmark_type == "math":
         img_name = "_".join(ln[:-3] for ln in log_names) + "_math_bench.png"
-    else:
+    elif benchmark_type == "custom":
         img_name = log_name[:-3] + ".png"
+    else:
+        raise ValueError(f"Unknown benchmark type `{benchmark_type}`.")
     shutil.copy("math.eval.png", f"{log_folder}/{img_name}")

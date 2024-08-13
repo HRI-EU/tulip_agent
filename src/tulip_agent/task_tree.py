@@ -50,6 +50,7 @@ class Task:
         self.subtasks: list[list[Task]] = []
         self.tool_candidates: list[Tool] = []
         self.paraphrased_variants: list[Task] = []
+        self.generated_tools: list[Tool] = []
         self.result: Optional[str] = None
 
     def __repr__(self) -> str:

@@ -233,12 +233,15 @@ Always adhere to the following rules:
 3. Use python type hints
 4. Return only valid code and avoid Markdown syntax for code blocks
 5. Avoid adding examples to the docstring
+6. Use short but descriptive function names
+7. You may only use dependencies from Python's standard library
 """
 
 
 TOOL_CREATE = """\
 Generate a Python function for the following task:
 {task_description}
+If possible, create a generic function that is also reusable with other parameters.
 """
 
 

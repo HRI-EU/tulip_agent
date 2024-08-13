@@ -1104,6 +1104,67 @@ class TreeTulipAgent(TulipAgent):
         res = json.loads(decompose_response_message.content)
         return res["subtasks"]
 
+    def _generate_code(self, task_description: str, max_retries: int = 3) -> str | None:
+        retries = 0
+        _msgs = [
+            {
+                "role": "system",
+                "content": TECH_LEAD,
+            },
+            {
+                "role": "user",
+                "content": task_description,
+            },
+        ]
+        response = self._get_response(msgs=_msgs)
+        code = response.choices[0].message.content
+        while True:
+            if retries >= max_retries:
+                logger.info(
+                    f"Failed generating code for the task `{task_description}`. Aborting."
+                )
+                return None
+            try:
+                ast.parse(code)
+            except SyntaxError:
+                logger.info(f"Attempt {retries} failed.")
+                retries += 1
+                _msgs.append(
+                    {
+                        "role": "user",
+                        "content": (
+                            "The code was not executable. "
+                            "Try again and write it in a way so that I can copy paste it."
+                        ),
+                    }
+                )
+                response = self._get_response(msgs=_msgs)
+                code = response.choices[0].message.content
+                continue
+            break
+        logger.info(f"Successfully generated code for the task `{task_description}`.")
+        return code
+
+    def create_tool(self, task_description: str) -> tuple[str, str] | tuple[None, None]:
+        # generate code
+        task_description_ = TOOL_CREATE.format(task_description=task_description)
+        code = self._generate_code(task_description=task_description_)
+        if code is None:
+            return None, None
+        # write to file
+        function_name = code.split("def ")[1].split("(")[0]
+        module_name = f"{function_name}_module"
+        with open(f"{module_name}.py", "w") as f:
+            f.write(code)
+        # add module to tool library
+        new_tool_description = self.tool_library.load_functions_from_file(
+            module_name=module_name, function_names=[f"{function_name}"]
+        )[0]
+        logger.info(
+            f"Made tool `{module_name}__{function_name}` available via the tool library."
+        )
+        return function_name, new_tool_description["function"]["description"]
+
     def recurse(
         self,
         task: Task,
@@ -1234,8 +1295,19 @@ class TreeTulipAgent(TulipAgent):
                     task.paraphrased_variants.append(deepcopy(task))
                     task.description = paraphrased_description
                     return self.recurse(task, recursion_level + 1)
-                else:
+                elif len(task.generated_tools) == 0:
                     # create new tool
-                    # TODO: generate tool; should be able to return that tool cannot be generated
-                    pass
+                    function_name, function_description = self.create_tool(
+                        task_description=task.description
+                    )
+                    if function_name and function_description:
+                        new_tool = Tool(
+                            name=function_name, description=function_description
+                        )
+                        task.generated_tools.append(new_tool)
+                        return self.recurse(task=task, recursion_level=recursion_level)
+                    else:
+                        task.result = (
+                            "ERROR: Could not generate code for a suitable tool."
+                        )
         return task

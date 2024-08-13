@@ -187,10 +187,15 @@ def extract_data_from_log(
                         name=tool_name, arguments=tool_arguments, result=tool_result
                     )
                 )
+        if agent == "PrunedCotTulipAgent":
+            agent = "PrimedCotTulipAgent"
         if agent in (
             "MinimalTulipAgent",
             "NaiveTulipAgent",
             "CotTulipAgent",
+            "InformedCotTulipAgent",
+            "PrimedCotTulipAgent",
+            "OneShotCotTulipAgent",
             "AutoTulipAgent",
         ):
             embed_tokens += tool_library_costs
@@ -300,7 +305,9 @@ def plot(
             levels[l] = f"Level {l}"
 
     x = np.arange(len(levels))
-    fig, axs = plt.subplots(len(criteria), sharex=True, sharey=False, figsize=(11, 6))
+    fig, axs = plt.subplots(
+        len(criteria), sharex=True, sharey=False, figsize=(11, 6)
+    )  # AAAI: set figsize=(16, 6) for wide plot
     handles = []
     for ci, criterion in enumerate(criteria):
         values = []
@@ -352,8 +359,8 @@ def plot(
         handles=[h[0] for h in handles],
         labels=agents,
         loc="upper center",
-        ncol=math.ceil(number_agents / 2),
-        title="Frameworks",
+        ncol=math.ceil(number_agents / 2),  # AAAI: set ncol=6 for wide plot
+        title="Agent variants",
         borderaxespad=0.2,
     )
     plt.xticks(x, list(levels.values()), rotation=0)
@@ -556,7 +563,7 @@ if __name__ == "__main__":
         )
 
     log_folder = settings["log_folder"]
-    logs_to_plot = []  # eg, "logs/math.eval.20240701-1154.log",
+    logs_to_plot = []  # eg, "logs/math.eval.20240619-1357.log",
     if not logs_to_plot:
         logs_to_plot = [
             (
@@ -608,7 +615,9 @@ if __name__ == "__main__":
             runs=history_data[log_name]["number_of_runs"],
         )
         if passed is False:
-            raise ValueError("Sanity check failed - number of results does not match tasks")
+            raise ValueError(
+                "Sanity check failed - number of results does not match tasks"
+            )
 
     if settings["plot_cost_distribution"] is True:
         plot_cost_distribution(

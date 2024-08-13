@@ -38,11 +38,14 @@ logging.basicConfig(level=logging.INFO)
 tasks = [
     # """Add 2 and 5""",
     # """Add the product of 3 and 4 and the product of 5 and 6""",
-    # """Calculate the square root of the sum of the product of 3 and 4 and the product of 5 and 6""",
-    """Take an image of the table and convert that to a jpg""",
+    """Calculate the square root of the sum of the product of 3 and 4 and the product of 5 and 6""",
+    # """Take an image of the table and convert that to a jpg""",
 ]
 
-tulip = ToolLibrary(chroma_sub_dir="example/", file_imports=[("calculator", [])])
+tulip = ToolLibrary(
+    chroma_sub_dir="example/",
+    file_imports=[("calculator", ["add", "subtract", "square_root"])],
+)
 agent = TreeTulipAgent(
     tool_library=tulip,
     top_k_functions=3,

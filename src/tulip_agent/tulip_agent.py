@@ -1043,12 +1043,13 @@ class TreeTulipAgent(TulipAgent):
         temperature: float = BASE_TEMPERATURE,
         api_interaction_limit: int = 100,
         tool_library: ToolLibrary = None,
-        top_k_functions: int = 3,
+        top_k_functions: int = 5,
         search_similarity_threshold: float = 1.25,
-        max_recursion_depth: int = 4,
+        max_recursion_depth: int = 3,
         max_paraphrases: int = 1,
         max_replans: int = 1,
         instructions: Optional[str] = None,
+        plot_task_tree: bool = False,
     ) -> None:
         super().__init__(
             instructions=(
@@ -1066,6 +1067,7 @@ class TreeTulipAgent(TulipAgent):
         self.max_recursion_depth = max_recursion_depth
         self.max_paraphrases = max_paraphrases
         self.max_replans = max_replans
+        self.plot_task_tree = plot_task_tree
 
     def query(
         self,
@@ -1076,7 +1078,8 @@ class TreeTulipAgent(TulipAgent):
         print(initial_task.__dict__)
         task = self.recurse(task=initial_task, recursion_level=0)
         print(task.__dict__)
-        task.plot()
+        if self.plot_task_tree:
+            task.plot()
         logger.info(f"{self.__class__.__name__} returns response: {task.result}")
         return task.result
 

@@ -48,9 +48,8 @@ Consider the following information from previous steps:
 Return an ordered list of steps described in natural language.
 Important: If decomposing further is not sensible considering the available tools, \
 return an emtpy list and do not execute the task.
-Return valid JSON and use the key `subtasks`.
+Return valid JSON in this format: {{"subtasks": [subtasks as strings]}}
 """
-
 
 TREE_TULIP_REPLAN_PROMPT = """\
 Decompose the following task into actionable subtasks:
@@ -65,7 +64,7 @@ Note that the following decompositions failed, so you should adapt the plan acco
 Return an ordered list of steps described in natural language.
 Important: If decomposing further is not sensible considering the available tools, \
 return an emtpy list and do not execute the task.
-Return valid JSON and use the key `subtasks`.
+Return valid JSON in this format: {{"subtasks": [subtasks as strings]}}
 """
 
 

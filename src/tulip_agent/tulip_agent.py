@@ -238,9 +238,6 @@ class TulipAgent(LlmAgent, ABC):
             response_message = response.choices[0].message
             tool_calls = response_message.tool_calls
         messages.append(response_message)
-        logger.info(
-            f"{self.__class__.__name__} returns response: {response_message.content}"
-        )
         return response_message.content
 
 
@@ -286,7 +283,9 @@ class MinimalTulipAgent(TulipAgent):
                 "content": prompt,
             }
         )
-        return self.run_with_tools(tools=tools)
+        response = self.run_with_tools(tools=tools)
+        logger.info(f"{self.__class__.__name__} returns response: {response}")
+        return response
 
 
 class NaiveTulipAgent(TulipAgent):
@@ -400,7 +399,9 @@ class NaiveTulipAgent(TulipAgent):
                 "content": prompt,
             }
         )
-        return self.run_with_tools(tools=tools)
+        response = self.run_with_tools(tools=tools)
+        logger.info(f"{self.__class__.__name__} returns response: {response}")
+        return response
 
 
 class CotTulipAgent(TulipAgent):
@@ -530,7 +531,9 @@ class CotTulipAgent(TulipAgent):
                 "content": SOLVE_WITH_TOOLS.format(steps=task_str),
             }
         )
-        return self.run_with_tools(tools=tools)
+        response = self.run_with_tools(tools=tools)
+        logger.info(f"{self.__class__.__name__} returns response: {response}")
+        return response
 
 
 class InformedCotTulipAgent(CotTulipAgent):
@@ -628,7 +631,9 @@ class PrimedCotTulipAgent(CotTulipAgent):
             }
         )
         self.decomposition_prompt = copy.copy(self.decomposition_prompt_raw)
-        return self.run_with_tools(tools=tools)
+        response = self.run_with_tools(tools=tools)
+        logger.info(f"{self.__class__.__name__} returns response: {response}")
+        return response
 
 
 class OneShotCotTulipAgent(CotTulipAgent):
@@ -1066,11 +1071,13 @@ class TreeTulipAgent(TulipAgent):
         self,
         prompt: str,
     ) -> str:
+        logger.info(f"{self.__class__.__name__} received query: {prompt}")
         initial_task = Task(description=prompt)
         print(initial_task.__dict__)
         task = self.recurse(task=initial_task, recursion_level=0)
         print(task.__dict__)
         task.plot()
+        logger.info(f"{self.__class__.__name__} returns response: {task.result}")
         return task.result
 
     def decompose_task(

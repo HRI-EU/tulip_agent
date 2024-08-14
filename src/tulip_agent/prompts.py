@@ -38,7 +38,7 @@ You are a helpful agent who has access to an abundance of tools.
 
 
 TREE_TULIP_DECOMPOSITION_PROMPT = """\
-Decompose the following task into actionable subtasks:
+Decompose the following task into actionable subtasks, i.e., each subtask should be solvable with a single tool:
 {task}
 You have access to tools such as the following:
 {tools}
@@ -52,7 +52,7 @@ Return valid JSON in this format: {{"subtasks": [subtasks as strings]}}
 """
 
 TREE_TULIP_REPLAN_PROMPT = """\
-Decompose the following task into actionable subtasks:
+Decompose the following task into actionable subtasks, i.e., each subtask should be solvable with a single tool:
 {task}
 You have access to tools such as the following:
 {tools}
@@ -232,7 +232,7 @@ Always adhere to the following rules:
 3. Use python type hints
 4. Return only valid code and avoid Markdown syntax for code blocks
 5. Avoid adding examples to the docstring
-6. Use short but descriptive function names
+6. Use very short but descriptive function names
 7. You may only use dependencies from Python's standard library
 """
 

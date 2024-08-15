@@ -318,7 +318,7 @@ def plot(
     x = np.arange(len(levels))
     fig, axs = plt.subplots(
         len(criteria), sharex=True, sharey=False, figsize=(11, 6)
-    )  # AAAI: set figsize=(16, 6) for wide plot
+    )  # AAAI: set figsize=(16, 6) for wide plot, (18, 5.5) for f-score only
     handles = []
     for ci, criterion in enumerate(criteria):
         values = []
@@ -353,7 +353,7 @@ def plot(
 
         # horizontal lines
         axs[ci].set_ylabel(criteria[criterion])
-        if criterion == "correctness":
+        if criterion in ("correctness", "function_f1"):
             axs[ci].set_ylim(0, 1.0)
 
         axs[ci].set_axisbelow(True)
@@ -601,7 +601,7 @@ if __name__ == "__main__":
             "function_precision": "Precision",
             "correctness": "Correct",
         }
-    elif benchmark_type == "reduced":
+    elif benchmark_type == "reduced":  # AAAI: use "reduced" for F-Score only
         criteria = {
             "costs": "Costs [$]",
             "function_f1": "F-Score",

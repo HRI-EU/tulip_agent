@@ -106,6 +106,7 @@ class Result:
     costs: Optional[float] = None
     function_precision: Optional[float] = None
     function_recall: Optional[float] = None
+    function_f1: Optional[float] = None
     correctness: Optional[bool] = None
 
     def __post_init__(self) -> None:
@@ -269,6 +270,16 @@ def assess_data(
             r.function_recall = len(relevant_tools) / len(gtf_data[r.task]["functions"])
         else:
             r.function_recall = 0.0
+        r.function_f1 = (
+            (
+                2
+                * r.function_precision
+                * r.function_recall
+                / (r.function_precision + r.function_recall)
+            )
+            if r.function_precision or r.function_recall
+            else 0.0
+        )
     return results, {k: gtf_data[k]["name"] for k in gtf_data}
 
 
@@ -550,7 +561,7 @@ if __name__ == "__main__":
         settings = yaml.safe_load(mes.read())
 
     benchmark_type = settings["benchmark_type"]
-    if benchmark_type not in (benchmark_types := ("custom", "math")):
+    if benchmark_type not in (benchmark_types := ("custom", "reduced", "math")):
         raise ValueError(
             f"Unknown benchmark type `{benchmark_type}`. Available options: {benchmark_types}"
         )
@@ -588,6 +599,12 @@ if __name__ == "__main__":
             "costs": "Costs [$]",
             "function_recall": "Recall",
             "function_precision": "Precision",
+            "correctness": "Correct",
+        }
+    elif benchmark_type == "reduced":
+        criteria = {
+            "costs": "Costs [$]",
+            "function_f1": "F-Score",
             "correctness": "Correct",
         }
     elif benchmark_type == "math":
@@ -635,7 +652,7 @@ if __name__ == "__main__":
 
     if benchmark_type == "math":
         img_name = "_".join(ln[:-3] for ln in log_names) + "_math_bench.png"
-    elif benchmark_type == "custom":
+    elif benchmark_type in ("custom", "reduced"):
         img_name = log_name[:-3] + ".png"
     else:
         raise ValueError(f"Unknown benchmark type `{benchmark_type}`.")

@@ -95,12 +95,12 @@ def run_math_eval(
     def _run(agent_class, setup_args: dict) -> None:
         print(f" {agent_class.__name__} ".center(40, "="))
         for r in range(number_of_runs):
-            for query in queries:
+            for query_ct, query in enumerate(queries):
                 if task_filter and queries[query]["name"] not in task_filter:
                     continue
                 agent = agent_class(**setup_args)
                 print(
-                    f"{agent_class.__name__} -- {queries[query]['name']} -- {query} -- run [{r+1}/{number_of_runs}]"
+                    f"{agent_class.__name__} -- {query_ct+1}/{len(queries)} {queries[query]['name']} -- {query} -- run [{r+1}/{number_of_runs}]"
                 )
                 res = agent.query(query)
                 print(f"{res=}")

@@ -74,6 +74,10 @@ OAI_PRICES = {
         "input": 5 / 1_000_000,
         "output": 15 / 1_000_000,
     },
+    "gpt-4o-mini-2024-07-18": {
+        "input": 0.15 / 1_000_000,
+        "output": 0.6 / 1_000_000,
+    },
     "text-embedding-ada-002": 0.1 / 1_000_000,
     "text-embedding-3-small": 0.02 / 1_000_000,
     "text-embedding-3-large": 0.13 / 1_000_000,
@@ -202,7 +206,7 @@ def extract_data_from_log(
             response=response,
         )
         results.append(r)
-        # logger.info(f"Retrieved data for {r.agent} on `{r.task}`.")
+        # logger.info(f"Retrieved data for {r.agent}")
     return results
 
 
@@ -233,9 +237,12 @@ def assess_data(
         gtf_data_ = json.load(gtf)
         gtf_data = {e["task"]: e for e in gtf_data_}
     for r in results:
-        # logger.info(f"Assessing {r.agent} on `{r.task}`.")
+
+        if r.agent == "Embedding" or r.agent == "Usage":
+            continue
+        logger.info(f"Assessing {r.agent}.")
         if r.task not in gtf_data:
-            logger.warning(f"No ground truth found for {r.task}")
+            #logger.warning(f"No ground truth found for {r.task}")
             continue
         r.ground_truth = [str(vs) for vs in gtf_data[r.task]["valid_solutions"]]
 
@@ -278,7 +285,7 @@ def plot(
     criteria: dict,
     colors: list[str],
     math_benchmark: bool,
-) -> None:
+) -> dict:
     number_agents = len(agents)
     width = 0.08
     levels = {
@@ -296,9 +303,11 @@ def plot(
             levels[l] = f"Level {l}"
 
     x = np.arange(len(levels))
-    fig, axs = plt.subplots(len(criteria), sharex=True, sharey=False, figsize=(11, 6))
+    fig, axs = plt.subplots(len(criteria), sharex=True, sharey=False, figsize=(11, 3))
     handles = []
+    result_dict = {}
     for ci, criterion in enumerate(criteria):
+        result_dict[criterion] = {}
         values = []
         for ai, agent in enumerate(agents):
             scores = [
@@ -309,13 +318,16 @@ def plot(
                 ]
                 for level in levels
             ]
+
             processed = [
-                interquartile_mean(s) #if criterion == "costs" else statistics.mean(s)
+                interquartile_mean(s) if criterion == "costs" else statistics.mean(s)
                 for s in scores
             ]
             number_of_scores = [len(e) for e in scores]
             processed_rounded = [round(e, 4) for e in processed]
-            print(f"{criterion} - {agent} - {number_of_scores} - {processed_rounded}")
+            print(f"{criterion} - {agent} - {number_of_scores} {np.sum(number_of_scores)} - {processed_rounded}")
+
+            result_dict[criterion][agent] = processed_rounded
 
             bar = axs[ci].bar(
                 x - (number_agents - 1) / 2 * width + width * ai,
@@ -329,7 +341,7 @@ def plot(
             values.extend(processed)
 
         # horizontal lines
-        max_value = max(values)
+        max_value = 1.0 if criterion == "correctness" else max(values)
         y_line_positions = [0.25 * max_value, 0.5 * max_value, 0.75 * max_value]
         for y_line_position in y_line_positions:
             axs[ci].axhline(y=y_line_position, color="darkgrey", linestyle="--", linewidth=0.5)
@@ -339,7 +351,7 @@ def plot(
             axs[ci].set_ylim(0, 1.0)
 
         axs[ci].set_axisbelow(True)
-        axs[ci].grid(which='major', axis='y', linestyle='--', linewidth=1, alpha=0.5)
+        # axs[ci].grid(which='major', axis='y', linestyle='--', linewidth=1, alpha=0.5)
 
         # axs[ci].xaxis.set_major_locator(MultipleLocator(0.2))
         # axs[0].xaxis.set_major_formatter('{x:.0f}')
@@ -352,16 +364,20 @@ def plot(
         handles=[h[0] for h in handles],
         labels=agents,
         loc="upper center",
+        bbox_to_anchor=(0.5, 0.99),
         ncol=math.ceil(number_agents / 1),
         title="Frameworks",
-        borderaxespad=0.2,
+        borderaxespad=0.,
     )
     plt.xticks(x, list(levels.values()), rotation=0)
     # plt.ylim(0, 1.0)
     plt.xlabel("Difficulty")
 
-
-    plt.savefig(output_file, bbox_inches="tight")
+    tight = (0, 0, 1, 0.87)
+    plt.tight_layout(rect=tight)
+    # plt.savefig(output_file, bbox_inches="tight", dpi=300)
+    plt.show()
+    return result_dict
 
 
 def find_most_recent_log(directory: str) -> str:
@@ -392,7 +408,7 @@ def main(
     criteria: dict,
     colors: list,
     math_benchmark: bool,
-) -> None:
+) -> dict:
     all_results = []
     all_tasks = dict()
 
@@ -411,7 +427,7 @@ def main(
                     file.write(f"------ TASK {tasks[r.task]}\n{r.task}\nResponse:\n{r.response}\nGT:{r.ground_truth}\nTools:\n{r.tools_called}\n\n")
 
 
-    plot(
+    result_dict = plot(
         data=all_results,
         output_file=plot_file,
         agents=agents,
@@ -420,6 +436,7 @@ def main(
         colors=colors,
         math_benchmark=math_benchmark,
     )
+    return result_dict
 
 
 def plot_cost_distribution(
@@ -542,13 +559,17 @@ def sanity_check_results(
 
 if __name__ == "__main__":
 
-    MATH_benchmark = True
-
+    MATH_benchmark = False
     logs_to_plot = [
-        "logs/math.eval.20240701-1154.log",
-        "logs/math.eval.20240701-1507.log",
+        "logs/math.eval.20240619-1357.log"
     ]
-    logs_to_plot = None
+    # logs_to_plot = [
+        # "logs/math.eval.20240807-1344.log",  # gpt4 turbo, lvl 1-3
+        # "logs/math.eval.20240808-0858.log",  # gpt4 turbo, lvl 4
+        # "logs/math.eval.20240809-0848.log",  # gpt4 turbo, lvl 5
+        # "logs/math.eval.20240812-1339.log",  # gpt4omin, full lib, lvl 1-3
+    # ]
+    # logs_to_plot = None
 
     with open("math_eval_settings.yaml", "rt") as mes:
         settings = yaml.safe_load(mes.read())
@@ -575,13 +596,14 @@ if __name__ == "__main__":
                 a
                 for a in history_data[log_name]["agents"]
                 if history_data[log_name]["agents"][a]
+                and a != "BaseAgent"
             ]
             colors = [history_data[log_name]["colors"][a] for a in agents]
 
     criteria = {
             "costs": "Costs [$]",
-            "function_recall": "Recall",
-            "function_precision": "Precision",
+            # "function_recall": "Recall",
+            # "function_precision": "Precision",
             "correctness": "Correct",
         }
     if MATH_benchmark:
@@ -606,7 +628,7 @@ if __name__ == "__main__":
     #     ground_truth=history_data[log_name]["ground_truth"],
     #     agents=agents,
     # )
-    main(
+    result_dict = main(
         log_files=logs_to_plot,
         model=model,
         embedding_model=embedding_model,
@@ -617,6 +639,24 @@ if __name__ == "__main__":
         colors=colors,
         math_benchmark=MATH_benchmark,
     )
+
+    print(result_dict)
+    root_agent = "CotToolAgent"
+    root_value = None
+    for crit, res in result_dict.items():
+        print(crit)
+        for agent, values in res.items():
+            if crit == "correctness":
+                values = np.asarray(values) * 100.
+            mean_val = np.mean(values)
+            if agent == root_agent:
+                root_value = mean_val
+            if crit == "correctness":
+                relative_val = (root_value - mean_val)
+            else:
+                relative_val = root_value / mean_val
+            print(f"{agent}: {mean_val:.4f} {relative_val:.4f} {values}")
+
     if MATH_benchmark:
         img_name = "_".join(ln[:-3] for ln in log_names) + "_math_bench.png"
     else:

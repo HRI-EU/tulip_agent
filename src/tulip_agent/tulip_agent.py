@@ -1103,7 +1103,7 @@ class TreeTulipAgent(TulipAgent):
             {
                 "role": "user",
                 "content": base_prompt.format(
-                    task=task, tools=tool_names, previous=previous_info
+                    task=task.description, tools=tool_names, previous=previous_info
                 ),
             },
         ]
@@ -1193,7 +1193,9 @@ class TreeTulipAgent(TulipAgent):
         )[0]
 
         # decompose if sensible
-        if len(task.subtasks) == 0:
+        if task.generated_tools:
+            subtask_descriptions = []
+        elif len(task.subtasks) == 0:
             subtask_descriptions = self.decompose_task(
                 task=task,
                 tool_names=[t["function"]["name"] for t in generic_tools],

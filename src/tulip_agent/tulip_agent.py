@@ -189,8 +189,8 @@ class TulipAgent(LlmAgent, ABC):
 
             if self.api_interaction_counter >= self.api_interaction_limit:
                 error_message = f"Error: Reached API interaction limit of {self.api_interaction_limit}."
-                logger.error(
-                    f"{self.__class__.__name__} returns response: {error_message}"
+                logger.warning(
+                    f"{self.__class__.__name__}: {error_message}"
                 )
                 return error_message
 
@@ -1183,7 +1183,7 @@ class TreeTulipAgent(TulipAgent):
         print(f"{task=}")
 
         if recursion_level > self.max_recursion_depth:
-            task.result = f"ERROR: Aborting decomposition beyond the level of `{task.description}`"
+            task.result = f"Error: Aborting decomposition beyond the level of `{task.description}`"
             return task
 
         _, generic_tools = self.search_tools(action_descriptions=[task.description])[0]
@@ -1227,7 +1227,7 @@ class TreeTulipAgent(TulipAgent):
                 [self.recurse(subtask, recursion_level + 1) for subtask in subtasks]
             )
             # backtrack
-            if any([st.result.startswith("ERROR: ") for st in task.subtasks[-1]]):
+            if any([st.result.startswith("Error: ") for st in task.subtasks[-1]]):
                 if len(task.subtasks) > self.max_replans:
                     sequences = "\n".join(
                         [
@@ -1236,7 +1236,7 @@ class TreeTulipAgent(TulipAgent):
                         ]
                     )
                     # TODO: add failure info
-                    task.result = f"ERROR: Reached maximum replans. Invalid subplans tried are:\n{sequences}"
+                    task.result = f"Error: Reached maximum replans. Invalid subplans tried are:\n{sequences}"
                     return task
                 else:
                     return self.recurse(task=task, recursion_level=recursion_level)
@@ -1256,7 +1256,7 @@ class TreeTulipAgent(TulipAgent):
             ]
             response = self._get_response(msgs=messages).choices[0].message.content
             error_messages = [
-                st.result for st in task.subtasks[-1] if st.result.startswith("ERROR: ")
+                st.result for st in task.subtasks[-1] if st.result.startswith("Error: ")
             ]
             task.result = response if response != '""' else "\n".join(error_messages)
         else:
@@ -1285,7 +1285,7 @@ class TreeTulipAgent(TulipAgent):
                 task.result = (
                     response
                     if response != '""'
-                    else f"ERROR: No suitable tool available for task `{task.description}`."
+                    else f"Error: No suitable tool available for task `{task.description}`."
                 )
             else:
                 # paraphrase
@@ -1318,6 +1318,6 @@ class TreeTulipAgent(TulipAgent):
                         return self.recurse(task=task, recursion_level=recursion_level)
                     else:
                         task.result = (
-                            "ERROR: Could not generate code for a suitable tool."
+                            "Error: Could not generate code for a suitable tool."
                         )
         return task

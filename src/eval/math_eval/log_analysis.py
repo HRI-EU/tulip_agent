@@ -27,11 +27,9 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
-import ast
 import importlib
 import json
 import logging.config
-import math
 import os
 import re
 import shutil
@@ -43,9 +41,9 @@ from inspect import getmembers, isfunction
 from typing import Optional
 
 import matplotlib.pyplot as plt
-from matplotlib.ticker import MultipleLocator
 import numpy as np
 import pandas as pd
+import scipy.stats
 import seaborn as sns
 import tiktoken
 import yaml
@@ -95,6 +93,7 @@ class ToolCall:
 class Result:
     agent: str
     task: str
+    run: int
     model: str
     embedding_model: str
     input_tokens: int
@@ -104,10 +103,12 @@ class Result:
     response: str
     ground_truth: Optional[list[str]] = None
     costs: Optional[float] = None
+    costs_iqr: Optional[float] = None  # interquartile range
     function_precision: Optional[float] = None
     function_recall: Optional[float] = None
     function_f1: Optional[float] = None
     correctness: Optional[bool] = None
+    correctness_var: Optional[float] = None  # variance across runs
 
     def __post_init__(self) -> None:
         self.costs = round(
@@ -138,6 +139,7 @@ def interquartile_mean(values: list) -> float:
 def extract_data_from_log(
     log_file: str, model: str, embedding_model: str
 ) -> list[Result]:
+    run_counter = {}
     results = []
     tool_library_costs = calc_costs_for_tool_library()
     with open(log_file, "r") as f:
@@ -156,6 +158,16 @@ def extract_data_from_log(
     for p in parts:
         agent = p[0].split(" - INFO - ")[-1].split()[0]
         query = p[0].split("received query: ")[-1]
+        if query in run_counter:
+            if agent in run_counter[query]:
+                run = run_counter[query][agent] + 1
+                run_counter[query][agent] += 1
+            else:
+                run = 0
+                run_counter[query][agent] = 0
+        else:
+            run = 0
+            run_counter[query] = {agent: 0}
         response = p[-1].split("returns response: ")[-1]
         in_tokens, out_tokens, embed_tokens = 0, 0, 0
         tools_called = []
@@ -203,6 +215,7 @@ def extract_data_from_log(
         r = Result(
             agent=agent,
             task=query,
+            run=run,
             model=model,
             embedding_model=embedding_model,
             input_tokens=in_tokens,
@@ -300,6 +313,7 @@ def plot(
     tasks: dict,
     criteria: dict,
     colors: list[str],
+    number_of_runs: int,
     math_benchmark: bool,
 ) -> dict:
     number_agents = len(agents)
@@ -315,8 +329,8 @@ def plot(
         split_index = 1
         found_lvls = sorted(set([tasks[t].split(".")[-split_index] for t in tasks]))
         levels = {}
-        for l in found_lvls:
-            levels[l] = f"Level {l}"
+        for level in found_lvls:
+            levels[level] = f"Level {level}"
 
     x = np.arange(len(levels))
     fig, axs = plt.subplots(
@@ -337,14 +351,37 @@ def plot(
                 ]
                 for level in levels
             ]
+            scores_by_run = [
+                [
+                    [
+                        float(getattr(d, criterion))
+                        for d in data
+                        if d.agent == agent
+                        and d.run == run
+                        and tasks[d.task].split(".")[-split_index] == level
+                    ]
+                    for run in range(number_of_runs)
+                ]
+                for level in levels
+            ]
 
             processed = [
                 interquartile_mean(s) if criterion == "costs" else statistics.mean(s)
                 for s in scores
             ]
+            if criterion == "costs":
+                variation = [scipy.stats.iqr(s) for s in scores]
+            else:
+                variation = [
+                    np.var([statistics.mean(s) for s in scores_by_level])
+                    for scores_by_level in scores_by_run
+                ]
             number_of_scores = [len(e) for e in scores]
             processed_rounded = [round(e, 4) for e in processed]
-            print(f"{criterion} - {agent} - {number_of_scores} {np.sum(number_of_scores)} - {processed_rounded}")
+            variation_rounded = [round(e, 4) for e in variation]
+            print(
+                f"{criterion} - {agent} - {number_of_scores} {np.sum(number_of_scores)} - {processed_rounded} - {variation_rounded}"
+            )
 
             result_dict[criterion][agent] = processed_rounded
 
@@ -380,14 +417,13 @@ def plot(
         loc="upper center",
         bbox_to_anchor=(0.5, 0.99),
         fontsize=14,
-        ncol=5, #math.ceil(number_agents / 2),
+        ncol=5,  # math.ceil(number_agents / 2),
         title="Agent variants",
         title_fontsize=14,
         borderaxespad=0.2,
     )
     plt.xticks(x, list(levels.values()), rotation=0)
     plt.xlabel("Difficulty", fontdict={"fontsize": 13})
-
 
     tight = (0, 0, 1, 0.83)
     plt.tight_layout(rect=tight)
@@ -423,6 +459,7 @@ def main(
     agents: list,
     criteria: dict,
     colors: list,
+    number_of_runs: int,
     math_benchmark: bool,
 ) -> dict:
     all_results = []
@@ -456,6 +493,7 @@ def main(
         tasks=all_tasks,
         criteria=criteria,
         colors=colors,
+        number_of_runs=number_of_runs,
         math_benchmark=math_benchmark,
     )
     return result_dict
@@ -580,18 +618,13 @@ def sanity_check_results(
 
 
 if __name__ == "__main__":
-
-    MATH_benchmark = False
-    logs_to_plot = [
-        "logs/math.eval.20240619-1357.log"
-    ]
+    logs_to_plot = []  # eg, "logs/math.eval.20240619-1357.log",
     # logs_to_plot = [
-        # "logs/math.eval.20240807-1344.log",  # gpt4 turbo, lvl 1-3
-        # "logs/math.eval.20240808-0858.log",  # gpt4 turbo, lvl 4
-        # "logs/math.eval.20240809-0848.log",  # gpt4 turbo, lvl 5
-        # "logs/math.eval.20240812-1339.log",  # gpt4omin, full lib, lvl 1-3
+    #     "logs/math.eval.20240807-1344.log",  # gpt4 turbo, lvl 1-3
+    #     "logs/math.eval.20240808-0858.log",  # gpt4 turbo, lvl 4
+    #     "logs/math.eval.20240809-0848.log",  # gpt4 turbo, lvl 5
+    #     "logs/math.eval.20240812-1339.log",  # gpt4omin, full lib, lvl 1-3
     # ]
-    # logs_to_plot = None
 
     with open("math_eval_settings.yaml", "rt") as mes:
         settings = yaml.safe_load(mes.read())
@@ -603,7 +636,6 @@ if __name__ == "__main__":
         )
 
     log_folder = settings["log_folder"]
-    # logs_to_plot = []  # eg, "logs/math.eval.20240619-1357.log",
     if not logs_to_plot:
         logs_to_plot = [
             (
@@ -627,9 +659,10 @@ if __name__ == "__main__":
                 a
                 for a in history_data[log_name]["agents"]
                 if history_data[log_name]["agents"][a]
-                # and a != "BaseAgent" # to exclude base agent in plots
+                # and a != "BaseAgent"  # to exclude base agent in plots
             ]
             colors = [history_data[log_name]["colors"][a] for a in agents]
+            number_of_runs = history_data[log_name]["number_of_runs"]
 
     if benchmark_type == "custom":
         criteria = {
@@ -684,25 +717,27 @@ if __name__ == "__main__":
         agents=agents,
         criteria=criteria,
         colors=colors,
+        number_of_runs=number_of_runs,
         math_benchmark=(benchmark_type == "math"),
     )
 
-    print(result_dict)
-    root_agent = "CotToolAgent"
-    root_value = None
-    for crit, res in result_dict.items():
-        print(crit)
-        for agent, values in res.items():
-            if crit == "correctness":
-                values = np.asarray(values) * 100.
-            mean_val = np.mean(values)
-            if agent == root_agent:
-                root_value = mean_val
-            if crit == "correctness":
-                relative_val = (root_value - mean_val)
-            else:
-                relative_val = root_value / mean_val
-            print(f"{agent}: {mean_val:.4f} {relative_val:.4f} {values}")
+    if benchmark_type == "math":
+        print(result_dict)
+        root_agent = "CotToolAgent"
+        root_value = None
+        for crit, res in result_dict.items():
+            print(crit)
+            for agent, values in res.items():
+                if crit == "correctness":
+                    values = np.asarray(values) * 100.0
+                mean_val = np.mean(values)
+                if agent == root_agent:
+                    root_value = mean_val
+                if crit == "correctness":
+                    relative_val = root_value - mean_val
+                else:
+                    relative_val = root_value / mean_val
+                print(f"{agent}: {mean_val:.4f} {relative_val:.4f} {values}")
 
     if benchmark_type == "math":
         img_name = "_".join(ln[:-3] for ln in log_names) + "_math_bench.png"

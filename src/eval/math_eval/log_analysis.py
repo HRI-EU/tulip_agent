@@ -135,7 +135,10 @@ def do_significance_test(all_results):
         if res.agent not in task_result_dict[res.task_id]:
             task_result_dict[res.task_id][res.agent] = []
 
-        task_result_dict[res.task_id][res.agent].append(res.costs)
+        # change to test for costs or correctness
+        # task_result_dict[res.task_id][res.agent].append(res.costs)
+        task_result_dict[res.task_id][res.agent].append(res.correctness)
+
         all_agents.add(res.agent)
 
     print("Wilcoxon signed-rank test")
@@ -153,10 +156,14 @@ def do_significance_test(all_results):
 
         # two-sided test, H0: no difference
         test = scipy.stats.wilcoxon(pairs_x, pairs_y)
-        print(f"'{agents[0]}' - '{agents[1]}': no difference in costs H0 is dropped: {test.pvalue = }")
+        print(f"'{agents[0]}' - '{agents[1]}': no difference, H0 is dropped: {test.pvalue = }")
         # one-sided less, H0 y greater than x, H1 y less than x
         test = scipy.stats.wilcoxon(pairs_x, pairs_y, alternative="less")
-        print(f"'{agents[0]}' - '{agents[1]}': costs are greater H0 dropped for lesser H1: {test.pvalue = }")
+        print(f"'{agents[0]}' - '{agents[1]}': second is greater H0 dropped for lesser H1: {test.pvalue = }")
+        # one-sided less, H0 y lesser than x, H1 y greater than x
+        test = scipy.stats.wilcoxon(pairs_x, pairs_y, alternative="greater")
+        print(f"'{agents[0]}' - '{agents[1]}': second is lesser H0 dropped for great H1: {test.pvalue = }")
+        print()
 
 
 
@@ -671,7 +678,7 @@ if __name__ == "__main__":
         # "logs/math.eval.20240812-1339.log",  # gpt4omin, full lib, lvl 1-3
         "logs/math.eval.20240619-1357.log", # gpt-3.5-turbo, our math, 5 runs
     ]
-    history_file = "history" # to use different history files
+    history_file = "history_eval" # to use different history files
 
     with open("math_eval_settings.yaml", "rt") as mes:
         settings = yaml.safe_load(mes.read())

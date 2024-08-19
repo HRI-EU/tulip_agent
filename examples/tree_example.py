@@ -44,7 +44,7 @@ tasks = [
     #     "Calculate the area of a rectangle with length 8 units and width 5 units, "
     #     "then find the circumference of a circle with a radius equal to the square root of the rectangle's area."
     # ),
-    # "Calculate 10th Fibonacci number and add it to the factorial of 10",
+    # "Find the difference between the area of a square with side length 20 and a the area of a circle with radius 10.",
 ]
 
 tulip = ToolLibrary(chroma_sub_dir="example/")
@@ -58,8 +58,8 @@ tulip = ToolLibrary(
 )
 agent = DfsTulipAgent(
     tool_library=tulip,
-    top_k_functions=5,
-    search_similarity_threshold=1.25,
+    top_k_functions=10,
+    search_similarity_threshold=2,
     max_recursion_depth=2,
     max_paraphrases=1,
     max_replans=1,

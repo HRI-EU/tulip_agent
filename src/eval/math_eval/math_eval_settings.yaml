@@ -1,6 +1,6 @@
 # Settings for math eval
 
-benchmark_type: reduced
+benchmark_type: math
 ground_truth: math_tasks.json
 number_of_runs: 1
 log_folder: logs

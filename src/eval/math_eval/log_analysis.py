@@ -34,6 +34,7 @@ import os
 import re
 import shutil
 import statistics
+import itertools
 from collections import Counter
 from dataclasses import dataclass
 from datetime import datetime
@@ -93,6 +94,7 @@ class ToolCall:
 class Result:
     agent: str
     task: str
+    task_id: str
     run: int
     model: str
     embedding_model: str
@@ -119,6 +121,43 @@ class Result:
             ),
             5,
         )
+
+
+def do_significance_test(all_results):
+    task_result_dict = {}
+    all_agents = set()
+    for res in all_results:
+        if res.agent == "Embedding" or res.agent == "Usage":
+            continue
+
+        if res.task_id not in task_result_dict:
+            task_result_dict[res.task_id] = {}
+        if res.agent not in task_result_dict[res.task_id]:
+            task_result_dict[res.task_id][res.agent] = []
+
+        task_result_dict[res.task_id][res.agent].append(res.costs)
+        all_agents.add(res.agent)
+
+    print("Wilcoxon signed-rank test")
+    # test all pairs
+    all_agents_combinations = itertools.combinations(sorted(list(all_agents)), 2)
+    # test specific pairs
+    # all_agents_combinations = [('CotToolAgent', 'CotTulipAgent'), ('CotToolAgent', 'PrimedCotTulipAgent')]
+
+    for agents in all_agents_combinations:
+        pairs_x = []
+        pairs_y = []
+        for task, task_results in task_result_dict.items():
+            pairs_x.append(np.asarray(task_results[agents[0]]).mean())
+            pairs_y.append(np.asarray(task_results[agents[1]]).mean())
+
+        # two-sided test, H0: no difference
+        test = scipy.stats.wilcoxon(pairs_x, pairs_y)
+        print(f"'{agents[0]}' - '{agents[1]}': no difference in costs H0 is dropped: {test.pvalue = }")
+        # one-sided less, H0 y greater than x, H1 y less than x
+        test = scipy.stats.wilcoxon(pairs_x, pairs_y, alternative="less")
+        print(f"'{agents[0]}' - '{agents[1]}': costs are greater H0 dropped for lesser H1: {test.pvalue = }")
+
 
 
 def interquartile_mean(values: list) -> float:
@@ -215,6 +254,7 @@ def extract_data_from_log(
         r = Result(
             agent=agent,
             task=query,
+            task_id='None',
             run=run,
             model=model,
             embedding_model=embedding_model,
@@ -259,7 +299,7 @@ def assess_data(
 
         if r.agent == "Embedding" or r.agent == "Usage":
             continue
-        logger.info(f"Assessing {r.agent}.")
+        # logger.info(f"Assessing {r.agent}.")
         if r.task not in gtf_data:
             logger.warning(f"No ground truth found for {r.task}")
             continue
@@ -296,6 +336,9 @@ def assess_data(
             if r.function_precision or r.function_recall
             else 0.0
         )
+
+        r.task_id = gtf_data[r.task]["name"]
+
     return results, {k: gtf_data[k]["name"] for k in gtf_data}
 
 
@@ -427,8 +470,8 @@ def plot(
 
     tight = (0, 0, 1, 0.83)
     plt.tight_layout(rect=tight)
-    plt.savefig(output_file, bbox_inches="tight", dpi=300)
-    # plt.show()
+    # plt.savefig(output_file, bbox_inches="tight", dpi=300)
+    plt.show()
     return result_dict
 
 
@@ -485,6 +528,8 @@ def main(
                             f"Tools:\n{r.tools_called}\n\n"
                         )
                     )
+
+    do_significance_test(all_results)
 
     result_dict = plot(
         data=all_results,
@@ -618,13 +663,15 @@ def sanity_check_results(
 
 
 if __name__ == "__main__":
-    logs_to_plot = []  # eg, "logs/math.eval.20240619-1357.log",
-    # logs_to_plot = [
-    #     "logs/math.eval.20240807-1344.log",  # gpt4 turbo, lvl 1-3
-    #     "logs/math.eval.20240808-0858.log",  # gpt4 turbo, lvl 4
-    #     "logs/math.eval.20240809-0848.log",  # gpt4 turbo, lvl 5
-    #     "logs/math.eval.20240812-1339.log",  # gpt4omin, full lib, lvl 1-3
-    # ]
+
+    logs_to_plot = [
+        # "logs/math.eval.20240807-1344.log",  # gpt4 turbo, lvl 1-3
+        # "logs/math.eval.20240808-0858.log",  # gpt4 turbo, lvl 4
+        # "logs/math.eval.20240809-0848.log",  # gpt4 turbo, lvl 5
+        # "logs/math.eval.20240812-1339.log",  # gpt4omin, full lib, lvl 1-3
+        "logs/math.eval.20240619-1357.log", # gpt-3.5-turbo, our math, 5 runs
+    ]
+    history_file = "history" # to use different history files
 
     with open("math_eval_settings.yaml", "rt") as mes:
         settings = yaml.safe_load(mes.read())
@@ -647,7 +694,7 @@ if __name__ == "__main__":
 
     ground_truths = []
     log_names = []
-    with open(log_folder + "/history.json", "r") as f:
+    with open(log_folder + f"/{history_file}.json", "r") as f:
         history_data = json.load(f)
         for log in logs_to_plot:
             log_name = log.split("/")[-1]
@@ -659,7 +706,7 @@ if __name__ == "__main__":
                 a
                 for a in history_data[log_name]["agents"]
                 if history_data[log_name]["agents"][a]
-                # and a != "BaseAgent"  # to exclude base agent in plots
+                and a != "BaseAgent"  # to exclude base agent in plots
             ]
             colors = [history_data[log_name]["colors"][a] for a in agents]
             number_of_runs = history_data[log_name]["number_of_runs"]

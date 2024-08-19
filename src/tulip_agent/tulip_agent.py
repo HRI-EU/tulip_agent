@@ -35,6 +35,7 @@ import copy
 import json
 import logging
 from abc import ABC
+from copy import deepcopy
 from typing import Optional
 
 from openai.types.chat.chat_completion_message_tool_call import (
@@ -55,9 +56,16 @@ from .prompts import (
     TOOL_PROMPT,
     TOOL_SEARCH,
     TOOL_UPDATE,
+    TREE_TULIP_AGGREGATE_PROMPT,
+    TREE_TULIP_DECOMPOSITION_PROMPT,
+    TREE_TULIP_PARAPHRASE_PROMPT,
+    TREE_TULIP_REPLAN_PROMPT,
+    TREE_TULIP_SYSTEM_PROMPT,
+    TREE_TULIP_TASK_PROMPT,
     TULIP_COT_PROMPT,
     TULIP_COT_PROMPT_ONE_SHOT,
 )
+from .task_tree import Task, Tool
 from .tool_library import ToolLibrary
 
 
@@ -109,7 +117,11 @@ class TulipAgent(LlmAgent, ABC):
             },
         }
 
-    def search_tools(self, action_descriptions: list[str]) -> list[tuple[str, list]]:
+    def search_tools(
+        self,
+        action_descriptions: list[str],
+        similarity_threshold: Optional[float] = None,
+    ) -> list[tuple[str, list]]:
         json_res = {}
         tools = []
         for action_description in action_descriptions:
@@ -119,7 +131,7 @@ class TulipAgent(LlmAgent, ABC):
             res = self.tool_library.search(
                 problem_description=action_description,
                 top_k=self.top_k_functions,
-                similarity_threshold=self.search_similarity_threshold,
+                similarity_threshold=similarity_threshold,
             )["documents"]
             if res:
                 json_res_ = [json.loads(e) for e in res[0]]
@@ -141,7 +153,9 @@ class TulipAgent(LlmAgent, ABC):
 
         # search tulip for function with args
         logger.info(f"Tool search for: {str(args)}")
-        tasks_and_tools = self.search_tools(**args)
+        tasks_and_tools = self.search_tools(
+            **args, similarity_threshold=self.search_similarity_threshold
+        )
         logger.info(f"Tools found: {str(tasks_and_tools)}")
         # TODO: add details to feedback message - task: suitable tools
         if track_history:
@@ -155,9 +169,15 @@ class TulipAgent(LlmAgent, ABC):
             )
         return tasks_and_tools
 
-    def run_with_tools(self, tools: list[dict]) -> str:
+    def run_with_tools(
+        self,
+        tools: list[dict],
+        messages: Optional[list] = None,
+    ) -> str:
+        if messages is None:
+            messages = self.messages
         response = self._get_response(
-            msgs=self.messages,
+            msgs=messages,
             tools=tools,
             tool_choice="auto",
         )
@@ -165,13 +185,11 @@ class TulipAgent(LlmAgent, ABC):
         tool_calls = response_message.tool_calls
 
         while tool_calls:
-            self.messages.append(response_message)
+            messages.append(response_message)
 
             if self.api_interaction_counter >= self.api_interaction_limit:
                 error_message = f"Error: Reached API interaction limit of {self.api_interaction_limit}."
-                logger.error(
-                    f"{self.__class__.__name__} returns response: {error_message}"
-                )
+                logger.warning(f"{self.__class__.__name__}: {error_message}")
                 return error_message
 
             for tool_call in tool_calls:
@@ -195,7 +213,7 @@ class TulipAgent(LlmAgent, ABC):
                         f"Error: Invalid arguments for {func_name} "
                         f"(previously {generated_func_name}): {e}"
                     )
-                self.messages.append(
+                messages.append(
                     {
                         "tool_call_id": tool_call.id,
                         "role": "tool",
@@ -211,16 +229,13 @@ class TulipAgent(LlmAgent, ABC):
                 )
 
             response = self._get_response(
-                msgs=self.messages,
+                msgs=messages,
                 tools=tools,
                 tool_choice="auto",
             )
             response_message = response.choices[0].message
             tool_calls = response_message.tool_calls
-        self.messages.append(response_message)
-        logger.info(
-            f"{self.__class__.__name__} returns response: {response_message.content}"
-        )
+        messages.append(response_message)
         return response_message.content
 
 
@@ -254,7 +269,10 @@ class MinimalTulipAgent(TulipAgent):
         logger.info(f"{self.__class__.__name__} received query: {prompt}")
 
         # Search for tools directly with user prompt; do not track the search
-        tools = self.search_tools(action_descriptions=[prompt])[0][1]
+        tools = self.search_tools(
+            action_descriptions=[prompt],
+            similarity_threshold=self.search_similarity_threshold,
+        )[0][1]
 
         # Run with tools
         self.messages.append(
@@ -263,7 +281,9 @@ class MinimalTulipAgent(TulipAgent):
                 "content": prompt,
             }
         )
-        return self.run_with_tools(tools=tools)
+        response = self.run_with_tools(tools=tools)
+        logger.info(f"{self.__class__.__name__} returns response: {response}")
+        return response
 
 
 class NaiveTulipAgent(TulipAgent):
@@ -377,7 +397,9 @@ class NaiveTulipAgent(TulipAgent):
                 "content": prompt,
             }
         )
-        return self.run_with_tools(tools=tools)
+        response = self.run_with_tools(tools=tools)
+        logger.info(f"{self.__class__.__name__} returns response: {response}")
+        return response
 
 
 class CotTulipAgent(TulipAgent):
@@ -507,7 +529,9 @@ class CotTulipAgent(TulipAgent):
                 "content": SOLVE_WITH_TOOLS.format(steps=task_str),
             }
         )
-        return self.run_with_tools(tools=tools)
+        response = self.run_with_tools(tools=tools)
+        logger.info(f"{self.__class__.__name__} returns response: {response}")
+        return response
 
 
 class InformedCotTulipAgent(CotTulipAgent):
@@ -613,7 +637,9 @@ class PrimedCotTulipAgent(CotTulipAgent):
             }
         )
         self.decomposition_prompt = copy.copy(self.decomposition_prompt_raw)
-        return self.run_with_tools(tools=tools)
+        response = self.run_with_tools(tools=tools)
+        logger.info(f"{self.__class__.__name__} returns response: {response}")
+        return response
 
 
 class OneShotCotTulipAgent(CotTulipAgent):
@@ -946,7 +972,10 @@ class AutoTulipAgent(TulipAgent):
                     logger.info(f"Tool search for: {str(func_args)}")
                     new_tools = [
                         tool
-                        for partial in self.search_tools(**func_args)
+                        for partial in self.search_tools(
+                            **func_args,
+                            similarity_threshold=self.search_similarity_threshold,
+                        )
                         for tool in partial[1]
                         if tool not in self.tools
                     ]
@@ -1011,3 +1040,293 @@ class AutoTulipAgent(TulipAgent):
             f"{self.__class__.__name__} returns response: {response_message.content}"
         )
         return response_message.content
+
+
+class DfsTulipAgent(TulipAgent):
+    def __init__(
+        self,
+        model: str = BASE_LANGUAGE_MODEL,
+        temperature: float = BASE_TEMPERATURE,
+        api_interaction_limit: int = 100,
+        tool_library: ToolLibrary = None,
+        top_k_functions: int = 5,
+        search_similarity_threshold: float = 1.25,
+        max_recursion_depth: int = 3,
+        max_paraphrases: int = 1,
+        max_replans: int = 1,
+        instructions: Optional[str] = None,
+        plot_task_tree: bool = False,
+    ) -> None:
+        super().__init__(
+            instructions=(
+                TREE_TULIP_SYSTEM_PROMPT + "\n\n" + instructions
+                if instructions
+                else TREE_TULIP_SYSTEM_PROMPT
+            ),
+            model=model,
+            temperature=temperature,
+            api_interaction_limit=api_interaction_limit,
+            tool_library=tool_library,
+            top_k_functions=top_k_functions,
+            search_similarity_threshold=search_similarity_threshold,
+        )
+        self.max_recursion_depth = max_recursion_depth
+        self.max_paraphrases = max_paraphrases
+        self.max_replans = max_replans
+        self.plot_task_tree = plot_task_tree
+
+    def query(
+        self,
+        prompt: str,
+    ) -> str:
+        logger.info(f"{self.__class__.__name__} received query: {prompt}")
+        initial_task = Task(description=prompt)
+        print(initial_task.__dict__)
+        task = self.recurse(task=initial_task, recursion_level=0)
+        print(task.__dict__)
+        if self.plot_task_tree:
+            task.plot()
+        logger.info(f"{self.__class__.__name__} returns response: {task.result}")
+        return task.result
+
+    def decompose_task(
+        self,
+        task: Task,
+        tool_names: list[str],
+        base_prompt: str,
+    ) -> str:
+        previous_info = (
+            "\n".join(
+                [
+                    f"{c + 1}. {p.description}: {p.result}"
+                    for c, p in enumerate(task.get_predecessors()[::-1])
+                ]
+            )
+            if task.get_predecessors()
+            else "[]"
+        )
+        messages = [
+            {
+                "role": "user",
+                "content": base_prompt.format(
+                    task=task.description, tools=tool_names, previous=previous_info
+                ),
+            },
+        ]
+        print(messages[-1]["content"])
+        response = self._get_response(msgs=messages, response_format="json")
+        decompose_response_message = response.choices[0].message
+        logger.info(f"{decompose_response_message=}")
+        res = json.loads(decompose_response_message.content)
+        return res["subtasks"]
+
+    def _generate_code(self, task_description: str, max_retries: int = 3) -> str | None:
+        retries = 0
+        _msgs = [
+            {
+                "role": "system",
+                "content": TECH_LEAD,
+            },
+            {
+                "role": "user",
+                "content": task_description,
+            },
+        ]
+        response = self._get_response(msgs=_msgs)
+        code = response.choices[0].message.content
+        while True:
+            if retries >= max_retries:
+                logger.info(
+                    f"Failed generating code for the task `{task_description}`. Aborting."
+                )
+                return None
+            try:
+                ast.parse(code)
+            except SyntaxError:
+                logger.info(f"Attempt {retries} failed.")
+                retries += 1
+                _msgs.append(
+                    {
+                        "role": "user",
+                        "content": (
+                            "The code was not executable. "
+                            "Try again and write it in a way so that I can copy paste it."
+                        ),
+                    }
+                )
+                response = self._get_response(msgs=_msgs)
+                code = response.choices[0].message.content
+                continue
+            break
+        logger.info(f"Successfully generated code for the task `{task_description}`.")
+        return code
+
+    def create_tool(self, task_description: str) -> tuple[str, str] | tuple[None, None]:
+        # generate code
+        task_description_ = TOOL_CREATE.format(task_description=task_description)
+        code = self._generate_code(task_description=task_description_)
+        if code is None:
+            return None, None
+        # write to file
+        function_name = code.split("def ")[1].split("(")[0]
+        module_name = f"{function_name}_module"
+        with open(f"{module_name}.py", "w") as f:
+            f.write(code)
+        # add module to tool library
+        new_tool_description = self.tool_library.load_functions_from_file(
+            module_name=module_name, function_names=[f"{function_name}"]
+        )[0]
+        logger.info(
+            f"Made tool `{module_name}__{function_name}` available via the tool library."
+        )
+        return function_name, new_tool_description["function"]["description"]
+
+    def recurse(
+        self,
+        task: Task,
+        recursion_level: int,
+    ) -> Task:
+        print(f"{task=}")
+
+        if recursion_level > self.max_recursion_depth:
+            task.result = f"Error: Aborting decomposition beyond the level of `{task.description}`"
+            return task
+
+        _, generic_tools = self.search_tools(action_descriptions=[task.description])[0]
+        _, tools = self.search_tools(
+            action_descriptions=[task.description],
+            similarity_threshold=self.search_similarity_threshold,
+        )[0]
+
+        # decompose if sensible
+        if task.generated_tools:
+            subtask_descriptions = []
+        elif len(task.subtasks) == 0:
+            subtask_descriptions = self.decompose_task(
+                task=task,
+                tool_names=[t["function"]["name"] for t in generic_tools],
+                base_prompt=TREE_TULIP_DECOMPOSITION_PROMPT,
+            )
+        else:
+            # TODO: add failure info
+            failed = "\n".join(
+                [
+                    ", ".join([st.description for st in subtask_list])
+                    for subtask_list in task.subtasks
+                ]
+            )
+            subtask_descriptions = self.decompose_task(
+                task=task,
+                tool_names=[t["function"]["name"] for t in generic_tools],
+                base_prompt=TREE_TULIP_REPLAN_PROMPT.replace("{failed}", failed),
+            )
+        if len(subtask_descriptions) == 1:
+            subtask_descriptions = []
+        print(f"{subtask_descriptions=}")
+
+        if subtask_descriptions:
+            subtasks = [
+                Task(description=d, supertask=task) for d in subtask_descriptions
+            ]
+            for s1, s2 in zip(subtasks, subtasks[1:]):
+                s1.successor = s2
+                s2.predecessor = s1
+            task.subtasks.append(
+                [self.recurse(subtask, recursion_level + 1) for subtask in subtasks]
+            )
+            # backtrack
+            if any([st.result.startswith("Error: ") for st in task.subtasks[-1]]):
+                if len(task.subtasks) > self.max_replans:
+                    sequences = "\n".join(
+                        [
+                            " - ".join([st.description for st in subtask_list])
+                            for subtask_list in task.subtasks
+                        ]
+                    )
+                    # TODO: add failure info
+                    task.result = f"Error: Reached maximum replans. Invalid subplans tried are:\n{sequences}"
+                    return task
+                else:
+                    return self.recurse(task=task, recursion_level=recursion_level)
+            # aggregate subtask results
+            subtask_information = "\n".join(
+                f"{c+1}. {st.description}: {st.result}"
+                for c, st in enumerate(task.subtasks[-1])
+            )
+            messages = [
+                {
+                    "role": "user",
+                    "content": TREE_TULIP_AGGREGATE_PROMPT.format(
+                        task=task.description,
+                        information=subtask_information,
+                    ),
+                },
+            ]
+            response = self._get_response(msgs=messages).choices[0].message.content
+            task.result = (
+                response
+                if response != '""'
+                else "Error: Could not solve the task based on its subtasks' results."
+            )
+        else:
+            # execute with tools
+            task.tool_candidates = [
+                Tool(name=t["function"]["name"], description=t) for t in tools
+            ]
+            print(f"{task.description} - {tools}")
+            if tools:
+                previous_info = "\n".join(
+                    [
+                        f"{c+1}. {p.description}: {p.result}"
+                        for c, p in enumerate(task.get_predecessors()[::-1])
+                    ]
+                )
+                messages = [
+                    {
+                        "role": "user",
+                        "content": TREE_TULIP_TASK_PROMPT.format(
+                            task=task.description, previous=previous_info
+                        ),
+                    },
+                ]
+                print(messages[-1]["content"])
+                response = self.run_with_tools(tools=tools, messages=messages)
+                task.result = (
+                    response
+                    if response != '""'
+                    else f"Error: Could not solve the task `{task.description}` with the tools {tools}."
+                )
+            else:
+                # paraphrase
+                if len(task.paraphrased_variants) < self.max_paraphrases:
+                    messages = [
+                        {
+                            "role": "user",
+                            "content": TREE_TULIP_PARAPHRASE_PROMPT.format(
+                                task=task.description,
+                            ),
+                        },
+                    ]
+                    # TODO: also include other prior wordings, retrieve from list of paraphrased_variants
+                    paraphrased_description = (
+                        self._get_response(msgs=messages).choices[0].message.content
+                    )
+                    task.paraphrased_variants.append(deepcopy(task))
+                    task.description = paraphrased_description
+                    return self.recurse(task=task, recursion_level=recursion_level)
+                elif len(task.generated_tools) == 0:
+                    # create new tool
+                    function_name, function_description = self.create_tool(
+                        task_description=task.description
+                    )
+                    if function_name and function_description:
+                        new_tool = Tool(
+                            name=function_name, description=function_description
+                        )
+                        task.generated_tools.append(new_tool)
+                        return self.recurse(task=task, recursion_level=recursion_level)
+                    else:
+                        task.result = (
+                            "Error: Could not generate code for a suitable tool."
+                        )
+        return task

@@ -32,6 +32,67 @@
 # System prompts
 
 
+TREE_TULIP_SYSTEM_PROMPT = """\
+You are a helpful agent who has access to an abundance of tools.
+"""
+
+
+TREE_TULIP_DECOMPOSITION_PROMPT = """\
+Decompose the following task into actionable subtasks, i.e., each subtask should be solvable with a single tool:
+{task}
+You have access to tools such as the following:
+{tools}
+Consider the following information from previous steps:
+{previous}
+
+Return an ordered list of steps described in natural language.
+Important: If decomposing further is not sensible considering the available tools, \
+return an emtpy list and do not execute the task.
+Return valid JSON in this format: {{"subtasks": [subtasks as strings]}}
+"""
+
+TREE_TULIP_REPLAN_PROMPT = """\
+Decompose the following task into actionable subtasks, i.e., each subtask should be solvable with a single tool:
+{task}
+You have access to tools such as the following:
+{tools}
+Consider the following information from previous steps:
+{previous}
+Note that the following decompositions failed, so you should adapt the plan accordingly:
+{failed}
+
+Return an ordered list of steps described in natural language.
+Important: If decomposing further is not sensible considering the available tools, \
+return an emtpy list and do not execute the task.
+Return valid JSON in this format: {{"subtasks": [subtasks as strings]}}
+"""
+
+
+TREE_TULIP_TASK_PROMPT = """\
+Solve the following task using exactly one of the tools you have available:
+`{task}`
+Consider the following information from previous steps:
+{previous}
+If there is no suitable tool available, return an empty string.
+"""
+
+
+TREE_TULIP_AGGREGATE_PROMPT = """\
+Return the solution to the following task based on the information provided.
+Task:
+{task}
+Information:
+{information}
+If you cannot deduce the solution from the information provided return an empty string.
+"""
+
+
+TREE_TULIP_PARAPHRASE_PROMPT = """\
+Paraphrase the following task so that it can better be matched to tool descriptions:
+{task}
+"""
+
+
 AUTO_TULIP_PROMPT = """\
 You are a helpful agent who has access to an abundance of tools.
 Adhere to the following procedure:
@@ -171,12 +232,15 @@ Always adhere to the following rules:
 3. Use python type hints
 4. Return only valid code and avoid Markdown syntax for code blocks
 5. Avoid adding examples to the docstring
+6. Use very short but descriptive function names
+7. You may only use dependencies from Python's standard library
 """
 
 
 TOOL_CREATE = """\
 Generate a Python function for the following task:
 {task_description}
+If possible, create a generic function that is also reusable with other parameters.
 """
 
 

@@ -29,38 +29,44 @@
 #
 import logging
 
-from .base_agent import BaseAgent
-from .function_analyzer import FunctionAnalyzer
-from .tool_agent import CotToolAgent, NaiveToolAgent
-from .tool_library import ToolLibrary
-from .tulip_agent import (
-    AutoTulipAgent,
-    CotTulipAgent,
-    DfsTulipAgent,
-    InformedCotTulipAgent,
-    MinimalTulipAgent,
-    NaiveTulipAgent,
-    OneShotCotTulipAgent,
-    PrimedCotTulipAgent,
-)
+from tulip_agent import DfsTulipAgent, ToolLibrary
 
 
-__all__ = [
-    AutoTulipAgent,
-    BaseAgent,
-    CotToolAgent,
-    CotTulipAgent,
-    FunctionAnalyzer,
-    InformedCotTulipAgent,
-    MinimalTulipAgent,
-    NaiveToolAgent,
-    NaiveTulipAgent,
-    OneShotCotTulipAgent,
-    PrimedCotTulipAgent,
-    ToolLibrary,
-    DfsTulipAgent,
+# Set logger to INFO to show agents' internal steps
+logging.basicConfig(level=logging.INFO)
+
+tasks = [
+    # "Add 2 and 5",
+    # "Add the product of 3 and 4 and the product of 5 and 6",
+    "Calculate the square root of the sum of the product of 3 and 4 and the product of 5 and 6",
+    # "Take an image of the table and convert that to a jpg",
+    # (
+    #     "Calculate the area of a rectangle with length 8 units and width 5 units, "
+    #     "then find the circumference of a circle with a radius equal to the square root of the rectangle's area."
+    # ),
+    # "Find the difference between the area of a square with side length 20 and a the area of a circle with radius 10.",
 ]
 
+tulip = ToolLibrary(chroma_sub_dir="example/")
+tulip.chroma_client.delete_collection("tulip")
 
-# logger settings
-logging.getLogger("tulip").addHandler(logging.NullHandler())
+tulip = ToolLibrary(
+    chroma_sub_dir="example/",
+    file_imports=[("calculator", [])],
+    # file_imports=[("calculator", ["add", "subtract", "square_root"])],
+    # file_imports=[("math_tools", [])],
+)
+agent = DfsTulipAgent(
+    tool_library=tulip,
+    top_k_functions=10,
+    search_similarity_threshold=2,
+    max_recursion_depth=2,
+    max_paraphrases=1,
+    max_replans=1,
+    plot_task_tree=True,
+)
+
+for task in tasks:
+    print(f"{task=}")
+    res = agent.query(prompt=task)
+    print(f"{res=}")

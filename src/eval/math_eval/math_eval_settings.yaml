@@ -27,6 +27,7 @@ agents:
     InformedCotTulipAgent: True
     PrimedCotTulipAgent: True
     OneShotCotTulipAgent: True
+    DfsTulipAgent: False
     AutoTulipAgent: False
 
 colors:
@@ -39,4 +40,5 @@ colors:
     InformedCotTulipAgent: "#9900ff"
     PrimedCotTulipAgent: "#cc66ff"
     OneShotCotTulipAgent: "#cc33ff"
+    DfsTulipAgent: "#cc00ff"
     AutoTulipAgent: "#660066"

@@ -799,9 +799,9 @@ if __name__ == "__main__":
                 print(f"{agent}: {mean_val:.4f} {relative_val:.4f} {values}")
 
     if benchmark_type == "math":
-        img_name = "_".join(ln[:-3] for ln in log_names) + "_math_bench.png"
+        img_name = "_".join(ln[:-4] for ln in log_names) + "_math_bench.png"
     elif benchmark_type in ("custom", "reduced"):
-        img_name = log_name[:-3] + ".png"
+        img_name = log_name[:-4] + ".png"
     else:
         raise ValueError(f"Unknown benchmark type `{benchmark_type}`.")
     shutil.copy("math.eval.png", f"{log_folder}/{img_name}")

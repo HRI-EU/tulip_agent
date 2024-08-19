@@ -44,6 +44,7 @@ from tulip_agent import (
     BaseAgent,
     CotToolAgent,
     CotTulipAgent,
+    DfsTulipAgent,
     InformedCotTulipAgent,
     MinimalTulipAgent,
     NaiveToolAgent,
@@ -51,7 +52,6 @@ from tulip_agent import (
     OneShotCotTulipAgent,
     PrimedCotTulipAgent,
     ToolLibrary,
-    TreeTulipAgent,
 )
 
 
@@ -126,7 +126,7 @@ def run_math_eval(
         InformedCotTulipAgent,
         PrimedCotTulipAgent,
         OneShotCotTulipAgent,
-        TreeTulipAgent,
+        DfsTulipAgent,
         AutoTulipAgent,
     ):
         if agent_class.__name__ in agents:

@@ -1034,7 +1034,7 @@ class AutoTulipAgent(TulipAgent):
         return response_message.content
 
 
-class TreeTulipAgent(TulipAgent):
+class DfsTulipAgent(TulipAgent):
     def __init__(
         self,
         model: str = BASE_LANGUAGE_MODEL,

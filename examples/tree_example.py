@@ -29,7 +29,7 @@
 #
 import logging
 
-from tulip_agent import ToolLibrary, TreeTulipAgent
+from tulip_agent import DfsTulipAgent, ToolLibrary
 
 
 # Set logger to INFO to show agents' internal steps
@@ -51,7 +51,7 @@ tulip = ToolLibrary(
     file_imports=[("calculator", ["add", "subtract", "square_root"])],
     # file_imports=[("math_tools", [])],
 )
-agent = TreeTulipAgent(
+agent = DfsTulipAgent(
     tool_library=tulip,
     top_k_functions=5,
     search_similarity_threshold=1.25,

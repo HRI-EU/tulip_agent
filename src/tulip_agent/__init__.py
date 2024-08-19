@@ -36,12 +36,12 @@ from .tool_library import ToolLibrary
 from .tulip_agent import (
     AutoTulipAgent,
     CotTulipAgent,
+    DfsTulipAgent,
     InformedCotTulipAgent,
     MinimalTulipAgent,
     NaiveTulipAgent,
     OneShotCotTulipAgent,
     PrimedCotTulipAgent,
-    TreeTulipAgent,
 )
 
 
@@ -58,7 +58,7 @@ __all__ = [
     OneShotCotTulipAgent,
     PrimedCotTulipAgent,
     ToolLibrary,
-    TreeTulipAgent,
+    DfsTulipAgent,
 ]
 
 

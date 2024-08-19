@@ -804,4 +804,4 @@ if __name__ == "__main__":
         img_name = log_name[:-4] + ".png"
     else:
         raise ValueError(f"Unknown benchmark type `{benchmark_type}`.")
-    shutil.copy("math.eval.png", f"{log_folder}/{img_name}")
+    shutil.move("math.eval.png", f"{log_folder}/{img_name}")

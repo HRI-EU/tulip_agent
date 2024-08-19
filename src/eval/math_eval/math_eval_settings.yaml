@@ -1,12 +1,12 @@
 # Settings for math eval
 
-benchmark_type: math
+benchmark_type: reduced
 ground_truth: math_tasks.json
 number_of_runs: 1
 log_folder: logs
 log_file: null
 task_filter: null
-run_sanity_checks: false
+run_sanity_checks: true
 plot_cost_distribution: false
 
 tools: math_tools

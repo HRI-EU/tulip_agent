@@ -44,11 +44,16 @@ tasks = [
     #     "Calculate the area of a rectangle with length 8 units and width 5 units, "
     #     "then find the circumference of a circle with a radius equal to the square root of the rectangle's area."
     # ),
+    # "Calculate 10th Fibonacci number and add it to the factorial of 10",
 ]
+
+tulip = ToolLibrary(chroma_sub_dir="example/")
+tulip.chroma_client.delete_collection("tulip")
 
 tulip = ToolLibrary(
     chroma_sub_dir="example/",
-    file_imports=[("calculator", ["add", "subtract", "square_root"])],
+    file_imports=[("calculator", [])],
+    # file_imports=[("calculator", ["add", "subtract", "square_root"])],
     # file_imports=[("math_tools", [])],
 )
 agent = DfsTulipAgent(

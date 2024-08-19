@@ -189,9 +189,7 @@ class TulipAgent(LlmAgent, ABC):
 
             if self.api_interaction_counter >= self.api_interaction_limit:
                 error_message = f"Error: Reached API interaction limit of {self.api_interaction_limit}."
-                logger.warning(
-                    f"{self.__class__.__name__}: {error_message}"
-                )
+                logger.warning(f"{self.__class__.__name__}: {error_message}")
                 return error_message
 
             for tool_call in tool_calls:
@@ -1257,10 +1255,11 @@ class TreeTulipAgent(TulipAgent):
                 },
             ]
             response = self._get_response(msgs=messages).choices[0].message.content
-            error_messages = [
-                st.result for st in task.subtasks[-1] if st.result.startswith("Error: ")
-            ]
-            task.result = response if response != '""' else "\n".join(error_messages)
+            task.result = (
+                response
+                if response != '""'
+                else "Error: Could not solve the task based on its subtasks' results."
+            )
         else:
             # execute with tools
             task.tool_candidates = [
@@ -1287,7 +1286,7 @@ class TreeTulipAgent(TulipAgent):
                 task.result = (
                     response
                     if response != '""'
-                    else f"Error: No suitable tool available for task `{task.description}`."
+                    else f"Error: Could not solve the task `{task.description}` with the tools {tools}."
                 )
             else:
                 # paraphrase
@@ -1306,7 +1305,7 @@ class TreeTulipAgent(TulipAgent):
                     )
                     task.paraphrased_variants.append(deepcopy(task))
                     task.description = paraphrased_description
-                    return self.recurse(task, recursion_level + 1)
+                    return self.recurse(task=task, recursion_level=recursion_level)
                 elif len(task.generated_tools) == 0:
                     # create new tool
                     function_name, function_description = self.create_tool(

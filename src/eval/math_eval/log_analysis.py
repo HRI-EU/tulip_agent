@@ -123,7 +123,15 @@ class Result:
         )
 
 
-def do_significance_test(all_results):
+def run_significance_test(
+    all_results, criterion: str = "correctness", pairs: str = "all"
+):
+    assert criterion in (
+        criteria := ("correctness", "costs")
+    ), f"Invalid criterion `{criterion}`. Use one of {criteria}."
+    assert pairs in (
+        pairs_options := ("all", "specific")
+    ), f"Invalid pairs `{pairs}`. Use one of {pairs_options}."
     task_result_dict = {}
     all_agents = set()
     for res in all_results:
@@ -135,17 +143,21 @@ def do_significance_test(all_results):
         if res.agent not in task_result_dict[res.task_id]:
             task_result_dict[res.task_id][res.agent] = []
 
-        # change to test for costs or correctness
-        # task_result_dict[res.task_id][res.agent].append(res.costs)
-        task_result_dict[res.task_id][res.agent].append(res.correctness)
+        if criterion == "correctness":
+            task_result_dict[res.task_id][res.agent].append(res.correctness)
+        elif criterion == "costs":
+            task_result_dict[res.task_id][res.agent].append(res.costs)
 
         all_agents.add(res.agent)
 
-    print("Wilcoxon signed-rank test")
-    # test all pairs
-    all_agents_combinations = itertools.combinations(sorted(list(all_agents)), 2)
-    # test specific pairs
-    # all_agents_combinations = [('CotToolAgent', 'CotTulipAgent'), ('CotToolAgent', 'PrimedCotTulipAgent')]
+    print(f"Wilcoxon signed-rank test for {criterion}")
+    if pairs == "all":
+        all_agents_combinations = itertools.combinations(sorted(list(all_agents)), 2)
+    elif pairs == "specific":
+        all_agents_combinations = [
+            ("CotToolAgent", "CotTulipAgent"),
+            ("CotToolAgent", "PrimedCotTulipAgent"),
+        ]
 
     for agents in all_agents_combinations:
         pairs_x = []
@@ -277,7 +289,7 @@ def extract_data_from_log(
             response=response,
         )
         results.append(r)
-        # logger.info(f"Retrieved data for {r.agent} on `{r.task}`.")
+        logger.debug(f"Retrieved data for {r.agent} on `{r.task}`.")
     return results
 
 
@@ -311,16 +323,12 @@ def assess_data(
 
         if r.agent == "Embedding" or r.agent == "Usage":
             continue
-        # logger.info(f"Assessing {r.agent}.")
+        logger.debug(f"Assessing {r.agent}.")
         if r.task not in gtf_data:
             logger.warning(f"No ground truth found for {r.task}")
             continue
         r.ground_truth = [str(vs) for vs in gtf_data[r.task]["valid_solutions"]]
 
-        # try:
-        #     answer_string = r.response.split("<result>")[-1]
-        # except:
-        #     print(f"-------- NO <RESULT> {r.agent}\n{answer_string}")
         answer_string = r.response
         r.correctness = any(
             str(vs) in answer_string for vs in gtf_data[r.task]["valid_solutions"]
@@ -451,12 +459,6 @@ def plot(
                 handles.append(bar)
             values.extend(processed)
 
-        # horizontal lines
-        # max_value = 1.0 if criterion == "correctness" else max(values)
-        # y_line_positions = [0.25 * max_value, 0.5 * max_value, 0.75 * max_value]
-        # for y_line_position in y_line_positions:
-        #     axs[ci].axhline(y=y_line_position, color="darkgrey", linestyle="--", linewidth=0.5)
-
         axs[ci].set_ylabel(criteria[criterion], labelpad=4, fontdict={"fontsize": 14})
         if criterion in ("correctness", "function_f1"):
             axs[ci].set_ylim(0, 1.0)
@@ -541,7 +543,7 @@ def main(
                         )
                     )
 
-    do_significance_test(all_results)
+    run_significance_test(all_results)
 
     result_dict = plot(
         data=all_results,
@@ -676,13 +678,7 @@ def sanity_check_results(
 
 if __name__ == "__main__":
 
-    logs_to_plot = [
-        # "logs/math.eval.20240807-1344.log",  # gpt4 turbo, lvl 1-3
-        # "logs/math.eval.20240808-0858.log",  # gpt4 turbo, lvl 4
-        # "logs/math.eval.20240809-0848.log",  # gpt4 turbo, lvl 5
-        # "logs/math.eval.20240812-1339.log",  # gpt4omin, full lib, lvl 1-3
-        # "logs/math.eval.20240619-1357.log",  # gpt-3.5-turbo, our math, 5 runs
-    ]
+    logs_to_plot = ["logs/math.eval.20240619-1357.log"]
     history_file = "history"  # to use different history files
 
     with open("math_eval_settings.yaml", "rt") as mes:

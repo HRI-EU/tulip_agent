@@ -1081,9 +1081,8 @@ class DfsTulipAgent(TulipAgent):
     ) -> str:
         logger.info(f"{self.__class__.__name__} received query: {prompt}")
         initial_task = Task(description=prompt)
-        print(initial_task.__dict__)
         task = self.recurse(task=initial_task, recursion_level=0)
-        print(task.__dict__)
+        logger.debug(task.__dict__)
         if self.plot_task_tree:
             task.plot()
         logger.info(f"{self.__class__.__name__} returns response: {task.result}")
@@ -1113,7 +1112,7 @@ class DfsTulipAgent(TulipAgent):
                 ),
             },
         ]
-        print(messages[-1]["content"])
+        logger.debug(f"Decomposition prompt: {messages[-1]['content']}")
         response = self._get_response(msgs=messages, response_format="json")
         decompose_response_message = response.choices[0].message
         logger.info(f"{decompose_response_message=}")
@@ -1186,7 +1185,7 @@ class DfsTulipAgent(TulipAgent):
         task: Task,
         recursion_level: int,
     ) -> Task:
-        print(f"{task=}")
+        logger.debug(f"Recursing for task: {task}")
 
         if recursion_level > self.max_recursion_depth:
             task.result = f"Error: Aborting decomposition beyond the level of `{task.description}`"
@@ -1222,7 +1221,7 @@ class DfsTulipAgent(TulipAgent):
             )
         if len(subtask_descriptions) == 1:
             subtask_descriptions = []
-        print(f"{subtask_descriptions=}")
+        logger.debug(f"{subtask_descriptions=}")
 
         if subtask_descriptions:
             subtasks = [
@@ -1273,7 +1272,7 @@ class DfsTulipAgent(TulipAgent):
             task.tool_candidates = [
                 Tool(name=t["function"]["name"], description=t) for t in tools
             ]
-            print(f"{task.description} - {tools}")
+            logger.debug(f"Executing with tools: {task.description} - {tools}")
             if tools:
                 previous_info = "\n".join(
                     [
@@ -1289,7 +1288,7 @@ class DfsTulipAgent(TulipAgent):
                         ),
                     },
                 ]
-                print(messages[-1]["content"])
+                logger.debug(f"Execution prompt: {messages[-1]['content']}")
                 response = self.run_with_tools(tools=tools, messages=messages)
                 task.result = (
                     response

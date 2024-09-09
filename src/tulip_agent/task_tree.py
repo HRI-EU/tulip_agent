@@ -93,6 +93,16 @@ class Task:
             edges.extend(se)
         if task.predecessor:
             edges.append([task.predecessor, task, {"edge_type": "successor"}])
+        if task.generated_tools:
+            nodes.extend(
+                [(tool, {"node_type": "tool"}) for tool in task.generated_tools]
+            )
+            edges.extend(
+                [
+                    [task, tool, {"edge_type": "generated_tool"}]
+                    for tool in task.generated_tools
+                ]
+            )
         for subtask_list in task.subtasks:
             for subtask in subtask_list:
                 sn, se = self._get_nodes_and_edges(subtask)
@@ -129,6 +139,11 @@ class Task:
         ]
         tool_edges = [
             (u, v) for u, v, d in graph.edges(data=True) if d["edge_type"] == "tool"
+        ]
+        generated_tool_edges = [
+            (u, v)
+            for u, v, d in graph.edges(data=True)
+            if d["edge_type"] == "generated_tool"
         ]
 
         # Draw
@@ -190,6 +205,15 @@ class Task:
             arrowsize=20,
             style="dotted",
             edge_color="grey",
+        )
+        nx.draw_networkx_edges(
+            graph,
+            pos,
+            edgelist=generated_tool_edges,
+            arrowstyle="->",
+            arrowsize=20,
+            style="dotted",
+            edge_color="blue",
         )
         nx.draw_networkx_labels(graph, pos, font_size=10)
         plt.show()

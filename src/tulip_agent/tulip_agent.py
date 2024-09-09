@@ -35,7 +35,6 @@ import copy
 import json
 import logging
 from abc import ABC
-from copy import deepcopy
 from typing import Optional
 
 from openai.types.chat.chat_completion_message_tool_call import (
@@ -1310,7 +1309,7 @@ class DfsTulipAgent(TulipAgent):
                     paraphrased_description = (
                         self._get_response(msgs=messages).choices[0].message.content
                     )
-                    task.paraphrased_variants.append(deepcopy(task))
+                    task.paraphrased_variants.append(copy.copy(task))
                     task.description = paraphrased_description
                     return self.recurse(task=task, recursion_level=recursion_level)
                 elif len(task.generated_tools) == 0:

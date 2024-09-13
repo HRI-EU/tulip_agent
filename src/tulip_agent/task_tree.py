@@ -29,29 +29,25 @@
 #
 from __future__ import annotations
 
+from dataclasses import dataclass, field
 from typing import Optional
 
 import matplotlib.pyplot as plt
 import networkx as nx
 
 
+@dataclass(eq=False)
 class Task:
-    def __init__(
-        self,
-        description: str,
-        predecessor: Optional[Task] = None,
-        successor: Optional[Task] = None,
-        supertask: Optional[Task] = None,
-    ) -> None:
-        self.description = description
-        self.predecessor: Optional[Task] = predecessor
-        self.successor: Optional[Task] = successor
-        self.supertask: Optional[Task] = supertask
-        self.subtasks: list[list[Task]] = []
-        self.tool_candidates: list[Tool] = []
-        self.paraphrased_variants: list[Task] = []
-        self.generated_tools: list[Tool] = []
-        self.result: Optional[str] = None
+    description: str
+    predecessor: Optional[Task] = None
+    successor: Optional[Task] = None
+    supertask: Optional[Task] = None
+
+    subtasks: list[list[Task]] = field(default_factory=list, init=False)
+    tool_candidates: list[Tool] = field(default_factory=list, init=False)
+    paraphrased_variants: list[Task] = field(default_factory=list, init=False)
+    generated_tools: list[Tool] = field(default_factory=list, init=False)
+    result: Optional[str] = field(default=None, init=False)
 
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__} object {id(self)}: {self.description}>"
@@ -219,14 +215,10 @@ class Task:
         plt.show()
 
 
+@dataclass(eq=False, frozen=True)
 class Tool:
-    def __init__(
-        self,
-        name: str,
-        description: dict,
-    ) -> None:
-        self.name = name
-        self.description = description
+    name: str
+    description: dict
 
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__} object {id(self)}: {self.name}>"

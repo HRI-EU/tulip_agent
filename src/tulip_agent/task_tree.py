@@ -52,6 +52,28 @@ class Task:
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__} object {id(self)}: {self.description}>"
 
+    def validate(self) -> bool:
+        if self.subtasks:
+            results = []
+            for subtask in self.subtasks[-1]:
+                result_ = subtask.validate()
+                results.append(result_)
+            valid = all(results)
+        else:
+            assert (
+                lntc := len(self.tool_candidates)
+            ) == 1, f"Number of tool candidates is {lntc} instead of 1 for {self.description}."
+            if self.tool_candidates[0].predecessor:
+                valid = (
+                    self.tool_candidates[0].predecessor
+                    == self.predecessor.tool_candidates[0].name
+                )
+                if valid is False:
+                    print(self.description)
+            else:
+                valid = True
+        return valid
+
     def get_predecessors(
         self,
         include_higher_levels: bool = True,
@@ -87,8 +109,8 @@ class Task:
             sn, se = self._get_nodes_and_edges(task.paraphrased_variants[-1])
             nodes.extend(sn)
             edges.extend(se)
-        if task.predecessor:
-            edges.append([task.predecessor, task, {"edge_type": "successor"}])
+        if task.successor:
+            edges.append([task, task.successor, {"edge_type": "successor"}])
         if task.generated_tools:
             nodes.extend(
                 [(tool, {"node_type": "tool"}) for tool in task.generated_tools]
@@ -215,10 +237,12 @@ class Task:
         plt.show()
 
 
-@dataclass(eq=False, frozen=True)
+@dataclass(eq=False)
 class Tool:
     name: str
     description: dict
+    predecessor: Optional[str] = None
+    successor: Optional[str] = None
 
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__} object {id(self)}: {self.name}>"

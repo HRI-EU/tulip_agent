@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import copy
 
-from tulip_agent.task_tree import Task, Tool
+from tulip_agent import Task, Tool
 
 
 # example

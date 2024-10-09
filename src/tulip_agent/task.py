@@ -35,6 +35,8 @@ from typing import Optional
 import matplotlib.pyplot as plt
 import networkx as nx
 
+from tulip_agent.tool import Tool
+
 
 @dataclass(eq=False)
 class Task:
@@ -235,14 +237,3 @@ class Task:
         )
         nx.draw_networkx_labels(graph, pos, font_size=10)
         plt.show()
-
-
-@dataclass(eq=False)
-class Tool:
-    name: str
-    description: dict
-    predecessor: Optional[str] = None
-    successor: Optional[str] = None
-
-    def __repr__(self) -> str:
-        return f"<{self.__class__.__name__} object {id(self)}: {self.name}>"

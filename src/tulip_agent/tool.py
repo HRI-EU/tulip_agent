@@ -27,44 +27,18 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
-import logging
+from __future__ import annotations
 
-from .base_agent import BaseAgent
-from .function_analyzer import FunctionAnalyzer
-from .task import Task
-from .tool import Tool
-from .tool_agent import CotToolAgent, NaiveToolAgent
-from .tool_library import ToolLibrary
-from .tulip_agent import (
-    AutoTulipAgent,
-    CotTulipAgent,
-    DfsTulipAgent,
-    InformedCotTulipAgent,
-    MinimalTulipAgent,
-    NaiveTulipAgent,
-    OneShotCotTulipAgent,
-    PrimedCotTulipAgent,
-)
+from dataclasses import dataclass
+from typing import Optional
 
 
-__all__ = [
-    AutoTulipAgent,
-    BaseAgent,
-    CotToolAgent,
-    CotTulipAgent,
-    FunctionAnalyzer,
-    InformedCotTulipAgent,
-    MinimalTulipAgent,
-    NaiveToolAgent,
-    NaiveTulipAgent,
-    OneShotCotTulipAgent,
-    PrimedCotTulipAgent,
-    Task,
-    Tool,
-    ToolLibrary,
-    DfsTulipAgent,
-]
+@dataclass(eq=False)
+class Tool:
+    name: str
+    description: dict
+    predecessor: Optional[str] = None
+    successor: Optional[str] = None
 
-
-# logger settings
-logging.getLogger("tulip").addHandler(logging.NullHandler())
+    def __repr__(self) -> str:
+        return f"<{self.__class__.__name__} object {id(self)}: {self.name}>"

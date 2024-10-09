@@ -27,45 +27,14 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
-import logging
-
-from tulip_agent.agents import (
-    AutoTulipAgent,
-    BaseAgent,
-    CotToolAgent,
-    CotTulipAgent,
-    DfsTulipAgent,
-    InformedCotTulipAgent,
-    MinimalTulipAgent,
-    NaiveToolAgent,
-    NaiveTulipAgent,
-    OneShotCotTulipAgent,
-    PrimedCotTulipAgent,
-)
-from tulip_agent.function_analyzer import FunctionAnalyzer
-from tulip_agent.task import Task
-from tulip_agent.tool import Tool
-from tulip_agent.tool_library import ToolLibrary
-
-
-__all__ = [
-    AutoTulipAgent,
-    BaseAgent,
-    CotToolAgent,
-    CotTulipAgent,
-    FunctionAnalyzer,
-    InformedCotTulipAgent,
-    MinimalTulipAgent,
-    NaiveToolAgent,
-    NaiveTulipAgent,
-    OneShotCotTulipAgent,
-    PrimedCotTulipAgent,
-    Task,
-    Tool,
-    ToolLibrary,
-    DfsTulipAgent,
-]
-
-
-# logger settings
-logging.getLogger("tulip").addHandler(logging.NullHandler())
+from .auto_tulip_agent import AutoTulipAgent as AutoTulipAgent
+from .base_agent import BaseAgent as BaseAgent
+from .cot_tool_agent import CotToolAgent as CotToolAgent
+from .cot_tulip_agent import CotTulipAgent as CotTulipAgent
+from .dfs_tulip_agent import DfsTulipAgent as DfsTulipAgent
+from .informed_cot_tulip_agent import InformedCotTulipAgent as InformedCotTulipAgent
+from .minimal_tulip_agent import MinimalTulipAgent as MinimalTulipAgent
+from .naive_tool_agent import NaiveToolAgent as NaiveToolAgent
+from .naive_tulip_agent import NaiveTulipAgent as NaiveTulipAgent
+from .one_shot_cot_tulip_agent import OneShotCotTulipAgent as OneShotCotTulipAgent
+from .primed_cot_tulip_agent import PrimedCotTulipAgent as PrimedCotTulipAgent

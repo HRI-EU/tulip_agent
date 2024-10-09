@@ -27,45 +27,48 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
+"""
+Basic LLM agent.
+"""
 import logging
+from typing import Optional
 
-from tulip_agent.agents import (
-    AutoTulipAgent,
-    BaseAgent,
-    CotToolAgent,
-    CotTulipAgent,
-    DfsTulipAgent,
-    InformedCotTulipAgent,
-    MinimalTulipAgent,
-    NaiveToolAgent,
-    NaiveTulipAgent,
-    OneShotCotTulipAgent,
-    PrimedCotTulipAgent,
-)
-from tulip_agent.function_analyzer import FunctionAnalyzer
-from tulip_agent.task import Task
-from tulip_agent.tool import Tool
-from tulip_agent.tool_library import ToolLibrary
+from tulip_agent.constants import BASE_LANGUAGE_MODEL, BASE_TEMPERATURE
+from tulip_agent.prompts import BASE_PROMPT
+
+from .llm_agent import LlmAgent
 
 
-__all__ = [
-    AutoTulipAgent,
-    BaseAgent,
-    CotToolAgent,
-    CotTulipAgent,
-    FunctionAnalyzer,
-    InformedCotTulipAgent,
-    MinimalTulipAgent,
-    NaiveToolAgent,
-    NaiveTulipAgent,
-    OneShotCotTulipAgent,
-    PrimedCotTulipAgent,
-    Task,
-    Tool,
-    ToolLibrary,
-    DfsTulipAgent,
-]
+logger = logging.getLogger(__name__)
 
 
-# logger settings
-logging.getLogger("tulip").addHandler(logging.NullHandler())
+class BaseAgent(LlmAgent):
+    def __init__(
+        self,
+        instructions: Optional[str] = None,
+        model: str = BASE_LANGUAGE_MODEL,
+        temperature: float = BASE_TEMPERATURE,
+    ) -> None:
+        super().__init__(
+            instructions=(
+                BASE_PROMPT + "\n\n" + instructions if instructions else BASE_PROMPT
+            ),
+            model=model,
+            temperature=temperature,
+        )
+
+    def query(
+        self,
+        prompt: str,
+    ) -> str:
+        logger.info(f"{self.__class__.__name__} received query: {prompt}")
+        self.messages.append({"role": "user", "content": prompt})
+        response = self._get_response(
+            msgs=self.messages,
+        )
+        response_message = response.choices[0].message
+        self.messages.append(response_message)
+        logger.info(
+            f"{self.__class__.__name__} returns response: {response_message.content}"
+        )
+        return response_message.content

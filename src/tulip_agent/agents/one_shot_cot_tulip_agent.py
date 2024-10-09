@@ -27,45 +27,44 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
+"""
+OneShotCotTulipAgent variant; uses a vector store as a tool library, COT for task decomposition,
+and is primed with an example for the task decomposition and tool selection.
+"""
 import logging
+from typing import Optional
 
-from tulip_agent.agents import (
-    AutoTulipAgent,
-    BaseAgent,
-    CotToolAgent,
-    CotTulipAgent,
-    DfsTulipAgent,
-    InformedCotTulipAgent,
-    MinimalTulipAgent,
-    NaiveToolAgent,
-    NaiveTulipAgent,
-    OneShotCotTulipAgent,
-    PrimedCotTulipAgent,
-)
-from tulip_agent.function_analyzer import FunctionAnalyzer
-from tulip_agent.task import Task
-from tulip_agent.tool import Tool
+from tulip_agent.constants import BASE_LANGUAGE_MODEL, BASE_TEMPERATURE
+from tulip_agent.prompts import TULIP_COT_PROMPT_ONE_SHOT
 from tulip_agent.tool_library import ToolLibrary
 
-
-__all__ = [
-    AutoTulipAgent,
-    BaseAgent,
-    CotToolAgent,
-    CotTulipAgent,
-    FunctionAnalyzer,
-    InformedCotTulipAgent,
-    MinimalTulipAgent,
-    NaiveToolAgent,
-    NaiveTulipAgent,
-    OneShotCotTulipAgent,
-    PrimedCotTulipAgent,
-    Task,
-    Tool,
-    ToolLibrary,
-    DfsTulipAgent,
-]
+from .cot_tulip_agent import CotTulipAgent
 
 
-# logger settings
-logging.getLogger("tulip").addHandler(logging.NullHandler())
+logger = logging.getLogger(__name__)
+
+
+class OneShotCotTulipAgent(CotTulipAgent):
+    def __init__(
+        self,
+        model: str = BASE_LANGUAGE_MODEL,
+        temperature: float = BASE_TEMPERATURE,
+        api_interaction_limit: int = 100,
+        tool_library: ToolLibrary = None,
+        top_k_functions: int = 3,
+        search_similarity_threshold: float = None,
+        instructions: Optional[str] = None,
+    ) -> None:
+        super().__init__(
+            instructions=(
+                TULIP_COT_PROMPT_ONE_SHOT + "\n\n" + instructions
+                if instructions
+                else TULIP_COT_PROMPT_ONE_SHOT
+            ),
+            model=model,
+            temperature=temperature,
+            api_interaction_limit=api_interaction_limit,
+            tool_library=tool_library,
+            top_k_functions=top_k_functions,
+            search_similarity_threshold=search_similarity_threshold,
+        )

@@ -27,45 +27,44 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
+"""
+Tool agent with naive tool selection.
+"""
 import logging
+from typing import Callable, Optional
 
-from tulip_agent.agents import (
-    AutoTulipAgent,
-    BaseAgent,
-    CotToolAgent,
-    CotTulipAgent,
-    DfsTulipAgent,
-    InformedCotTulipAgent,
-    MinimalTulipAgent,
-    NaiveToolAgent,
-    NaiveTulipAgent,
-    OneShotCotTulipAgent,
-    PrimedCotTulipAgent,
-)
-from tulip_agent.function_analyzer import FunctionAnalyzer
-from tulip_agent.task import Task
-from tulip_agent.tool import Tool
-from tulip_agent.tool_library import ToolLibrary
+from tulip_agent.constants import BASE_LANGUAGE_MODEL, BASE_TEMPERATURE
+from tulip_agent.prompts import TOOL_PROMPT
+
+from .tool_agent import ToolAgent
 
 
-__all__ = [
-    AutoTulipAgent,
-    BaseAgent,
-    CotToolAgent,
-    CotTulipAgent,
-    FunctionAnalyzer,
-    InformedCotTulipAgent,
-    MinimalTulipAgent,
-    NaiveToolAgent,
-    NaiveTulipAgent,
-    OneShotCotTulipAgent,
-    PrimedCotTulipAgent,
-    Task,
-    Tool,
-    ToolLibrary,
-    DfsTulipAgent,
-]
+logger = logging.getLogger(__name__)
 
 
-# logger settings
-logging.getLogger("tulip").addHandler(logging.NullHandler())
+class NaiveToolAgent(ToolAgent):
+    def __init__(
+        self,
+        functions: list[Callable],
+        instructions: Optional[str] = None,
+        model: str = BASE_LANGUAGE_MODEL,
+        temperature: float = BASE_TEMPERATURE,
+        api_interaction_limit: int = 100,
+    ) -> None:
+        super().__init__(
+            functions=functions,
+            instructions=(
+                TOOL_PROMPT + "\n\n" + instructions if instructions else TOOL_PROMPT
+            ),
+            model=model,
+            temperature=temperature,
+            api_interaction_limit=api_interaction_limit,
+        )
+
+    def query(
+        self,
+        prompt: str,
+    ) -> str:
+        logger.info(f"{self.__class__.__name__} received query: {prompt}")
+        self.messages.append({"role": "user", "content": prompt})
+        return self.run_with_tools()

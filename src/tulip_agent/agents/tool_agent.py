@@ -28,18 +28,18 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 """
-Agent variations with tool access as a baseline.
+Tool agent ABC.
 """
 import concurrent.futures
 import json
 import logging
 from abc import ABC
-from typing import Callable, Optional
+from typing import Callable
+
+from tulip_agent.constants import BASE_LANGUAGE_MODEL, BASE_TEMPERATURE
+from tulip_agent.function_analyzer import FunctionAnalyzer
 
 from .base_agent import LlmAgent
-from .constants import BASE_LANGUAGE_MODEL, BASE_TEMPERATURE
-from .function_analyzer import FunctionAnalyzer
-from .prompts import SOLVE_WITH_TOOLS, TASK_DECOMPOSITION, TOOL_COT_PROMPT, TOOL_PROMPT
 
 
 logger = logging.getLogger(__name__)
@@ -150,84 +150,3 @@ class ToolAgent(LlmAgent, ABC):
             f"{self.__class__.__name__} returns response: {response_message.content}"
         )
         return response_message.content
-
-
-class NaiveToolAgent(ToolAgent):
-    def __init__(
-        self,
-        functions: list[Callable],
-        instructions: Optional[str] = None,
-        model: str = BASE_LANGUAGE_MODEL,
-        temperature: float = BASE_TEMPERATURE,
-        api_interaction_limit: int = 100,
-    ) -> None:
-        super().__init__(
-            functions=functions,
-            instructions=(
-                TOOL_PROMPT + "\n\n" + instructions if instructions else TOOL_PROMPT
-            ),
-            model=model,
-            temperature=temperature,
-            api_interaction_limit=api_interaction_limit,
-        )
-
-    def query(
-        self,
-        prompt: str,
-    ) -> str:
-        logger.info(f"{self.__class__.__name__} received query: {prompt}")
-        self.messages.append({"role": "user", "content": prompt})
-        return self.run_with_tools()
-
-
-class CotToolAgent(ToolAgent):
-    def __init__(
-        self,
-        functions: list[Callable],
-        instructions: Optional[str] = None,
-        model: str = BASE_LANGUAGE_MODEL,
-        temperature: float = BASE_TEMPERATURE,
-        api_interaction_limit: int = 100,
-    ) -> None:
-        super().__init__(
-            instructions=(
-                TOOL_COT_PROMPT + "\n\n" + instructions
-                if instructions
-                else TOOL_COT_PROMPT
-            ),
-            functions=functions,
-            model=model,
-            temperature=temperature,
-            api_interaction_limit=api_interaction_limit,
-        )
-
-    def query(
-        self,
-        prompt: str,
-    ) -> str:
-        logger.info(f"{self.__class__.__name__} received query: {prompt}")
-
-        # Analyze user prompt
-        self.messages.append(
-            {
-                "role": "user",
-                "content": TASK_DECOMPOSITION.format(prompt=prompt),
-            }
-        )
-        actions_response = self._get_response(
-            msgs=self.messages,
-        )
-        actions_response_message = actions_response.choices[0].message
-        self.messages.append(actions_response_message)
-        logger.info(f"{actions_response_message=}")
-
-        # Run with tools
-        self.messages.append(
-            {
-                "role": "user",
-                "content": SOLVE_WITH_TOOLS.format(
-                    steps=actions_response_message.content
-                ),
-            }
-        )
-        return self.run_with_tools()

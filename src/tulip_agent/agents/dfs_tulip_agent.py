@@ -47,7 +47,8 @@ from tulip_agent.prompts import (
     TREE_TULIP_SYSTEM_PROMPT,
     TREE_TULIP_TASK_PROMPT,
 )
-from tulip_agent.task_tree import Task, Tool
+from tulip_agent.task import Task
+from tulip_agent.tool import Tool
 from tulip_agent.tool_library import ToolLibrary
 
 from .tulip_agent import TulipAgent

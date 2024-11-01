@@ -29,7 +29,8 @@
 #
 import unittest
 
-from tulip_agent.task_tree import Task, Tool
+from tulip_agent.task import Task
+from tulip_agent.tool import Tool
 
 
 class TestCore(unittest.TestCase):

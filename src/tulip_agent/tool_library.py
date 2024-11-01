@@ -246,7 +246,7 @@ class ToolLibrary:
         }
 
         self.collection.add(
-            documents=json.dumps(function_data, indent=4),
+            documents=[json.dumps(function_data, indent=4)],
             embeddings=[
                 embed(
                     text=function.__name__

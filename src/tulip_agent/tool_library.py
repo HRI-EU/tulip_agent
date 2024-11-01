@@ -382,27 +382,40 @@ class ToolLibrary:
         problem_description: str,
         top_k: int = 1,
         similarity_threshold: float = None,
-    ):
-        query_embedding = embed(
-            text=problem_description, embedding_model=self.embedding_model
-        )
-        res = self.collection.query(
-            query_embeddings=[query_embedding],
-            n_results=top_k,
-            include=["distances", "documents", "metadatas"],
-        )
-        cutoff = top_k
-        if similarity_threshold:
-            for c, distance in enumerate(res["distances"][0]):
-                if distance >= similarity_threshold:
-                    cutoff = c
-                    break
-        res = {
-            "ids": [res["ids"][0][:cutoff]],
-            "distances": [res["distances"][0][:cutoff]],
-            "documents": [res["documents"][0][:cutoff]],
-            "metadatas": [res["metadatas"][0][:cutoff]],
-        }
+    ) -> dict:
+        if top_k >= len(self.functions) and similarity_threshold is None:
+            # NOTE: this mode returns ids and documents only
+            #  distances are unavailable for this mode and metadatas are currently not used
+            res = {
+                "ids": [list(self.function_descriptions.keys())],
+                "documents": [
+                    [
+                        json.dumps(function_data, indent=4)
+                        for function_data in self.function_descriptions.values()
+                    ]
+                ],
+            }
+        else:
+            query_embedding = embed(
+                text=problem_description, embedding_model=self.embedding_model
+            )
+            res = self.collection.query(
+                query_embeddings=[query_embedding],
+                n_results=top_k,
+                include=["distances", "documents", "metadatas"],
+            )
+            cutoff = top_k
+            if similarity_threshold:
+                for c, distance in enumerate(res["distances"][0]):
+                    if distance >= similarity_threshold:
+                        cutoff = c
+                        break
+            res = {
+                "ids": [res["ids"][0][:cutoff]],
+                "distances": [res["distances"][0][:cutoff]],
+                "documents": [res["documents"][0][:cutoff]],
+                "metadatas": [res["metadatas"][0][:cutoff]],
+            }
         return res
 
     def execute(

@@ -173,7 +173,7 @@ class TulipAgent(LlmAgent, ABC):
                 try:
                     func_args = json.loads(tool_call.function.arguments)
                     function_response, error = self.tool_library.execute(
-                        function_id=func_name, function_args=func_args
+                        tool_id=func_name, arguments=func_args
                     )
                     if error:
                         func_name = "invalid_tool_call"

@@ -102,11 +102,11 @@ class TestToolLibrary(unittest.TestCase):
             res["ids"][0][0], "example_tools__add", "Searching for function failed."
         )
 
-    def test_remove_function(self):
+    def test_remove_tool(self):
         tulip = ToolLibrary(
             chroma_sub_dir="test/", file_imports=[("example_tools", [])]
         )
-        tulip.remove_function(function_id="example_tools__add")
+        tulip.remove_tool(tool_id="example_tools__add")
         functions = tulip.collection.get(include=[])["ids"]
         self.assertEqual(
             set(functions),
@@ -124,7 +124,7 @@ class TestToolLibrary(unittest.TestCase):
             chroma_sub_dir="test/", file_imports=[("example_tools", ["multiply"])]
         )
         res, error = tulip.execute(
-            function_id="example_tools__multiply", function_args={"a": 2.0, "b": 2.0}
+            tool_id="example_tools__multiply", arguments={"a": 2.0, "b": 2.0}
         )
         self.assertEqual(error, False, "Function execution failed.")
         self.assertEqual(
@@ -140,7 +140,7 @@ class TestToolLibrary(unittest.TestCase):
             default_timeout=1,
         )
         res, error = tulip.execute(
-            function_id="example_tools__slow", function_args={"duration": 2}
+            tool_id="example_tools__slow", arguments={"duration": 2}
         )
         self.assertEqual(error, True, "Function execution succeeded despite timeout.")
         self.assertEqual(
@@ -154,7 +154,7 @@ class TestToolLibrary(unittest.TestCase):
             chroma_sub_dir="test/", file_imports=[("example_tools", [])]
         )
         res, error = tulip.execute(
-            function_id="example_tools__unknown", function_args={}
+            tool_id="example_tools__unknown", arguments={}
         )
         self.assertEqual(error, True, "Calling unknown function not caught.")
         self.assertEqual(
@@ -168,7 +168,7 @@ class TestToolLibrary(unittest.TestCase):
             chroma_sub_dir="test/", file_imports=[("example_tools", ["multiply"])]
         )
         res, error = tulip.execute(
-            function_id="example_tools__multiply", function_args={"a": 1, "wrong": 2}
+            tool_id="example_tools__multiply", arguments={"a": 1, "wrong": 2}
         )
         self.assertEqual(
             error, True, "Function execution succeeded despite wrong arguments."
@@ -182,13 +182,13 @@ class TestToolLibrary(unittest.TestCase):
             "Catching call with invalid arguments did not return correct error message.",
         )
 
-    def test_update_function(self):
+    def test_update_tool(self):
         tulip = ToolLibrary(
             chroma_sub_dir="test/", file_imports=[("example_module", [])]
         )
         function_id = "example_module__example"
         res, error = tulip.execute(
-            function_id=function_id, function_args={"text": "unchanged"}
+            tool_id=function_id, arguments={"text": "unchanged"}
         )
         self.assertEqual(error, False, "Function execution failed.")
         self.assertEqual(res, "unchanged", "Initial function execution failed.")
@@ -206,9 +206,9 @@ class TestToolLibrary(unittest.TestCase):
         module_path = tulip.function_origins[function_id]["module_path"]
         with open(module_path, "w") as m:
             m.write(code)
-        tulip.update_function(function_id=function_id)
+        tulip.update_tool(tool_id=function_id)
         res, error = tulip.execute(
-            function_id=function_id, function_args={"text": "failure"}
+            tool_id=function_id, arguments={"text": "failure"}
         )
         self.assertEqual(error, False, "Function execution failed.")
         self.assertEqual(

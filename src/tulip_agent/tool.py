@@ -29,16 +29,69 @@
 #
 from __future__ import annotations
 
-from dataclasses import dataclass
-from typing import Optional
+import concurrent.futures
+import importlib
+import json
+import logging
+import sys
+
+from dataclasses import asdict, dataclass, field
+from typing import Any, Callable, Optional
+from types import ModuleType
+
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass(eq=False)
 class Tool:
-    name: str
-    description: dict
+    function_name: str
+    module_name: str
+    definition: dict
+    timeout: Optional[int] = None
+    timeout_message: Optional[str] = None
     predecessor: Optional[str] = None
     successor: Optional[str] = None
+    description: str = field(init=False)
+    unique_id: str = field(init=False)
+
+    def __post_init__(self) -> None:
+        self.unique_id = f"{self.module_name}__{self.function_name}"
+        self.description = (
+            self.function_name + ":\n" + self.definition["function"]["description"]
+        )
+        self.definition["function"]["name"] = self.unique_id
+        self.module: ModuleType = (
+            sys.modules[self.module_name]
+            if self.module_name in sys.modules
+            else importlib.import_module(self.module_name)
+        )
+        self.function: Callable = getattr(self.module, self.function_name)
 
     def __repr__(self) -> str:
-        return f"<{self.__class__.__name__} object {id(self)}: {self.name}>"
+        return f"<{self.__class__.__name__} object {id(self)}: {self.unique_id}>"
+
+    def format_for_chroma(self) -> dict:
+        flat_dict = asdict(self)
+        flat_dict["definition"] = json.dumps(self.definition, indent=4)
+        return flat_dict
+
+    def execute(self, **parameters) -> Any:
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            try:
+                future = executor.submit(self.function, **parameters)
+            except Exception as e:
+                logger.error(f"{type(e).__name__}: {e}")
+                return f"Error: Invalid tool call for {self.unique_id}: {e}", True
+            try:
+                res = future.result(timeout=self.timeout)
+                error = False
+            except concurrent.futures.TimeoutError as e:
+                logger.error(
+                    f"{type(e).__name__}: {self.unique_id} did not return a result before timeout."
+                )
+                return self.timeout_message, True
+            except Exception as e:
+                logger.error(f"{type(e).__name__}: {e}")
+                return f"Error: Invalid tool call for {self.unique_id}: {e}", True
+        return res, error

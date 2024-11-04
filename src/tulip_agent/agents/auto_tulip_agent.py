@@ -240,8 +240,8 @@ class AutoTulipAgent(TulipAgent):
         # reload tool library
         with open(module_path, "w") as m:
             m.write(code)
-        updated_tool_description = self.tool_library.update_function(
-            function_id=tool_name
+        updated_tool_description = self.tool_library.update_tool(
+            tool_id=tool_name
         )
         self.tools = [t for t in self.tools if t["function"]["name"] != tool_name]
         self.tools.append(updated_tool_description)
@@ -250,7 +250,7 @@ class AutoTulipAgent(TulipAgent):
         return success_msg
 
     def delete_tool(self, tool_name: str) -> str:
-        self.tool_library.remove_function(function_id=tool_name)
+        self.tool_library.remove_tool(tool_id=tool_name)
         self.tools = [t for t in self.tools if t["function"]["name"] != tool_name]
         return f"Removed tool {tool_name} from the tool library."
 
@@ -390,7 +390,7 @@ class AutoTulipAgent(TulipAgent):
                     )
                 else:
                     function_response, error = self.tool_library.execute(
-                        function_id=func_name, function_args=func_args
+                        tool_id=func_name, arguments=func_args
                     )
                     if error:
                         func_name = "invalid_tool_call"

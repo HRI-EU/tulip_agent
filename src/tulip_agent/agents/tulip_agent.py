@@ -30,8 +30,11 @@
 """
 TulipAgent ABC; uses a vector store as a tool library.
 """
+import ast
 import json
 import logging
+import os
+import subprocess
 from abc import ABC
 from typing import Optional
 
@@ -40,6 +43,7 @@ from openai.types.chat.chat_completion_message_tool_call import (
 )
 
 from tulip_agent.constants import BASE_LANGUAGE_MODEL, BASE_TEMPERATURE
+from tulip_agent.prompts import TECH_LEAD
 from tulip_agent.tool_library import ToolLibrary
 
 from .base_agent import LlmAgent
@@ -213,3 +217,87 @@ class TulipAgent(LlmAgent, ABC):
             tool_calls = response_message.tool_calls
         messages.append(response_message)
         return response_message.content
+
+    @staticmethod
+    def _run_ruff(code: str) -> str | None:
+        file_path = "ruff_tmp.py"
+        with open(file_path, "w") as file:
+            file.write(code)
+        try:
+            result = subprocess.run(
+                ["ruff", "check", "--fix", file_path],
+                capture_output=True,
+                text=True,
+                check=True,
+            )
+            if result.returncode == 0:
+                ruff_output = None
+            else:
+                ruff_output = result.stdout
+        except subprocess.CalledProcessError as e:
+            logging.error("Error running ruff:", e.stderr)
+            ruff_output = "There was an error running ruff."
+        if ruff_output is None:
+            subprocess.run(["ruff", "format", file_path])
+        os.remove(file_path)
+        return ruff_output
+
+    def _generate_code(self, task_description: str, max_retries: int = 3) -> str | None:
+        _msgs = [
+            {
+                "role": "system",
+                "content": TECH_LEAD,
+            },
+            {
+                "role": "user",
+                "content": task_description,
+            },
+        ]
+        response = self._get_response(msgs=_msgs)
+        code = response.choices[0].message.content
+        retries = 0
+        while True:
+            if retries >= max_retries:
+                logger.info(
+                    f"Failed generating code for the task `{task_description}`. Aborting."
+                )
+                return None
+            try:
+                ast.parse(code)
+            except SyntaxError:
+                logger.info(f"Syntax check #{retries} failed.")
+                retries += 1
+                _msgs.append(
+                    {
+                        "role": "user",
+                        "content": (
+                            "The code was not executable. "
+                            "Try again and write it in a way so that I can copy paste it."
+                        ),
+                    }
+                )
+                response = self._get_response(msgs=_msgs)
+                code = response.choices[0].message.content
+                continue
+            break
+        retries = 0
+        while True:
+            ruff_output = self._run_ruff(code)
+            if ruff_output:
+                logger.info(f"Format check #{retries} failed.")
+                retries += 1
+                _msgs.append(
+                    {
+                        "role": "user",
+                        "content": (
+                            "The code did not pass the style check. "
+                            "Try again and write it in a way so that I can copy paste it."
+                        ),
+                    }
+                )
+                response = self._get_response(msgs=_msgs)
+                code = response.choices[0].message.content
+                continue
+            break
+        logger.info(f"Successfully generated code for the task `{task_description}`.")
+        return code

@@ -29,15 +29,16 @@
 #
 
 # Setup the attentive support repo
-git clone git@github.com:HRI-EU/AttentiveSupport.git
+git clone https://github.com/HRI-EU/AttentiveSupport.git
 cd AttentiveSupport && bash build.sh
 cd ..
 
 # Make tools from attentive support repo available
 cp AttentiveSupport/src/tools.py tools.py
-file="tools.py"
-start_line=41
-end_line=44
+cp AttentiveSupport/src/simulator.py simulator.py
+file="simulator.py"
+start_line=43
+end_line=46
 replacement='with open(Path(__file__).parent.resolve() / "AttentiveSupport" / "src" / "config.yaml", "r") as config:
     config_data = yaml.safe_load(config)
     SMILE_WS_PATH = Path(__file__).parent.resolve() / "AttentiveSupport" / config_data["install"]

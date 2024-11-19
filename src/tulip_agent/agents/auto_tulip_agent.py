@@ -30,7 +30,6 @@
 """
 AutoTulipAgent variant; uses a vector store as a tool library, has CRUD access to the library.
 """
-import ast
 import json
 import logging
 from typing import Optional
@@ -39,7 +38,6 @@ from tulip_agent.constants import BASE_LANGUAGE_MODEL, BASE_TEMPERATURE
 from tulip_agent.prompts import (
     AUTO_TULIP_PROMPT,
     TASK_DECOMPOSITION,
-    TECH_LEAD,
     TOOL_CREATE,
     TOOL_UPDATE,
 )
@@ -157,48 +155,6 @@ class AutoTulipAgent(TulipAgent):
             self.delete_tool_description,
             self.decompose_task_description,
         ]
-
-    def _generate_code(
-        self, task_description: str, gen_attempts: int = 0
-    ) -> str | None:
-        _msgs = [
-            {
-                "role": "system",
-                "content": TECH_LEAD,
-            },
-            {
-                "role": "user",
-                "content": task_description,
-            },
-        ]
-        response = self._get_response(msgs=_msgs)
-        code = response.choices[0].message.content
-        while True:
-            if gen_attempts > 3:
-                logger.info(
-                    f"Failed generating code for the task `{task_description}`. Aborting."
-                )
-                return None
-            try:
-                ast.parse(code)
-            except SyntaxError:
-                logger.info(f"Attempt {gen_attempts} failed.")
-                gen_attempts += 1
-                _msgs.append(
-                    {
-                        "role": "user",
-                        "content": (
-                            "The code was not executable. "
-                            "Try again and write it in a way so that I can copy paste it."
-                        ),
-                    }
-                )
-                response = self._get_response(msgs=_msgs)
-                code = response.choices[0].message.content
-                continue
-            break
-        logger.info(f"Successfully generated code for the task `{task_description}`.")
-        return code
 
     def create_tool(self, task_description: str) -> str:
         # gen code

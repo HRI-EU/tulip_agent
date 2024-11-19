@@ -297,6 +297,10 @@ def calc_costs_for_tool_library(settings_file: str = "math_eval_settings.yaml"):
     with open(settings_file, "rt") as mes_:
         settings_ = yaml.safe_load(mes_.read())
     tools_filename = settings_["tools"]
+
+    if tools_filename is None:
+        return 0
+
     tools = importlib.import_module(tools_filename)
 
     fa = FunctionAnalyzer()

@@ -36,7 +36,7 @@ import tools
 import yaml
 from AttentiveSupport.src.gpt_config import system_prompt, model_name
 
-from tulip_agent import CotTulipAgent, ToolLibrary
+from tulip_agent import PrimedCotTulipAgent, ToolLibrary
 
 
 # Set up agent loggers to save logs to file for analysis
@@ -55,7 +55,7 @@ if __name__ == "__main__":
     )
 
     print(" AUTO TULIP ".center(40, "="))
-    tulip_agent = CotTulipAgent(
+    tulip_agent = PrimedCotTulipAgent(
         tool_library=tulip,
         top_k_functions=3,
         instructions=system_prompt,

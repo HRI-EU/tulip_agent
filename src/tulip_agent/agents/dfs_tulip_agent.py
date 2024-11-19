@@ -30,7 +30,6 @@
 """
 DfsTulipAgent variant; uses a vector store as a tool library and does DFS style planning.
 """
-import ast
 import copy
 import json
 import logging
@@ -38,7 +37,6 @@ from typing import Optional
 
 from tulip_agent.constants import BASE_LANGUAGE_MODEL, BASE_TEMPERATURE
 from tulip_agent.prompts import (
-    TECH_LEAD,
     TOOL_CREATE,
     TREE_TULIP_AGGREGATE_PROMPT,
     TREE_TULIP_DECOMPOSITION_PROMPT,
@@ -133,47 +131,6 @@ class DfsTulipAgent(TulipAgent):
         logger.info(f"{decompose_response_message=}")
         res = json.loads(decompose_response_message.content)
         return res["subtasks"]
-
-    def _generate_code(self, task_description: str, max_retries: int = 3) -> str | None:
-        retries = 0
-        _msgs = [
-            {
-                "role": "system",
-                "content": TECH_LEAD,
-            },
-            {
-                "role": "user",
-                "content": task_description,
-            },
-        ]
-        response = self._get_response(msgs=_msgs)
-        code = response.choices[0].message.content
-        while True:
-            if retries >= max_retries:
-                logger.info(
-                    f"Failed generating code for the task `{task_description}`. Aborting."
-                )
-                return None
-            try:
-                ast.parse(code)
-            except SyntaxError:
-                logger.info(f"Attempt {retries} failed.")
-                retries += 1
-                _msgs.append(
-                    {
-                        "role": "user",
-                        "content": (
-                            "The code was not executable. "
-                            "Try again and write it in a way so that I can copy paste it."
-                        ),
-                    }
-                )
-                response = self._get_response(msgs=_msgs)
-                code = response.choices[0].message.content
-                continue
-            break
-        logger.info(f"Successfully generated code for the task `{task_description}`.")
-        return code
 
     def create_tool(self, task_description: str) -> tuple[str, str] | tuple[None, None]:
         # generate code

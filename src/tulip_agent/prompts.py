@@ -233,7 +233,8 @@ Always adhere to the following rules:
 4. Return only valid code and avoid Markdown syntax for code blocks
 5. Avoid adding examples to the docstring
 6. Use very short but descriptive function names
-7. You may only use dependencies from Python's standard library
+7. All arguments must be explicit, do not use args and kwargs
+8. You may only use dependencies from Python's standard library
 """
 
 

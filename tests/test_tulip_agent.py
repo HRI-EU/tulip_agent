@@ -38,7 +38,7 @@ from tulip_agent import (
 )
 
 
-class TestCore(unittest.TestCase):
+class TestTulipAgent(unittest.TestCase):
 
     def setUp(self):
         self.tulip = ToolLibrary(chroma_sub_dir="test/")

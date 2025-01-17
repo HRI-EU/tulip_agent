@@ -76,7 +76,7 @@ def nested_function(
     return None
 
 
-class TestCore(unittest.TestCase):
+class TestFunctionAnalyzer(unittest.TestCase):
 
     def setUp(self):
         self.fa = FunctionAnalyzer()

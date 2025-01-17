@@ -33,7 +33,7 @@ from tulip_agent.task import Task
 from tulip_agent.tool import Tool
 
 
-class TestCore(unittest.TestCase):
+class TestTaskTree(unittest.TestCase):
 
     def setUp(self):
         def _add_subtasks(task: Task, subtask_names: list[str]):
@@ -42,12 +42,22 @@ class TestCore(unittest.TestCase):
                 s1.successor = s2
                 s2.predecessor = s1
             for s in subtasks:
-                s.tool_candidates = [Tool(name=f"{s.description} tool", description={})]
+                s.tool_candidates = [
+                    Tool(
+                        function_name=f"{s.description}_tool",
+                        module_name="example_tools_for_tree",
+                        definition={"function": {"description": "dummy"}},
+                    )
+                ]
             task.subtasks.append(subtasks)
 
         self.task = Task(description="t")
         self.task.tool_candidates = [
-            Tool(name=f"{self.task.description} tool", description={})
+            Tool(
+                function_name=f"{self.task.description}_tool",
+                module_name="example_tools_for_tree",
+                definition={"function": {"description": "dummy"}},
+            )
         ]
         _add_subtasks(self.task, subtask_names=["t1", "t2", "t3"])
         st2 = self.task.subtasks[-1][1]
@@ -67,7 +77,7 @@ class TestCore(unittest.TestCase):
         self.assertEqual(
             [p.description for p in predecessors],
             ["t2b", "t2a", "t1"],
-            "Identifying predecessors on across levels failed.",
+            "Identifying predecessors across levels failed.",
         )
 
     def test_get_nodes_and_edges(self):

@@ -34,10 +34,9 @@ import importlib
 import json
 import logging
 import sys
-
 from dataclasses import asdict, dataclass, field
-from typing import Any, Callable, Optional
 from types import ModuleType
+from typing import Any, Callable, Optional
 
 
 logger = logging.getLogger(__name__)
@@ -74,6 +73,10 @@ class Tool:
     def format_for_chroma(self) -> dict:
         flat_dict = asdict(self)
         flat_dict["definition"] = json.dumps(self.definition, indent=4)
+        if self.predecessor is None:
+            flat_dict.pop("predecessor")
+        if self.successor is None:
+            flat_dict.pop("successor")
         return flat_dict
 
     def execute(self, **parameters) -> Any:

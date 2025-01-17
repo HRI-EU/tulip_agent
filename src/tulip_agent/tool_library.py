@@ -109,8 +109,10 @@ class ToolLibrary:
                 definition=json.loads(metadata["definition"]),
                 timeout=metadata["timeout"],
                 timeout_message=metadata["timeout_message"],
-                predecessor=metadata["predecessor"],
-                successor=metadata["successor"],
+                predecessor=(
+                    metadata["predecessor"] if "predecessor" in metadata else None
+                ),
+                successor=metadata["successor"] if "successor" in metadata else None,
             )
             self.tools[tool.unique_id] = tool
 

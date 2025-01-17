@@ -99,7 +99,7 @@ class TestToolLibrary(unittest.TestCase):
         )
         res = tulip.search(problem_description="add 4 and 5", top_k=1)
         self.assertEqual(
-            res["ids"][0][0], "example_tools__add", "Searching for function failed."
+            res[0].unique_id, "example_tools__add", "Searching for function failed."
         )
 
     def test_remove_tool(self):
@@ -153,9 +153,7 @@ class TestToolLibrary(unittest.TestCase):
         tulip = ToolLibrary(
             chroma_sub_dir="test/", file_imports=[("example_tools", [])]
         )
-        res, error = tulip.execute(
-            tool_id="example_tools__unknown", arguments={}
-        )
+        res, error = tulip.execute(tool_id="example_tools__unknown", arguments={})
         self.assertEqual(error, True, "Calling unknown function not caught.")
         self.assertEqual(
             res,
@@ -187,9 +185,7 @@ class TestToolLibrary(unittest.TestCase):
             chroma_sub_dir="test/", file_imports=[("example_module", [])]
         )
         function_id = "example_module__example"
-        res, error = tulip.execute(
-            tool_id=function_id, arguments={"text": "unchanged"}
-        )
+        res, error = tulip.execute(tool_id=function_id, arguments={"text": "unchanged"})
         self.assertEqual(error, False, "Function execution failed.")
         self.assertEqual(res, "unchanged", "Initial function execution failed.")
         # overwrite function
@@ -203,18 +199,15 @@ class TestToolLibrary(unittest.TestCase):
             '    """\n'
             '    return "success"\n'
         )
-        module_path = tulip.function_origins[function_id]["module_path"]
-        with open(module_path, "w") as m:
+        with open(tulip.tools[function_id].module_path, "w") as m:
             m.write(code)
         tulip.update_tool(tool_id=function_id)
-        res, error = tulip.execute(
-            tool_id=function_id, arguments={"text": "failure"}
-        )
+        res, error = tulip.execute(tool_id=function_id, arguments={"text": "failure"})
         self.assertEqual(error, False, "Function execution failed.")
         self.assertEqual(
             res, "success", "Executing the function after updating the module failed."
         )
-        example_module_path = tulip.function_origins[function_id]["module_path"]
+        example_module_path = tulip.tools[function_id].module_path
         subprocess.run(["git", "checkout", "HEAD", "--", example_module_path])
 
 

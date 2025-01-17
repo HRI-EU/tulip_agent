@@ -33,6 +33,7 @@ import concurrent.futures
 import importlib
 import json
 import logging
+import os
 import sys
 from dataclasses import asdict, dataclass, field
 from types import ModuleType
@@ -53,6 +54,7 @@ class Tool:
     successor: Optional[str] = None
     description: str = field(init=False)
     unique_id: str = field(init=False)
+    module_path: str = field(init=False)
 
     def __post_init__(self) -> None:
         self.unique_id = f"{self.module_name}__{self.function_name}"
@@ -66,6 +68,7 @@ class Tool:
             else importlib.import_module(self.module_name)
         )
         self.function: Callable = getattr(self.module, self.function_name)
+        self.module_path = os.path.abspath(self.module.__file__)
 
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__} object {id(self)}: {self.unique_id}>"

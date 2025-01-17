@@ -108,18 +108,18 @@ class TulipAgent(LlmAgent, ABC):
             if action_description in json_res:
                 tools.append((action_description, json_res[action_description]))
                 continue
-            res = self.tool_library.search(
-                problem_description=action_description,
-                top_k=self.top_k_functions,
-                similarity_threshold=similarity_threshold,
-            )["documents"]
-            if res:
-                json_res_ = [json.loads(e) for e in res[0]]
-                logger.info(
-                    f"Functions for `{action_description}`: {json.dumps(json_res_)}"
+            res = [
+                tool.definition
+                for tool in self.tool_library.search(
+                    problem_description=action_description,
+                    top_k=self.top_k_functions,
+                    similarity_threshold=similarity_threshold,
                 )
-                json_res[action_description] = json_res_
-                tools.append((action_description, json_res_))
+            ]
+            if res:
+                logger.info(f"Functions for `{action_description}`: {json.dumps(res)}")
+                json_res[action_description] = res
+                tools.append((action_description, res))
         return tools
 
     def execute_search_tool_call(

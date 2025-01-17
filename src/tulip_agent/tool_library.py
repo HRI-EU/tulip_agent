@@ -208,6 +208,7 @@ class ToolLibrary:
         function_names: Optional[list[str]] = None,
         timeout_settings: Optional[dict] = None,
     ) -> list[Tool]:
+        timeout_settings = timeout_settings if timeout_settings else {}
         if module_name in sys.modules:
             module = importlib.reload(sys.modules[module_name])
         else:

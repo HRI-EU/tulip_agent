@@ -84,7 +84,7 @@ class ToolLibrary:
         self.embedding_model = embedding_model
 
         self.function_analyzer = FunctionAnalyzer()
-        self.tools = {}
+        self.tools: dict[str, Tool] = {}
 
         # timeout settings
         self.default_timeout = default_timeout
@@ -280,9 +280,7 @@ class ToolLibrary:
         similarity_threshold: float = None,
     ) -> list[Tool]:
         if top_k >= len(self.tools) and similarity_threshold is None:
-            # NOTE: this mode returns ids and documents only
-            #  distances are unavailable for this mode and metadatas are currently not used
-            res = self.tools
+            res = self.tools.values()
         else:
             query_embedding = embed(
                 text=problem_description, embedding_model=self.embedding_model

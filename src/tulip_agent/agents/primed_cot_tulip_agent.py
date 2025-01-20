@@ -86,9 +86,12 @@ class PrimedCotTulipAgent(CotTulipAgent):
         logger.info(f"{self.__class__.__name__} received query: {prompt}")
 
         # Find most relevant tools based on initial query for pruning the task decomposition
-        tool_names = self.tool_library.search(
-            problem_description=prompt, top_k=self.priming_top_k
-        )["ids"][0]
+        tool_names = [
+            tool.unique_id
+            for tool in self.tool_library.search(
+                problem_description=prompt, top_k=self.priming_top_k
+            )
+        ]
         tool_names = [tn.split("__")[1] for tn in tool_names]
         self.decomposition_prompt = self.decomposition_prompt.replace(
             "{tool_names}",

@@ -183,7 +183,7 @@ class AutoTulipAgent(TulipAgent):
     def update_tool(self, tool_name: str, instruction: str) -> str:
         # NOTE: updating is currently only supported for modules with single functions
         # retrieve old code
-        module_path = self.tool_library.function_origins[tool_name]["module_path"]
+        module_path = self.tool_library.tools[tool_name].module_path
         with open(module_path, "r") as m:
             old_code = m.read()
         # generate replacement
@@ -196,9 +196,7 @@ class AutoTulipAgent(TulipAgent):
         # reload tool library
         with open(module_path, "w") as m:
             m.write(code)
-        updated_tool_description = self.tool_library.update_tool(
-            tool_id=tool_name
-        )
+        updated_tool_description = self.tool_library.update_tool(tool_id=tool_name)
         self.tools = [t for t in self.tools if t["function"]["name"] != tool_name]
         self.tools.append(updated_tool_description)
         success_msg = f"Successfully updated `{tool_name}`."

@@ -68,7 +68,7 @@ class Task:
             if self.tool_candidates[0].predecessor:
                 valid = (
                     self.tool_candidates[0].predecessor
-                    == self.predecessor.tool_candidates[0].name
+                    == self.predecessor.tool_candidates[0].unique_id
                 )
                 if valid is False:
                     print(self.description)

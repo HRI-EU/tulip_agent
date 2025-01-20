@@ -87,6 +87,7 @@ class DfsTulipAgent(TulipAgent):
         self.max_paraphrases = max_paraphrases
         self.max_replans = max_replans
         self.plot_task_tree = plot_task_tree
+        self.task = None
 
     def query(
         self,
@@ -94,12 +95,12 @@ class DfsTulipAgent(TulipAgent):
     ) -> str:
         logger.info(f"{self.__class__.__name__} received query: {prompt}")
         initial_task = Task(description=prompt)
-        task = self.recurse(task=initial_task, recursion_level=0)
-        logger.debug(task.__dict__)
+        self.task = self.recurse(task=initial_task, recursion_level=0)
+        logger.debug(self.task.__dict__)
         if self.plot_task_tree:
-            task.plot()
-        logger.info(f"{self.__class__.__name__} returns response: {task.result}")
-        return task.result
+            self.task.plot()
+        logger.info(f"{self.__class__.__name__} returns response: {self.task.result}")
+        return self.task.result
 
     def decompose_task(
         self,
@@ -132,25 +133,25 @@ class DfsTulipAgent(TulipAgent):
         res = json.loads(decompose_response_message.content)
         return res["subtasks"]
 
-    def create_tool(self, task_description: str) -> tuple[str, str] | tuple[None, None]:
+    def create_tool(self, task_description: str) -> None | Tool:
         # generate code
         task_description_ = TOOL_CREATE.format(task_description=task_description)
         code = self._generate_code(task_description=task_description_)
         if code is None:
-            return None, None
+            return None
         # write to file
         function_name = code.split("def ")[1].split("(")[0]
         module_name = f"{function_name}_module"
         with open(f"{module_name}.py", "w") as f:
             f.write(code)
         # add module to tool library
-        new_tool_description = self.tool_library.load_functions_from_file(
+        new_tool = self.tool_library.load_functions_from_file(
             module_name=module_name, function_names=[f"{function_name}"]
         )[0]
         logger.info(
             f"Made tool `{module_name}__{function_name}` available via the tool library."
         )
-        return function_name, new_tool_description["function"]["description"]
+        return new_tool
 
     def recurse(
         self,
@@ -242,7 +243,7 @@ class DfsTulipAgent(TulipAgent):
         else:
             # execute with tools
             task.tool_candidates = [
-                Tool(name=t["function"]["name"], description=t) for t in tools
+                self.tool_library.tools[t["function"]["name"]] for t in tools
             ]
             logger.debug(f"Executing with tools: {task.description} - {tools}")
             if tools:
@@ -287,13 +288,8 @@ class DfsTulipAgent(TulipAgent):
                     return self.recurse(task=task, recursion_level=recursion_level)
                 elif len(task.generated_tools) == 0:
                     # create new tool
-                    function_name, function_description = self.create_tool(
-                        task_description=task.description
-                    )
-                    if function_name and function_description:
-                        new_tool = Tool(
-                            name=function_name, description=function_description
-                        )
+                    new_tool = self.create_tool(task_description=task.description)
+                    if new_tool:
                         task.generated_tools.append(new_tool)
                         return self.recurse(task=task, recursion_level=recursion_level)
                     else:

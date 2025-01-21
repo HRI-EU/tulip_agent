@@ -258,6 +258,7 @@ class TulipAgent(LlmAgent, ABC):
         ]
         response = self._get_response(msgs=_msgs)
         code = response.choices[0].message.content
+        code = code[9:-3] if code.startswith("```") else code
         retries = 0
         while True:
             if retries >= max_retries:
@@ -281,10 +282,15 @@ class TulipAgent(LlmAgent, ABC):
                 )
                 response = self._get_response(msgs=_msgs)
                 code = response.choices[0].message.content
+                code = code[9:-3] if code.startswith("```") else code
                 continue
             break
-        retries = 0
         while True:
+            if retries >= max_retries:
+                logger.info(
+                    f"Failed generating code for the task `{task_description}`. Aborting."
+                )
+                return None
             ruff_output = self._run_ruff(code)
             if ruff_output:
                 logger.info(f"Format check #{retries} failed.")
@@ -300,6 +306,7 @@ class TulipAgent(LlmAgent, ABC):
                 )
                 response = self._get_response(msgs=_msgs)
                 code = response.choices[0].message.content
+                code = code[9:-3] if code.startswith("```") else code
                 continue
             break
         logger.info(f"Successfully generated code for the task `{task_description}`.")

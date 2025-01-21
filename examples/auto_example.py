@@ -52,6 +52,6 @@ for task in tasks:
     print(f"{res=}")
 
 # cleanup
-for m in {e["module_name"] for e in tulip.function_origins.values()}:
-    os.remove(m + ".py")
+for m in {e.module_path for e in tulip.tools.values()}:
+    os.remove(m)
 tulip.chroma_client.delete_collection("tulip")

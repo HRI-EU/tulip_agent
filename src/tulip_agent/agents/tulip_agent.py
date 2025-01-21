@@ -44,6 +44,7 @@ from openai.types.chat.chat_completion_message_tool_call import (
 
 from tulip_agent.constants import BASE_LANGUAGE_MODEL, BASE_TEMPERATURE
 from tulip_agent.prompts import TECH_LEAD
+from tulip_agent.tool import Tool
 from tulip_agent.tool_library import ToolLibrary
 
 from .base_agent import LlmAgent
@@ -101,26 +102,27 @@ class TulipAgent(LlmAgent, ABC):
         self,
         action_descriptions: list[str],
         similarity_threshold: Optional[float] = None,
-    ) -> list[tuple[str, list]]:
-        json_res = {}
-        tools = []
+    ) -> list[tuple[str, list[Tool]]]:
+        """Find suitable tools for each action description."""
+        tool_lookup = {}
+        actions_with_tools = []
         for action_description in action_descriptions:
-            if action_description in json_res:
-                tools.append((action_description, json_res[action_description]))
-                continue
-            res = [
-                tool.definition
-                for tool in self.tool_library.search(
-                    problem_description=action_description,
-                    top_k=self.top_k_functions,
-                    similarity_threshold=similarity_threshold,
+            if action_description in tool_lookup:
+                actions_with_tools.append(
+                    (action_description, tool_lookup[action_description])
                 )
-            ]
-            if res:
-                logger.info(f"Functions for `{action_description}`: {json.dumps(res)}")
-                json_res[action_description] = res
-                tools.append((action_description, res))
-        return tools
+                continue
+            tools = self.tool_library.search(
+                problem_description=action_description,
+                top_k=self.top_k_functions,
+                similarity_threshold=similarity_threshold,
+            )
+            logger.info(
+                f"Functions for `{action_description}`: {[tool.unique_id for tool in tools]} "
+            )
+            tool_lookup[action_description] = tools
+            actions_with_tools.append((action_description, tools))
+        return actions_with_tools
 
     def execute_search_tool_call(
         self,
@@ -151,14 +153,15 @@ class TulipAgent(LlmAgent, ABC):
 
     def run_with_tools(
         self,
-        tools: list[dict],
+        tools: list[Tool],
         messages: Optional[list] = None,
     ) -> str:
+        tool_definitions = [tool.definition for tool in tools]
         if messages is None:
             messages = self.messages
         response = self._get_response(
             msgs=messages,
-            tools=tools,
+            tools=tool_definitions,
             tool_choice="auto",
         )
         response_message = response.choices[0].message
@@ -210,7 +213,7 @@ class TulipAgent(LlmAgent, ABC):
 
             response = self._get_response(
                 msgs=messages,
-                tools=tools,
+                tools=tool_definitions,
                 tool_choice="auto",
             )
             response_message = response.choices[0].message

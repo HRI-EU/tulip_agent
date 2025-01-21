@@ -318,7 +318,7 @@ class AutoTulipAgent(TulipAgent):
                     ]
                     logger.info(f"Tools found: {str(new_tools)}")
                     self.tools.extend(new_tools)
-                    tool_names_ = [td["function"]["name"] for td in new_tools]
+                    tool_names_ = [new_tool.unique_id for new_tool in new_tools]
                     if tool_names_:
                         status = f"Successfully provided suitable tools: {tool_names_}."
                     else:

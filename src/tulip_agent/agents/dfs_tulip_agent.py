@@ -176,7 +176,7 @@ class DfsTulipAgent(TulipAgent):
         elif len(task.subtasks) == 0:
             subtask_descriptions = self.decompose_task(
                 task=task,
-                tool_names=[t["function"]["name"] for t in generic_tools],
+                tool_names=[gt.unique_id for gt in generic_tools],
                 base_prompt=TREE_TULIP_DECOMPOSITION_PROMPT,
             )
         else:
@@ -189,7 +189,7 @@ class DfsTulipAgent(TulipAgent):
             )
             subtask_descriptions = self.decompose_task(
                 task=task,
-                tool_names=[t["function"]["name"] for t in generic_tools],
+                tool_names=[gt.unique_id for gt in generic_tools],
                 base_prompt=TREE_TULIP_REPLAN_PROMPT.replace("{failed}", failed),
             )
         if len(subtask_descriptions) == 1:
@@ -242,9 +242,7 @@ class DfsTulipAgent(TulipAgent):
             )
         else:
             # execute with tools
-            task.tool_candidates = [
-                self.tool_library.tools[t["function"]["name"]] for t in tools
-            ]
+            task.tool_candidates = tools
             logger.debug(f"Executing with tools: {task.description} - {tools}")
             if tools:
                 previous_info = "\n".join(

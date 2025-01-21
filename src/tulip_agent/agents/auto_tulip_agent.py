@@ -172,10 +172,10 @@ class AutoTulipAgent(TulipAgent):
         with open(f"{module_name}.py", "w") as f:
             f.write(code)
         # add module to tool library
-        new_tool_description = self.tool_library.load_functions_from_file(
+        new_tool = self.tool_library.load_functions_from_file(
             module_name=module_name, function_names=[f"{function_name}"]
-        )
-        self.tools.extend(new_tool_description)
+        )[0]
+        self.tools.append(new_tool.definition)
         success_msg = f"Made tool `{module_name}__{function_name}` available via the tool library."
         logger.info(success_msg)
         return success_msg

@@ -38,9 +38,9 @@ logging.basicConfig(level=logging.INFO)
 tasks = ["""Add 2 and 5""", """Add the product of 3 and 4 and the product of 5 and 6"""]
 
 tulip = ToolLibrary(chroma_sub_dir="example/", file_imports=[("calculator", [])])
-ata = CotTulipAgent(tool_library=tulip, top_k_functions=3)
+cta = CotTulipAgent(tool_library=tulip, top_k_functions=3)
 
 for task in tasks:
     print(f"{task=}")
-    res = ata.query(prompt=task)
+    res = cta.query(prompt=task)
     print(f"{res=}")

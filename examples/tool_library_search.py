@@ -32,7 +32,7 @@ import logging
 from tulip_agent import ToolLibrary
 
 
-# Set logger to INFO to show agents' internal steps
+# Set logger to INFO to show details
 logging.basicConfig(level=logging.INFO)
 
 tasks = [
@@ -48,5 +48,5 @@ tulip = ToolLibrary(chroma_sub_dir="example/", file_imports=[("calculator", [])]
 
 for task in tasks:
     print(f"{task=}")
-    res = tulip.search(problem_description=task, top_k=4, similarity_threshold=0.35)
+    res = tulip.search(problem_description=task, top_k=4, similarity_threshold=1.5)
     print(f"{res=}")

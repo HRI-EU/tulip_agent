@@ -89,7 +89,7 @@ class AutoTulipAgent(TulipAgent):
                             "description": "A textual description of the task to be solved with a Python function.",
                         },
                     },
-                    "required": ["task_descriptions"],
+                    "required": ["task_description"],
                 },
             },
         }

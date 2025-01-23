@@ -39,7 +39,7 @@ from typing import Callable
 from tulip_agent.constants import BASE_LANGUAGE_MODEL, BASE_TEMPERATURE
 from tulip_agent.function_analyzer import FunctionAnalyzer
 
-from .base_agent import LlmAgent
+from .base_agent import LlmAgent, ModelServeMode
 
 
 logger = logging.getLogger(__name__)
@@ -52,12 +52,14 @@ class ToolAgent(LlmAgent, ABC):
         instructions: str,
         model: str = BASE_LANGUAGE_MODEL,
         temperature: float = BASE_TEMPERATURE,
+        model_serve_mode: ModelServeMode = ModelServeMode.OPENAI,
         api_interaction_limit: int = 100,
     ) -> None:
         super().__init__(
             instructions=instructions,
             model=model,
             temperature=temperature,
+            model_serve_mode=model_serve_mode,
             api_interaction_limit=api_interaction_limit,
         )
         self.function_analyzer = FunctionAnalyzer()

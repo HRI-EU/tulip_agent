@@ -33,6 +33,7 @@ from .cot_tool_agent import CotToolAgent as CotToolAgent
 from .cot_tulip_agent import CotTulipAgent as CotTulipAgent
 from .dfs_tulip_agent import DfsTulipAgent as DfsTulipAgent
 from .informed_cot_tulip_agent import InformedCotTulipAgent as InformedCotTulipAgent
+from .llm_agent import ModelServeMode as ModelServeMode
 from .minimal_tulip_agent import MinimalTulipAgent as MinimalTulipAgent
 from .naive_tool_agent import NaiveToolAgent as NaiveToolAgent
 from .naive_tulip_agent import NaiveTulipAgent as NaiveTulipAgent

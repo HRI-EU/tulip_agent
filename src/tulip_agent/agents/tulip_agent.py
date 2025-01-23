@@ -47,7 +47,7 @@ from tulip_agent.prompts import TECH_LEAD
 from tulip_agent.tool import Tool
 from tulip_agent.tool_library import ToolLibrary
 
-from .base_agent import LlmAgent
+from .base_agent import LlmAgent, ModelServeMode
 
 
 logger = logging.getLogger(__name__)
@@ -59,6 +59,7 @@ class TulipAgent(LlmAgent, ABC):
         instructions: str,
         model: str = BASE_LANGUAGE_MODEL,
         temperature: float = BASE_TEMPERATURE,
+        model_serve_mode: ModelServeMode = ModelServeMode.OPENAI,
         api_interaction_limit: int = 100,
         tool_library: ToolLibrary = None,
         top_k_functions: int = 3,
@@ -68,6 +69,7 @@ class TulipAgent(LlmAgent, ABC):
             instructions=instructions,
             model=model,
             temperature=temperature,
+            model_serve_mode=model_serve_mode,
             api_interaction_limit=api_interaction_limit,
         )
         self.tool_library = tool_library

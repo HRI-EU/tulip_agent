@@ -37,6 +37,7 @@ from tulip_agent.agents import (
     DfsTulipAgent,
     InformedCotTulipAgent,
     MinimalTulipAgent,
+    ModelServeMode,
     NaiveToolAgent,
     NaiveTulipAgent,
     OneShotCotTulipAgent,

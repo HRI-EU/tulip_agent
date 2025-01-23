@@ -36,6 +36,7 @@ from typing import Callable, Optional
 from tulip_agent.constants import BASE_LANGUAGE_MODEL, BASE_TEMPERATURE
 from tulip_agent.prompts import SOLVE_WITH_TOOLS, TASK_DECOMPOSITION, TOOL_COT_PROMPT
 
+from .llm_agent import ModelServeMode
 from .tool_agent import ToolAgent
 
 
@@ -49,6 +50,7 @@ class CotToolAgent(ToolAgent):
         instructions: Optional[str] = None,
         model: str = BASE_LANGUAGE_MODEL,
         temperature: float = BASE_TEMPERATURE,
+        model_serve_mode: ModelServeMode = ModelServeMode.OPENAI,
         api_interaction_limit: int = 100,
     ) -> None:
         super().__init__(
@@ -60,6 +62,7 @@ class CotToolAgent(ToolAgent):
             functions=functions,
             model=model,
             temperature=temperature,
+            model_serve_mode=model_serve_mode,
             api_interaction_limit=api_interaction_limit,
         )
 

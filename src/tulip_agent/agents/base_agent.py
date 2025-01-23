@@ -36,7 +36,7 @@ from typing import Optional
 from tulip_agent.constants import BASE_LANGUAGE_MODEL, BASE_TEMPERATURE
 from tulip_agent.prompts import BASE_PROMPT
 
-from .llm_agent import LlmAgent
+from .llm_agent import LlmAgent, ModelServeMode
 
 
 logger = logging.getLogger(__name__)
@@ -48,6 +48,7 @@ class BaseAgent(LlmAgent):
         instructions: Optional[str] = None,
         model: str = BASE_LANGUAGE_MODEL,
         temperature: float = BASE_TEMPERATURE,
+        model_serve_mode: ModelServeMode = ModelServeMode.OPENAI,
     ) -> None:
         super().__init__(
             instructions=(
@@ -55,6 +56,7 @@ class BaseAgent(LlmAgent):
             ),
             model=model,
             temperature=temperature,
+            model_serve_mode=model_serve_mode,
         )
 
     def query(

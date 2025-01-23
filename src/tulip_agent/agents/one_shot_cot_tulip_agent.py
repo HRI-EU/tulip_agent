@@ -39,6 +39,7 @@ from tulip_agent.prompts import TULIP_COT_PROMPT_ONE_SHOT
 from tulip_agent.tool_library import ToolLibrary
 
 from .cot_tulip_agent import CotTulipAgent
+from .llm_agent import ModelServeMode
 
 
 logger = logging.getLogger(__name__)
@@ -49,6 +50,7 @@ class OneShotCotTulipAgent(CotTulipAgent):
         self,
         model: str = BASE_LANGUAGE_MODEL,
         temperature: float = BASE_TEMPERATURE,
+        model_serve_mode: ModelServeMode = ModelServeMode.OPENAI,
         api_interaction_limit: int = 100,
         tool_library: ToolLibrary = None,
         top_k_functions: int = 3,
@@ -63,6 +65,7 @@ class OneShotCotTulipAgent(CotTulipAgent):
             ),
             model=model,
             temperature=temperature,
+            model_serve_mode=model_serve_mode,
             api_interaction_limit=api_interaction_limit,
             tool_library=tool_library,
             top_k_functions=top_k_functions,

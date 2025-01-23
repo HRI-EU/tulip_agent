@@ -37,6 +37,7 @@ from tulip_agent.constants import BASE_LANGUAGE_MODEL, BASE_TEMPERATURE
 from tulip_agent.prompts import TOOL_PROMPT
 from tulip_agent.tool_library import ToolLibrary
 
+from .llm_agent import ModelServeMode
 from .tulip_agent import TulipAgent
 
 
@@ -48,6 +49,7 @@ class NaiveTulipAgent(TulipAgent):
         self,
         model: str = BASE_LANGUAGE_MODEL,
         temperature: float = BASE_TEMPERATURE,
+        model_serve_mode: ModelServeMode = ModelServeMode.OPENAI,
         api_interaction_limit: int = 100,
         tool_library: ToolLibrary = None,
         top_k_functions: int = 3,
@@ -60,6 +62,7 @@ class NaiveTulipAgent(TulipAgent):
             ),
             model=model,
             temperature=temperature,
+            model_serve_mode=model_serve_mode,
             api_interaction_limit=api_interaction_limit,
             tool_library=tool_library,
             top_k_functions=top_k_functions,

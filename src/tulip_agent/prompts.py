@@ -173,26 +173,28 @@ Always adhere to the following procedure:
 TASK_DECOMPOSITION = """\
 Considering the following user request, what are the necessary atomic actions you need to execute?
 `{prompt}`
-Return an ordered list of steps.
-Return valid JSON and use the key `subtasks`.
+Return a dictionary with the key `subtasks` and a list of strings with the ordered steps as value, e.g.:
+{{"subtasks": ["first step", "second step"]}}
+Return valid JSON.
 """
 
 
 RECURSIVE_TASK_DECOMPOSITION = """\
 Considering the following task, what are the necessary steps you need to execute?
 `{prompt}`
-Return an ordered list of steps.
-Return valid JSON and use the key `subtasks`.
+Return a dictionary with the key `subtasks` and a list of strings with the ordered steps as value, e.g.:
+{{"subtasks": ["first step", "second step"]}}
+Return valid JSON.
 """
 
 
 INFORMED_TASK_DECOMPOSITION = """\
 Considering the following user request, what are the necessary steps you need to execute?
 `{prompt}`
-Return an ordered list of steps.
 Note that you have access to a tool library: {library_description}
-These action descriptions will be used to search for suitable tools in the tool library.
-Return valid JSON and use the key `subtasks`.
+Return a dictionary with the key `subtasks` and a list of strings with the ordered steps as value, e.g.:
+{{"subtasks": ["first step", "second step"]}}
+Return valid JSON.
 """
 
 
@@ -202,8 +204,9 @@ Considering the following user request, what are the necessary atomic actions yo
 Keep in mind that you have access to a variety of tools, including, but not limited to, the following selection:
 {tool_names}
 You have access to further tools, which you can find via a search.
-Make sure to include all necessary steps and return an ordered list of these steps.
-Return valid JSON and use the key `subtasks`.
+Return a dictionary with the key `subtasks` and a list of strings with the ordered steps as value, e.g.:
+{{"subtasks": ["first step", "second step"]}}
+Return valid JSON.
 """
 
 

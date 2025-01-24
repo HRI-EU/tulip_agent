@@ -40,9 +40,9 @@ See `./examples`
 
 
 ## Setup
-* Make sure you have an OpenAI API key set up, see the [official instructions](https://help.openai.com/en/articles/5112595-best-practices-for-api-key-safety)
+* Make sure to set an OpenAI API key, see the [official instructions](https://help.openai.com/en/articles/5112595-best-practices-for-api-key-safety), or `OLLAMA_BASE_URL` for Ollama
 * Install with `poetry install` or `pip install -e .`
-* Check out the `examples` and the robot evaluation in `src/robo_eval`
+* Check out the `examples`, the robot evaluation in `src/eval/robo_eval`, and `examples/local_examples.py` when using Ollama
 
 
 ## Dev notes

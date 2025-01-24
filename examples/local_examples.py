@@ -37,10 +37,19 @@ logging.basicConfig(level=logging.INFO)
 
 tasks = ["""Add 2 and 5""", """Add the product of 3 and 4 and the product of 5 and 6"""]
 
-ba = BaseAgent(model_serve_mode=ModelServeMode.OLLAMA, model="llama3.2")
+ba = BaseAgent(model_serve_mode=ModelServeMode.OAI_COMPATIBLE, model="llama3.2")
 
-tulip = ToolLibrary(chroma_sub_dir="example/", file_imports=[("calculator", [])])
-cta = CotTulipAgent(tool_library=tulip, top_k_functions=3, model_serve_mode=ModelServeMode.OLLAMA, model="llama3.2")
+tulip = ToolLibrary(
+    chroma_sub_dir="example/",
+    file_imports=[("calculator", [])],
+    model_serve_mode=ModelServeMode.OAI_COMPATIBLE,
+)
+cta = CotTulipAgent(
+    tool_library=tulip,
+    top_k_functions=3,
+    model_serve_mode=ModelServeMode.OAI_COMPATIBLE,
+    model="llama3.2",
+)
 
 for task in tasks:
     print(f"{task=}")

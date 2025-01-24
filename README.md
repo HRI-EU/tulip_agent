@@ -40,9 +40,12 @@ See `./examples`
 
 
 ## Setup
-* Make sure to set an OpenAI API key, see the [official instructions](https://help.openai.com/en/articles/5112595-best-practices-for-api-key-safety), or `OLLAMA_BASE_URL` for Ollama
+* Make sure to set the environment variables required by the API of your choice. Currently supported:
+  * OpenAI: `OPENAI_API_KEY`, see the [official instructions](https://help.openai.com/en/articles/5112595-best-practices-for-api-key-safety)
+  * Azure: `AZURE_OPENAI_API_KEY`, `AZURE_API_VERSION`, and `AZURE_OPENAI_ENDPOINT`
+  * OpenAI compatible endpoints: `OAI_COMPATIBLE_BASE_URL` and `OAI_COMPATIBLE_API_KEY` for OpenAI compatible endpoints, such as Ollama
 * Install with `poetry install` or `pip install -e .`
-* Check out the `examples`, the robot evaluation in `src/eval/robo_eval`, and `examples/local_examples.py` when using Ollama
+* Check out the `examples`, the robot evaluation in `src/eval/robo_eval`, and `examples/local_examples.py` for a local setup
 
 
 ## Dev notes

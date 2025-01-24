@@ -27,6 +27,12 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
+"""
+Example for using a ToolLibrary and CotTulipAgent with local models.
+Assumes that environment variables are set and that the following models are available:
+* language model: llama3.2, e.g., https://ollama.com/library/llama3.2
+* embedding model: mxbai-embed-large, e.g., https://ollama.com/library/mxbai-embed-large
+"""
 import logging
 
 from tulip_agent import BaseAgent, CotTulipAgent, ModelServeMode, ToolLibrary
@@ -40,9 +46,10 @@ tasks = ["""Add 2 and 5""", """Add the product of 3 and 4 and the product of 5 a
 ba = BaseAgent(model_serve_mode=ModelServeMode.OAI_COMPATIBLE, model="llama3.2")
 
 tulip = ToolLibrary(
-    chroma_sub_dir="example/",
+    chroma_sub_dir="local_example/",
     file_imports=[("calculator", [])],
     model_serve_mode=ModelServeMode.OAI_COMPATIBLE,
+    embedding_model="mxbai-embed-large",
 )
 cta = CotTulipAgent(
     tool_library=tulip,

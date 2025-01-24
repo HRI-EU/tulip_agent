@@ -12,9 +12,12 @@ this still includes aggregate functions but not completely unrelated ones
 """
 
 import numpy as np
+from openai import OpenAI
 
 from tulip_agent.embed import embed
 
+
+client = OpenAI()
 
 embedding_models = (
     "text-embedding-ada-002",
@@ -35,10 +38,10 @@ tasks = [
 ]
 tool = "add:\nAdds two numbers together."
 
-emb_tool = np.array(embed(tool))
+emb_tool = np.array(embed(tool, client))
 for task in tasks:
     print(f"Task: {task}")
-    emb_task = np.array(embed(task))
+    emb_task = np.array(embed(task, client))
     l2squared = np.linalg.norm(emb_task - emb_tool)
     print(f"L2squared distance: {l2squared}")
     cosine_dist = 1 - np.dot(emb_task, emb_tool) / (

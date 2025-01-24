@@ -31,30 +31,18 @@
 LLM agent ABC.
 """
 import logging
-import os
 import time
 from abc import ABC, abstractmethod
-from enum import Enum
 
-from openai import AzureOpenAI, BadRequestError, OpenAI, OpenAIError
+from openai import BadRequestError, OpenAIError
 from openai.types.chat.chat_completion import ChatCompletion, Choice
 from openai.types.chat.chat_completion_message import ChatCompletionMessage
 
+from tulip_agent.client_setup import ModelServeMode, create_client
 from tulip_agent.constants import BASE_LANGUAGE_MODEL, BASE_TEMPERATURE
 
 
 logger = logging.getLogger(__name__)
-
-
-class ModelServeMode(Enum):
-    AZURE = "azure"
-    OLLAMA = "ollama"
-    OPENAI = "openai"
-
-
-def check_for_api_key(api_key: str) -> None:
-    if api_key not in os.environ:
-        raise ValueError(f"{api_key} not set.")
 
 
 class LlmAgent(ABC):
@@ -69,33 +57,7 @@ class LlmAgent(ABC):
         self.model = model
         self.temperature = temperature
         self.instructions = instructions
-        match model_serve_mode:
-            case ModelServeMode.OPENAI:
-                check_for_api_key("OPENAI_API_KEY")
-                self.llm_client = OpenAI(
-                    timeout=60,
-                    max_retries=10,
-                )
-            case ModelServeMode.OLLAMA:
-                check_for_api_key("OLLAMA_BASE_URL")
-                self.llm_client = OpenAI(
-                    base_url=os.getenv("OLLAMA_BASE_URL"),
-                    api_key="ollama",
-                    timeout=60,
-                    max_retries=10,
-                )
-            case ModelServeMode.AZURE:
-                check_for_api_key("AZURE_OPENAI_API_KEY")
-                check_for_api_key("AZURE_API_VERSION")
-                check_for_api_key("AZURE_OPENAI_ENDPOINT")
-                self.llm_client = AzureOpenAI(
-                    api_version=os.getenv("AZURE_API_VERSION"),
-                    azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"),
-                    timeout=60,
-                    max_retries=10,
-                )
-            case _:
-                raise ValueError(f"Unexpected model_serve_mode: {model_serve_mode}.")
+        self.llm_client = create_client(model_serve_mode)
 
         self.messages = []
         if self.instructions:

@@ -41,6 +41,7 @@ from typing import Callable, Optional
 
 import chromadb
 
+from tulip_agent.client_setup import ModelServeMode, create_client
 from tulip_agent.constants import BASE_EMBEDDING_MODEL
 from tulip_agent.embed import embed
 from tulip_agent.function_analyzer import FunctionAnalyzer
@@ -58,6 +59,7 @@ class ToolLibrary:
         chroma_base_dir: str = dirname(dirname(dirname(abspath(__file__))))
         + "/data/chroma/",
         embedding_model: str = BASE_EMBEDDING_MODEL,
+        model_serve_mode: ModelServeMode = ModelServeMode.OPENAI,
         description: Optional[str] = None,
         default_timeout: int = 60,
         default_timeout_message: str = (
@@ -73,6 +75,7 @@ class ToolLibrary:
             an optional list of tools to load. If no tools are specified, all tools are loaded.
         :param chroma_base_dir: Absolute path to the tool library folder.
         :param embedding_model: Name of the embedding model used. Defaults to the one specified in constants.
+        :param model_serve_mode: Model serving mode. Defaults to OPENAI.
         :param description: Natural language description of the tool library.
         :param default_timeout: Execution timeout for tools.
         :param default_timeout_message: Default message returned in case of tool execution timeout.
@@ -82,6 +85,7 @@ class ToolLibrary:
         """
         self.description = description
         self.embedding_model = embedding_model
+        self.embedding_client = create_client(model_serve_mode)
 
         self.function_analyzer = FunctionAnalyzer()
         self.tools: dict[str, Tool] = {}
@@ -160,6 +164,7 @@ class ToolLibrary:
             embeddings=[
                 embed(
                     text=tool.description,
+                    embedding_client=self.embedding_client,
                     embedding_model=self.embedding_model,
                 )
                 for tool in new_tools.values()
@@ -193,6 +198,7 @@ class ToolLibrary:
             embeddings=[
                 embed(
                     text=tool.description,
+                    embedding_client=self.embedding_client,
                     embedding_model=self.embedding_model,
                 )
             ],
@@ -283,7 +289,9 @@ class ToolLibrary:
             res = self.tools.values()
         else:
             query_embedding = embed(
-                text=problem_description, embedding_model=self.embedding_model
+                text=problem_description,
+                embedding_client=self.embedding_client,
+                embedding_model=self.embedding_model,
             )
             res = self.collection.query(
                 query_embeddings=[query_embedding],

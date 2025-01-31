@@ -293,6 +293,18 @@ class ToolLibrary:
         self.tools.pop(tool_id)
         logger.info(f"Removed tool {tool_id} from collection {self.collection}.")
 
+    def remove_tools_by_instance(
+        self,
+        instance: object,
+    ) -> None:
+        to_be_removed = [
+            tool_id for tool_id, tool in self.tools.items() if tool.instance == instance
+        ]
+        self.collection.delete(ids=to_be_removed)
+        for tool_id in to_be_removed:
+            self.tools.pop(tool_id)
+        logger.info(f"Removed tools {to_be_removed} from collection {self.collection}.")
+
     def update_tool(
         self,
         tool_id: str,

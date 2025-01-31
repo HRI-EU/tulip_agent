@@ -30,6 +30,7 @@
 import subprocess
 import unittest
 
+from tests.example_tools_in_class import Calculator
 from tulip_agent.tool_library import ToolLibrary
 
 
@@ -66,6 +67,19 @@ class TestToolLibrary(unittest.TestCase):
             "Initializing tool library with selected functions failed.",
         )
 
+    def test_init_instance(self):
+        calculator = Calculator(divisor=3)
+        tulip = ToolLibrary(chroma_sub_dir="test/", instance_imports=[calculator])
+        functions = tulip.collection.get(include=[])["ids"]
+        self.assertEqual(
+            set(functions),
+            {
+                "tests__example_tools_in_class__Calculator__add",
+                "tests__example_tools_in_class__Calculator__custom_division",
+            },
+            "Initializing tool library with class instance failed.",
+        )
+
     def test_load_file(self):
         tulip = ToolLibrary(chroma_sub_dir="test/")
         tulip.load_functions_from_file(module_name="example_tools", function_names=[])
@@ -78,6 +92,20 @@ class TestToolLibrary(unittest.TestCase):
                 "example_tools__multiply",
                 "example_tools__divide",
                 "example_tools__slow",
+            },
+            "Loading entire file failed.",
+        )
+
+    def test_load_instance(self):
+        calculator = Calculator(divisor=3)
+        tulip = ToolLibrary(chroma_sub_dir="test/")
+        tulip.load_functions_from_instance(instance=calculator)
+        functions = tulip.collection.get(include=[])["ids"]
+        self.assertEqual(
+            set(functions),
+            {
+                "tests__example_tools_in_class__Calculator__add",
+                "tests__example_tools_in_class__Calculator__custom_division",
             },
             "Loading entire file failed.",
         )

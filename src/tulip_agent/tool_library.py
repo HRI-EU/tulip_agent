@@ -304,12 +304,17 @@ class ToolLibrary:
         timeout = timeout or old_tool.timeout
         timeout_message = timeout_message or old_tool.timeout_message
 
+        if old_tool.instance:
+            raise ValueError(
+                f"The update operation is only supported for modules with exactly one function. "
+                f"{tool_id} was loaded from an instance of class {old_tool.instance.__class__.__name__}."
+            )
         module_occurrences = len(
             [t for t in self.tools.values() if t.module_name == module_name]
         )
         if module_occurrences != 1:
             raise ValueError(
-                f"Update operation is only supported for modules with exactly one function. "
+                f"The update operation is only supported for modules with exactly one function. "
                 f"{module_name} includes {module_occurrences}."
             )
 

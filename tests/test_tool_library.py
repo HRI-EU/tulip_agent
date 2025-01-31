@@ -147,6 +147,17 @@ class TestToolLibrary(unittest.TestCase):
             "Removing function failed.",
         )
 
+    def test_remove_tools_by_instance(self):
+        calculator = Calculator(divisor=3)
+        tulip = ToolLibrary(chroma_sub_dir="test/", instance_imports=[calculator])
+        tulip.remove_tools_by_instance(instance=calculator)
+        functions = tulip.collection.get(include=[])["ids"]
+        self.assertEqual(
+            len(functions),
+            0,
+            "Removing functions by instance failed.",
+        )
+
     def test_execute(self):
         tulip = ToolLibrary(
             chroma_sub_dir="test/", file_imports=[("example_tools", ["multiply"])]

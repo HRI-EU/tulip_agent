@@ -27,8 +27,14 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
+"""
+Example for
+* setting up a tool library with tools from a file import and a class instance
+* searching for tools in the tool library
+"""
 import logging
 
+from calculator import TrigonometryCalculator
 from tulip_agent import ToolLibrary
 
 
@@ -42,9 +48,16 @@ tasks = [
     """What is 2 + 5?""",
     """What is 2 + 4 / 3?""",
     """Draw a horse""",
+    """Calculate the cosine of 90 degrees.""",
 ]
 
-tulip = ToolLibrary(chroma_sub_dir="example/", file_imports=[("calculator", [])])
+trigonometry_calculator = TrigonometryCalculator()
+
+tulip = ToolLibrary(
+    chroma_sub_dir="lib_example/",
+    file_imports=[("calculator", [])],
+    instance_imports=[trigonometry_calculator],
+)
 
 for task in tasks:
     print(f"{task=}")

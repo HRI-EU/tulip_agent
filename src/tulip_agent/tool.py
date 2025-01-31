@@ -48,6 +48,8 @@ class Tool:
     function_name: str
     module_name: str
     definition: dict
+    instance: Optional[object] = None
+    class_name: str = ""
     timeout: Optional[int] = None
     timeout_message: Optional[str] = None
     predecessor: Optional[str] = None
@@ -57,18 +59,23 @@ class Tool:
     module_path: str = field(init=False)
 
     def __post_init__(self) -> None:
-        self.unique_id = f"{self.module_name}__{self.function_name}"
-        self.description = (
-            self.function_name + ":\n" + self.definition["function"]["description"]
-        )
-        self.definition["function"]["name"] = self.unique_id
         self.module: ModuleType = (
             sys.modules[self.module_name]
             if self.module_name in sys.modules
             else importlib.import_module(self.module_name)
         )
-        self.function: Callable = getattr(self.module, self.function_name)
         self.module_path = os.path.abspath(self.module.__file__)
+        if self.instance:
+            self.unique_id = f"{self.module_name}__{self.instance.__class__.__name__}__{self.function_name}"
+            self.function: Callable = getattr(self.instance, self.function_name)
+            self.class_name = self.instance.__class__.__name__
+        else:
+            self.unique_id = f"{self.module_name}__{self.function_name}"
+            self.function: Callable = getattr(self.module, self.function_name)
+        self.description = (
+            self.function_name + ":\n" + self.definition["function"]["description"]
+        )
+        self.definition["function"]["name"] = self.unique_id
 
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__} object {id(self)}: {self.unique_id}>"
@@ -80,6 +87,7 @@ class Tool:
             flat_dict.pop("predecessor")
         if self.successor is None:
             flat_dict.pop("successor")
+        flat_dict.pop("instance")
         return flat_dict
 
     def execute(self, **parameters) -> Any:

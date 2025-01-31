@@ -76,6 +76,38 @@ def nested_function(
     return None
 
 
+class Calculator:
+    def __init__(self, divisor: float) -> None:
+        self.divisor = divisor
+
+    @staticmethod
+    def add(a: float, b: float) -> float:
+        """
+        Add two numbers.
+
+        :param a: The first number.
+        :param b: The second number.
+        :return: The sum of a and b.
+        """
+        return a + b
+
+    @staticmethod
+    def say_hi() -> None:
+        """
+        Print "hi".
+        """
+        print("hi")
+
+    def custom_division(self, number: float) -> float:
+        """
+        Divides a number by the calculator's divisor attribute.
+
+        :param number: The number to be subtracted from.
+        :return: The result of number divided by the divisor attribute.
+        """
+        return number / self.divisor
+
+
 class TestFunctionAnalyzer(unittest.TestCase):
 
     def setUp(self):
@@ -148,6 +180,80 @@ class TestFunctionAnalyzer(unittest.TestCase):
             res["function"]["parameters"]["properties"]["nested"]["description"],
             "A four-dimensional array of strings.",
             "Resolving parameter description failed.",
+        )
+
+    def test_analyze_class(self):
+        res = self.fa.analyze_class(Calculator)
+        expected_descriptions = [
+            {
+                "type": "function",
+                "function": {
+                    "name": "add",
+                    "description": "Add two numbers.",
+                    "parameters": {
+                        "additionalProperties": False,
+                        "properties": {
+                            "a": {
+                                "title": "A",
+                                "type": "number",
+                                "description": "The first number.",
+                            },
+                            "b": {
+                                "title": "B",
+                                "type": "number",
+                                "description": "The second number.",
+                            },
+                        },
+                        "required": ["a", "b"],
+                        "type": "object",
+                    },
+                },
+                "strict": True,
+            },
+            {
+                "type": "function",
+                "function": {
+                    "name": "custom_division",
+                    "description": "Divides a number by the calculator's divisor attribute.",
+                    "parameters": {
+                        "additionalProperties": False,
+                        "properties": {
+                            "number": {
+                                "title": "Number",
+                                "type": "number",
+                                "description": "The number to be subtracted from.",
+                            }
+                        },
+                        "required": ["number"],
+                        "type": "object",
+                    },
+                },
+                "strict": True,
+            },
+            {
+                "type": "function",
+                "function": {
+                    "name": "say_hi",
+                    "description": 'Print "hi".',
+                    "parameters": {
+                        "additionalProperties": False,
+                        "properties": {},
+                        "type": "object",
+                    },
+                },
+                "strict": True,
+            },
+        ]
+        for expected_description in expected_descriptions:
+            self.assertIn(
+                expected_description,
+                res,
+                f"Analyzing class failed for {expected_description['function']['name']}.",
+            )
+        self.assertEqual(
+            len(res),
+            len(expected_descriptions),
+            f"Analyzing class failed: len(res) instead of {len(expected_descriptions)} functions.",
         )
 
 

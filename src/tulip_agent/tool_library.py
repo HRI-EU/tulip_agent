@@ -175,17 +175,23 @@ class ToolLibrary:
                 self.tools[tool.unique_id] = tool
 
         # load new functions into vector store
-        new_tools = {
-            tool_id: tool
+        new_tools = [
+            tool
             for tool_id, tool in self.tools.items()
             if tool_id not in stored_tools_ids
-        }
+        ]
         if not new_tools:
             return
-        logger.info(f"Adding new tools to vector store: {new_tools.keys()}")
+        self._save_to_vector_store(new_tools)
+
+    def _save_to_vector_store(self, tools: list[Tool]) -> None:
+        tool_lookup = {tool.unique_id: tool for tool in tools}
+        logger.info(
+            f"Adding tools to collection {self.collection}: {tool_lookup.keys()}"
+        )
         self.collection.add(
             documents=[
-                json.dumps(tool.definition, indent=4) for tool in new_tools.values()
+                json.dumps(tool.definition, indent=4) for tool in tool_lookup.values()
             ],
             embeddings=[
                 embed(
@@ -193,10 +199,10 @@ class ToolLibrary:
                     embedding_client=self.embedding_client,
                     embedding_model=self.embedding_model,
                 )
-                for tool in new_tools.values()
+                for tool in tool_lookup.values()
             ],
-            metadatas=[tool.format_for_chroma() for tool in new_tools.values()],
-            ids=list(new_tools.keys()),
+            metadatas=[tool.format_for_chroma() for tool in tool_lookup.values()],
+            ids=list(tool_lookup.keys()),
         )
 
     def _add_function(
@@ -219,19 +225,7 @@ class ToolLibrary:
             ),
         )
         self.tools[tool.unique_id] = tool
-        self.collection.add(
-            documents=[json.dumps(tool.definition, indent=4)],
-            embeddings=[
-                embed(
-                    text=tool.description,
-                    embedding_client=self.embedding_client,
-                    embedding_model=self.embedding_model,
-                )
-            ],
-            metadatas=[tool.format_for_chroma()],
-            ids=[tool.unique_id],
-        )
-        logger.info(f"Added function {tool.unique_id} to collection {self.collection}.")
+        self._save_to_vector_store(tools=[tool])
         return tool
 
     def load_functions_from_file(
@@ -264,6 +258,32 @@ class ToolLibrary:
             )
             tools.append(tool)
         return tools
+
+    def load_functions_from_instance(
+        self, instance: object, timeout_settings: Optional[dict] = None
+    ) -> list[Tool]:
+        timeout_settings = timeout_settings if timeout_settings else {}
+        function_definitions = self.function_analyzer.analyze_class(instance.__class__)
+        new_tools = []
+        for function_definition in function_definitions:
+            tool = Tool(
+                function_name=function_definition["function"]["name"],
+                module_name=instance.__module__,
+                instance=instance,
+                definition=function_definition,
+                timeout=self.default_timeout,
+                timeout_message=self.default_timeout_message,
+            )
+            if tool.unique_id in timeout_settings:
+                tool.timeout = timeout_settings[tool.unique_id]["timeout"]
+                tool.timeout_message = timeout_settings[tool.unique_id][
+                    "timeout_message"
+                ]
+            new_tools.append(tool)
+            self.tools[tool.unique_id] = tool
+
+        self._save_to_vector_store(tools=new_tools)
+        return new_tools
 
     def remove_tool(
         self,

@@ -51,6 +51,10 @@ class FunctionAnalyzer:
 
         # analyze type hints
         parameters = pydantic.TypeAdapter(function_).json_schema()
+        # remove references to self for methods
+        parameters["properties"].pop("self", None)
+        if "required" in parameters:
+            parameters["required"] = [p for p in parameters["required"] if p != "self"]
 
         # analyze doc string
         descriptions = [e.strip() for e in function_.__doc__.split(":param ")]

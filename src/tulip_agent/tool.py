@@ -65,12 +65,13 @@ class Tool:
             else importlib.import_module(self.module_name)
         )
         self.module_path = os.path.abspath(self.module.__file__)
+        clean_module_name = self.module_name.replace(".", "__")
         if self.instance:
-            self.unique_id = f"{self.module_name}__{self.instance.__class__.__name__}__{self.function_name}"
+            self.unique_id = f"{clean_module_name}__{self.instance.__class__.__name__}__{self.function_name}"
             self.function: Callable = getattr(self.instance, self.function_name)
             self.class_name = self.instance.__class__.__name__
         else:
-            self.unique_id = f"{self.module_name}__{self.function_name}"
+            self.unique_id = f"{clean_module_name}__{self.function_name}"
             self.function: Callable = getattr(self.module, self.function_name)
         self.description = (
             self.function_name + ":\n" + self.definition["function"]["description"]

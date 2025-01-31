@@ -59,6 +59,10 @@ tulip = ToolLibrary(
     instance_imports=[trigonometry_calculator],
 )
 
+# alternatively load tools from files or class instances later on:
+# tulip.load_functions_from_file(module_name="calculator")
+# tulip.load_functions_from_instance(instance=trigonometry_calculator)
+
 for task in tasks:
     print(f"{task=}")
     res = tulip.search(problem_description=task, top_k=4, similarity_threshold=1.5)

@@ -56,6 +56,7 @@ class ToolLibrary:
         self,
         chroma_sub_dir: str = "",
         file_imports: Optional[list[tuple[str, Optional[list[str]]]]] = None,
+        instance_imports: Optional[list[object]] = None,
         chroma_base_dir: str = dirname(dirname(dirname(abspath(__file__))))
         + "/data/chroma/",
         embedding_model: str = BASE_EMBEDDING_MODEL,
@@ -73,6 +74,7 @@ class ToolLibrary:
         :param chroma_sub_dir: A specific subfolder for the tool library.
         :param file_imports: List of tuples with a module name from which to load tools from and
             an optional list of tools to load. If no tools are specified, all tools are loaded.
+        :param instance_imports: List of instances of classes from which to load tools.
         :param chroma_base_dir: Absolute path to the tool library folder.
         :param embedding_model: Name of the embedding model used. Defaults to the one specified in constants.
         :param model_serve_mode: Model serving mode. Defaults to OPENAI.
@@ -107,6 +109,9 @@ class ToolLibrary:
 
         # load functions available in vector store
         for metadata in stored_tools["metadatas"]:
+            # TODO: check that files and instances are actually supposed to be provided
+            if metadata["class_name"]:
+                continue
             tool = Tool(
                 function_name=metadata["function_name"],
                 module_name=metadata["module_name"],
@@ -120,9 +125,10 @@ class ToolLibrary:
             )
             self.tools[tool.unique_id] = tool
 
-        # load tools from files
-        if not file_imports:
+        # load tools from files and instances
+        if not file_imports and not instance_imports:
             return
+        file_imports = file_imports if file_imports else []
         for file_import in file_imports:
             module_name, function_names = file_import
             module = importlib.import_module(module_name)
@@ -137,6 +143,26 @@ class ToolLibrary:
                 tool = Tool(
                     function_name=function.__name__,
                     module_name=module_name,
+                    definition=function_definition,
+                    timeout=self.default_timeout,
+                    timeout_message=self.default_timeout_message,
+                )
+                if tool.unique_id in timeout_settings:
+                    tool.timeout = timeout_settings[tool.unique_id]["timeout"]
+                    tool.timeout_message = timeout_settings[tool.unique_id][
+                        "timeout_message"
+                    ]
+                self.tools[tool.unique_id] = tool
+        instance_imports = instance_imports if instance_imports else []
+        for instance_import in instance_imports:
+            function_definitions = self.function_analyzer.analyze_class(
+                instance_import.__class__
+            )
+            for function_definition in function_definitions:
+                tool = Tool(
+                    function_name=function_definition["function"]["name"],
+                    module_name=instance_import.__module__,
+                    instance=instance_import,
                     definition=function_definition,
                     timeout=self.default_timeout,
                     timeout_message=self.default_timeout_message,

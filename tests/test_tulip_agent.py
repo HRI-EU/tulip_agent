@@ -29,6 +29,7 @@
 #
 import unittest
 
+from tests.example_tools_in_class import Calculator
 from tulip_agent import (
     AutoTulipAgent,
     CotTulipAgent,
@@ -49,7 +50,7 @@ class TestTulipAgent(unittest.TestCase):
         self.tulip.chroma_client.delete_collection("tulip")
         self.tulip = ToolLibrary(
             chroma_sub_dir="test/",
-            file_imports=[("example_tools", [])],
+            file_imports=[("tests.example_tools", [])],
             description="Various math tools.",
         )
 
@@ -57,7 +58,7 @@ class TestTulipAgent(unittest.TestCase):
         self.assertTrue(
             any(s in res.lower() for s in ("4", "four"))
             and messages[-2]["role"] == "tool"
-            and messages[-2]["name"] == "example_tools__add",
+            and messages[-2]["name"] == "tests__example_tools__add",
             "LLM query failed.",
         )
 
@@ -97,7 +98,7 @@ class TestTulipAgent(unittest.TestCase):
         self.assertTrue(
             any(s in res.lower() for s in ("4", "four"))
             and len(agent.task.tool_candidates) == 1
-            and agent.task.tool_candidates[0].unique_id == "example_tools__add",
+            and agent.task.tool_candidates[0].unique_id == "tests__example_tools__add",
             "LLM query failed.",
         )
 
@@ -106,6 +107,24 @@ class TestTulipAgent(unittest.TestCase):
         res = agent.query(prompt="What is 2+2?")
         self.assertTrue(
             any(s in res.lower() for s in ("4", "four")),
+            "LLM query failed.",
+        )
+
+    def test_cot_tulip_query_with_instance(self):
+        calculator = Calculator(divisor=3)
+        self.tulip.chroma_client.delete_collection("tulip")
+        self.tulip = ToolLibrary(
+            chroma_sub_dir="test/",
+            instance_imports=[calculator],
+            description="Various math tools.",
+        )
+        agent = CotTulipAgent(tool_library=self.tulip)
+        res = agent.query(prompt="What is 2+2?")
+        self.assertTrue(
+            any(s in res.lower() for s in ("4", "four"))
+            and agent.messages[-2]["role"] == "tool"
+            and agent.messages[-2]["name"]
+            == "tests__example_tools_in_class__Calculator__add",
             "LLM query failed.",
         )
 

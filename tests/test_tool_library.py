@@ -80,6 +80,80 @@ class TestToolLibrary(unittest.TestCase):
             "Initializing tool library with class instance failed.",
         )
 
+    def test_init_file_unspecified(self):
+        """
+        The vector store should only contain the specified tools.
+        If an existing store is loaded, all tools that are not specified should be removed.
+        Here, a file is not specified in the second init.
+        """
+        tulip = ToolLibrary(
+            chroma_sub_dir="test/", file_imports=[("tests.example_tools", [])]
+        )
+        functions = tulip.collection.get(include=[])["ids"]
+        self.assertEqual(
+            len(functions),
+            5,
+            "Functions from file were not added in first initialization.",
+        )
+        tulip = ToolLibrary(chroma_sub_dir="test/")
+        functions = tulip.collection.get(include=[])["ids"]
+        self.assertEqual(
+            len(functions),
+            0,
+            "Legacy functions from file were not removed in second initialization.",
+        )
+
+    def test_init_specific_unspecified(self):
+        """
+        The vector store should only contain the specified tools.
+        If an existing store is loaded, all tools that are not specified should be removed.
+        Here, a single function from a file is not specified in the second init.
+        """
+        tulip = ToolLibrary(
+            chroma_sub_dir="test/",
+            file_imports=[("tests.example_tools", ["add", "subtract"])],
+        )
+        functions = tulip.collection.get(include=[])["ids"]
+        self.assertEqual(
+            set(functions),
+            {
+                "tests__example_tools__add",
+                "tests__example_tools__subtract",
+            },
+            "Specific functions from file were not added in first initialization.",
+        )
+        tulip = ToolLibrary(
+            chroma_sub_dir="test/", file_imports=[("tests.example_tools", ["add"])]
+        )
+        functions = tulip.collection.get(include=[])["ids"]
+        self.assertEqual(
+            set(functions),
+            {"tests__example_tools__add"},
+            "Unspecified legacy function from file were not removed in second initialization.",
+        )
+
+    def test_init_instance_unspecified(self):
+        """
+        The vector store should only contain the specified tools.
+        If an existing store is loaded, all tools that are not specified should be removed.
+        Here, an instance is not specified in the second init.
+        """
+        calculator = Calculator(divisor=3)
+        tulip = ToolLibrary(chroma_sub_dir="test/", instance_imports=[calculator])
+        functions = tulip.collection.get(include=[])["ids"]
+        self.assertEqual(
+            len(functions),
+            2,
+            "Instance functions were not added in first initialization.",
+        )
+        tulip = ToolLibrary(chroma_sub_dir="test/")
+        functions = tulip.collection.get(include=[])["ids"]
+        self.assertEqual(
+            len(functions),
+            0,
+            "Legacy instance functions were not removed in second initialization.",
+        )
+
     def test_load_file(self):
         tulip = ToolLibrary(chroma_sub_dir="test/")
         tulip.load_functions_from_file(module_name="example_tools", function_names=[])

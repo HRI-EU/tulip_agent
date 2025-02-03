@@ -34,6 +34,7 @@ import importlib
 import json
 import logging
 import sys
+from collections import Counter
 from inspect import getmembers, isfunction
 from os.path import abspath, dirname
 from pathlib import Path
@@ -107,15 +108,51 @@ class ToolLibrary:
         stored_tools = self.collection.get(include=["metadatas"])
         stored_tools_ids = stored_tools["ids"]
 
-        # load functions available in vector store
+        # load existing tools from vector store and remove unspecified ones from vector store
+        class_counts = (
+            Counter(type(instance).__name__ for instance in instance_imports)
+            if instance_imports
+            else {}
+        )
+        duplicates = [t for t, count in class_counts.items() if count > 1]
+        if duplicates:
+            raise ValueError(
+                f"Duplicate instances detected for classes: {', '.join(duplicates)}"
+            )
+
+        instances_by_class = (
+            {instance.__class__.__name__: instance for instance in instance_imports}
+            if instance_imports
+            else {}
+        )
+        functions_by_file = {k: v for k, v in file_imports} if file_imports else {}
+
         for metadata in stored_tools["metadatas"]:
-            # TODO: check that files and instances are actually supposed to be provided
-            if metadata["class_name"]:
-                continue
+            instance = None
+
+            if class_name := metadata["class_name"]:
+                if class_name not in instances_by_class:
+                    self.collection.delete(ids=[metadata["unique_id"]])
+                    continue
+                else:
+                    instance = instances_by_class[class_name]
+            else:
+                module_name = metadata["module_name"]
+                if module_name not in functions_by_file:
+                    self.collection.delete(ids=[metadata["unique_id"]])
+                    continue
+                if (
+                    functions_by_file[module_name]
+                    and metadata["function_name"] not in functions_by_file[module_name]
+                ):
+                    self.collection.delete(ids=[metadata["unique_id"]])
+                    continue
+
             tool = Tool(
                 function_name=metadata["function_name"],
                 module_name=metadata["module_name"],
                 definition=json.loads(metadata["definition"]),
+                instance=instance if instance else None,
                 timeout=metadata["timeout"],
                 timeout_message=metadata["timeout_message"],
                 predecessor=(
@@ -124,8 +161,17 @@ class ToolLibrary:
                 successor=metadata["successor"] if "successor" in metadata else None,
             )
             self.tools[tool.unique_id] = tool
+        logger.info(
+            (
+                f"Removed {len(stored_tools['metadatas']) - len(self.tools)} tools "
+                f"from collection {self.collection.name}."
+            )
+        )
+        logger.info(
+            f"Loaded {len(self.tools)} tools from collection {self.collection.name}."
+        )
 
-        # load tools from files and instances
+        # load new tools from files and instances
         if not file_imports and not instance_imports:
             return
         file_imports = file_imports if file_imports else []
@@ -174,7 +220,7 @@ class ToolLibrary:
                     ]
                 self.tools[tool.unique_id] = tool
 
-        # load new functions into vector store
+        # store new functions in vector store
         new_tools = [
             tool
             for tool_id, tool in self.tools.items()
@@ -183,6 +229,9 @@ class ToolLibrary:
         if not new_tools:
             return
         self._save_to_vector_store(new_tools)
+        logger.info(
+            f"Added {len(new_tools)} new tools to collection {self.collection.name}."
+        )
 
     def _save_to_vector_store(self, tools: list[Tool]) -> None:
         tool_lookup = {tool.unique_id: tool for tool in tools}

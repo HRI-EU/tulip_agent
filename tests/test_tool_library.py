@@ -56,6 +56,25 @@ class TestToolLibrary(unittest.TestCase):
             "Initializing tool library with functions failed.",
         )
 
+    def test_init_verbose_id(self):
+        tulip = ToolLibrary(
+            chroma_sub_dir="test/",
+            file_imports=[("tests.example_tools", [])],
+            verbose_tool_ids=True,
+        )
+        functions = tulip.collection.get(include=[])["ids"]
+        self.assertEqual(
+            set(functions),
+            {
+                "tests__example_tools__add",
+                "tests__example_tools__subtract",
+                "tests__example_tools__multiply",
+                "tests__example_tools__divide",
+                "tests__example_tools__slow",
+            },
+            "Initializing tool library with functions failed.",
+        )
+
     def test_init_specific(self):
         tulip = ToolLibrary(
             chroma_sub_dir="test/", file_imports=[("tests.example_tools", ["add"])]
@@ -76,6 +95,23 @@ class TestToolLibrary(unittest.TestCase):
             {
                 "add",
                 "custom_division",
+            },
+            "Initializing tool library with class instance failed.",
+        )
+
+    def test_init_instance_verbose_id(self):
+        calculator = Calculator(divisor=3)
+        tulip = ToolLibrary(
+            chroma_sub_dir="test/",
+            instance_imports=[calculator],
+            verbose_tool_ids=True,
+        )
+        functions = tulip.collection.get(include=[])["ids"]
+        self.assertEqual(
+            set(functions),
+            {
+                "tests__example_tools_in_class__Calculator__add",
+                "tests__example_tools_in_class__Calculator__custom_division",
             },
             "Initializing tool library with class instance failed.",
         )
@@ -154,6 +190,34 @@ class TestToolLibrary(unittest.TestCase):
             "Legacy instance functions were not removed in second initialization.",
         )
 
+    def test_init_name_clash(self):
+        calculator = Calculator(divisor=3)
+        with self.assertRaises(ValueError):
+            _ = ToolLibrary(
+                chroma_sub_dir="test/",
+                file_imports=[("tests.example_tools", ["add"])],
+                instance_imports=[calculator],
+            )
+
+    def test_init_no_name_clash(self):
+        calculator = Calculator(divisor=3)
+        tulip = ToolLibrary(
+            chroma_sub_dir="test/",
+            file_imports=[("tests.example_tools", ["add"])],
+            instance_imports=[calculator],
+            verbose_tool_ids=True,
+        )
+        functions = tulip.collection.get(include=[])["ids"]
+        self.assertEqual(
+            set(functions),
+            {
+                "tests__example_tools__add",
+                "tests__example_tools_in_class__Calculator__add",
+                "tests__example_tools_in_class__Calculator__custom_division",
+            },
+            "Initializing tool library with class instance failed.",
+        )
+
     def test_load_file(self):
         tulip = ToolLibrary(chroma_sub_dir="test/")
         tulip.load_functions_from_file(
@@ -185,6 +249,15 @@ class TestToolLibrary(unittest.TestCase):
             },
             "Loading entire file failed.",
         )
+
+    def test_load_name_clash(self):
+        calculator = Calculator(divisor=3)
+        tulip = ToolLibrary(
+            chroma_sub_dir="test/",
+            file_imports=[("tests.example_tools", ["add"])],
+        )
+        with self.assertRaises(ValueError):
+            tulip.load_functions_from_instance(instance=calculator)
 
     def test_load_names_from_file(self):
         tulip = ToolLibrary(

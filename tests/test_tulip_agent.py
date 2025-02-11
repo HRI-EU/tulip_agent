@@ -58,7 +58,7 @@ class TestTulipAgent(unittest.TestCase):
         self.assertTrue(
             any(s in res.lower() for s in ("4", "four"))
             and messages[-2]["role"] == "tool"
-            and messages[-2]["name"] == "tests__example_tools__add",
+            and messages[-2]["name"] == "add",
             "LLM query failed.",
         )
 
@@ -98,7 +98,7 @@ class TestTulipAgent(unittest.TestCase):
         self.assertTrue(
             any(s in res.lower() for s in ("4", "four"))
             and len(agent.task.tool_candidates) == 1
-            and agent.task.tool_candidates[0].unique_id == "tests__example_tools__add",
+            and agent.task.tool_candidates[0].unique_id == "add",
             "LLM query failed.",
         )
 
@@ -123,8 +123,7 @@ class TestTulipAgent(unittest.TestCase):
         self.assertTrue(
             any(s in res.lower() for s in ("4", "four"))
             and agent.messages[-2]["role"] == "tool"
-            and agent.messages[-2]["name"]
-            == "tests__example_tools_in_class__Calculator__add",
+            and agent.messages[-2]["name"] == "add",
             "LLM query failed.",
         )
 

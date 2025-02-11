@@ -47,11 +47,11 @@ class TestToolLibrary(unittest.TestCase):
         self.assertEqual(
             set(functions),
             {
-                "tests__example_tools__add",
-                "tests__example_tools__subtract",
-                "tests__example_tools__multiply",
-                "tests__example_tools__divide",
-                "tests__example_tools__slow",
+                "add",
+                "subtract",
+                "multiply",
+                "divide",
+                "slow",
             },
             "Initializing tool library with functions failed.",
         )
@@ -63,7 +63,7 @@ class TestToolLibrary(unittest.TestCase):
         functions = tulip.collection.get(include=[])["ids"]
         self.assertEqual(
             set(functions),
-            {"tests__example_tools__add"},
+            {"add"},
             "Initializing tool library with selected functions failed.",
         )
 
@@ -74,8 +74,8 @@ class TestToolLibrary(unittest.TestCase):
         self.assertEqual(
             set(functions),
             {
-                "tests__example_tools_in_class__Calculator__add",
-                "tests__example_tools_in_class__Calculator__custom_division",
+                "add",
+                "custom_division",
             },
             "Initializing tool library with class instance failed.",
         )
@@ -117,8 +117,8 @@ class TestToolLibrary(unittest.TestCase):
         self.assertEqual(
             set(functions),
             {
-                "tests__example_tools__add",
-                "tests__example_tools__subtract",
+                "add",
+                "subtract",
             },
             "Specific functions from file were not added in first initialization.",
         )
@@ -128,7 +128,7 @@ class TestToolLibrary(unittest.TestCase):
         functions = tulip.collection.get(include=[])["ids"]
         self.assertEqual(
             set(functions),
-            {"tests__example_tools__add"},
+            {"add"},
             "Unspecified legacy function from file were not removed in second initialization.",
         )
 
@@ -163,11 +163,11 @@ class TestToolLibrary(unittest.TestCase):
         self.assertEqual(
             set(functions),
             {
-                "tests__example_tools__add",
-                "tests__example_tools__subtract",
-                "tests__example_tools__multiply",
-                "tests__example_tools__divide",
-                "tests__example_tools__slow",
+                "add",
+                "subtract",
+                "multiply",
+                "divide",
+                "slow",
             },
             "Loading entire file failed.",
         )
@@ -180,8 +180,8 @@ class TestToolLibrary(unittest.TestCase):
         self.assertEqual(
             set(functions),
             {
-                "tests__example_tools_in_class__Calculator__add",
-                "tests__example_tools_in_class__Calculator__custom_division",
+                "add",
+                "custom_division",
             },
             "Loading entire file failed.",
         )
@@ -193,7 +193,7 @@ class TestToolLibrary(unittest.TestCase):
         functions = tulip.collection.get(include=[])["ids"]
         self.assertEqual(
             set(functions),
-            {"tests__example_tools__multiply"},
+            {"multiply"},
             "Loading selected functions from file failed.",
         )
 
@@ -204,7 +204,7 @@ class TestToolLibrary(unittest.TestCase):
         res = tulip.search(problem_description="add 4 and 5", top_k=1)
         self.assertEqual(
             res[0].unique_id,
-            "tests__example_tools__add",
+            "add",
             "Searching for function failed.",
         )
 
@@ -212,15 +212,15 @@ class TestToolLibrary(unittest.TestCase):
         tulip = ToolLibrary(
             chroma_sub_dir="test/", file_imports=[("tests.example_tools", [])]
         )
-        tulip.remove_tool(tool_id="tests__example_tools__add")
+        tulip.remove_tool(tool_id="add")
         functions = tulip.collection.get(include=[])["ids"]
         self.assertEqual(
             set(functions),
             {
-                "tests__example_tools__subtract",
-                "tests__example_tools__multiply",
-                "tests__example_tools__divide",
-                "tests__example_tools__slow",
+                "subtract",
+                "multiply",
+                "divide",
+                "slow",
             },
             "Removing function failed.",
         )
@@ -241,7 +241,7 @@ class TestToolLibrary(unittest.TestCase):
             chroma_sub_dir="test/", file_imports=[("tests.example_tools", ["multiply"])]
         )
         res, error = tulip.execute(
-            tool_id="tests__example_tools__multiply", arguments={"a": 2.0, "b": 2.0}
+            tool_id="multiply", arguments={"a": 2.0, "b": 2.0}
         )
         self.assertEqual(error, False, "Function execution failed.")
         self.assertEqual(
@@ -257,7 +257,7 @@ class TestToolLibrary(unittest.TestCase):
             default_timeout=1,
         )
         res, error = tulip.execute(
-            tool_id="tests__example_tools__slow", arguments={"duration": 2}
+            tool_id="slow", arguments={"duration": 2}
         )
         self.assertEqual(error, True, "Function execution succeeded despite timeout.")
         self.assertEqual(
@@ -271,12 +271,12 @@ class TestToolLibrary(unittest.TestCase):
             chroma_sub_dir="test/", file_imports=[("tests.example_tools", [])]
         )
         res, error = tulip.execute(
-            tool_id="tests__example_tools__unknown", arguments={}
+            tool_id="unknown", arguments={}
         )
         self.assertEqual(error, True, "Calling unknown function not caught.")
         self.assertEqual(
             res,
-            "Error: tests__example_tools__unknown is not a valid tool. Use only the tools available.",
+            "Error: unknown is not a valid tool. Use only the tools available.",
             "Catching unknown function did not return correct error message.",
         )
 
@@ -285,7 +285,7 @@ class TestToolLibrary(unittest.TestCase):
             chroma_sub_dir="test/", file_imports=[("tests.example_tools", ["multiply"])]
         )
         res, error = tulip.execute(
-            tool_id="tests__example_tools__multiply", arguments={"a": 1, "wrong": 2}
+            tool_id="multiply", arguments={"a": 1, "wrong": 2}
         )
         self.assertEqual(
             error, True, "Function execution succeeded despite wrong arguments."
@@ -293,7 +293,7 @@ class TestToolLibrary(unittest.TestCase):
         self.assertEqual(
             res,
             (
-                "Error: Invalid tool call for tests__example_tools__multiply: multiply() "
+                "Error: Invalid tool call for multiply: multiply() "
                 "got an unexpected keyword argument 'wrong'"
             ),
             "Catching call with invalid arguments did not return correct error message.",
@@ -303,7 +303,7 @@ class TestToolLibrary(unittest.TestCase):
         tulip = ToolLibrary(
             chroma_sub_dir="test/", file_imports=[("example_module", [])]
         )
-        function_id = "example_module__example"
+        function_id = "example"
         res, error = tulip.execute(tool_id=function_id, arguments={"text": "unchanged"})
         self.assertEqual(error, False, "Function execution failed.")
         self.assertEqual(res, "unchanged", "Initial function execution failed.")

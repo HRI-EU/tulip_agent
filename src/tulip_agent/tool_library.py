@@ -203,7 +203,7 @@ class ToolLibrary:
                     tool.timeout_message = timeout_settings[tool.unique_id][
                         "timeout_message"
                     ]
-                self.tools[tool.unique_id] = tool
+                self._add_to_tools(tool)
         instance_imports = instance_imports if instance_imports else []
         for instance_import in instance_imports:
             function_definitions = self.function_analyzer.analyze_class(
@@ -224,6 +224,7 @@ class ToolLibrary:
                     tool.timeout_message = timeout_settings[tool.unique_id][
                         "timeout_message"
                     ]
+                self._add_to_tools(tool)
                 self.tools[tool.unique_id] = tool
 
         # store new functions in vector store
@@ -238,6 +239,19 @@ class ToolLibrary:
         logger.info(
             f"Added {len(new_tools)} new tools to collection {self.collection.name}."
         )
+
+    def _add_to_tools(self, tool: Tool) -> None:
+        if tool.unique_id in self.tools:
+            if tool.module_path != self.tools[tool.unique_id].module_path:
+                raise ValueError(
+                    (
+                        f"Name clash for `{tool.unique_id}`. "
+                        f"Exists in {tool.module_path} and {self.tools[tool.unique_id].module_path}. "
+                        "Consider using `verbose_tool_ids` - requires reloading the library."
+                    )
+                )
+        else:
+            self.tools[tool.unique_id] = tool
 
     def _save_to_vector_store(self, tools: list[Tool]) -> None:
         tool_lookup = {tool.unique_id: tool for tool in tools}
@@ -280,7 +294,7 @@ class ToolLibrary:
             ),
             verbose_id=self.verbose_tool_ids,
         )
-        self.tools[tool.unique_id] = tool
+        self._add_to_tools(tool)
         self._save_to_vector_store(tools=[tool])
         return tool
 
@@ -337,7 +351,7 @@ class ToolLibrary:
                     "timeout_message"
                 ]
             new_tools.append(tool)
-            self.tools[tool.unique_id] = tool
+            self._add_to_tools(tool)
 
         self._save_to_vector_store(tools=new_tools)
         return new_tools

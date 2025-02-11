@@ -68,6 +68,7 @@ class ToolLibrary:
             "Error: The tool did not return a response within the specified timeout."
         ),
         timeout_settings: Optional[dict] = None,
+        verbose_tool_ids: bool = False,
     ) -> None:
         """
         Initialize the tool library: set up the vector store and load the tool information.
@@ -85,6 +86,7 @@ class ToolLibrary:
         :param timeout_settings: Tool-specific timeout settings of the form
             {"module_name__tool_name": {"timeout": seconds, "timeout_message": string}}
             NOTE: overriding existing timeout settings is not supported
+        :param verbose_tool_ids: Includes module information in tool ID if set to true.
         """
         self.description = description
         self.embedding_model = embedding_model
@@ -92,6 +94,7 @@ class ToolLibrary:
 
         self.function_analyzer = FunctionAnalyzer()
         self.tools: dict[str, Tool] = {}
+        self.verbose_tool_ids = verbose_tool_ids
 
         # timeout settings
         self.default_timeout = default_timeout
@@ -159,6 +162,7 @@ class ToolLibrary:
                     metadata["predecessor"] if "predecessor" in metadata else None
                 ),
                 successor=metadata["successor"] if "successor" in metadata else None,
+                verbose_id=self.verbose_tool_ids,
             )
             self.tools[tool.unique_id] = tool
         logger.info(
@@ -192,6 +196,7 @@ class ToolLibrary:
                     definition=function_definition,
                     timeout=self.default_timeout,
                     timeout_message=self.default_timeout_message,
+                    verbose_id=self.verbose_tool_ids,
                 )
                 if tool.unique_id in timeout_settings:
                     tool.timeout = timeout_settings[tool.unique_id]["timeout"]
@@ -212,6 +217,7 @@ class ToolLibrary:
                     definition=function_definition,
                     timeout=self.default_timeout,
                     timeout_message=self.default_timeout_message,
+                    verbose_id=self.verbose_tool_ids,
                 )
                 if tool.unique_id in timeout_settings:
                     tool.timeout = timeout_settings[tool.unique_id]["timeout"]
@@ -272,6 +278,7 @@ class ToolLibrary:
                 if timeout_message is not None
                 else self.default_timeout_message
             ),
+            verbose_id=self.verbose_tool_ids,
         )
         self.tools[tool.unique_id] = tool
         self._save_to_vector_store(tools=[tool])
@@ -322,6 +329,7 @@ class ToolLibrary:
                 definition=function_definition,
                 timeout=self.default_timeout,
                 timeout_message=self.default_timeout_message,
+                verbose_id=self.verbose_tool_ids,
             )
             if tool.unique_id in timeout_settings:
                 tool.timeout = timeout_settings[tool.unique_id]["timeout"]

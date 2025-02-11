@@ -54,6 +54,7 @@ class Tool:
     timeout_message: Optional[str] = None
     predecessor: Optional[str] = None
     successor: Optional[str] = None
+    verbose_id: bool = False
     description: str = field(init=False)
     unique_id: str = field(init=False)
     module_path: str = field(init=False)
@@ -67,11 +68,17 @@ class Tool:
         self.module_path = os.path.abspath(self.module.__file__)
         clean_module_name = self.module_name.replace(".", "__")
         if self.instance:
-            self.unique_id = f"{clean_module_name}__{self.instance.__class__.__name__}__{self.function_name}"
+            if self.verbose_id:
+                self.unique_id = f"{clean_module_name}__{self.instance.__class__.__name__}__{self.function_name}"
+            else:
+                self.unique_id = self.function_name
             self.function: Callable = getattr(self.instance, self.function_name)
             self.class_name = self.instance.__class__.__name__
         else:
-            self.unique_id = f"{clean_module_name}__{self.function_name}"
+            if self.verbose_id:
+                self.unique_id = f"{clean_module_name}__{self.function_name}"
+            else:
+                self.unique_id = self.function_name
             self.function: Callable = getattr(self.module, self.function_name)
         self.description = (
             self.function_name + ":\n" + self.definition["function"]["description"]

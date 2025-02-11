@@ -95,7 +95,7 @@ class PrimedCotTulipAgent(CotTulipAgent):
                 problem_description=prompt, top_k=self.priming_top_k
             )
         ]
-        tool_names = [tn.split("__")[1] for tn in tool_names]
+        tool_names = [tn.split("__")[-1] for tn in tool_names]
         self.decomposition_prompt = self.decomposition_prompt.replace(
             "{tool_names}",
             ", ".join(tool_names),

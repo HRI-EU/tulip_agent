@@ -51,9 +51,7 @@ class BaseAgent(LlmAgent):
         model_serve_mode: ModelServeMode = ModelServeMode.OPENAI,
     ) -> None:
         super().__init__(
-            instructions=(
-                BASE_PROMPT + "\n\n" + instructions if instructions else BASE_PROMPT
-            ),
+            instructions=(instructions or BASE_PROMPT),
             model=model,
             temperature=temperature,
             model_serve_mode=model_serve_mode,

@@ -54,11 +54,7 @@ class CotToolAgent(ToolAgent):
         api_interaction_limit: int = 100,
     ) -> None:
         super().__init__(
-            instructions=(
-                TOOL_COT_PROMPT + "\n\n" + instructions
-                if instructions
-                else TOOL_COT_PROMPT
-            ),
+            instructions=(instructions or TOOL_COT_PROMPT),
             functions=functions,
             model=model,
             temperature=temperature,

@@ -34,9 +34,10 @@ import logging.config
 
 import tools
 import yaml
-from AttentiveSupport.src.gpt_config import system_prompt, model_name
+from AttentiveSupport.src.gpt_config import model_name, system_prompt
 
 from tulip_agent import PrimedCotTulipAgent, ToolLibrary
+from tulip_agent.prompts import TULIP_COT_PROMPT
 
 
 # Set up agent loggers to save logs to file for analysis
@@ -58,7 +59,7 @@ if __name__ == "__main__":
     tulip_agent = PrimedCotTulipAgent(
         tool_library=tulip,
         top_k_functions=3,
-        instructions=system_prompt,
+        instructions=TULIP_COT_PROMPT + "\n\n" + system_prompt,
         model=model_name,
     )
     print(f"📝 Instructions: \n{tulip_agent.instructions}")

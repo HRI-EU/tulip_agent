@@ -57,9 +57,7 @@ class NaiveTulipAgent(TulipAgent):
         instructions: Optional[str] = None,
     ) -> None:
         super().__init__(
-            instructions=(
-                TOOL_PROMPT + "\n\n" + instructions if instructions else TOOL_PROMPT
-            ),
+            instructions=(instructions or TOOL_PROMPT),
             model=model,
             temperature=temperature,
             model_serve_mode=model_serve_mode,

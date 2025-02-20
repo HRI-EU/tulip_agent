@@ -73,11 +73,7 @@ class DfsTulipAgent(TulipAgent):
         plot_task_tree: bool = False,
     ) -> None:
         super().__init__(
-            instructions=(
-                TREE_TULIP_SYSTEM_PROMPT + "\n\n" + instructions
-                if instructions
-                else TREE_TULIP_SYSTEM_PROMPT
-            ),
+            instructions=(instructions or TREE_TULIP_SYSTEM_PROMPT),
             model=model,
             temperature=temperature,
             model_serve_mode=model_serve_mode,

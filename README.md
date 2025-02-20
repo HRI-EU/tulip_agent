@@ -11,12 +11,14 @@ This approach reduces costs, enables the use of tool sets that exceed API limits
 
 ## Key components
 🔬 **Function analysis** \
-Generate OpenAI API compatible tool descriptions for Python functions via introspection
+Generates OpenAI API compatible tool descriptions for Python functions via introspection
 
 🌷 **Tool library** \
 Combines a vector store for semantic search among tools and tool execution
 
-🤖 **Agents**
+🤖 **Agents**\
+Specifying `instructions` for an agent completely overrides the base system prompts to avoid contradictions.
+You can append custom instructions to the default prompts in `tulip_agent.prompts`.
 * Baseline, without tool library
   * `BaseAgent`: LLM agent without tool access
   * `NaiveToolAgent`: Includes tool descriptions for all tools available

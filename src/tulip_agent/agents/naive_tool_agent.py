@@ -53,9 +53,7 @@ class NaiveToolAgent(ToolAgent):
     ) -> None:
         super().__init__(
             functions=functions,
-            instructions=(
-                TOOL_PROMPT + "\n\n" + instructions if instructions else TOOL_PROMPT
-            ),
+            instructions=(instructions or TOOL_PROMPT),
             model=model,
             temperature=temperature,
             api_interaction_limit=api_interaction_limit,

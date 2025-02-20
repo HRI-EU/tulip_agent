@@ -38,8 +38,8 @@ from tulip_agent.constants import BASE_LANGUAGE_MODEL, BASE_TEMPERATURE
 from tulip_agent.prompts import INFORMED_TASK_DECOMPOSITION, TULIP_COT_PROMPT
 from tulip_agent.tool_library import ToolLibrary
 
-from .llm_agent import ModelServeMode
 from .cot_tulip_agent import CotTulipAgent
+from .llm_agent import ModelServeMode
 
 
 logger = logging.getLogger(__name__)
@@ -59,11 +59,7 @@ class InformedCotTulipAgent(CotTulipAgent):
         decomposition_prompt: str = INFORMED_TASK_DECOMPOSITION,
     ) -> None:
         super().__init__(
-            instructions=(
-                TULIP_COT_PROMPT + "\n\n" + instructions
-                if instructions
-                else TULIP_COT_PROMPT
-            ),
+            instructions=(instructions or TULIP_COT_PROMPT),
             model=model,
             temperature=temperature,
             model_serve_mode=model_serve_mode,

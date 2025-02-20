@@ -58,11 +58,7 @@ class OneShotCotTulipAgent(CotTulipAgent):
         instructions: Optional[str] = None,
     ) -> None:
         super().__init__(
-            instructions=(
-                TULIP_COT_PROMPT_ONE_SHOT + "\n\n" + instructions
-                if instructions
-                else TULIP_COT_PROMPT_ONE_SHOT
-            ),
+            instructions=(instructions or TULIP_COT_PROMPT_ONE_SHOT),
             model=model,
             temperature=temperature,
             model_serve_mode=model_serve_mode,

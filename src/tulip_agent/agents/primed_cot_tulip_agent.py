@@ -65,11 +65,7 @@ class PrimedCotTulipAgent(CotTulipAgent):
         priming_top_k: int = 25,
     ) -> None:
         super().__init__(
-            instructions=(
-                TULIP_COT_PROMPT + "\n\n" + instructions
-                if instructions
-                else TULIP_COT_PROMPT
-            ),
+            instructions=(instructions or TULIP_COT_PROMPT),
             model=model,
             temperature=temperature,
             model_serve_mode=model_serve_mode,

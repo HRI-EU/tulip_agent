@@ -68,11 +68,7 @@ class CotTulipAgent(TulipAgent):
         decomposition_prompt: str = RECURSIVE_TASK_DECOMPOSITION,
     ) -> None:
         super().__init__(
-            instructions=(
-                TULIP_COT_PROMPT + "\n\n" + instructions
-                if instructions
-                else TULIP_COT_PROMPT
-            ),
+            instructions=(instructions or TULIP_COT_PROMPT),
             model=model,
             temperature=temperature,
             model_serve_mode=model_serve_mode,

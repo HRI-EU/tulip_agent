@@ -127,6 +127,25 @@ class TestTulipAgent(unittest.TestCase):
             "LLM query failed.",
         )
 
+    def test_default_tools(self):
+        character = (
+            "You must solve the task provided by the user using a tool. "
+            "Eventually use the speak function to tell them the result."
+        )
+        agent = MinimalTulipAgent(
+            tool_library=self.tulip,
+            default_tools=[self.tulip.tools["speak"]],
+            top_k_functions=1,
+            instructions=character,
+        )
+        res = agent.query(prompt="What is 2+2?")
+        self.assertTrue(
+            any(s in res.lower() for s in ("4", "four"))
+            and agent.messages[-2]["role"] == "tool"
+            and agent.messages[-2]["name"] == "speak",
+            "Using default_tool failed.",
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

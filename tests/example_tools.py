@@ -84,3 +84,13 @@ def slow(duration: int) -> str:
 
     time.sleep(duration)
     return "Done"
+
+
+def speak(text: str) -> str:
+    """
+    Loudly say something to the user via speakers.
+
+    :param text: The text to speak.
+    :return: The quotient of a and b.
+    """
+    return f"Successfully said `{text}`."

@@ -41,6 +41,7 @@ from tulip_agent.prompts import (
     TOOL_CREATE,
     TOOL_UPDATE,
 )
+from tulip_agent.tool import Tool
 from tulip_agent.tool_library import ToolLibrary
 
 from .llm_agent import ModelServeMode
@@ -58,6 +59,7 @@ class AutoTulipAgent(TulipAgent):
         model_serve_mode: ModelServeMode = ModelServeMode.OPENAI,
         api_interaction_limit: int = 100,
         tool_library: ToolLibrary = None,
+        default_tools: Optional[list[Tool]] = None,
         top_k_functions: int = 1,
         search_similarity_threshold: float = None,
         instructions: Optional[str] = None,
@@ -69,6 +71,7 @@ class AutoTulipAgent(TulipAgent):
             model_serve_mode=model_serve_mode,
             api_interaction_limit=api_interaction_limit,
             tool_library=tool_library,
+            default_tools=default_tools,
             top_k_functions=top_k_functions,
             search_similarity_threshold=search_similarity_threshold,
         )

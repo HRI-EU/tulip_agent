@@ -36,6 +36,7 @@ from typing import Optional
 
 from tulip_agent.constants import BASE_LANGUAGE_MODEL, BASE_TEMPERATURE
 from tulip_agent.prompts import INFORMED_TASK_DECOMPOSITION, TULIP_COT_PROMPT
+from tulip_agent.tool import Tool
 from tulip_agent.tool_library import ToolLibrary
 
 from .cot_tulip_agent import CotTulipAgent
@@ -53,6 +54,7 @@ class InformedCotTulipAgent(CotTulipAgent):
         model_serve_mode: ModelServeMode = ModelServeMode.OPENAI,
         api_interaction_limit: int = 100,
         tool_library: ToolLibrary = None,
+        default_tools: Optional[list[Tool]] = None,
         top_k_functions: int = 3,
         search_similarity_threshold: float = None,
         instructions: Optional[str] = None,
@@ -65,6 +67,7 @@ class InformedCotTulipAgent(CotTulipAgent):
             model_serve_mode=model_serve_mode,
             api_interaction_limit=api_interaction_limit,
             tool_library=tool_library,
+            default_tools=default_tools,
             top_k_functions=top_k_functions,
             search_similarity_threshold=search_similarity_threshold,
             decomposition_prompt=decomposition_prompt.replace(

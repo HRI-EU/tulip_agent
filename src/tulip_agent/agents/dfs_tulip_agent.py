@@ -64,6 +64,7 @@ class DfsTulipAgent(TulipAgent):
         model_serve_mode: ModelServeMode = ModelServeMode.OPENAI,
         api_interaction_limit: int = 100,
         tool_library: ToolLibrary = None,
+        default_tools: Optional[list[Tool]] = None,
         top_k_functions: int = 5,
         search_similarity_threshold: float = 1.25,
         max_recursion_depth: int = 3,
@@ -79,6 +80,7 @@ class DfsTulipAgent(TulipAgent):
             model_serve_mode=model_serve_mode,
             api_interaction_limit=api_interaction_limit,
             tool_library=tool_library,
+            default_tools=default_tools,
             top_k_functions=top_k_functions,
             search_similarity_threshold=search_similarity_threshold,
         )

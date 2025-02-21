@@ -60,10 +60,11 @@ class TulipAgent(LlmAgent, ABC):
         model: str = BASE_LANGUAGE_MODEL,
         temperature: float = BASE_TEMPERATURE,
         model_serve_mode: ModelServeMode = ModelServeMode.OPENAI,
-        api_interaction_limit: int = 100,
-        tool_library: ToolLibrary = None,
+        api_interaction_limit: Optional[int] = 100,
+        tool_library: Optional[ToolLibrary] = None,
+        default_tools: Optional[list[Tool]] = None,
         top_k_functions: int = 3,
-        search_similarity_threshold: float = None,
+        search_similarity_threshold: Optional[float] = None,
     ) -> None:
         super().__init__(
             instructions=instructions,
@@ -75,6 +76,20 @@ class TulipAgent(LlmAgent, ABC):
         self.tool_library = tool_library
         self.top_k_functions = top_k_functions
         self.search_similarity_threshold = search_similarity_threshold
+
+        if default_tools and not tool_library:
+            raise ValueError("A tool library is required to set default tools.")
+        if default_tools and (
+            missing_tools := [
+                tool.unique_id
+                for tool in default_tools
+                if tool.unique_id not in tool_library.tools
+            ]
+        ):
+            raise ValueError(
+                f"Tools {', '.join(missing_tools)} not available in tool library."
+            )
+        self.default_tools = default_tools
 
         self.search_tools_description = {
             "type": "function",
@@ -119,6 +134,8 @@ class TulipAgent(LlmAgent, ABC):
                 top_k=self.top_k_functions,
                 similarity_threshold=similarity_threshold,
             )
+            if self.default_tools:
+                tools.extend(tool for tool in self.default_tools if tool not in tools)
             logger.info(
                 f"Functions for `{action_description}`: {[tool.unique_id for tool in tools]} "
             )

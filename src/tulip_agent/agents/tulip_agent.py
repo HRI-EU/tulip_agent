@@ -36,6 +36,7 @@ import logging
 import os
 import subprocess
 from abc import ABC
+from concurrent.futures import ThreadPoolExecutor
 from typing import Optional
 
 from openai.types.chat.chat_completion_message_tool_call import (
@@ -120,28 +121,30 @@ class TulipAgent(LlmAgent, ABC):
         action_descriptions: list[str],
         similarity_threshold: Optional[float] = None,
     ) -> list[tuple[str, list[Tool]]]:
-        """Find suitable tools for each action description."""
+        """Find suitable tools for each action description. Parallelized."""
+        unique_actions = set(action_descriptions)
         tool_lookup = {}
-        actions_with_tools = []
-        for action_description in action_descriptions:
-            if action_description in tool_lookup:
-                actions_with_tools.append(
-                    (action_description, tool_lookup[action_description])
+
+        with ThreadPoolExecutor() as executor:
+            future_to_action = {
+                action: executor.submit(
+                    self.tool_library.search,
+                    problem_description=action,
+                    top_k=self.top_k_functions,
+                    similarity_threshold=similarity_threshold,
                 )
-                continue
-            tools = self.tool_library.search(
-                problem_description=action_description,
-                top_k=self.top_k_functions,
-                similarity_threshold=similarity_threshold,
-            )
-            if self.default_tools:
-                tools.extend(tool for tool in self.default_tools if tool not in tools)
-            logger.info(
-                f"Functions for `{action_description}`: {[tool.unique_id for tool in tools]} "
-            )
-            tool_lookup[action_description] = tools
-            actions_with_tools.append((action_description, tools))
-        return actions_with_tools
+                for action in unique_actions
+            }
+            for action, future in future_to_action.items():
+                tools = future.result()
+                if self.default_tools:
+                    tools.extend(tool for tool in self.default_tools if tool not in tools)
+                logger.info(
+                    f"Functions for `{action}`: {[tool.unique_id for tool in tools]}"
+                )
+                tool_lookup[action] = tools
+
+        return [(action, tool_lookup[action]) for action in action_descriptions]
 
     def execute_search_tool_call(
         self,

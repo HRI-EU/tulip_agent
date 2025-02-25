@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "tulip_agent"
-version = "0.2.4"
+version = "0.2.5"
 description = "autonomous agent with access to a tool library"
 license = "BSD-3-Clause"
 authors = ["Felix Ocker <felix.ocker@honda-ri.de>"]

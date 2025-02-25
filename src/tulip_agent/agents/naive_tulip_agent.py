@@ -77,26 +77,21 @@ class NaiveTulipAgent(TulipAgent):
     ) -> str:
         logger.info(f"{self.__class__.__name__} received query: {prompt}")
 
-        # Search for tools, but do not track the search
-        _msgs = [
-            {
-                "role": "system",
-                "content": self.instructions,
-            },
+        self.messages.append(
             {
                 "role": "user",
                 "content": f"Search for appropriate tools for reacting to the following user request: {prompt}.",
-            },
-        ]
+            }
+        )
         tools, retries = None, 0
         while not tools:
             function_response = self._get_response(
-                msgs=_msgs,
+                msgs=self.messages,
                 tools=[self.search_tools_description],
                 tool_choice={"type": "function", "function": {"name": "search_tools"}},
             )
             response_message = function_response.choices[0].message
-            _msgs.append(response_message)
+            self.messages.append(response_message)
             tool_calls = response_message.tool_calls
 
             # More than one tool call - several searches should be combined in one call
@@ -105,7 +100,7 @@ class NaiveTulipAgent(TulipAgent):
                     f"Tool search invalid: Returned {lntc} instead of 1 search call. Retrying."
                 )
                 for tool_call in tool_calls:
-                    _msgs.append(
+                    self.messages.append(
                         {
                             "tool_call_id": tool_call.id,
                             "role": "tool",
@@ -117,13 +112,13 @@ class NaiveTulipAgent(TulipAgent):
             else:
                 try:
                     tools_ = self.execute_search_tool_call(
-                        tool_call=tool_calls[0], track_history=False
+                        tool_call=tool_calls[0], track_history=True
                     )
                     tools = [tool for partial in tools_ for tool in partial[1]]
                     if tools:
                         break
                     else:
-                        _msgs.append(
+                        self.messages.append(
                             {
                                 "tool_call_id": tool_calls[0].id,
                                 "role": "tool",
@@ -135,7 +130,7 @@ class NaiveTulipAgent(TulipAgent):
                     logger.info(
                         f"Invalid tool call for `search_tools`: `{e}`. Retrying."
                     )
-                    _msgs.append(
+                    self.messages.append(
                         {
                             "tool_call_id": tool_calls[0].id,
                             "role": "tool",

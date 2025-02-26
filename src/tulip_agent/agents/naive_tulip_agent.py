@@ -155,4 +155,5 @@ class NaiveTulipAgent(TulipAgent):
         )
         response = self.run_with_tools(tools=tools)
         logger.info(f"{self.__class__.__name__} returns response: {response}")
+        self.api_interaction_counter = 0
         return response

@@ -101,6 +101,7 @@ class DfsTulipAgent(TulipAgent):
         if self.plot_task_tree:
             self.task.plot()
         logger.info(f"{self.__class__.__name__} returns response: {self.task.result}")
+        self.api_interaction_counter = 0
         return self.task.result
 
     def decompose_task(

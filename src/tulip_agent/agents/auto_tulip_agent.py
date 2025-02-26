@@ -378,4 +378,5 @@ class AutoTulipAgent(TulipAgent):
         logger.info(
             f"{self.__class__.__name__} returns response: {response_message.content}"
         )
+        self.api_interaction_counter = 0
         return response_message.content

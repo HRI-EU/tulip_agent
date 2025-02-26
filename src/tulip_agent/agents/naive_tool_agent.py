@@ -65,4 +65,7 @@ class NaiveToolAgent(ToolAgent):
     ) -> str:
         logger.info(f"{self.__class__.__name__} received query: {prompt}")
         self.messages.append({"role": "user", "content": prompt})
-        return self.run_with_tools()
+        response = self.run_with_tools()
+        logger.info(f"{self.__class__.__name__} returns response: {response}")
+        self.api_interaction_counter = 0
+        return response

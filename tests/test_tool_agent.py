@@ -33,7 +33,7 @@ from example_tools import add, slow
 from tulip_agent import CotToolAgent, NaiveToolAgent
 
 
-class TestCore(unittest.TestCase):
+class TestToolAgent(unittest.TestCase):
 
     def _check_res(self, res: str, messages: list):
         self.assertTrue(

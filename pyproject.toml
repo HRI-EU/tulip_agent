@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "tulip_agent"
-version = "0.1.0"
+version = "0.2.7"
 description = "autonomous agent with access to a tool library"
 license = "BSD-3-Clause"
 authors = ["Felix Ocker <felix.ocker@honda-ri.de>"]
@@ -24,6 +24,7 @@ tiktoken = "^0.7.0"
 isort = "^5.13.2"
 pandas = "^2.2.2"
 seaborn = "^0.13.2"
+networkx = "^3.3"
 
 
 [tool.poetry.group.dev.dependencies]

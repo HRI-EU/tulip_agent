@@ -28,24 +28,53 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 import logging
+import os
+from enum import Enum
 
 from openai import AzureOpenAI, OpenAI
-
-from .constants import BASE_EMBEDDING_MODEL
 
 
 logger = logging.getLogger(__name__)
 
 
-def embed(
-    text: str,
-    embedding_client: OpenAI | AzureOpenAI,
-    embedding_model: str = BASE_EMBEDDING_MODEL,
-):
-    response = embedding_client.embeddings.create(
-        model=embedding_model, input=text, encoding_format="float"
-    )
-    logger.info(
-        f"Usage for embedding in tokens: {response.usage.prompt_tokens} prompt."
-    )
-    return response.data[0].embedding
+class ModelServeMode(Enum):
+    AZURE = "azure"
+    OAI_COMPATIBLE = "oai_compatible"
+    OPENAI = "openai"
+
+
+def check_for_environment_variable(env_var: str) -> None:
+    if env_var not in os.environ:
+        raise ValueError(f"{env_var} not set.")
+
+
+def create_client(model_serve_mode: ModelServeMode) -> AzureOpenAI | OpenAI:
+    match model_serve_mode:
+        case ModelServeMode.OPENAI:
+            check_for_environment_variable("OPENAI_API_KEY")
+            client = OpenAI(
+                timeout=60,
+                max_retries=10,
+            )
+        case ModelServeMode.OAI_COMPATIBLE:
+            check_for_environment_variable("OAI_COMPATIBLE_BASE_URL")
+            check_for_environment_variable("OAI_COMPATIBLE_API_KEY")
+            client = OpenAI(
+                base_url=os.getenv("OAI_COMPATIBLE_BASE_URL"),
+                api_key=os.getenv("OAI_COMPATIBLE_API_KEY"),
+                timeout=60,
+                max_retries=10,
+            )
+        case ModelServeMode.AZURE:
+            check_for_environment_variable("AZURE_OPENAI_API_KEY")
+            check_for_environment_variable("AZURE_API_VERSION")
+            check_for_environment_variable("AZURE_OPENAI_ENDPOINT")
+            client = AzureOpenAI(
+                api_version=os.getenv("AZURE_API_VERSION"),
+                azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"),
+                timeout=60,
+                max_retries=10,
+            )
+        case _:
+            raise ValueError(f"Unexpected model_serve_mode: {model_serve_mode}.")
+    return client

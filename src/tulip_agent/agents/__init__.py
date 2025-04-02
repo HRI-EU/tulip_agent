@@ -27,70 +27,15 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
-
-
-def add(a: float, b: float) -> float:
-    """
-    Add two numbers.
-
-    :param a: The first number.
-    :param b: The second number.
-    :return: The sum of a and b.
-    """
-    return a + b
-
-
-def subtract(a: float, b: float) -> float:
-    """
-    Subtract two numbers.
-
-    :param a: The number to be subtracted from.
-    :param b: The number to subtract.
-    :return: The difference of a and b.
-    """
-    return a - b
-
-
-def multiply(a: float, b: float) -> float:
-    """
-    Multiply two numbers.
-
-    :param a: The first number.
-    :param b: The second number.
-    :return: The product of a and b.
-    """
-    return a * b
-
-
-def divide(a: float, b: float) -> float:
-    """
-    Divide two numbers.
-
-    :param a: The dividend.
-    :param b: The divisor.
-    :return: The quotient of a and b.
-    """
-    return a / b
-
-
-def slow(duration: int) -> str:
-    """
-    A function that takes some time to execute.
-
-    :param duration: Duration the function takes to complete
-    :return: Completion message
-    """
-    import time
-
-    time.sleep(duration)
-    return "Done"
-
-
-def speak(text: str) -> str:
-    """
-    Loudly say something to the user via speakers.
-
-    :param text: The text to speak.
-    :return: The quotient of a and b.
-    """
-    return f"Successfully said `{text}`."
+from .auto_tulip_agent import AutoTulipAgent as AutoTulipAgent
+from .base_agent import BaseAgent as BaseAgent
+from .cot_tool_agent import CotToolAgent as CotToolAgent
+from .cot_tulip_agent import CotTulipAgent as CotTulipAgent
+from .dfs_tulip_agent import DfsTulipAgent as DfsTulipAgent
+from .informed_cot_tulip_agent import InformedCotTulipAgent as InformedCotTulipAgent
+from .llm_agent import ModelServeMode as ModelServeMode
+from .minimal_tulip_agent import MinimalTulipAgent as MinimalTulipAgent
+from .naive_tool_agent import NaiveToolAgent as NaiveToolAgent
+from .naive_tulip_agent import NaiveTulipAgent as NaiveTulipAgent
+from .one_shot_cot_tulip_agent import OneShotCotTulipAgent as OneShotCotTulipAgent
+from .primed_cot_tulip_agent import PrimedCotTulipAgent as PrimedCotTulipAgent

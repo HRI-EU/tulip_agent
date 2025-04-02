@@ -11,12 +11,14 @@ This approach reduces costs, enables the use of tool sets that exceed API limits
 
 ## Key components
 🔬 **Function analysis** \
-Generate OpenAI API compatible tool descriptions for Python functions via introspection
+Generates OpenAI API compatible tool descriptions for Python functions via introspection
 
 🌷 **Tool library** \
 Combines a vector store for semantic search among tools and tool execution
 
-🤖 **Agents**
+🤖 **Agents**\
+Specifying `instructions` for an agent completely overrides the base system prompts to avoid contradictions.
+You can append custom instructions to the default prompts in `tulip_agent.prompts`.
 * Baseline, without tool library
   * `BaseAgent`: LLM agent without tool access
   * `NaiveToolAgent`: Includes tool descriptions for all tools available
@@ -26,9 +28,10 @@ Combines a vector store for semantic search among tools and tool execution
   * `NaiveTulipAgent`: Naive implementation; searches for tools with a separate tool call
   * `CotTulipAgent`: COT implementation; derives a plan for the necessary steps and searches for suitable tools
   * `InformedCotTulipAgent`: Same as `CotTulipAgent`, but with a brief description of the tool library's contents
-  * `PrimedCotTulipAgent`: Same as `CotTulipAgent`, but pruned with tool names based on an initial search with the user request
+  * `PrimedCotTulipAgent`: Same as `CotTulipAgent`, but primed with tool names based on an initial search with the user request
   * `OneShotCotTulipAgent`: Same as `CotTulipAgent`, but the system prompt included a brief example
   * `AutoTulipAgent`: Fully autonomous variant; can use the search tool at any time and modify its tool library with CRUD operations
+  * `DfsTulipAgent`: DFS inspired variant that leverages a DAG for keeping track of tasks and suitable tools, can create new tools
 
 📊 **Evaluation**
 * `math_eval`: Math evaluation
@@ -39,9 +42,12 @@ See `./examples`
 
 
 ## Setup
-* Make sure you have an OpenAI API key set up, see the [official instructions](https://help.openai.com/en/articles/5112595-best-practices-for-api-key-safety)
+* Make sure to set the environment variables required by the API of your choice. Currently supported:
+  * OpenAI: `OPENAI_API_KEY`, see the [official instructions](https://help.openai.com/en/articles/5112595-best-practices-for-api-key-safety)
+  * Azure: `AZURE_OPENAI_API_KEY`, `AZURE_API_VERSION`, and `AZURE_OPENAI_ENDPOINT`
+  * OpenAI compatible endpoints: `OAI_COMPATIBLE_BASE_URL` and `OAI_COMPATIBLE_API_KEY` for OpenAI compatible endpoints, such as Ollama
 * Install with `poetry install` or `pip install -e .`
-* Check out the `examples` and the robot evaluation in `src/robo_eval`
+* Check out the `examples`, the robot evaluation in `src/eval/robo_eval`, and `examples/local_examples.py` for a local setup
 
 
 ## Dev notes

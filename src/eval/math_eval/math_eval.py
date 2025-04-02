@@ -44,6 +44,7 @@ from tulip_agent import (
     BaseAgent,
     CotToolAgent,
     CotTulipAgent,
+    DfsTulipAgent,
     InformedCotTulipAgent,
     MinimalTulipAgent,
     NaiveToolAgent,
@@ -64,8 +65,8 @@ def run_math_eval(
     task_file: str,
     agents: list[str],
     task_filter: list[str],
-    tool_module_name: str,
-    tool_module: ModuleType,
+    tool_module_name: str | None,
+    tool_module: ModuleType | None,
     model: str,
     embedding_model: str,
     number_of_runs: int,
@@ -73,11 +74,15 @@ def run_math_eval(
     tulip_top_k: int,
     search_similarity_threshold: float,
 ):
-    functions = [
-        getattr(tool_module, n)
-        for n, f in getmembers(tool_module, isfunction)
-        if f.__module__ == tool_module.__name__
-    ]
+    if tool_module:
+        functions = [
+            getattr(tool_module, n)
+            for n, f in getmembers(tool_module, isfunction)
+            if f.__module__ == tool_module.__name__
+        ]
+    else:
+        functions = []
+    tool_module_name = tool_module_name or "empty"
     print(f"{functions=}")
 
     with open(task_file, "r") as gtf:
@@ -86,7 +91,7 @@ def run_math_eval(
 
     tulip = ToolLibrary(
         chroma_sub_dir=f"math_eval_{embedding_model}_{tool_module_name}/",
-        file_imports=[(tool_module_name, [])],
+        file_imports=[(tool_module_name, [])] if tool_module else [],
         chroma_base_dir="../../../data/chroma/",
         embedding_model=embedding_model,
         description="A tool library containing math tools.",
@@ -126,6 +131,7 @@ def run_math_eval(
         InformedCotTulipAgent,
         PrimedCotTulipAgent,
         OneShotCotTulipAgent,
+        DfsTulipAgent,
         AutoTulipAgent,
     ):
         if agent_class.__name__ in agents:
@@ -144,7 +150,7 @@ def run_math_eval(
 def main(settings_file: str = "math_eval_settings.yaml"):
     with open(settings_file, "rt") as mes:
         settings = yaml.safe_load(mes.read())
-    tool_module = importlib.import_module(settings["tools"])
+    tool_module = importlib.import_module(settings["tools"]) if settings["tools"] else None
 
     # back up log
     log_folder = settings["log_folder"]

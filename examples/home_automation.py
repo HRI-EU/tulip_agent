@@ -27,70 +27,38 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
+"""
+Some example tools for a home automation context.
+"""
 
 
-def add(a: float, b: float) -> float:
+def say_via_speaker(text: str) -> str:
     """
-    Add two numbers.
+    Respond to the user via the loudspeakers.
 
-    :param a: The first number.
-    :param b: The second number.
-    :return: The sum of a and b.
+    :param text: Text to say.
+    :return: Status information.
     """
-    return a + b
+    print(f"🔉: {text}")
+    return f"Successfully said to the user: `{text}`."
 
 
-def subtract(a: float, b: float) -> float:
+def turn_on_fan() -> str:
     """
-    Subtract two numbers.
+    Turn on the fan.
 
-    :param a: The number to be subtracted from.
-    :param b: The number to subtract.
-    :return: The difference of a and b.
+    :return: Status information.
     """
-    return a - b
+    print("🪭: Turned on the fan.")
+    return "Successfully turned on the fan."
 
 
-def multiply(a: float, b: float) -> float:
+def control_ac(temperature: int) -> str:
     """
-    Multiply two numbers.
+    Set the climate control to a specific temperature.
 
-    :param a: The first number.
-    :param b: The second number.
-    :return: The product of a and b.
+    :param temperature: Desired temperature value in degrees Celsius.
+    :return: Status information.
     """
-    return a * b
-
-
-def divide(a: float, b: float) -> float:
-    """
-    Divide two numbers.
-
-    :param a: The dividend.
-    :param b: The divisor.
-    :return: The quotient of a and b.
-    """
-    return a / b
-
-
-def slow(duration: int) -> str:
-    """
-    A function that takes some time to execute.
-
-    :param duration: Duration the function takes to complete
-    :return: Completion message
-    """
-    import time
-
-    time.sleep(duration)
-    return "Done"
-
-
-def speak(text: str) -> str:
-    """
-    Loudly say something to the user via speakers.
-
-    :param text: The text to speak.
-    :return: The quotient of a and b.
-    """
-    return f"Successfully said `{text}`."
+    print(f"🌡️: Set the AC to {temperature} degrees Celsius.")
+    return f"Set the AC to {temperature} degrees Celsius"

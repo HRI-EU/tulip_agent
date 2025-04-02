@@ -30,6 +30,7 @@
 import subprocess
 import unittest
 
+from tests.example_tools_in_class import Calculator
 from tulip_agent.tool_library import ToolLibrary
 
 
@@ -40,92 +41,283 @@ class TestToolLibrary(unittest.TestCase):
 
     def test_init(self):
         tulip = ToolLibrary(
-            chroma_sub_dir="test/", file_imports=[("example_tools", [])]
+            chroma_sub_dir="test/", file_imports=[("tests.example_tools", [])]
         )
         functions = tulip.collection.get(include=[])["ids"]
         self.assertEqual(
             set(functions),
             {
-                "example_tools__add",
-                "example_tools__subtract",
-                "example_tools__multiply",
-                "example_tools__divide",
-                "example_tools__slow",
+                "add",
+                "subtract",
+                "multiply",
+                "divide",
+                "slow",
+                "speak",
+            },
+            "Initializing tool library with functions failed.",
+        )
+
+    def test_init_verbose_id(self):
+        tulip = ToolLibrary(
+            chroma_sub_dir="test/",
+            file_imports=[("tests.example_tools", [])],
+            verbose_tool_ids=True,
+        )
+        functions = tulip.collection.get(include=[])["ids"]
+        self.assertEqual(
+            set(functions),
+            {
+                "tests__example_tools__add",
+                "tests__example_tools__subtract",
+                "tests__example_tools__multiply",
+                "tests__example_tools__divide",
+                "tests__example_tools__slow",
+                "tests__example_tools__speak",
             },
             "Initializing tool library with functions failed.",
         )
 
     def test_init_specific(self):
         tulip = ToolLibrary(
-            chroma_sub_dir="test/", file_imports=[("example_tools", ["add"])]
+            chroma_sub_dir="test/", file_imports=[("tests.example_tools", ["add"])]
         )
         functions = tulip.collection.get(include=[])["ids"]
         self.assertEqual(
             set(functions),
-            {"example_tools__add"},
+            {"add"},
             "Initializing tool library with selected functions failed.",
         )
 
-    def test_load_file(self):
-        tulip = ToolLibrary(chroma_sub_dir="test/")
-        tulip.load_functions_from_file(module_name="example_tools", function_names=[])
+    def test_init_instance(self):
+        calculator = Calculator(divisor=3)
+        tulip = ToolLibrary(chroma_sub_dir="test/", instance_imports=[calculator])
         functions = tulip.collection.get(include=[])["ids"]
         self.assertEqual(
             set(functions),
             {
-                "example_tools__add",
-                "example_tools__subtract",
-                "example_tools__multiply",
-                "example_tools__divide",
-                "example_tools__slow",
+                "add",
+                "custom_division",
             },
-            "Loading entire file failed.",
+            "Initializing tool library with class instance failed.",
         )
 
-    def test_load_names_from_file(self):
+    def test_init_instance_verbose_id(self):
+        calculator = Calculator(divisor=3)
         tulip = ToolLibrary(
-            chroma_sub_dir="test/", file_imports=[("example_tools", ["multiply"])]
+            chroma_sub_dir="test/",
+            instance_imports=[calculator],
+            verbose_tool_ids=True,
         )
         functions = tulip.collection.get(include=[])["ids"]
         self.assertEqual(
             set(functions),
-            {"example_tools__multiply"},
+            {
+                "tests__example_tools_in_class__Calculator__add",
+                "tests__example_tools_in_class__Calculator__custom_division",
+            },
+            "Initializing tool library with class instance failed.",
+        )
+
+    def test_init_file_unspecified(self):
+        """
+        The vector store should only contain the specified tools.
+        If an existing store is loaded, all tools that are not specified should be removed.
+        Here, a file is not specified in the second init.
+        """
+        tulip = ToolLibrary(
+            chroma_sub_dir="test/", file_imports=[("tests.example_tools", [])]
+        )
+        functions = tulip.collection.get(include=[])["ids"]
+        self.assertEqual(
+            len(functions),
+            6,
+            "Functions from file were not added in first initialization.",
+        )
+        tulip = ToolLibrary(chroma_sub_dir="test/")
+        functions = tulip.collection.get(include=[])["ids"]
+        self.assertEqual(
+            len(functions),
+            0,
+            "Legacy functions from file were not removed in second initialization.",
+        )
+
+    def test_init_specific_unspecified(self):
+        """
+        The vector store should only contain the specified tools.
+        If an existing store is loaded, all tools that are not specified should be removed.
+        Here, a single function from a file is not specified in the second init.
+        """
+        tulip = ToolLibrary(
+            chroma_sub_dir="test/",
+            file_imports=[("tests.example_tools", ["add", "subtract"])],
+        )
+        functions = tulip.collection.get(include=[])["ids"]
+        self.assertEqual(
+            set(functions),
+            {
+                "add",
+                "subtract",
+            },
+            "Specific functions from file were not added in first initialization.",
+        )
+        tulip = ToolLibrary(
+            chroma_sub_dir="test/", file_imports=[("tests.example_tools", ["add"])]
+        )
+        functions = tulip.collection.get(include=[])["ids"]
+        self.assertEqual(
+            set(functions),
+            {"add"},
+            "Unspecified legacy function from file were not removed in second initialization.",
+        )
+
+    def test_init_instance_unspecified(self):
+        """
+        The vector store should only contain the specified tools.
+        If an existing store is loaded, all tools that are not specified should be removed.
+        Here, an instance is not specified in the second init.
+        """
+        calculator = Calculator(divisor=3)
+        tulip = ToolLibrary(chroma_sub_dir="test/", instance_imports=[calculator])
+        functions = tulip.collection.get(include=[])["ids"]
+        self.assertEqual(
+            len(functions),
+            2,
+            "Instance functions were not added in first initialization.",
+        )
+        tulip = ToolLibrary(chroma_sub_dir="test/")
+        functions = tulip.collection.get(include=[])["ids"]
+        self.assertEqual(
+            len(functions),
+            0,
+            "Legacy instance functions were not removed in second initialization.",
+        )
+
+    def test_init_name_clash(self):
+        calculator = Calculator(divisor=3)
+        with self.assertRaises(ValueError):
+            _ = ToolLibrary(
+                chroma_sub_dir="test/",
+                file_imports=[("tests.example_tools", ["add"])],
+                instance_imports=[calculator],
+            )
+
+    def test_init_no_name_clash(self):
+        calculator = Calculator(divisor=3)
+        tulip = ToolLibrary(
+            chroma_sub_dir="test/",
+            file_imports=[("tests.example_tools", ["add"])],
+            instance_imports=[calculator],
+            verbose_tool_ids=True,
+        )
+        functions = tulip.collection.get(include=[])["ids"]
+        self.assertEqual(
+            set(functions),
+            {
+                "tests__example_tools__add",
+                "tests__example_tools_in_class__Calculator__add",
+                "tests__example_tools_in_class__Calculator__custom_division",
+            },
+            "Initializing tool library with class instance failed.",
+        )
+
+    def test_load_file(self):
+        tulip = ToolLibrary(chroma_sub_dir="test/")
+        tulip.load_functions_from_file(
+            module_name="tests.example_tools", function_names=[]
+        )
+        functions = tulip.collection.get(include=[])["ids"]
+        self.assertEqual(
+            set(functions),
+            {
+                "add",
+                "subtract",
+                "multiply",
+                "divide",
+                "slow",
+                "speak",
+            },
+            "Loading entire file failed.",
+        )
+
+    def test_load_instance(self):
+        calculator = Calculator(divisor=3)
+        tulip = ToolLibrary(chroma_sub_dir="test/")
+        tulip.load_functions_from_instance(instance=calculator)
+        functions = tulip.collection.get(include=[])["ids"]
+        self.assertEqual(
+            set(functions),
+            {
+                "add",
+                "custom_division",
+            },
+            "Loading entire file failed.",
+        )
+
+    def test_load_name_clash(self):
+        calculator = Calculator(divisor=3)
+        tulip = ToolLibrary(
+            chroma_sub_dir="test/",
+            file_imports=[("tests.example_tools", ["add"])],
+        )
+        with self.assertRaises(ValueError):
+            tulip.load_functions_from_instance(instance=calculator)
+
+    def test_load_names_from_file(self):
+        tulip = ToolLibrary(
+            chroma_sub_dir="test/", file_imports=[("tests.example_tools", ["multiply"])]
+        )
+        functions = tulip.collection.get(include=[])["ids"]
+        self.assertEqual(
+            set(functions),
+            {"multiply"},
             "Loading selected functions from file failed.",
         )
 
     def test_search_function(self):
         tulip = ToolLibrary(
-            chroma_sub_dir="test/", file_imports=[("example_tools", [])]
+            chroma_sub_dir="test/", file_imports=[("tests.example_tools", [])]
         )
         res = tulip.search(problem_description="add 4 and 5", top_k=1)
         self.assertEqual(
-            res["ids"][0][0], "example_tools__add", "Searching for function failed."
+            res[0].unique_id,
+            "add",
+            "Searching for function failed.",
         )
 
-    def test_remove_function(self):
+    def test_remove_tool(self):
         tulip = ToolLibrary(
-            chroma_sub_dir="test/", file_imports=[("example_tools", [])]
+            chroma_sub_dir="test/", file_imports=[("tests.example_tools", [])]
         )
-        tulip.remove_function(function_id="example_tools__add")
+        tulip.remove_tool(tool_id="add")
         functions = tulip.collection.get(include=[])["ids"]
         self.assertEqual(
             set(functions),
             {
-                "example_tools__subtract",
-                "example_tools__multiply",
-                "example_tools__divide",
-                "example_tools__slow",
+                "subtract",
+                "multiply",
+                "divide",
+                "slow",
+                "speak",
             },
             "Removing function failed.",
         )
 
+    def test_remove_tools_by_instance(self):
+        calculator = Calculator(divisor=3)
+        tulip = ToolLibrary(chroma_sub_dir="test/", instance_imports=[calculator])
+        tulip.remove_tools_by_instance(instance=calculator)
+        functions = tulip.collection.get(include=[])["ids"]
+        self.assertEqual(
+            len(functions),
+            0,
+            "Removing functions by instance failed.",
+        )
+
     def test_execute(self):
         tulip = ToolLibrary(
-            chroma_sub_dir="test/", file_imports=[("example_tools", ["multiply"])]
+            chroma_sub_dir="test/", file_imports=[("tests.example_tools", ["multiply"])]
         )
-        res, error = tulip.execute(
-            function_id="example_tools__multiply", function_args={"a": 2.0, "b": 2.0}
-        )
+        res, error = tulip.execute(tool_id="multiply", arguments={"a": 2.0, "b": 2.0})
         self.assertEqual(error, False, "Function execution failed.")
         self.assertEqual(
             res,
@@ -136,12 +328,10 @@ class TestToolLibrary(unittest.TestCase):
     def test_execute_timeout(self):
         tulip = ToolLibrary(
             chroma_sub_dir="test/",
-            file_imports=[("example_tools", ["slow"])],
+            file_imports=[("tests.example_tools", ["slow"])],
             default_timeout=1,
         )
-        res, error = tulip.execute(
-            function_id="example_tools__slow", function_args={"duration": 2}
-        )
+        res, error = tulip.execute(tool_id="slow", arguments={"duration": 2})
         self.assertEqual(error, True, "Function execution succeeded despite timeout.")
         self.assertEqual(
             res,
@@ -151,45 +341,39 @@ class TestToolLibrary(unittest.TestCase):
 
     def test_execute_unknown_tool(self):
         tulip = ToolLibrary(
-            chroma_sub_dir="test/", file_imports=[("example_tools", [])]
+            chroma_sub_dir="test/", file_imports=[("tests.example_tools", [])]
         )
-        res, error = tulip.execute(
-            function_id="example_tools__unknown", function_args={}
-        )
+        res, error = tulip.execute(tool_id="unknown", arguments={})
         self.assertEqual(error, True, "Calling unknown function not caught.")
         self.assertEqual(
             res,
-            "Error: example_tools__unknown is not a valid tool. Use only the tools available.",
+            "Error: unknown is not a valid tool. Use only the tools available.",
             "Catching unknown function did not return correct error message.",
         )
 
     def test_execute_invalid_arguments(self):
         tulip = ToolLibrary(
-            chroma_sub_dir="test/", file_imports=[("example_tools", ["multiply"])]
+            chroma_sub_dir="test/", file_imports=[("tests.example_tools", ["multiply"])]
         )
-        res, error = tulip.execute(
-            function_id="example_tools__multiply", function_args={"a": 1, "wrong": 2}
-        )
+        res, error = tulip.execute(tool_id="multiply", arguments={"a": 1, "wrong": 2})
         self.assertEqual(
             error, True, "Function execution succeeded despite wrong arguments."
         )
         self.assertEqual(
             res,
             (
-                "Error: Invalid tool call for example_tools__multiply: multiply() "
+                "Error: Invalid tool call for multiply: multiply() "
                 "got an unexpected keyword argument 'wrong'"
             ),
             "Catching call with invalid arguments did not return correct error message.",
         )
 
-    def test_update_function(self):
+    def test_update_tool(self):
         tulip = ToolLibrary(
             chroma_sub_dir="test/", file_imports=[("example_module", [])]
         )
-        function_id = "example_module__example"
-        res, error = tulip.execute(
-            function_id=function_id, function_args={"text": "unchanged"}
-        )
+        function_id = "example"
+        res, error = tulip.execute(tool_id=function_id, arguments={"text": "unchanged"})
         self.assertEqual(error, False, "Function execution failed.")
         self.assertEqual(res, "unchanged", "Initial function execution failed.")
         # overwrite function
@@ -203,18 +387,15 @@ class TestToolLibrary(unittest.TestCase):
             '    """\n'
             '    return "success"\n'
         )
-        module_path = tulip.function_origins[function_id]["module_path"]
-        with open(module_path, "w") as m:
+        with open(tulip.tools[function_id].module_path, "w") as m:
             m.write(code)
-        tulip.update_function(function_id=function_id)
-        res, error = tulip.execute(
-            function_id=function_id, function_args={"text": "failure"}
-        )
+        tulip.update_tool(tool_id=function_id)
+        res, error = tulip.execute(tool_id=function_id, arguments={"text": "failure"})
         self.assertEqual(error, False, "Function execution failed.")
         self.assertEqual(
             res, "success", "Executing the function after updating the module failed."
         )
-        example_module_path = tulip.function_origins[function_id]["module_path"]
+        example_module_path = tulip.tools[function_id].module_path
         subprocess.run(["git", "checkout", "HEAD", "--", example_module_path])
 
 

@@ -27,70 +27,43 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
+"""
+`default_tools` can be used to make sure that certain tools are always available, even without searching the library.
+This is helpful when a behavior is specified in the system prompt that explicitly mentions certain tools.
+When not making sure that the tool is available, this may lead to infinite loops of tool calls in case of gpt-4o series.
+Comment out the line that sets `default_tools` in the NaiveTulipAgent to reproduce the issue.
+"""
+import logging
+
+from tulip_agent import NaiveTulipAgent, ToolLibrary
 
 
-def add(a: float, b: float) -> float:
-    """
-    Add two numbers.
-
-    :param a: The first number.
-    :param b: The second number.
-    :return: The sum of a and b.
-    """
-    return a + b
+logging.basicConfig(level=logging.INFO)
 
 
-def subtract(a: float, b: float) -> float:
-    """
-    Subtract two numbers.
+tasks = ["Turn the fan on.", "Set the AC to 22 degrees celsius."]
 
-    :param a: The number to be subtracted from.
-    :param b: The number to subtract.
-    :return: The difference of a and b.
-    """
-    return a - b
+character = """\
+You are a helpful home automation bot.
 
+Always adhere to the following procedure:
+1. Identify all individual steps mentioned in the user request.
+2. Whenever possible use the tools available to fulfill the user request.
+3. Respond to the user using the `say_via_speaker` function.
+"""
 
-def multiply(a: float, b: float) -> float:
-    """
-    Multiply two numbers.
+tulip = ToolLibrary(
+    chroma_sub_dir="example_default_tools/", file_imports=[("home_automation", [])]
+)
+agent = NaiveTulipAgent(
+    model="gpt-4o-mini",
+    tool_library=tulip,
+    default_tools=[tulip.tools["say_via_speaker"]],
+    top_k_functions=1,
+    instructions=character,
+)
 
-    :param a: The first number.
-    :param b: The second number.
-    :return: The product of a and b.
-    """
-    return a * b
-
-
-def divide(a: float, b: float) -> float:
-    """
-    Divide two numbers.
-
-    :param a: The dividend.
-    :param b: The divisor.
-    :return: The quotient of a and b.
-    """
-    return a / b
-
-
-def slow(duration: int) -> str:
-    """
-    A function that takes some time to execute.
-
-    :param duration: Duration the function takes to complete
-    :return: Completion message
-    """
-    import time
-
-    time.sleep(duration)
-    return "Done"
-
-
-def speak(text: str) -> str:
-    """
-    Loudly say something to the user via speakers.
-
-    :param text: The text to speak.
-    :return: The quotient of a and b.
-    """
-    return f"Successfully said `{text}`."
+for task in tasks:
+    print(f"{task=}")
+    res = agent.query(prompt=task)
+    print(f"{res=}")

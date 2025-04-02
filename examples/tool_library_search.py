@@ -27,12 +27,18 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
+"""
+Example for
+* setting up a tool library with tools from a file import and a class instance
+* searching for tools in the tool library
+"""
 import logging
 
+from calculator import TrigonometryCalculator
 from tulip_agent import ToolLibrary
 
 
-# Set logger to INFO to show agents' internal steps
+# Set logger to INFO to show details
 logging.basicConfig(level=logging.INFO)
 
 tasks = [
@@ -42,11 +48,22 @@ tasks = [
     """What is 2 + 5?""",
     """What is 2 + 4 / 3?""",
     """Draw a horse""",
+    """Calculate the cosine of 90 degrees.""",
 ]
 
-tulip = ToolLibrary(chroma_sub_dir="example/", file_imports=[("calculator", [])])
+trigonometry_calculator = TrigonometryCalculator()
+
+tulip = ToolLibrary(
+    chroma_sub_dir="lib_example/",
+    file_imports=[("calculator", [])],
+    instance_imports=[trigonometry_calculator],
+)
+
+# alternatively load tools from files or class instances later on:
+# tulip.load_functions_from_file(module_name="calculator")
+# tulip.load_functions_from_instance(instance=trigonometry_calculator)
 
 for task in tasks:
     print(f"{task=}")
-    res = tulip.search(problem_description=task, top_k=4, similarity_threshold=0.35)
+    res = tulip.search(problem_description=task, top_k=4, similarity_threshold=1.5)
     print(f"{res=}")

@@ -27,70 +27,29 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
+def t_tool():
+    pass
 
 
-def add(a: float, b: float) -> float:
-    """
-    Add two numbers.
-
-    :param a: The first number.
-    :param b: The second number.
-    :return: The sum of a and b.
-    """
-    return a + b
+def t1_tool():
+    pass
 
 
-def subtract(a: float, b: float) -> float:
-    """
-    Subtract two numbers.
-
-    :param a: The number to be subtracted from.
-    :param b: The number to subtract.
-    :return: The difference of a and b.
-    """
-    return a - b
+def t2_tool():
+    pass
 
 
-def multiply(a: float, b: float) -> float:
-    """
-    Multiply two numbers.
-
-    :param a: The first number.
-    :param b: The second number.
-    :return: The product of a and b.
-    """
-    return a * b
+def t3_tool():
+    pass
 
 
-def divide(a: float, b: float) -> float:
-    """
-    Divide two numbers.
-
-    :param a: The dividend.
-    :param b: The divisor.
-    :return: The quotient of a and b.
-    """
-    return a / b
+def t2a_tool():
+    pass
 
 
-def slow(duration: int) -> str:
-    """
-    A function that takes some time to execute.
-
-    :param duration: Duration the function takes to complete
-    :return: Completion message
-    """
-    import time
-
-    time.sleep(duration)
-    return "Done"
+def t2b_tool():
+    pass
 
 
-def speak(text: str) -> str:
-    """
-    Loudly say something to the user via speakers.
-
-    :param text: The text to speak.
-    :return: The quotient of a and b.
-    """
-    return f"Successfully said `{text}`."
+def t2c_tool():
+    pass

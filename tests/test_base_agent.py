@@ -32,7 +32,7 @@ import unittest
 from tulip_agent import BaseAgent
 
 
-class TestCore(unittest.TestCase):
+class TestBaseAgent(unittest.TestCase):
 
     def setUp(self):
         self.agent = BaseAgent()

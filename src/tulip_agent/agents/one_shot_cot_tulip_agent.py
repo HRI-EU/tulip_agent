@@ -27,70 +27,46 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
+"""
+OneShotCotTulipAgent variant; uses a vector store as a tool library, COT for task decomposition,
+and is primed with an example for the task decomposition and tool selection.
+"""
+import logging
+from typing import Optional
+
+from tulip_agent.constants import BASE_LANGUAGE_MODEL, BASE_TEMPERATURE
+from tulip_agent.prompts import TULIP_COT_PROMPT_ONE_SHOT
+from tulip_agent.tool import Tool
+from tulip_agent.tool_library import ToolLibrary
+
+from .cot_tulip_agent import CotTulipAgent
+from .llm_agent import ModelServeMode
 
 
-def add(a: float, b: float) -> float:
-    """
-    Add two numbers.
-
-    :param a: The first number.
-    :param b: The second number.
-    :return: The sum of a and b.
-    """
-    return a + b
+logger = logging.getLogger(__name__)
 
 
-def subtract(a: float, b: float) -> float:
-    """
-    Subtract two numbers.
-
-    :param a: The number to be subtracted from.
-    :param b: The number to subtract.
-    :return: The difference of a and b.
-    """
-    return a - b
-
-
-def multiply(a: float, b: float) -> float:
-    """
-    Multiply two numbers.
-
-    :param a: The first number.
-    :param b: The second number.
-    :return: The product of a and b.
-    """
-    return a * b
-
-
-def divide(a: float, b: float) -> float:
-    """
-    Divide two numbers.
-
-    :param a: The dividend.
-    :param b: The divisor.
-    :return: The quotient of a and b.
-    """
-    return a / b
-
-
-def slow(duration: int) -> str:
-    """
-    A function that takes some time to execute.
-
-    :param duration: Duration the function takes to complete
-    :return: Completion message
-    """
-    import time
-
-    time.sleep(duration)
-    return "Done"
-
-
-def speak(text: str) -> str:
-    """
-    Loudly say something to the user via speakers.
-
-    :param text: The text to speak.
-    :return: The quotient of a and b.
-    """
-    return f"Successfully said `{text}`."
+class OneShotCotTulipAgent(CotTulipAgent):
+    def __init__(
+        self,
+        model: str = BASE_LANGUAGE_MODEL,
+        temperature: float = BASE_TEMPERATURE,
+        model_serve_mode: ModelServeMode = ModelServeMode.OPENAI,
+        api_interaction_limit: int = 100,
+        tool_library: ToolLibrary = None,
+        default_tools: Optional[list[Tool]] = None,
+        top_k_functions: int = 3,
+        search_similarity_threshold: float = None,
+        instructions: Optional[str] = None,
+    ) -> None:
+        super().__init__(
+            instructions=(instructions or TULIP_COT_PROMPT_ONE_SHOT),
+            model=model,
+            temperature=temperature,
+            model_serve_mode=model_serve_mode,
+            api_interaction_limit=api_interaction_limit,
+            tool_library=tool_library,
+            default_tools=default_tools,
+            top_k_functions=top_k_functions,
+            search_similarity_threshold=search_similarity_threshold,
+        )

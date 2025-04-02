@@ -30,6 +30,9 @@
 import math
 
 
+# individual functions
+
+
 def add(x: float, y: float):
     """
     Adds two numbers together.
@@ -110,31 +113,37 @@ def modulus(x: float, y: float):
     return x % y
 
 
-def sine(x: float):
-    """
-    Calculates the sine of an angle in radians.
-
-    :param x: The angle in radians.
-    :return: The sine of x.
-    """
-    return math.sin(x)
+# methods in class
 
 
-def cosine(x: float):
-    """
-    Calculates the cosine of an angle in radians.
+class TrigonometryCalculator:
 
-    :param x: The angle in radians.
-    :return: The cosine of x.
-    """
-    return math.cos(x)
+    @staticmethod
+    def sine(x: float):
+        """
+        Calculates the sine of an angle in radians.
 
+        :param x: The angle in radians.
+        :return: The sine of x.
+        """
+        return math.sin(x)
 
-def tangent(x: float):
-    """
-    Calculates the tangent of an angle in radians.
+    @staticmethod
+    def cosine(x: float):
+        """
+        Calculates the cosine of an angle in radians.
 
-    :param x: The angle in radians.
-    :return: The tangent of x.
-    """
-    return math.tan(x)
+        :param x: The angle in radians.
+        :return: The cosine of x.
+        """
+        return math.cos(x)
+
+    @staticmethod
+    def tangent(x: float):
+        """
+        Calculates the tangent of an angle in radians.
+
+        :param x: The angle in radians.
+        :return: The tangent of x.
+        """
+        return math.tan(x)

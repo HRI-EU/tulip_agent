@@ -29,19 +29,24 @@
 #
 import logging
 
-from .base_agent import BaseAgent
-from .function_analyzer import FunctionAnalyzer
-from .tool_agent import CotToolAgent, NaiveToolAgent
-from .tool_library import ToolLibrary
-from .tulip_agent import (
+from tulip_agent.agents import (
     AutoTulipAgent,
+    BaseAgent,
+    CotToolAgent,
     CotTulipAgent,
+    DfsTulipAgent,
     InformedCotTulipAgent,
     MinimalTulipAgent,
+    ModelServeMode,
+    NaiveToolAgent,
     NaiveTulipAgent,
     OneShotCotTulipAgent,
     PrimedCotTulipAgent,
 )
+from tulip_agent.function_analyzer import FunctionAnalyzer
+from tulip_agent.task import Task
+from tulip_agent.tool import Tool
+from tulip_agent.tool_library import ToolLibrary
 
 
 __all__ = [
@@ -56,7 +61,10 @@ __all__ = [
     NaiveTulipAgent,
     OneShotCotTulipAgent,
     PrimedCotTulipAgent,
+    Task,
+    Tool,
     ToolLibrary,
+    DfsTulipAgent,
 ]
 
 

@@ -28,19 +28,18 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 """
-Basic LLM agent.
+LLM agent ABC.
 """
 import logging
 import time
 from abc import ABC, abstractmethod
-from typing import Optional
 
-from openai import BadRequestError, OpenAI, OpenAIError
+from openai import BadRequestError, OpenAIError
 from openai.types.chat.chat_completion import ChatCompletion, Choice
 from openai.types.chat.chat_completion_message import ChatCompletionMessage
 
-from .constants import BASE_LANGUAGE_MODEL, BASE_TEMPERATURE
-from .prompts import BASE_PROMPT
+from tulip_agent.client_setup import ModelServeMode, create_client
+from tulip_agent.constants import BASE_LANGUAGE_MODEL, BASE_TEMPERATURE
 
 
 logger = logging.getLogger(__name__)
@@ -52,15 +51,13 @@ class LlmAgent(ABC):
         instructions: str,
         model: str = BASE_LANGUAGE_MODEL,
         temperature: float = BASE_TEMPERATURE,
+        model_serve_mode: ModelServeMode = ModelServeMode.OPENAI,
         api_interaction_limit: int = 100,
     ) -> None:
         self.model = model
         self.temperature = temperature
         self.instructions = instructions
-        self.openai_client = OpenAI(
-            timeout=60,
-            max_retries=10,
-        )
+        self.llm_client = create_client(model_serve_mode)
 
         self.messages = []
         if self.instructions:
@@ -93,7 +90,7 @@ class LlmAgent(ABC):
             if response_format == "json":
                 params["response_format"] = {"type": "json_object"}
             try:
-                response = self.openai_client.chat.completions.create(**params)
+                response = self.llm_client.chat.completions.create(**params)
             # Return error message for bad requests, e.g., repetitive inputs or context window exceeded
             except BadRequestError as e:
                 logger.error(f"{type(e).__name__}: {e}")
@@ -115,7 +112,7 @@ class LlmAgent(ABC):
             except OpenAIError as e:
                 logger.error(f"{type(e).__name__}: {e}")
                 retries += 1
-                time.sleep(retries/4)
+                time.sleep(retries / 4)
                 if retries >= self.max_retries:
                     raise e
         logger.info(
@@ -136,35 +133,3 @@ class LlmAgent(ABC):
         :return: User-oriented final response
         """
         pass
-
-
-class BaseAgent(LlmAgent):
-    def __init__(
-        self,
-        instructions: Optional[str] = None,
-        model: str = BASE_LANGUAGE_MODEL,
-        temperature: float = BASE_TEMPERATURE,
-    ) -> None:
-        super().__init__(
-            instructions=(
-                BASE_PROMPT + "\n\n" + instructions if instructions else BASE_PROMPT
-            ),
-            model=model,
-            temperature=temperature,
-        )
-
-    def query(
-        self,
-        prompt: str,
-    ) -> str:
-        logger.info(f"{self.__class__.__name__} received query: {prompt}")
-        self.messages.append({"role": "user", "content": prompt})
-        response = self._get_response(
-            msgs=self.messages,
-        )
-        response_message = response.choices[0].message
-        self.messages.append(response_message)
-        logger.info(
-            f"{self.__class__.__name__} returns response: {response_message.content}"
-        )
-        return response_message.content

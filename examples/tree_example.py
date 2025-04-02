@@ -27,70 +27,46 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
+import logging
+
+from tulip_agent import DfsTulipAgent, ToolLibrary
 
 
-def add(a: float, b: float) -> float:
-    """
-    Add two numbers.
+# Set logger to INFO to show agents' internal steps
+logging.basicConfig(level=logging.INFO)
 
-    :param a: The first number.
-    :param b: The second number.
-    :return: The sum of a and b.
-    """
-    return a + b
+tasks = [
+    # "Add 2 and 5",
+    # "Add the product of 3 and 4 and the product of 5 and 6",
+    "Calculate the square root of the sum of the product of 3 and 4 and the product of 5 and 6",
+    # "Take an image of the table and convert that to a jpg",
+    # (
+    #     "Calculate the area of a rectangle with length 8 units and width 5 units, "
+    #     "then find the circumference of a circle with a radius equal to the square root of the rectangle's area."
+    # ),
+    # "Find the difference between the area of a square with side length 20 and a the area of a circle with radius 10.",
+]
 
+tulip = ToolLibrary(chroma_sub_dir="example/")
+tulip.chroma_client.delete_collection("tulip")
 
-def subtract(a: float, b: float) -> float:
-    """
-    Subtract two numbers.
+tulip = ToolLibrary(
+    chroma_sub_dir="example/",
+    file_imports=[("calculator", [])],
+    # file_imports=[("calculator", ["add", "subtract", "square_root"])],
+    # file_imports=[("math_tools", [])],
+)
+agent = DfsTulipAgent(
+    tool_library=tulip,
+    top_k_functions=10,
+    search_similarity_threshold=2,
+    max_recursion_depth=2,
+    max_paraphrases=1,
+    max_replans=1,
+    plot_task_tree=True,
+)
 
-    :param a: The number to be subtracted from.
-    :param b: The number to subtract.
-    :return: The difference of a and b.
-    """
-    return a - b
-
-
-def multiply(a: float, b: float) -> float:
-    """
-    Multiply two numbers.
-
-    :param a: The first number.
-    :param b: The second number.
-    :return: The product of a and b.
-    """
-    return a * b
-
-
-def divide(a: float, b: float) -> float:
-    """
-    Divide two numbers.
-
-    :param a: The dividend.
-    :param b: The divisor.
-    :return: The quotient of a and b.
-    """
-    return a / b
-
-
-def slow(duration: int) -> str:
-    """
-    A function that takes some time to execute.
-
-    :param duration: Duration the function takes to complete
-    :return: Completion message
-    """
-    import time
-
-    time.sleep(duration)
-    return "Done"
-
-
-def speak(text: str) -> str:
-    """
-    Loudly say something to the user via speakers.
-
-    :param text: The text to speak.
-    :return: The quotient of a and b.
-    """
-    return f"Successfully said `{text}`."
+for task in tasks:
+    print(f"{task=}")
+    res = agent.query(prompt=task)
+    print(f"{res=}")

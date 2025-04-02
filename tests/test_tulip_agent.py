@@ -29,29 +29,36 @@
 #
 import unittest
 
+from tests.example_tools_in_class import Calculator
 from tulip_agent import (
     AutoTulipAgent,
     CotTulipAgent,
+    DfsTulipAgent,
+    InformedCotTulipAgent,
     MinimalTulipAgent,
     NaiveTulipAgent,
+    OneShotCotTulipAgent,
+    PrimedCotTulipAgent,
     ToolLibrary,
 )
 
 
-class TestCore(unittest.TestCase):
+class TestTulipAgent(unittest.TestCase):
 
     def setUp(self):
         self.tulip = ToolLibrary(chroma_sub_dir="test/")
         self.tulip.chroma_client.delete_collection("tulip")
         self.tulip = ToolLibrary(
-            chroma_sub_dir="test/", file_imports=[("example_tools", [])]
+            chroma_sub_dir="test/",
+            file_imports=[("tests.example_tools", [])],
+            description="Various math tools.",
         )
 
     def _check_res(self, res: str, messages: list):
         self.assertTrue(
             any(s in res.lower() for s in ("4", "four"))
             and messages[-2]["role"] == "tool"
-            and messages[-2]["name"] == "example_tools__add",
+            and messages[-2]["name"] == "add",
             "LLM query failed.",
         )
 
@@ -70,12 +77,73 @@ class TestCore(unittest.TestCase):
         res = agent.query(prompt="What is 2+2?")
         self._check_res(res, agent.messages)
 
+    def test_informed_cot_tulip_query(self):
+        agent = InformedCotTulipAgent(tool_library=self.tulip)
+        res = agent.query(prompt="What is 2+2?")
+        self._check_res(res, agent.messages)
+
+    def test_one_shot_cot_tulip_query(self):
+        agent = OneShotCotTulipAgent(tool_library=self.tulip)
+        res = agent.query(prompt="What is 2+2?")
+        self._check_res(res, agent.messages)
+
+    def test_primed_cot_tulip_query(self):
+        agent = PrimedCotTulipAgent(tool_library=self.tulip)
+        res = agent.query(prompt="What is 2+2?")
+        self._check_res(res, agent.messages)
+
+    def test_dfs_tulip_query(self):
+        agent = DfsTulipAgent(tool_library=self.tulip)
+        res = agent.query(prompt="What is 2+2?")
+        self.assertTrue(
+            any(s in res.lower() for s in ("4", "four"))
+            and len(agent.task.tool_candidates) == 1
+            and agent.task.tool_candidates[0].unique_id == "add",
+            "LLM query failed.",
+        )
+
     def test_auto_tulip_query(self):
         agent = AutoTulipAgent(tool_library=self.tulip)
         res = agent.query(prompt="What is 2+2?")
         self.assertTrue(
             any(s in res.lower() for s in ("4", "four")),
             "LLM query failed.",
+        )
+
+    def test_cot_tulip_query_with_instance(self):
+        calculator = Calculator(divisor=3)
+        self.tulip.chroma_client.delete_collection("tulip")
+        self.tulip = ToolLibrary(
+            chroma_sub_dir="test/",
+            instance_imports=[calculator],
+            description="Various math tools.",
+        )
+        agent = CotTulipAgent(tool_library=self.tulip)
+        res = agent.query(prompt="What is 2+2?")
+        self.assertTrue(
+            any(s in res.lower() for s in ("4", "four"))
+            and agent.messages[-2]["role"] == "tool"
+            and agent.messages[-2]["name"] == "add",
+            "LLM query failed.",
+        )
+
+    def test_default_tools(self):
+        character = (
+            "You must solve the task provided by the user using a tool. "
+            "Eventually use the speak function to tell them the result."
+        )
+        agent = MinimalTulipAgent(
+            tool_library=self.tulip,
+            default_tools=[self.tulip.tools["speak"]],
+            top_k_functions=1,
+            instructions=character,
+        )
+        res = agent.query(prompt="What is 2+2?")
+        self.assertTrue(
+            any(s in res.lower() for s in ("4", "four"))
+            and agent.messages[-2]["role"] == "tool"
+            and agent.messages[-2]["name"] == "speak",
+            "Using default_tool failed.",
         )
 
 

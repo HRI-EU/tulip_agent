@@ -6,7 +6,7 @@ number_of_runs: 5
 log_folder: logs
 log_file: null
 task_filter: null
-run_sanity_checks: false
+run_sanity_checks: true
 plot_cost_distribution: false
 
 tools: math_tools
@@ -27,6 +27,7 @@ agents:
     InformedCotTulipAgent: True
     PrimedCotTulipAgent: True
     OneShotCotTulipAgent: True
+    DfsTulipAgent: False
     AutoTulipAgent: False
 
 colors:
@@ -39,4 +40,5 @@ colors:
     InformedCotTulipAgent: "#9900ff"
     PrimedCotTulipAgent: "#cc66ff"
     OneShotCotTulipAgent: "#cc33ff"
+    DfsTulipAgent: "#cc00ff"
     AutoTulipAgent: "#660066"

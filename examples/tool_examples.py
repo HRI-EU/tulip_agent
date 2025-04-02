@@ -27,70 +27,60 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
+"""
+Tools can be created from a class' methods or from individual functions.
+"""
+import pprint
+
+from tulip_agent import FunctionAnalyzer, Tool
 
 
-def add(a: float, b: float) -> float:
+def return_hi() -> str:
     """
-    Add two numbers.
-
-    :param a: The first number.
-    :param b: The second number.
-    :return: The sum of a and b.
+    Return "hi".
     """
-    return a + b
+    return "hi"
 
 
-def subtract(a: float, b: float) -> float:
-    """
-    Subtract two numbers.
+class Calculator:
+    def __init__(self, divisor: float) -> None:
+        self.divisor = divisor
 
-    :param a: The number to be subtracted from.
-    :param b: The number to subtract.
-    :return: The difference of a and b.
-    """
-    return a - b
+    @staticmethod
+    def add(a: float, b: float) -> float:
+        """
+        Add two numbers.
 
-
-def multiply(a: float, b: float) -> float:
-    """
-    Multiply two numbers.
-
-    :param a: The first number.
-    :param b: The second number.
-    :return: The product of a and b.
-    """
-    return a * b
+        :param a: The first number.
+        :param b: The second number.
+        :return: The sum of a and b.
+        """
+        return a + b
 
 
-def divide(a: float, b: float) -> float:
-    """
-    Divide two numbers.
+if __name__ == "__main__":
+    fa = FunctionAnalyzer()
 
-    :param a: The dividend.
-    :param b: The divisor.
-    :return: The quotient of a and b.
-    """
-    return a / b
+    hi_description = fa.analyze_function(return_hi)
+    hi = Tool(
+        function_name="return_hi",
+        module_name="tool_examples",
+        definition=hi_description,
+    )
+    print(hi)
+    print(hi_description)
+    pprint.pprint(hi.format_for_chroma())
+    print(hi.execute())
 
-
-def slow(duration: int) -> str:
-    """
-    A function that takes some time to execute.
-
-    :param duration: Duration the function takes to complete
-    :return: Completion message
-    """
-    import time
-
-    time.sleep(duration)
-    return "Done"
-
-
-def speak(text: str) -> str:
-    """
-    Loudly say something to the user via speakers.
-
-    :param text: The text to speak.
-    :return: The quotient of a and b.
-    """
-    return f"Successfully said `{text}`."
+    calc = Calculator(10)
+    add_description = fa.analyze_class(Calculator)[0]
+    add = Tool(
+        function_name="add",
+        module_name="tool_examples",
+        definition=add_description,
+        instance=calc,
+    )
+    print(add)
+    print(add_description)
+    pprint.pprint(add.format_for_chroma())
+    print(add.execute(**{"a": 1, "b": 2}))

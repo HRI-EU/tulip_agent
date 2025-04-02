@@ -27,70 +27,49 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
+"""
+Basic LLM agent.
+"""
+import logging
+from typing import Optional
+
+from tulip_agent.constants import BASE_LANGUAGE_MODEL, BASE_TEMPERATURE
+from tulip_agent.prompts import BASE_PROMPT
+
+from .llm_agent import LlmAgent, ModelServeMode
 
 
-def add(a: float, b: float) -> float:
-    """
-    Add two numbers.
-
-    :param a: The first number.
-    :param b: The second number.
-    :return: The sum of a and b.
-    """
-    return a + b
+logger = logging.getLogger(__name__)
 
 
-def subtract(a: float, b: float) -> float:
-    """
-    Subtract two numbers.
+class BaseAgent(LlmAgent):
+    def __init__(
+        self,
+        instructions: Optional[str] = None,
+        model: str = BASE_LANGUAGE_MODEL,
+        temperature: float = BASE_TEMPERATURE,
+        model_serve_mode: ModelServeMode = ModelServeMode.OPENAI,
+    ) -> None:
+        super().__init__(
+            instructions=(instructions or BASE_PROMPT),
+            model=model,
+            temperature=temperature,
+            model_serve_mode=model_serve_mode,
+        )
 
-    :param a: The number to be subtracted from.
-    :param b: The number to subtract.
-    :return: The difference of a and b.
-    """
-    return a - b
-
-
-def multiply(a: float, b: float) -> float:
-    """
-    Multiply two numbers.
-
-    :param a: The first number.
-    :param b: The second number.
-    :return: The product of a and b.
-    """
-    return a * b
-
-
-def divide(a: float, b: float) -> float:
-    """
-    Divide two numbers.
-
-    :param a: The dividend.
-    :param b: The divisor.
-    :return: The quotient of a and b.
-    """
-    return a / b
-
-
-def slow(duration: int) -> str:
-    """
-    A function that takes some time to execute.
-
-    :param duration: Duration the function takes to complete
-    :return: Completion message
-    """
-    import time
-
-    time.sleep(duration)
-    return "Done"
-
-
-def speak(text: str) -> str:
-    """
-    Loudly say something to the user via speakers.
-
-    :param text: The text to speak.
-    :return: The quotient of a and b.
-    """
-    return f"Successfully said `{text}`."
+    def query(
+        self,
+        prompt: str,
+    ) -> str:
+        logger.info(f"{self.__class__.__name__} received query: {prompt}")
+        self.messages.append({"role": "user", "content": prompt})
+        response = self._get_response(
+            msgs=self.messages,
+        )
+        response_message = response.choices[0].message
+        self.messages.append(response_message)
+        logger.info(
+            f"{self.__class__.__name__} returns response: {response_message.content}"
+        )
+        self.api_interaction_counter = 0
+        return response_message.content

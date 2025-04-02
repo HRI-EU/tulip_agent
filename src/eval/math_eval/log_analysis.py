@@ -28,13 +28,13 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 import importlib
+import itertools
 import json
 import logging.config
 import os
 import re
 import shutil
 import statistics
-import itertools
 from collections import Counter
 from dataclasses import dataclass
 from datetime import datetime
@@ -123,7 +123,15 @@ class Result:
         )
 
 
-def do_significance_test(all_results):
+def run_significance_test(
+    all_results, criterion: str = "correctness", pairs: str = "all"
+):
+    assert criterion in (
+        criteria := ("correctness", "costs")
+    ), f"Invalid criterion `{criterion}`. Use one of {criteria}."
+    assert pairs in (
+        pairs_options := ("all", "specific")
+    ), f"Invalid pairs `{pairs}`. Use one of {pairs_options}."
     task_result_dict = {}
     all_agents = set()
     for res in all_results:
@@ -135,17 +143,21 @@ def do_significance_test(all_results):
         if res.agent not in task_result_dict[res.task_id]:
             task_result_dict[res.task_id][res.agent] = []
 
-        # change to test for costs or correctness
-        # task_result_dict[res.task_id][res.agent].append(res.costs)
-        task_result_dict[res.task_id][res.agent].append(res.correctness)
+        if criterion == "correctness":
+            task_result_dict[res.task_id][res.agent].append(res.correctness)
+        elif criterion == "costs":
+            task_result_dict[res.task_id][res.agent].append(res.costs)
 
         all_agents.add(res.agent)
 
-    print("Wilcoxon signed-rank test")
-    # test all pairs
-    all_agents_combinations = itertools.combinations(sorted(list(all_agents)), 2)
-    # test specific pairs
-    # all_agents_combinations = [('CotToolAgent', 'CotTulipAgent'), ('CotToolAgent', 'PrimedCotTulipAgent')]
+    print(f"Wilcoxon signed-rank test for {criterion}")
+    if pairs == "all":
+        all_agents_combinations = itertools.combinations(sorted(list(all_agents)), 2)
+    elif pairs == "specific":
+        all_agents_combinations = [
+            ("CotToolAgent", "CotTulipAgent"),
+            ("CotToolAgent", "PrimedCotTulipAgent"),
+        ]
 
     for agents in all_agents_combinations:
         pairs_x = []
@@ -156,16 +168,21 @@ def do_significance_test(all_results):
 
         # two-sided test, H0: no difference
         test = scipy.stats.wilcoxon(pairs_x, pairs_y)
-        print(f"'{agents[0]}' - '{agents[1]}': no difference, H0 is dropped: {test.pvalue = }")
+        print(
+            f"'{agents[0]}' - '{agents[1]}': no difference, H0 is dropped: {test.pvalue = }"
+        )
         # one-sided less, H0 y greater than x, H1 y less than x
         test = scipy.stats.wilcoxon(pairs_x, pairs_y, alternative="less")
-        print(f"'{agents[0]}' - '{agents[1]}': second is greater H0 dropped for lesser H1: {test.pvalue = }")
+        print(
+            f"'{agents[0]}' - '{agents[1]}': second is greater H0 dropped for lesser H1: {test.pvalue = }"
+        )
         # one-sided less, H0 y lesser than x, H1 y greater than x
         test = scipy.stats.wilcoxon(pairs_x, pairs_y, alternative="greater")
-        print(f"'{agents[0]}' - '{agents[1]}': second is lesser H0 dropped for great H1: {test.pvalue = }")
+        print(
+            f"'{agents[0]}' - '{agents[1]}': second is lesser H0 dropped for great H1: {test.pvalue = }"
+        )
         print()
     input("..plot?")
-
 
 def interquartile_mean(values: list) -> float:
     lnv = len(values)
@@ -261,7 +278,7 @@ def extract_data_from_log(
         r = Result(
             agent=agent,
             task=query,
-            task_id='None',
+            task_id="None",
             run=run,
             model=model,
             embedding_model=embedding_model,
@@ -272,7 +289,7 @@ def extract_data_from_log(
             response=response,
         )
         results.append(r)
-        # logger.info(f"Retrieved data for {r.agent} on `{r.task}`.")
+        logger.debug(f"Retrieved data for {r.agent} on `{r.task}`.")
     return results
 
 
@@ -280,6 +297,10 @@ def calc_costs_for_tool_library(settings_file: str = "math_eval_settings.yaml"):
     with open(settings_file, "rt") as mes_:
         settings_ = yaml.safe_load(mes_.read())
     tools_filename = settings_["tools"]
+
+    if tools_filename is None:
+        return 0
+
     tools = importlib.import_module(tools_filename)
 
     fa = FunctionAnalyzer()
@@ -306,16 +327,12 @@ def assess_data(
 
         if r.agent == "Embedding" or r.agent == "Usage":
             continue
-        # logger.info(f"Assessing {r.agent}.")
+        logger.debug(f"Assessing {r.agent}.")
         if r.task not in gtf_data:
             logger.warning(f"No ground truth found for {r.task}")
             continue
         r.ground_truth = [str(vs) for vs in gtf_data[r.task]["valid_solutions"]]
 
-        # try:
-        #     answer_string = r.response.split("<result>")[-1]
-        # except:
-        #     print(f"-------- NO <RESULT> {r.agent}\n{answer_string}")
         answer_string = r.response
         r.correctness = any(
             str(vs) in answer_string for vs in gtf_data[r.task]["valid_solutions"]
@@ -423,7 +440,7 @@ def plot(
                 variation = [scipy.stats.iqr(s) for s in scores]
             else:
                 variation = [
-                    np.var([statistics.mean(s) for s in scores_by_level])
+                    np.std([statistics.mean(s) for s in scores_by_level])
                     for scores_by_level in scores_by_run
                 ]
             number_of_scores = [len(e) for e in scores]
@@ -445,12 +462,6 @@ def plot(
             if ci == 0:  # Only add the legend info from the first subplot
                 handles.append(bar)
             values.extend(processed)
-
-        # horizontal lines
-        # max_value = 1.0 if criterion == "correctness" else max(values)
-        # y_line_positions = [0.25 * max_value, 0.5 * max_value, 0.75 * max_value]
-        # for y_line_position in y_line_positions:
-        #     axs[ci].axhline(y=y_line_position, color="darkgrey", linestyle="--", linewidth=0.5)
 
         axs[ci].set_ylabel(criteria[criterion], labelpad=4, fontdict={"fontsize": 14})
         if criterion in ("correctness", "function_f1"):
@@ -477,7 +488,7 @@ def plot(
 
     tight = (0, 0, 1, 0.83)
     plt.tight_layout(rect=tight)
-    # plt.savefig(output_file, bbox_inches="tight", dpi=300)
+    plt.savefig(output_file, bbox_inches="tight", dpi=300)
     plt.show()
     return result_dict
 
@@ -536,7 +547,7 @@ def main(
                         )
                     )
 
-    do_significance_test(all_results)
+    run_significance_test(all_results)
 
     result_dict = plot(
         data=all_results,
@@ -671,14 +682,8 @@ def sanity_check_results(
 
 if __name__ == "__main__":
 
-    logs_to_plot = [
-        # "logs/math.eval.20240807-1344.log",  # gpt4 turbo, lvl 1-3
-        # "logs/math.eval.20240808-0858.log",  # gpt4 turbo, lvl 4
-        # "logs/math.eval.20240809-0848.log",  # gpt4 turbo, lvl 5
-        # "logs/math.eval.20240812-1339.log",  # gpt4omin, full lib, lvl 1-3
-        "logs/math.eval.20240619-1357.log", # gpt-3.5-turbo, our math, 5 runs
-    ]
-    history_file = "history_eval" # to use different history files
+    logs_to_plot = ["logs/math.eval.20240619-1357.log"]
+    history_file = "history"  # to use different history files
 
     with open("math_eval_settings.yaml", "rt") as mes:
         settings = yaml.safe_load(mes.read())
@@ -713,7 +718,7 @@ if __name__ == "__main__":
                 a
                 for a in history_data[log_name]["agents"]
                 if history_data[log_name]["agents"][a]
-                and a != "BaseAgent"  # to exclude base agent in plots
+                # and a != "BaseAgent"  # to exclude base agent in plots
             ]
             colors = [history_data[log_name]["colors"][a] for a in agents]
             number_of_runs = history_data[log_name]["number_of_runs"]
@@ -794,9 +799,9 @@ if __name__ == "__main__":
                 print(f"{agent}: {mean_val:.4f} {relative_val:.4f} {values}")
 
     if benchmark_type == "math":
-        img_name = "_".join(ln[:-3] for ln in log_names) + "_math_bench.png"
+        img_name = "_".join(ln[:-4] for ln in log_names) + "_math_bench.png"
     elif benchmark_type in ("custom", "reduced"):
-        img_name = log_name[:-3] + ".png"
+        img_name = log_name[:-4] + ".png"
     else:
         raise ValueError(f"Unknown benchmark type `{benchmark_type}`.")
-    shutil.copy("math.eval.png", f"{log_folder}/{img_name}")
+    shutil.move("math.eval.png", f"{log_folder}/{img_name}")

@@ -164,7 +164,7 @@ def do_significance_test(all_results):
         test = scipy.stats.wilcoxon(pairs_x, pairs_y, alternative="greater")
         print(f"'{agents[0]}' - '{agents[1]}': second is lesser H0 dropped for great H1: {test.pvalue = }")
         print()
-
+    input("..plot?")
 
 
 def interquartile_mean(values: list) -> float:

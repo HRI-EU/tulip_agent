@@ -1,8 +1,8 @@
 # Settings for math eval
 
-benchmark_type: math
+benchmark_type: reduced
 ground_truth: math_tasks.json
-number_of_runs: 1
+number_of_runs: 5
 log_folder: logs
 log_file: null
 task_filter: null
@@ -11,7 +11,7 @@ plot_cost_distribution: false
 
 tools: math_tools
 # other models: "gpt-3.5-turbo-0125", "gpt-4-turbo-2024-04-09", "gpt-4o-2024-05-13"
-model: "gpt-4o-mini-2024-07-18"
+model: "gpt-3.5-turbo-0125"
 embedding_model: "text-embedding-3-large"
 
 tulip_top_k: 5

@@ -39,16 +39,16 @@ from abc import ABC
 from concurrent.futures import ThreadPoolExecutor
 from typing import Optional
 
+from openai import AzureOpenAI, OpenAI
 from openai.types.chat.chat_completion_message_tool_call import (
     ChatCompletionMessageToolCall,
 )
 
-from tulip_agent.constants import BASE_LANGUAGE_MODEL, BASE_TEMPERATURE
 from tulip_agent.prompts import TECH_LEAD
 from tulip_agent.tool import Tool
 from tulip_agent.tool_library import ToolLibrary
 
-from .base_agent import LlmAgent, ModelServeMode
+from .base_agent import LlmAgent
 
 
 logger = logging.getLogger(__name__)
@@ -58,20 +58,24 @@ class TulipAgent(LlmAgent, ABC):
     def __init__(
         self,
         instructions: str,
-        model: str = BASE_LANGUAGE_MODEL,
-        temperature: float = BASE_TEMPERATURE,
-        model_serve_mode: ModelServeMode = ModelServeMode.OPENAI,
-        api_interaction_limit: Optional[int] = 100,
-        tool_library: Optional[ToolLibrary] = None,
+        tool_library: ToolLibrary,
+        base_model: str | None,
+        base_client: AzureOpenAI | OpenAI | None,
+        reasoning_model: str | None,
+        reasoning_client: AzureOpenAI | OpenAI | None,
+        temperature: float | None,
+        api_interaction_limit: int = 100,
         default_tools: Optional[list[Tool]] = None,
         top_k_functions: int = 3,
-        search_similarity_threshold: Optional[float] = None,
+        search_similarity_threshold: float | None = None,
     ) -> None:
         super().__init__(
             instructions=instructions,
-            model=model,
+            base_model=base_model,
+            base_client=base_client,
+            reasoning_model=reasoning_model,
+            reasoning_client=reasoning_client,
             temperature=temperature,
-            model_serve_mode=model_serve_mode,
             api_interaction_limit=api_interaction_limit,
         )
         self.tool_library = tool_library
@@ -138,7 +142,9 @@ class TulipAgent(LlmAgent, ABC):
             for action, future in future_to_action.items():
                 tools = future.result()
                 if self.default_tools:
-                    tools.extend(tool for tool in self.default_tools if tool not in tools)
+                    tools.extend(
+                        tool for tool in self.default_tools if tool not in tools
+                    )
                 logger.info(
                     f"Functions for `{action}`: {[tool.unique_id for tool in tools]}"
                 )

@@ -35,6 +35,8 @@ import json
 import logging
 from typing import Optional
 
+from openai import AzureOpenAI, OpenAI
+
 from tulip_agent.constants import BASE_LANGUAGE_MODEL, BASE_TEMPERATURE
 from tulip_agent.prompts import (
     TOOL_CREATE,
@@ -49,7 +51,6 @@ from tulip_agent.task import Task
 from tulip_agent.tool import Tool
 from tulip_agent.tool_library import ToolLibrary
 
-from .llm_agent import ModelServeMode
 from .tulip_agent import TulipAgent
 
 
@@ -59,27 +60,34 @@ logger = logging.getLogger(__name__)
 class DfsTulipAgent(TulipAgent):
     def __init__(
         self,
-        model: str = BASE_LANGUAGE_MODEL,
-        temperature: float = BASE_TEMPERATURE,
-        model_serve_mode: ModelServeMode = ModelServeMode.OPENAI,
+        tool_library: ToolLibrary,
+        instructions: str | None = None,
+        base_model: str | None = None,
+        base_client: AzureOpenAI | OpenAI | None = None,
+        reasoning_model: str | None = None,
+        reasoning_client: AzureOpenAI | OpenAI | None = None,
+        temperature: float | None = None,
         api_interaction_limit: int = 100,
-        tool_library: ToolLibrary = None,
         default_tools: Optional[list[Tool]] = None,
         top_k_functions: int = 5,
         search_similarity_threshold: float = 1.25,
         max_recursion_depth: int = 3,
         max_paraphrases: int = 1,
         max_replans: int = 1,
-        instructions: Optional[str] = None,
         plot_task_tree: bool = False,
     ) -> None:
+        if base_model is None and reasoning_model is None:
+            base_model = BASE_LANGUAGE_MODEL
+            temperature = BASE_TEMPERATURE
         super().__init__(
             instructions=(instructions or TREE_TULIP_SYSTEM_PROMPT),
-            model=model,
-            temperature=temperature,
-            model_serve_mode=model_serve_mode,
-            api_interaction_limit=api_interaction_limit,
             tool_library=tool_library,
+            base_model=base_model,
+            base_client=base_client,
+            reasoning_model=reasoning_model,
+            reasoning_client=reasoning_client,
+            temperature=temperature,
+            api_interaction_limit=api_interaction_limit,
             default_tools=default_tools,
             top_k_functions=top_k_functions,
             search_similarity_threshold=search_similarity_threshold,
@@ -129,7 +137,9 @@ class DfsTulipAgent(TulipAgent):
             },
         ]
         logger.debug(f"Decomposition prompt: {messages[-1]['content']}")
-        response = self._get_response(msgs=messages, response_format="json")
+        response = self._get_response(
+            msgs=messages, response_format="json", reasoning=True
+        )
         decompose_response_message = response.choices[0].message
         logger.info(f"{decompose_response_message=}")
         res = json.loads(decompose_response_message.content)

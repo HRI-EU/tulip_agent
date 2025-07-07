@@ -34,13 +34,13 @@ and is primed with an example for the task decomposition and tool selection.
 import logging
 from typing import Optional
 
-from tulip_agent.constants import BASE_LANGUAGE_MODEL, BASE_TEMPERATURE
-from tulip_agent.prompts import TULIP_COT_PROMPT_ONE_SHOT
+from openai import AzureOpenAI, OpenAI
+
+from tulip_agent.prompts import RECURSIVE_TASK_DECOMPOSITION, TULIP_COT_PROMPT_ONE_SHOT
 from tulip_agent.tool import Tool
 from tulip_agent.tool_library import ToolLibrary
 
 from .cot_tulip_agent import CotTulipAgent
-from .llm_agent import ModelServeMode
 
 
 logger = logging.getLogger(__name__)
@@ -49,24 +49,30 @@ logger = logging.getLogger(__name__)
 class OneShotCotTulipAgent(CotTulipAgent):
     def __init__(
         self,
-        model: str = BASE_LANGUAGE_MODEL,
-        temperature: float = BASE_TEMPERATURE,
-        model_serve_mode: ModelServeMode = ModelServeMode.OPENAI,
+        tool_library: ToolLibrary,
+        instructions: str | None = None,
+        base_model: str | None = None,
+        base_client: AzureOpenAI | OpenAI | None = None,
+        reasoning_model: str | None = None,
+        reasoning_client: AzureOpenAI | OpenAI | None = None,
+        temperature: float | None = None,
         api_interaction_limit: int = 100,
-        tool_library: ToolLibrary = None,
         default_tools: Optional[list[Tool]] = None,
-        top_k_functions: int = 3,
+        top_k_functions: int = 10,
         search_similarity_threshold: float = None,
-        instructions: Optional[str] = None,
+        decomposition_prompt: str = RECURSIVE_TASK_DECOMPOSITION,
     ) -> None:
         super().__init__(
-            instructions=(instructions or TULIP_COT_PROMPT_ONE_SHOT),
-            model=model,
-            temperature=temperature,
-            model_serve_mode=model_serve_mode,
-            api_interaction_limit=api_interaction_limit,
             tool_library=tool_library,
+            instructions=(instructions or TULIP_COT_PROMPT_ONE_SHOT),
+            base_model=base_model,
+            base_client=base_client,
+            reasoning_model=reasoning_model,
+            reasoning_client=reasoning_client,
+            temperature=temperature,
+            api_interaction_limit=api_interaction_limit,
             default_tools=default_tools,
             top_k_functions=top_k_functions,
             search_similarity_threshold=search_similarity_threshold,
+            decomposition_prompt=decomposition_prompt,
         )

@@ -60,7 +60,7 @@ if __name__ == "__main__":
         tool_library=tulip,
         top_k_functions=3,
         instructions=TULIP_COT_PROMPT + "\n\n" + system_prompt,
-        model=model_name,
+        base_model=model_name,
     )
     print(f"📝 Instructions: \n{tulip_agent.instructions}")
     # tulip_res = tulip_agent.query("hand the glass_blue over to Felix")

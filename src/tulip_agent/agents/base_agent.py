@@ -31,12 +31,13 @@
 Basic LLM agent.
 """
 import logging
-from typing import Optional
+
+from openai import AzureOpenAI, OpenAI
 
 from tulip_agent.constants import BASE_LANGUAGE_MODEL, BASE_TEMPERATURE
 from tulip_agent.prompts import BASE_PROMPT
 
-from .llm_agent import LlmAgent, ModelServeMode
+from .llm_agent import LlmAgent
 
 
 logger = logging.getLogger(__name__)
@@ -45,16 +46,25 @@ logger = logging.getLogger(__name__)
 class BaseAgent(LlmAgent):
     def __init__(
         self,
-        instructions: Optional[str] = None,
-        model: str = BASE_LANGUAGE_MODEL,
-        temperature: float = BASE_TEMPERATURE,
-        model_serve_mode: ModelServeMode = ModelServeMode.OPENAI,
+        instructions: str | None = None,
+        base_model: str | None = None,
+        base_client: AzureOpenAI | OpenAI | None = None,
+        reasoning_model: str | None = None,
+        reasoning_client: AzureOpenAI | OpenAI | None = None,
+        temperature: float | None = None,
+        api_interaction_limit: int = 100,
     ) -> None:
+        if not base_model and not reasoning_model:
+            base_model = BASE_LANGUAGE_MODEL
+            temperature = BASE_TEMPERATURE
         super().__init__(
             instructions=(instructions or BASE_PROMPT),
-            model=model,
+            base_model=base_model,
+            base_client=base_client,
+            reasoning_model=reasoning_model,
+            reasoning_client=reasoning_client,
             temperature=temperature,
-            model_serve_mode=model_serve_mode,
+            api_interaction_limit=api_interaction_limit,
         )
 
     def query(

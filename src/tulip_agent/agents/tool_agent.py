@@ -36,10 +36,11 @@ import logging
 from abc import ABC
 from typing import Callable
 
-from tulip_agent.constants import BASE_LANGUAGE_MODEL, BASE_TEMPERATURE
+from openai import AzureOpenAI, OpenAI
+
 from tulip_agent.function_analyzer import FunctionAnalyzer
 
-from .base_agent import LlmAgent, ModelServeMode
+from .base_agent import LlmAgent
 
 
 logger = logging.getLogger(__name__)
@@ -50,16 +51,20 @@ class ToolAgent(LlmAgent, ABC):
         self,
         functions: list[Callable],
         instructions: str,
-        model: str = BASE_LANGUAGE_MODEL,
-        temperature: float = BASE_TEMPERATURE,
-        model_serve_mode: ModelServeMode = ModelServeMode.OPENAI,
-        api_interaction_limit: int = 100,
+        base_model: str | None,
+        base_client: AzureOpenAI | OpenAI | None,
+        reasoning_model: str | None,
+        reasoning_client: AzureOpenAI | OpenAI | None,
+        temperature: float | None,
+        api_interaction_limit: int,
     ) -> None:
         super().__init__(
             instructions=instructions,
-            model=model,
+            base_model=base_model,
+            base_client=base_client,
+            reasoning_model=reasoning_model,
+            reasoning_client=reasoning_client,
             temperature=temperature,
-            model_serve_mode=model_serve_mode,
             api_interaction_limit=api_interaction_limit,
         )
         self.function_analyzer = FunctionAnalyzer()

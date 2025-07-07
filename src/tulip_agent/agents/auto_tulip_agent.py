@@ -185,7 +185,9 @@ class AutoTulipAgent(TulipAgent):
             module_name=module_name, function_names=[f"{function_name}"]
         )[0]
         self.tools.append(new_tool.definition)
-        success_msg = f"Made tool `{module_name}__{function_name}` available via the tool library."
+        success_msg = (
+            f"Made tool `{new_tool.unique_id}` available via the tool library."
+        )
         logger.info(success_msg)
         return success_msg
 
@@ -205,9 +207,9 @@ class AutoTulipAgent(TulipAgent):
         # reload tool library
         with open(module_path, "w") as m:
             m.write(code)
-        updated_tool_description = self.tool_library.update_tool(tool_id=tool_name)
+        updated_tool = self.tool_library.update_tool(tool_id=tool_name)
         self.tools = [t for t in self.tools if t["function"]["name"] != tool_name]
-        self.tools.append(updated_tool_description)
+        self.tools.append(updated_tool.definition)
         success_msg = f"Successfully updated `{tool_name}`."
         logger.info(success_msg)
         return success_msg

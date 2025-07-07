@@ -114,14 +114,18 @@ def run_math_eval(
     if "BaseAgent" in agents:
         _run(
             agent_class=BaseAgent,
-            setup_args={"model": model},
+            setup_args={"base_model": model},
         )
 
     for agent_class in (NaiveToolAgent, CotToolAgent):
         if agent_class.__name__ in agents:
             _run(
                 agent_class=agent_class,
-                setup_args={"model": model, "functions": functions, "api_interaction_limit": 50},
+                setup_args={
+                    "base_model": model,
+                    "functions": functions,
+                    "api_interaction_limit": 50,
+                },
             )
 
     for agent_class in (
@@ -138,7 +142,7 @@ def run_math_eval(
             _run(
                 agent_class=agent_class,
                 setup_args={
-                    "model": model,
+                    "base_model": model,
                     "tool_library": tulip,
                     "top_k_functions": tulip_top_k,
                     "search_similarity_threshold": search_similarity_threshold,
@@ -150,7 +154,9 @@ def run_math_eval(
 def main(settings_file: str = "math_eval_settings.yaml"):
     with open(settings_file, "rt") as mes:
         settings = yaml.safe_load(mes.read())
-    tool_module = importlib.import_module(settings["tools"]) if settings["tools"] else None
+    tool_module = (
+        importlib.import_module(settings["tools"]) if settings["tools"] else None
+    )
 
     # back up log
     log_folder = settings["log_folder"]

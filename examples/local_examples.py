@@ -35,7 +35,13 @@ Assumes that environment variables are set and that the following models are ava
 """
 import logging
 
-from tulip_agent import BaseAgent, CotTulipAgent, ModelServeMode, ToolLibrary
+from tulip_agent import (
+    BaseAgent,
+    CotTulipAgent,
+    ModelServeMode,
+    ToolLibrary,
+    create_client,
+)
 
 
 # Set logger to INFO to show agents' internal steps
@@ -48,8 +54,8 @@ ba = BaseAgent(model_serve_mode=ModelServeMode.OAI_COMPATIBLE, model="llama3.2")
 tulip = ToolLibrary(
     chroma_sub_dir="local_example/",
     file_imports=[("calculator", [])],
-    model_serve_mode=ModelServeMode.OAI_COMPATIBLE,
     embedding_model="mxbai-embed-large",
+    embedding_client=create_client(model_serve_mode=ModelServeMode.OAI_COMPATIBLE),
 )
 cta = CotTulipAgent(
     tool_library=tulip,

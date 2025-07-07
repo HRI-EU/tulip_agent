@@ -37,12 +37,12 @@ from tulip_agent.agents import (
     DfsTulipAgent,
     InformedCotTulipAgent,
     MinimalTulipAgent,
-    ModelServeMode,
     NaiveToolAgent,
     NaiveTulipAgent,
     OneShotCotTulipAgent,
     PrimedCotTulipAgent,
 )
+from tulip_agent.client_setup import ModelServeMode, create_client
 from tulip_agent.function_analyzer import FunctionAnalyzer
 from tulip_agent.task import Task
 from tulip_agent.tool import Tool
@@ -54,9 +54,11 @@ __all__ = [
     BaseAgent,
     CotToolAgent,
     CotTulipAgent,
+    create_client,
     FunctionAnalyzer,
     InformedCotTulipAgent,
     MinimalTulipAgent,
+    ModelServeMode,
     NaiveToolAgent,
     NaiveTulipAgent,
     OneShotCotTulipAgent,

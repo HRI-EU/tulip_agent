@@ -41,6 +41,7 @@ from pathlib import Path
 from typing import Callable, Optional
 
 import chromadb
+from openai import AzureOpenAI, OpenAI
 
 from tulip_agent.client_setup import ModelServeMode, create_client
 from tulip_agent.constants import BASE_EMBEDDING_MODEL
@@ -61,7 +62,7 @@ class ToolLibrary:
         chroma_base_dir: str = dirname(dirname(dirname(abspath(__file__))))
         + "/data/chroma/",
         embedding_model: str = BASE_EMBEDDING_MODEL,
-        model_serve_mode: ModelServeMode = ModelServeMode.OPENAI,
+        embedding_client: AzureOpenAI | OpenAI = None,
         description: Optional[str] = None,
         default_timeout: int = 60,
         default_timeout_message: str = (
@@ -79,7 +80,7 @@ class ToolLibrary:
         :param instance_imports: List of instances of classes from which to load tools.
         :param chroma_base_dir: Absolute path to the tool library folder.
         :param embedding_model: Name of the embedding model used. Defaults to the one specified in constants.
-        :param model_serve_mode: Model serving mode. Defaults to OPENAI.
+        :param embedding_client: Client for serving embedding model. Defaults to OPENAI.
         :param description: Natural language description of the tool library.
         :param default_timeout: Execution timeout for tools.
         :param default_timeout_message: Default message returned in case of tool execution timeout.
@@ -90,7 +91,7 @@ class ToolLibrary:
         """
         self.description = description
         self.embedding_model = embedding_model
-        self.embedding_client = create_client(model_serve_mode)
+        self.embedding_client = embedding_client or create_client(ModelServeMode.OPENAI)
 
         self.function_analyzer = FunctionAnalyzer()
         self.tools: dict[str, Tool] = {}

@@ -32,6 +32,11 @@ Example for using a ToolLibrary and CotTulipAgent with local models.
 Assumes that environment variables are set and that the following models are available:
 * language model: llama3.2, e.g., https://ollama.com/library/llama3.2
 * embedding model: mxbai-embed-large, e.g., https://ollama.com/library/mxbai-embed-large
+
+ollama setup
+* install: https://ollama.com/download
+* pull embedding model: `ollama pull mxbai-embed-large`
+* get language model, eg: `ollama pull llama3.2`
 """
 import logging
 
@@ -49,19 +54,21 @@ logging.basicConfig(level=logging.INFO)
 
 tasks = ["""Add 2 and 5""", """Add the product of 3 and 4 and the product of 5 and 6"""]
 
-ba = BaseAgent(model_serve_mode=ModelServeMode.OAI_COMPATIBLE, model="llama3.2")
+local_client = create_client(model_serve_mode=ModelServeMode.OAI_COMPATIBLE)
+
+ba = BaseAgent(base_model="llama3.2", base_client=local_client)
 
 tulip = ToolLibrary(
     chroma_sub_dir="local_example/",
     file_imports=[("calculator", [])],
     embedding_model="mxbai-embed-large",
-    embedding_client=create_client(model_serve_mode=ModelServeMode.OAI_COMPATIBLE),
+    embedding_client=local_client,
 )
 cta = CotTulipAgent(
     tool_library=tulip,
     top_k_functions=3,
-    model_serve_mode=ModelServeMode.OAI_COMPATIBLE,
-    model="llama3.2",
+    base_client=local_client,
+    base_model="llama3.2",
 )
 
 for task in tasks:

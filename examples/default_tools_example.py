@@ -56,7 +56,7 @@ tulip = ToolLibrary(
     chroma_sub_dir="example_default_tools/", file_imports=[("home_automation", [])]
 )
 agent = NaiveTulipAgent(
-    model="gpt-4o-mini",
+    base_model="gpt-4o-mini",
     tool_library=tulip,
     default_tools=[tulip.tools["say_via_speaker"]],
     top_k_functions=1,

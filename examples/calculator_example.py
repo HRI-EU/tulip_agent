@@ -66,7 +66,7 @@ def print_seperator(name: str) -> None:
 
 def run_comparison():
     # query = "What is 45342 * 23487 + ((32478 - 2) * (-1) + 2)?"  # 1064915080
-    query = "Find the value of $x$ such that $\sqrt{x - 2} = 8$."
+    query = "Find the value of $x$ such that $\sqrt{x - 2} = 8$."  # 66
     print(query)
 
     print_seperator(name=BaseAgent.__name__)

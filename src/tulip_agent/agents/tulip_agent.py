@@ -44,11 +44,10 @@ from openai.types.chat.chat_completion_message_tool_call import (
     ChatCompletionMessageToolCall,
 )
 
-from tulip_agent.prompts import TECH_LEAD
+from tulip_agent.agents.base_agent import LlmAgent
+from tulip_agent.agents.prompts import TECH_LEAD
 from tulip_agent.tool import Tool
 from tulip_agent.tool_library import ToolLibrary
-
-from .base_agent import LlmAgent
 
 
 logger = logging.getLogger(__name__)

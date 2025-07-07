@@ -36,17 +36,16 @@ from typing import Optional
 
 from openai import AzureOpenAI, OpenAI
 
-from tulip_agent.constants import BASE_LANGUAGE_MODEL, BASE_TEMPERATURE
-from tulip_agent.prompts import (
+from tulip_agent.agents.prompts import (
     AUTO_TULIP_PROMPT,
     TASK_DECOMPOSITION,
     TOOL_CREATE,
     TOOL_UPDATE,
 )
+from tulip_agent.agents.tulip_agent import TulipAgent
+from tulip_agent.constants import BASE_LANGUAGE_MODEL, BASE_TEMPERATURE
 from tulip_agent.tool import Tool
 from tulip_agent.tool_library import ToolLibrary
-
-from .tulip_agent import TulipAgent
 
 
 logger = logging.getLogger(__name__)

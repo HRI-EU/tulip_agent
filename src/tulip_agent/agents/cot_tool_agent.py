@@ -35,10 +35,13 @@ from typing import Callable, Optional
 
 from openai import AzureOpenAI, OpenAI
 
+from tulip_agent.agents.prompts import (
+    SOLVE_WITH_TOOLS,
+    TASK_DECOMPOSITION,
+    TOOL_COT_PROMPT,
+)
+from tulip_agent.agents.tool_agent import ToolAgent
 from tulip_agent.constants import BASE_LANGUAGE_MODEL, BASE_TEMPERATURE
-from tulip_agent.prompts import SOLVE_WITH_TOOLS, TASK_DECOMPOSITION, TOOL_COT_PROMPT
-
-from .tool_agent import ToolAgent
 
 
 logger = logging.getLogger(__name__)

@@ -35,10 +35,9 @@ from typing import Callable
 
 from openai import AzureOpenAI, OpenAI
 
+from tulip_agent.agents.prompts import TOOL_PROMPT
+from tulip_agent.agents.tool_agent import ToolAgent
 from tulip_agent.constants import BASE_LANGUAGE_MODEL, BASE_TEMPERATURE
-from tulip_agent.prompts import TOOL_PROMPT
-
-from .tool_agent import ToolAgent
 
 
 logger = logging.getLogger(__name__)

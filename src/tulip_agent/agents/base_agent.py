@@ -34,10 +34,9 @@ import logging
 
 from openai import AzureOpenAI, OpenAI
 
+from tulip_agent.agents.llm_agent import LlmAgent
+from tulip_agent.agents.prompts import BASE_PROMPT
 from tulip_agent.constants import BASE_LANGUAGE_MODEL, BASE_TEMPERATURE
-from tulip_agent.prompts import BASE_PROMPT
-
-from .llm_agent import LlmAgent
 
 
 logger = logging.getLogger(__name__)

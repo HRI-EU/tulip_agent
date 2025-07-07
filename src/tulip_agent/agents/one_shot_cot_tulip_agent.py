@@ -36,11 +36,13 @@ from typing import Optional
 
 from openai import AzureOpenAI, OpenAI
 
-from tulip_agent.prompts import RECURSIVE_TASK_DECOMPOSITION, TULIP_COT_PROMPT_ONE_SHOT
+from tulip_agent.agents.cot_tulip_agent import CotTulipAgent
+from tulip_agent.agents.prompts import (
+    RECURSIVE_TASK_DECOMPOSITION,
+    TULIP_COT_PROMPT_ONE_SHOT,
+)
 from tulip_agent.tool import Tool
 from tulip_agent.tool_library import ToolLibrary
-
-from .cot_tulip_agent import CotTulipAgent
 
 
 logger = logging.getLogger(__name__)

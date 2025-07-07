@@ -37,15 +37,14 @@ from typing import Optional
 
 from openai import AzureOpenAI, OpenAI
 
-from tulip_agent.prompts import (
+from tulip_agent.agents.cot_tulip_agent import CotTulipAgent
+from tulip_agent.agents.prompts import (
     PRIMED_TASK_DECOMPOSITION,
     SOLVE_WITH_TOOLS,
     TULIP_COT_PROMPT,
 )
 from tulip_agent.tool import Tool
 from tulip_agent.tool_library import ToolLibrary
-
-from .cot_tulip_agent import CotTulipAgent
 
 
 logger = logging.getLogger(__name__)

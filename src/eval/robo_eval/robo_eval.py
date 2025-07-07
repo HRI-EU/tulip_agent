@@ -37,7 +37,7 @@ import yaml
 from AttentiveSupport.src.gpt_config import model_name, system_prompt
 
 from tulip_agent import PrimedCotTulipAgent, ToolLibrary
-from tulip_agent.prompts import TULIP_COT_PROMPT
+from tulip_agent.agents.prompts import TULIP_COT_PROMPT
 
 
 # Set up agent loggers to save logs to file for analysis

@@ -38,9 +38,8 @@ from typing import Callable
 
 from openai import AzureOpenAI, OpenAI
 
+from tulip_agent.agents.base_agent import LlmAgent
 from tulip_agent.function_analyzer import FunctionAnalyzer
-
-from .base_agent import LlmAgent
 
 
 logger = logging.getLogger(__name__)

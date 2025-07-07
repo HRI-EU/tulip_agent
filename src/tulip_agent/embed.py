@@ -31,7 +31,7 @@ import logging
 
 from openai import AzureOpenAI, OpenAI
 
-from .constants import BASE_EMBEDDING_MODEL
+from tulip_agent.constants import BASE_EMBEDDING_MODEL
 
 
 logger = logging.getLogger(__name__)

@@ -48,13 +48,15 @@ def check_for_environment_variable(env_var: str) -> None:
         raise ValueError(f"{env_var} not set.")
 
 
-def create_client(model_serve_mode: ModelServeMode) -> AzureOpenAI | OpenAI:
+def create_client(
+    model_serve_mode: ModelServeMode, timeout: int = 60, max_retries: int = 10
+) -> AzureOpenAI | OpenAI:
     match model_serve_mode:
         case ModelServeMode.OPENAI:
             check_for_environment_variable("OPENAI_API_KEY")
             client = OpenAI(
-                timeout=60,
-                max_retries=10,
+                timeout=timeout,
+                max_retries=max_retries,
             )
         case ModelServeMode.OAI_COMPATIBLE:
             check_for_environment_variable("OAI_COMPATIBLE_BASE_URL")
@@ -62,8 +64,8 @@ def create_client(model_serve_mode: ModelServeMode) -> AzureOpenAI | OpenAI:
             client = OpenAI(
                 base_url=os.getenv("OAI_COMPATIBLE_BASE_URL"),
                 api_key=os.getenv("OAI_COMPATIBLE_API_KEY"),
-                timeout=60,
-                max_retries=10,
+                timeout=timeout,
+                max_retries=max_retries,
             )
         case ModelServeMode.AZURE:
             check_for_environment_variable("AZURE_OPENAI_API_KEY")
@@ -72,8 +74,8 @@ def create_client(model_serve_mode: ModelServeMode) -> AzureOpenAI | OpenAI:
             client = AzureOpenAI(
                 api_version=os.getenv("AZURE_API_VERSION"),
                 azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"),
-                timeout=60,
-                max_retries=10,
+                timeout=timeout,
+                max_retries=max_retries,
             )
         case _:
             raise ValueError(f"Unexpected model_serve_mode: {model_serve_mode}.")

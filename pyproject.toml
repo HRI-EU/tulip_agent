@@ -1,40 +1,60 @@
-[tool.poetry]
+[project]
 name = "tulip_agent"
 version = "0.2.8"
 description = "autonomous agent with access to a tool library"
-license = "BSD-3-Clause"
-authors = ["Felix Ocker <felix.ocker@honda-ri.de>"]
+authors = [{ name = "Felix Ocker", email = "felix.ocker@honda-ri.de" }]
+requires-python = ">=3.10.11,<4"
 readme = "README.md"
-homepage = "https://hri-eu.github.io/tulip_agent/"
-repository = "https://github.com/HRI-EU/tulip_agent"
-keywords = ["autonomous agent", "agent", "tool use", "llm"]
-packages = [
-    { include = "tulip_agent", from="src" },
-    { include = "eval", from="src" },
+license = "BSD-3-Clause"
+keywords = [
+    "autonomous agent",
+    "agent",
+    "tool use",
+    "llm",
+]
+dependencies = [
+    "chromadb>=0.4.22,<0.5",
+    "openai>=1.12.0,<2",
+    "matplotlib>=3.8.3,<4",
+    "scipy>=1.13.0,<2",
+    "docstring-parser>=0.16,<0.17",
+    "tiktoken>=0.7.0,<0.8",
+    "isort>=5.13.2,<6",
+    "pandas>=2.2.2,<3",
+    "seaborn>=0.13.2,<0.14",
+    "networkx~=3.3",
 ]
 
-[tool.poetry.dependencies]
-python = "^3.10.11"
-chromadb = "^0.4.22"
-openai = "^1.12.0"
-matplotlib = "^3.8.3"
-scipy = "^1.13.0"
-docstring-parser = "^0.16"
-tiktoken = "^0.7.0"
-isort = "^5.13.2"
-pandas = "^2.2.2"
-seaborn = "^0.13.2"
-networkx = "^3.3"
+[project.urls]
+Homepage = "https://hri-eu.github.io/tulip_agent/"
+Repository = "https://github.com/HRI-EU/tulip_agent"
 
+[dependency-groups]
+dev = [
+    "black>=24.1.1,<25",
+    "ruff>=0.2.1,<0.3",
+    "pre-commit>=3.6.2,<4",
+]
 
-[tool.poetry.group.dev.dependencies]
-black = "^24.1.1"
-ruff = "^0.2.1"
-pre-commit = "^3.6.2"
+[tool.hatch.build.targets.sdist]
+include = [
+    "src/tulip_agent",
+    "src/eval",
+]
+
+[tool.hatch.build.targets.wheel]
+include = [
+    "src/tulip_agent",
+    "src/eval",
+]
+
+[tool.hatch.build.targets.wheel.sources]
+"src/tulip_agent" = "tulip_agent"
+"src/eval" = "eval"
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [tool.isort]
 profile = "black"

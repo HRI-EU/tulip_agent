@@ -18,7 +18,7 @@ Combines a vector store for semantic search among tools and tool execution
 
 🤖 **Agents**\
 Specifying `instructions` for an agent completely overrides the base system prompts to avoid contradictions.
-You can append custom instructions to the default prompts in `tulip_agent.prompts`.
+You can append custom instructions to the default prompts in `tulip_agent.agents.prompts`.
 * Baseline, without tool library
   * `BaseAgent`: LLM agent without tool access
   * `NaiveToolAgent`: Includes tool descriptions for all tools available
@@ -46,24 +46,24 @@ See `./examples`
   * OpenAI: `OPENAI_API_KEY`, see the [official instructions](https://help.openai.com/en/articles/5112595-best-practices-for-api-key-safety)
   * Azure: `AZURE_OPENAI_API_KEY`, `AZURE_API_VERSION`, and `AZURE_OPENAI_ENDPOINT`
   * OpenAI compatible endpoints: `OAI_COMPATIBLE_BASE_URL` and `OAI_COMPATIBLE_API_KEY` for OpenAI compatible endpoints, such as Ollama
-* Install with `poetry install` or `pip install -e .`
+* Install with `uv venv --allow-existing && uv sync` or `pip install -e .`
 * Check out the `examples`, the robot evaluation in `src/eval/robo_eval`, and `examples/local_examples.py` for a local setup
 
 
 ## Dev notes
-* Python v3.10.11 recommended, higher versions may lead to issues with chroma when installing via Poetry
-* [Pre-commit hooks](https://pre-commit.com/) - install with `(poetry run) pre-commit install`
+* Python v3.10.11 recommended, higher versions may lead to issues with chroma during installation
+* [Pre-commit hooks](https://pre-commit.com/) - install with `(uv) pre-commit install`
 * Linting: [ruff](https://github.com/astral-sh/ruff)
 * Formatting: [black](https://github.com/psf/black)
 * Import sorting: [isort](https://github.com/PyCQA/isort)
-* Tests: Run with `(poetry run) python -m unittest discover tests/`
+* Tests: Run with `(uv run) python -m unittest discover tests/`
 
 
 ## Known issues
 
 ### SQLite version incompatibility
 See these [troubleshooting instructions](https://docs.trychroma.com/troubleshooting#sqlite)
-1. On Linux install pysqlite3-binary: `poetry add pysqlite3-binary`
+1. On Linux install pysqlite3-binary: `uv add pysqlite3-binary`
 2. Add the following to `lib/python3.10/site-packages/chromadb/__init__.py` in your venv
 ```python
 __import__('pysqlite3')
@@ -72,5 +72,5 @@ sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
 ```
 
 ### Running the example results in a ModuleNotFoundError
-Make sure to install the package itself, e.g., with `poetry install` or `pip install -e .` \
-Then run the example with `poetry run python examples/calculator_example.py`
+Make sure to install the package itself, e.g., with `uv sync` or `pip install -e .` \
+Then run the example with `uv run examples/calculator_example.py`

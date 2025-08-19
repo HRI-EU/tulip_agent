@@ -56,6 +56,10 @@ include = [
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
+[tool.ruff.format]
+
+[tool.ruff.lint]
+
 [tool.isort]
 profile = "black"
 src_paths = ["examples", "src", "tests"]

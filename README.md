@@ -52,7 +52,7 @@ See `./examples`
 
 ## Dev notes
 * Python v3.10.11 recommended, higher versions may lead to issues with chroma during installation
-* [Pre-commit hooks](https://pre-commit.com/) - install with `(uv) pre-commit install`
+* [Pre-commit hooks](https://pre-commit.com/) - install with `(uv run) pre-commit install`
 * Linting: [ruff](https://github.com/astral-sh/ruff)
 * Formatting: [black](https://github.com/psf/black)
 * Import sorting: [isort](https://github.com/PyCQA/isort)

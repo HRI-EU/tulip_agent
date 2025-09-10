@@ -13,16 +13,16 @@ keywords = [
     "llm",
 ]
 dependencies = [
-    "chromadb>=0.4.22,<0.5",
-    "openai>=1.12.0,<2",
-    "matplotlib>=3.8.3,<4",
-    "scipy>=1.13.0,<2",
-    "docstring-parser>=0.16,<0.17",
-    "tiktoken>=0.7.0,<0.8",
-    "isort>=5.13.2,<6",
-    "pandas>=2.2.2,<3",
-    "seaborn>=0.13.2,<0.14",
-    "networkx~=3.3",
+    "chromadb>=0.4.22",
+    "openai>=1.12.0",
+    "matplotlib>=3.8.3",
+    "scipy>=1.13.0",
+    "docstring-parser>=0.16",
+    "tiktoken>=0.7.0",
+    "pandas>=2.2.2",
+    "seaborn>=0.13.2",
+    "networkx>=3.3",
+    "ruff>=0.12.12",
 ]
 
 [project.urls]
@@ -31,8 +31,6 @@ Repository = "https://github.com/HRI-EU/tulip_agent"
 
 [dependency-groups]
 dev = [
-    "black>=24.1.1,<25",
-    "ruff>=0.2.1,<0.3",
     "pre-commit>=3.6.2,<4",
 ]
 

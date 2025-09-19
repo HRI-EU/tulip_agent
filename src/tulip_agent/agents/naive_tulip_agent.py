@@ -35,6 +35,7 @@
 """
 NaiveTulipAgent variant.
 """
+
 import logging
 from typing import Optional
 
@@ -106,8 +107,16 @@ class NaiveTulipAgent(TulipAgent):
             self.messages.append(response_message)
             tool_calls = response_message.tool_calls
 
+            if not tool_calls:
+                logger.info("Tool search invalid: No tool search conducted. Retrying.")
+                self.messages.append(
+                    {
+                        "role": "user",
+                        "content": "Error: You MUST search for tools by returning a single call to `search_tools`.",
+                    }
+                )
             # More than one tool call - several searches should be combined in one call
-            if (lntc := len(tool_calls)) > 1:
+            elif (lntc := len(tool_calls)) > 1:
                 logger.info(
                     f"Tool search invalid: Returned {lntc} instead of 1 search call. Retrying."
                 )

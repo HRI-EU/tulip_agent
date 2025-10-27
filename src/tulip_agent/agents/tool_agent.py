@@ -72,25 +72,46 @@ class ToolAgent(LlmAgent, ABC):
             api_interaction_limit=api_interaction_limit,
         )
         self.function_analyzer = FunctionAnalyzer()
-        self.tools = {f.__name__: f for f in functions}
+        functions_ = functions + [self.stop]
+        self.tools = {f.__name__: f for f in functions_}
         self.tool_descriptions = [
-            self.function_analyzer.analyze_function(f) for f in functions
+            self.function_analyzer.analyze_function(f) for f in functions_
         ]
         self.tool_timeout: int = 60
         self.tool_timeout_message: str = (
             "Error: The tool did not return a response within the specified timeout."
         )
+        self.response: str | None = None
+
+    def stop(self, message: str) -> str:
+        """
+        Stop and return a final message to the user.
+        You may only call this tool once.
+
+        :param message: The message to return.
+        :return: The final response to be given to the user.
+        """
+        self.response = message
+        return "Successfully returned response."
 
     def run_with_tools(self):
+        self.response = None
         response = self._get_response(
             msgs=self.messages,
             tools=self.tool_descriptions,
-            tool_choice="auto",
+            tool_choice="required",
         )
         response_message = response.choices[0].message
         tool_calls = response_message.tool_calls
 
-        while tool_calls:
+        while not self.response:
+            if not tool_calls:
+                error_message = "Invalid response - no tool calls."
+                logger.error(
+                    f"{self.__class__.__name__} returns response: {error_message}"
+                )
+                return error_message
+
             self.messages.append(response_message)
 
             if self.api_interaction_counter >= self.api_interaction_limit:
@@ -152,9 +173,8 @@ class ToolAgent(LlmAgent, ABC):
             response = self._get_response(
                 msgs=self.messages,
                 tools=self.tool_descriptions,
-                tool_choice="auto",
+                tool_choice="required",
             )
             response_message = response.choices[0].message
             tool_calls = response_message.tool_calls
-        self.messages.append(response_message)
-        return response_message.content
+        return self.response

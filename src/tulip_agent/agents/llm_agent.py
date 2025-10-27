@@ -155,4 +155,4 @@ class LlmAgent(ABC):
         :param prompt: User prompt
         :return: User-oriented final response
         """
-        pass
+        raise NotImplementedError()

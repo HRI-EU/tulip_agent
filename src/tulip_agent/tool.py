@@ -40,6 +40,7 @@ import json
 import logging
 import os
 import sys
+from abc import ABC, abstractmethod
 from dataclasses import asdict, dataclass, field
 from types import ModuleType
 from typing import Any, Callable, Optional
@@ -49,7 +50,19 @@ logger = logging.getLogger(__name__)
 
 
 @dataclass(eq=False)
-class Tool:
+class Tool(ABC):
+    function_name: str
+    definition: dict
+    unique_id: str = field(init=False)
+    module_path: str = field(init=False)
+
+    @abstractmethod
+    def execute(self, **params) -> Any:
+        raise NotImplementedError()
+
+
+@dataclass(eq=False)
+class ImportedTool(Tool):
     function_name: str
     module_name: str
     definition: dict
@@ -122,3 +135,25 @@ class Tool:
                 logger.error(f"{type(e).__name__}: {e}")
                 return f"Error: Invalid tool call for {self.unique_id}: {e}", True
         return res, error
+
+
+@dataclass(eq=False)
+class InternalTool(Tool):
+    function_name: str
+    definition: dict
+    function: Callable
+    verbose_id: bool = True
+    unique_id: str = field(init=False)
+    module_path: str = field(init=False)
+
+    def __post_init__(self) -> None:
+        self.module_path = os.path.abspath(self.function.__func__.__code__.co_filename)
+        if self.verbose_id:
+            clean_module_name = self.function.__func__.__module__.replace(".", "__")
+            self.unique_id = f"{clean_module_name}__{self.function_name}"
+        else:
+            self.unique_id = self.function_name
+        self.definition["function"]["name"] = self.unique_id
+
+    def execute(self, **parameters) -> Any:
+        return self.function(**parameters), False

@@ -34,7 +34,7 @@
 #
 import copy
 
-from tulip_agent import Task, Tool
+from tulip_agent import ImportedTool, Task
 
 
 # placeholder tools
@@ -74,7 +74,7 @@ def run_example():
     # TODO: predecessor and validation example
     for c, s in enumerate(subtasks):
         s.tool_candidates = [
-            Tool(
+            ImportedTool(
                 function_name=f"{s.description.replace(' ', '_')}_tool",
                 module_name="task_tree_example",
                 definition={"function": {"description": "dummy"}},
@@ -84,7 +84,7 @@ def run_example():
             )
         ]
     subtasks[0].generated_tools.append(
-        Tool(
+        ImportedTool(
             function_name="generated_tool",
             module_name="task_tree_example",
             definition={"function": {"description": "dummy"}},

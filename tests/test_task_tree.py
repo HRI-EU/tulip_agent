@@ -35,7 +35,7 @@
 import unittest
 
 from tulip_agent.task import Task
-from tulip_agent.tool import Tool
+from tulip_agent.tool import ImportedTool
 
 
 class TestTaskTree(unittest.TestCase):
@@ -48,7 +48,7 @@ class TestTaskTree(unittest.TestCase):
                 s2.predecessor = s1
             for s in subtasks:
                 s.tool_candidates = [
-                    Tool(
+                    ImportedTool(
                         function_name=f"{s.description}_tool",
                         module_name="example_tools_for_tree",
                         definition={"function": {"description": "dummy"}},
@@ -58,7 +58,7 @@ class TestTaskTree(unittest.TestCase):
 
         self.task = Task(description="t")
         self.task.tool_candidates = [
-            Tool(
+            ImportedTool(
                 function_name=f"{self.task.description}_tool",
                 module_name="example_tools_for_tree",
                 definition={"function": {"description": "dummy"}},

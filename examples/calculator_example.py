@@ -40,6 +40,7 @@ from tulip_agent import (
     BaseAgent,
     CotToolAgent,
     CotTulipAgent,
+    DfsTulipAgent,
     InformedCotTulipAgent,
     MinimalTulipAgent,
     NaiveToolAgent,
@@ -99,6 +100,7 @@ def run_comparison():
         (PrimedCotTulipAgent, 5, 2),
         (OneShotCotTulipAgent, 5, 2),
         (AutoTulipAgent, 5, 2),
+        (DfsTulipAgent, 5, 2),
     )
     for agent_type, top_k, sim_threshold in type_k_combinations:
         print_seperator(name=agent_type.__name__)

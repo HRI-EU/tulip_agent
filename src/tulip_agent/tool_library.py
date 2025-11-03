@@ -52,7 +52,7 @@ from tulip_agent.client_setup import ModelServeMode, create_client
 from tulip_agent.constants import BASE_EMBEDDING_MODEL
 from tulip_agent.embed import embed
 from tulip_agent.function_analyzer import FunctionAnalyzer
-from tulip_agent.tool import Tool
+from tulip_agent.tool import ImportedTool, Tool
 
 
 logger = logging.getLogger(__name__)
@@ -157,7 +157,7 @@ class ToolLibrary:
                     self.collection.delete(ids=[metadata["unique_id"]])
                     continue
 
-            tool = Tool(
+            tool = ImportedTool(
                 function_name=metadata["function_name"],
                 module_name=metadata["module_name"],
                 definition=json.loads(metadata["definition"]),
@@ -196,7 +196,7 @@ class ToolLibrary:
             ]
             for function in functions:
                 function_definition = self.function_analyzer.analyze_function(function)
-                tool = Tool(
+                tool = ImportedTool(
                     function_name=function.__name__,
                     module_name=module_name,
                     definition=function_definition,
@@ -216,7 +216,7 @@ class ToolLibrary:
                 instance_import.__class__
             )
             for function_definition in function_definitions:
-                tool = Tool(
+                tool = ImportedTool(
                     function_name=function_definition["function"]["name"],
                     module_name=instance_import.__module__,
                     instance=instance_import,
@@ -237,7 +237,7 @@ class ToolLibrary:
         new_tools = [
             tool
             for tool_id, tool in self.tools.items()
-            if tool_id not in stored_tools_ids
+            if tool_id not in stored_tools_ids and isinstance(tool, ImportedTool)
         ]
         if not new_tools:
             return
@@ -246,7 +246,7 @@ class ToolLibrary:
             f"Added {len(new_tools)} new tools to collection {self.collection.name}."
         )
 
-    def _add_to_tools(self, tool: Tool) -> None:
+    def _add_to_tools(self, tool: ImportedTool) -> None:
         if tool.unique_id in self.tools:
             if tool.module_path != self.tools[tool.unique_id].module_path:
                 raise ValueError(
@@ -259,7 +259,7 @@ class ToolLibrary:
         else:
             self.tools[tool.unique_id] = tool
 
-    def _save_to_vector_store(self, tools: list[Tool]) -> None:
+    def _save_to_vector_store(self, tools: list[ImportedTool]) -> None:
         tool_lookup = {tool.unique_id: tool for tool in tools}
         logger.info(
             f"Adding tools to collection {self.collection}: {tool_lookup.keys()}"
@@ -288,7 +288,7 @@ class ToolLibrary:
         timeout_message: Optional[str] = None,
     ) -> Tool:
         function_definition = self.function_analyzer.analyze_function(function)
-        tool = Tool(
+        tool = ImportedTool(
             function_name=function.__name__,
             module_name=module_name,
             definition=function_definition,
@@ -342,7 +342,7 @@ class ToolLibrary:
         function_definitions = self.function_analyzer.analyze_class(instance.__class__)
         new_tools = []
         for function_definition in function_definitions:
-            tool = Tool(
+            tool = ImportedTool(
                 function_name=function_definition["function"]["name"],
                 module_name=instance.__module__,
                 instance=instance,
@@ -375,7 +375,9 @@ class ToolLibrary:
         instance: object,
     ) -> None:
         to_be_removed = [
-            tool_id for tool_id, tool in self.tools.items() if tool.instance == instance
+            tool_id
+            for tool_id, tool in self.tools.items()
+            if isinstance(tool, ImportedTool) and tool.instance == instance
         ]
         self.collection.delete(ids=to_be_removed)
         for tool_id in to_be_removed:
@@ -389,6 +391,10 @@ class ToolLibrary:
         timeout_message: Optional[str] = None,
     ) -> Tool:
         old_tool = self.tools[tool_id]
+        assert isinstance(
+            old_tool, ImportedTool
+        ), f"The tool {old_tool} is not an ImportedTool and cannot be changed."
+
         module_name = old_tool.module_name
         timeout = timeout or old_tool.timeout
         timeout_message = timeout_message or old_tool.timeout_message
@@ -399,7 +405,11 @@ class ToolLibrary:
                 f"{tool_id} was loaded from an instance of class {old_tool.instance.__class__.__name__}."
             )
         module_occurrences = len(
-            [t for t in self.tools.values() if t.module_name == module_name]
+            [
+                t
+                for t in self.tools.values()
+                if isinstance(t, ImportedTool) and t.module_name == module_name
+            ]
         )
         if module_occurrences != 1:
             raise ValueError(

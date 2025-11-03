@@ -50,7 +50,7 @@ from tulip_agent.agents import (
 from tulip_agent.client_setup import ModelServeMode, create_client
 from tulip_agent.function_analyzer import FunctionAnalyzer
 from tulip_agent.task import Task
-from tulip_agent.tool import Tool
+from tulip_agent.tool import ImportedTool, InternalTool, Tool
 from tulip_agent.tool_library import ToolLibrary
 
 
@@ -61,7 +61,9 @@ __all__ = [
     CotTulipAgent,
     create_client,
     FunctionAnalyzer,
+    ImportedTool,
     InformedCotTulipAgent,
+    InternalTool,
     MinimalTulipAgent,
     ModelServeMode,
     NaiveToolAgent,

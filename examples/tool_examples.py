@@ -37,7 +37,7 @@ Tools can be created from a class' methods or from individual functions.
 """
 import pprint
 
-from tulip_agent import FunctionAnalyzer, Tool
+from tulip_agent import FunctionAnalyzer, ImportedTool
 
 
 def return_hi() -> str:
@@ -67,7 +67,7 @@ if __name__ == "__main__":
     fa = FunctionAnalyzer()
 
     hi_description = fa.analyze_function(return_hi)
-    hi = Tool(
+    hi = ImportedTool(
         function_name="return_hi",
         module_name="tool_examples",
         definition=hi_description,
@@ -79,7 +79,7 @@ if __name__ == "__main__":
 
     calc = Calculator(10)
     add_description = fa.analyze_class(Calculator)[0]
-    add = Tool(
+    add = ImportedTool(
         function_name="add",
         module_name="tool_examples",
         definition=add_description,

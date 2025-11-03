@@ -51,7 +51,7 @@ from openai.types.chat.chat_completion_message_tool_call import (
 
 from tulip_agent.agents.base_agent import LlmAgent
 from tulip_agent.agents.prompts import TECH_LEAD
-from tulip_agent.tool import Tool
+from tulip_agent.tool import InternalTool, Tool
 from tulip_agent.tool_library import ToolLibrary
 
 
@@ -85,6 +85,7 @@ class TulipAgent(LlmAgent, ABC):
         self.tool_library = tool_library
         self.top_k_functions = top_k_functions
         self.search_similarity_threshold = search_similarity_threshold
+        self.response: str | None = None
 
         if default_tools and not tool_library:
             raise ValueError("A tool library is required to set default tools.")
@@ -98,7 +99,15 @@ class TulipAgent(LlmAgent, ABC):
             raise ValueError(
                 f"Tools {', '.join(missing_tools)} not available in tool library."
             )
-        self.default_tools = default_tools
+        stop_tool = InternalTool(
+            function_name=self.stop.__name__,
+            definition=self.tool_library.function_analyzer.analyze_function(self.stop),
+            function=self.stop,
+        )
+        self.default_tools = (
+            default_tools + [stop_tool] if default_tools else [stop_tool]
+        )
+        self.tool_library.tools[stop_tool.unique_id] = stop_tool
 
         self.search_tools_description = {
             "type": "function",
@@ -123,6 +132,16 @@ class TulipAgent(LlmAgent, ABC):
                 },
             },
         }
+
+    def stop(self, message: str) -> str:
+        """
+        Stop and return a final message to the user.
+
+        :param message: The message to return.
+        :return: The final response to be given to the user.
+        """
+        self.response = message
+        return "Done."
 
     def search_tools(
         self,
@@ -194,12 +213,12 @@ class TulipAgent(LlmAgent, ABC):
         response = self._get_response(
             msgs=messages,
             tools=tool_definitions,
-            tool_choice="auto",
+            tool_choice="required",
         )
         response_message = response.choices[0].message
         tool_calls = response_message.tool_calls
 
-        while tool_calls:
+        while not self.response:
             messages.append(response_message)
 
             if self.api_interaction_counter >= self.api_interaction_limit:
@@ -246,12 +265,11 @@ class TulipAgent(LlmAgent, ABC):
             response = self._get_response(
                 msgs=messages,
                 tools=tool_definitions,
-                tool_choice="auto",
+                tool_choice="required",
             )
             response_message = response.choices[0].message
             tool_calls = response_message.tool_calls
-        messages.append(response_message)
-        return response_message.content
+        return self.response
 
     @staticmethod
     def _run_ruff(code: str) -> str | None:

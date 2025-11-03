@@ -110,7 +110,7 @@ class LlmAgent(ABC):
                 params["tool_choice"] = tool_choice
             if response_format == "json":
                 params["response_format"] = {"type": "json_object"}
-            if not reasoning:
+            if not reasoning and not params["model"].startswith("gpt-5"):
                 params["temperature"] = self.temperature
             try:
                 response = client.chat.completions.create(**params)

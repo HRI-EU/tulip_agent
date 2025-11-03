@@ -39,10 +39,16 @@ from tulip_agent import BaseAgent
 
 class TestBaseAgent(unittest.TestCase):
 
-    def setUp(self):
-        self.agent = BaseAgent()
-
     def test_query(self):
+        self.agent = BaseAgent()
+        res = self.agent.query(prompt="What is 2+2?")
+        self.assertTrue(
+            any(s in res.lower() for s in ("4", "four")),
+            "LLM query failed.",
+        )
+
+    def test_temp(self):
+        self.agent = BaseAgent(base_model="gpt-5", temperature=0.1)
         res = self.agent.query(prompt="What is 2+2?")
         self.assertTrue(
             any(s in res.lower() for s in ("4", "four")),

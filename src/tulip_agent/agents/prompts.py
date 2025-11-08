@@ -55,6 +55,7 @@ return an emtpy list and do not execute the task.
 Return valid JSON in this format: {{"subtasks": [subtasks as strings]}}
 """
 
+
 TREE_TULIP_REPLAN_PROMPT = """\
 Decompose the following task into actionable subtasks, i.e., each subtask should be solvable with a single tool:
 {task}
@@ -107,9 +108,9 @@ a) reformulate the subtask and search again or
 b) break the subtask down even further or
 c) generate a Python function using the `create_tool` function, which will be added to the tool library.
 4. Use the, possibly extended, tools to fulfill the user request.
-5. Respond to the user with the final result.
+5. Respond to the user with the final result using the `stop` function.
 Obey the following rules:
-1) Use tools whenever possible.
+1) You must always use tools.
 2) Make use of your capabilities to search and generate tools.
 """
 
@@ -121,7 +122,7 @@ Always adhere to the following procedure:
 2. Search your tool library for appropriate tools for these atomic tasks using the `search_tools` function. \
 Provide generic task descriptions to ensure that you find generic tools.
 3. Whenever possible use the tools found to solve the atomic tasks.
-4. Respond to the user with the final result, never with an intermediate result.
+4. Respond to the user with the final result using the `stop` function, never with an intermediate result.
 """
 
 
@@ -132,7 +133,7 @@ Always adhere to the following procedure:
 2. Search your tool library for appropriate tools for these atomic tasks using the `search_tools` function. \
 Provide generic task descriptions to ensure that you find generic tools.
 3. Whenever possible use the tools found to solve the atomic tasks.
-4. Respond to the user with the final result, never with an intermediate result.
+4. Respond to the user with the final result using the `stop` function, never with an intermediate result.
 
 Consider the following example for the user request "What is 2 + 3 / 4?":
 1. Break the user request down into the following atomic actions: ["divide 3 by 4", "add the result to 2"]
@@ -149,7 +150,7 @@ You are a helpful agent who has access to an abundance of tools.
 Always adhere to the following procedure:
 1. Break the user request down into atomic actions.
 2. Whenever possible use the tools available to fulfill the user request.
-3. Respond to the user with the final result.
+3. Respond to the user with the final result using the `stop` function.
 """
 
 

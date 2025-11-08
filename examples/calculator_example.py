@@ -71,46 +71,51 @@ def print_seperator(name: str) -> None:
 
 
 def run_comparison():
-    # query = "What is 45342 * 23487 + ((32478 - 2) * (-1) + 2)?"  # 1064915080
-    query = "Find the value of $x$ such that $\sqrt{x - 2} = 8$."  # 66
-    print(query)
 
-    print_seperator(name=BaseAgent.__name__)
-    base_agent = BaseAgent()
-    base_res = base_agent.query(query)
-    print(f"{base_res=}")
-
-    for agent_type in (NaiveToolAgent, CotToolAgent):
-        print_seperator(name=agent_type.__name__)
-        agent = agent_type(functions=FUNCTIONS)
-        res = agent.query(query)
-        print(f"{res=}")
-
-    tulip = ToolLibrary(
-        chroma_sub_dir="example/",
-        file_imports=[("calculator", [])],
-        description="A tool library containing math tools.",
+    queries = (
+        "What is 45342 * 23487 + ((32478 - 2) * (-1) + 2)?",  # 1064915080
+        "Find the value of $x$ such that $\sqrt{x - 2} = 8$.",  # 66
     )
 
-    type_k_combinations = (
-        (MinimalTulipAgent, 5, 2),
-        (NaiveTulipAgent, 5, 2),
-        (CotTulipAgent, 5, 2),
-        (InformedCotTulipAgent, 5, 2),
-        (PrimedCotTulipAgent, 5, 2),
-        (OneShotCotTulipAgent, 5, 2),
-        (AutoTulipAgent, 5, 2),
-        (DfsTulipAgent, 5, 2),
-    )
-    for agent_type, top_k, sim_threshold in type_k_combinations:
-        print_seperator(name=agent_type.__name__)
-        tulip_agent = agent_type(
-            tool_library=tulip,
-            top_k_functions=top_k,
-            search_similarity_threshold=sim_threshold,
+    for query in queries:
+        print(query)
+
+        print_seperator(name=BaseAgent.__name__)
+        base_agent = BaseAgent()
+        base_res = base_agent.query(query)
+        print(f"{base_res=}")
+
+        for agent_type in (NaiveToolAgent, CotToolAgent):
+            print_seperator(name=agent_type.__name__)
+            agent = agent_type(functions=FUNCTIONS)
+            res = agent.query(query)
+            print(f"{res=}")
+
+        tulip = ToolLibrary(
+            chroma_sub_dir="example/",
+            file_imports=[("calculator", [])],
+            description="A tool library containing math tools.",
         )
-        res = tulip_agent.query(query)
-        print(f"{res=}")
+
+        type_k_combinations = (
+            (MinimalTulipAgent, 5, 2),
+            (NaiveTulipAgent, 5, 2),
+            (CotTulipAgent, 5, 2),
+            (InformedCotTulipAgent, 5, 2),
+            (PrimedCotTulipAgent, 5, 2),
+            (OneShotCotTulipAgent, 5, 2),
+            (AutoTulipAgent, 5, 2),
+            (DfsTulipAgent, 5, 2),
+        )
+        for agent_type, top_k, sim_threshold in type_k_combinations:
+            print_seperator(name=agent_type.__name__)
+            tulip_agent = agent_type(
+                tool_library=tulip,
+                top_k_functions=top_k,
+                search_similarity_threshold=sim_threshold,
+            )
+            res = tulip_agent.query(query)
+            print(f"{res=}")
 
 
 if __name__ == "__main__":

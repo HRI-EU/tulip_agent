@@ -148,7 +148,14 @@ class TulipAgent(LlmAgent, ABC):
         action_descriptions: list[str],
         similarity_threshold: Optional[float] = None,
     ) -> list[tuple[str, list[Tool]]]:
-        """Find suitable tools for each action description. Parallelized."""
+        """
+        Search for tools in your tool library.
+
+        :param action_descriptions: A list of strings with textual descriptions for the actions you want to execute.
+            The description should be generic enough to find generic and reusable tools.
+        :param similarity_threshold: Similarity threshold to use for searching.
+        :return: A list of tuples with action descriptions and respective tools.
+        """
         unique_actions = set(action_descriptions)
         tool_lookup = {}
 

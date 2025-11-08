@@ -207,6 +207,7 @@ class TulipAgent(LlmAgent, ABC):
         tools: list[Tool],
         messages: Optional[list] = None,
     ) -> str:
+        self.response = None
         tool_definitions = [tool.definition for tool in tools]
         if messages is None:
             messages = self.messages

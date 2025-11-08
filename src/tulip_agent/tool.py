@@ -142,7 +142,7 @@ class InternalTool(Tool):
     function_name: str
     definition: dict
     function: Callable
-    verbose_id: bool = True
+    verbose_id: bool = False
     unique_id: str = field(init=False)
     module_path: str = field(init=False)
 

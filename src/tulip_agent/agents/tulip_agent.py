@@ -173,7 +173,7 @@ class TulipAgent(LlmAgent, ABC):
                 tools = future.result()
                 if self.default_tools:
                     tools.extend(
-                        tool for tool in self.default_tools if tool not in tools
+                        [tool for tool in self.default_tools if tool not in tools]
                     )
                 logger.info(
                     f"Functions for `{action}`: {[tool.unique_id for tool in tools]}"

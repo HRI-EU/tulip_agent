@@ -58,5 +58,7 @@ for task in tasks:
 
 # cleanup
 for m in {e.module_path for e in tulip.tools.values()}:
+    if m.endswith(("tulip_agent.py", "auto_tulip_agent.py")):
+        continue
     os.remove(m)
 tulip.chroma_client.delete_collection("tulip")

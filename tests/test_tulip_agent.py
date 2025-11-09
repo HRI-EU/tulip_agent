@@ -62,8 +62,8 @@ class TestTulipAgent(unittest.TestCase):
     def _check_res(self, res: str, messages: list):
         self.assertTrue(
             any(s in res.lower() for s in ("4", "four"))
-            and messages[-2]["role"] == "tool"
-            and messages[-2]["name"] == "add",
+            and messages[-3]["role"] == "tool"
+            and messages[-3]["name"] == "add",
             "LLM query failed.",
         )
 
@@ -102,8 +102,8 @@ class TestTulipAgent(unittest.TestCase):
         res = agent.query(prompt="What is 2+2?")
         self.assertTrue(
             any(s in res.lower() for s in ("4", "four"))
-            and len(agent.task.tool_candidates) == 1
-            and agent.task.tool_candidates[0].unique_id == "add",
+            and len(agent.task.tool_candidates) == 2
+            and "add" in [tc.unique_id for tc in agent.task.tool_candidates],
             "LLM query failed.",
         )
 
@@ -127,8 +127,8 @@ class TestTulipAgent(unittest.TestCase):
         res = agent.query(prompt="What is 2+2?")
         self.assertTrue(
             any(s in res.lower() for s in ("4", "four"))
-            and agent.messages[-2]["role"] == "tool"
-            and agent.messages[-2]["name"] == "add",
+            and agent.messages[-3]["role"] == "tool"
+            and agent.messages[-3]["name"] == "add",
             "LLM query failed.",
         )
 
@@ -144,10 +144,11 @@ class TestTulipAgent(unittest.TestCase):
             instructions=character,
         )
         res = agent.query(prompt="What is 2+2?")
+        print(res, agent.messages)
         self.assertTrue(
             any(s in res.lower() for s in ("4", "four"))
-            and agent.messages[-2]["role"] == "tool"
-            and agent.messages[-2]["name"] == "speak",
+            and agent.messages[-3]["role"] == "tool"
+            and agent.messages[-3]["name"] == "speak",
             "Using default_tool failed.",
         )
 

@@ -43,8 +43,8 @@ class TestToolAgent(unittest.TestCase):
     def _check_res(self, res: str, messages: list):
         self.assertTrue(
             any(s in res.lower() for s in ("4", "four"))
-            and messages[-2]["role"] == "tool"
-            and messages[-2]["name"] == "add",
+            and messages[-3]["role"] == "tool"
+            and messages[-3]["name"] == "add",
             "LLM query failed.",
         )
 
@@ -58,7 +58,8 @@ class TestToolAgent(unittest.TestCase):
         res = agent.query(prompt="What is 2+2?")
         self.assertTrue(
             any(s in res.lower() for s in ("4", "four"))
-            and agent.tool_descriptions == [],
+            and len(agent.tool_descriptions) == 1
+            and agent.tool_descriptions[0]["function"]["name"] == "stop",
             "LLM query failed.",
         )
 
@@ -73,7 +74,7 @@ class TestToolAgent(unittest.TestCase):
         _ = agent.query(prompt="Run the slow function with a duration of 10.")
         self.assertEqual(
             "Error: The tool did not return a response within the specified timeout.",
-            agent.messages[-2]["content"],
+            agent.messages[-3]["content"],
             "Timeout failed.",
         )
 

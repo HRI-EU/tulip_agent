@@ -107,6 +107,7 @@ class AutoTulipAgent(TulipAgent):
     def create_tool(self, task_description: str) -> str:
         """
         Generate a tool and add it to your tool library.
+        Make sure to explicitly check for similar existing tools before creating a new one.
 
         :param task_description: A textual description of the task to be solved with a Python function.
         :return: Success information for the tool creation.

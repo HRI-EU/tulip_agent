@@ -436,7 +436,7 @@ class ToolLibrary:
         similarity_threshold: float = None,
     ) -> list[Tool]:
         if top_k >= len(self.tools) and similarity_threshold is None:
-            res = self.tools.values()
+            res = list(self.tools.values())
         else:
             query_embedding = embed(
                 text=problem_description,

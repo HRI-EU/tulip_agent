@@ -49,7 +49,7 @@ from tulip_agent.agents.prompts import (
 )
 from tulip_agent.agents.tulip_agent import TulipAgent
 from tulip_agent.constants import BASE_LANGUAGE_MODEL, BASE_TEMPERATURE
-from tulip_agent.tool import Tool
+from tulip_agent.tool import InternalTool, Tool
 from tulip_agent.tool_library import ToolLibrary
 
 
@@ -87,90 +87,31 @@ class AutoTulipAgent(TulipAgent):
             top_k_functions=top_k_functions,
             search_similarity_threshold=search_similarity_threshold,
         )
-        self.create_tool_description = {
-            "type": "function",
-            "function": {
-                "name": "create_tool",
-                "description": "Generate a tool and add it to your tool library.",
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "task_description": {
-                            "type": "string",
-                            "description": "A textual description of the task to be solved with a Python function.",
-                        },
-                    },
-                    "required": ["task_description"],
-                },
-            },
-        }
-        self.update_tool_description = {
-            "type": "function",
-            "function": {
-                "name": "update_tool",
-                "description": "Update a tool in your tool library.",
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "tool_name": {
-                            "type": "string",
-                            "description": "The tool's unique name, as returned by the tool search.",
-                        },
-                        "instruction": {
-                            "type": "string",
-                            "description": "A textual description of the changes to be made to the tool.",
-                        },
-                    },
-                    "required": ["tool_name", "instruction"],
-                },
-            },
-        }
-        self.delete_tool_description = {
-            "type": "function",
-            "function": {
-                "name": "delete_tool",
-                "description": (
-                    "Delete a tool from your tool library. "
-                    "You may have to look up the exact name using the search_tools tool."
-                ),
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "tool_name": {
-                            "type": "string",
-                            "description": "The tool's unique name, as returned by the tool search.",
-                        },
-                    },
-                    "required": ["tool_name"],
-                },
-            },
-        }
-        self.decompose_task_description = {
-            "type": "function",
-            "function": {
-                "name": "decompose_task",
-                "description": "Decompose a task into its subtasks.",
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "task": {
-                            "type": "string",
-                            "description": "A description of the task that should be decomposed into steps.",
-                        },
-                    },
-                    "required": ["task"],
-                },
-            },
-        }
-        self.tools = [
-            self.search_tools_description,
-            self.create_tool_description,
-            self.update_tool_description,
-            self.delete_tool_description,
-            self.decompose_task_description,
-        ]
+
+        for func in (
+            self.create_tool,
+            self.update_tool,
+            self.delete_tool,
+            self.decompose_task,
+            self.search_tools,
+        ):
+            tool_ = InternalTool(
+                function_name=func.__name__,
+                definition=self.tool_library.function_analyzer.analyze_function(func),
+                function=func,
+            )
+            self.default_tools.append(tool_)
+            self.tool_library.tools[tool_.unique_id] = tool_
+        self.tools = self.default_tools.copy()
 
     def create_tool(self, task_description: str) -> str:
+        """
+        Generate a tool and add it to your tool library.
+
+        :param task_description: A textual description of the task to be solved with a Python function.
+        :return: Success information for the tool creation.
+        """
+        logger.info(f"Creating tool: {task_description}")
         # gen code
         task_description_ = TOOL_CREATE.format(task_description=task_description)
         code = self._generate_code(task_description=task_description_)
@@ -189,7 +130,7 @@ class AutoTulipAgent(TulipAgent):
         new_tool = self.tool_library.load_functions_from_file(
             module_name=module_name, function_names=[f"{function_name}"]
         )[0]
-        self.tools.append(new_tool.definition)
+        self.tools.append(new_tool)
         success_msg = (
             f"Made tool `{new_tool.unique_id}` available via the tool library."
         )
@@ -197,7 +138,18 @@ class AutoTulipAgent(TulipAgent):
         return success_msg
 
     def update_tool(self, tool_name: str, instruction: str) -> str:
+        """
+        Update a tool in your tool library.
+
+        :param tool_name: The tool's unique name, as returned by the tool search.
+        :param instruction: A textual description of the changes to be made to the tool.
+        :return: Success information for the tool update.
+        """
         # NOTE: updating is currently only supported for modules with single functions
+        logger.info(f"Updating tool {tool_name}: {instruction}")
+        if tool_name in [dt.unique_id for dt in self.default_tools]:
+            return f"Unable to update {tool_name} because it is a default tool."
+
         # retrieve old code
         module_path = self.tool_library.tools[tool_name].module_path
         with open(module_path, "r") as m:
@@ -213,18 +165,36 @@ class AutoTulipAgent(TulipAgent):
         with open(module_path, "w") as m:
             m.write(code)
         updated_tool = self.tool_library.update_tool(tool_id=tool_name)
-        self.tools = [t for t in self.tools if t["function"]["name"] != tool_name]
-        self.tools.append(updated_tool.definition)
+        self.tools = [t for t in self.tools if t.unique_id != tool_name]
+        self.tools.append(updated_tool)
         success_msg = f"Successfully updated `{tool_name}`."
         logger.info(success_msg)
         return success_msg
 
     def delete_tool(self, tool_name: str) -> str:
+        """
+        Delete a tool from your tool library.
+        You may have to look up the exact name using the search_tools tool.
+
+        :param tool_name: The tool's unique name, as returned by the tool search.
+        :return: Success information for the tool deletion.
+        """
+        logger.info(f"Deleting tool: {tool_name}")
+        if tool_name in [dt.unique_id for dt in self.default_tools]:
+            return f"Unable to delete {tool_name} because it is a default tool."
+
         self.tool_library.remove_tool(tool_id=tool_name)
-        self.tools = [t for t in self.tools if t["function"]["name"] != tool_name]
+        self.tools = [t for t in self.tools if t.unique_id != tool_name]
         return f"Removed tool {tool_name} from the tool library."
 
     def decompose_task(self, task: str) -> str:
+        """
+        Decompose a task into its subtasks.
+
+        :param task: A description of the task that should be decomposed into steps.
+        :return: The subtasks into which the task was decomposed.
+        """
+        logger.info(f"Task decomposition for: {task}")
         messages = [
             {
                 "role": "system",
@@ -241,12 +211,14 @@ class AutoTulipAgent(TulipAgent):
         decomposed_tasks = decomposition_response.choices[0].message
         logger.info(f"{decomposed_tasks=}")
         res = json.loads(decomposed_tasks.content)
-        return res["subtasks"]
+        subtasks = res["subtasks"]
+        return f"Subtasks for `{task}` are: {subtasks}"
 
     def query(
         self,
         prompt: str,
     ) -> str:
+        self.response = None
         logger.info(f"{self.__class__.__name__} received query: {prompt}")
         self.messages.append(
             {
@@ -257,13 +229,13 @@ class AutoTulipAgent(TulipAgent):
 
         response = self._get_response(
             msgs=self.messages,
-            tools=self.tools,
-            tool_choice="auto",
+            tools=[t.definition for t in self.tools],
+            tool_choice="required",
         )
         response_message = response.choices[0].message
         tool_calls = response_message.tool_calls
 
-        while tool_calls:
+        while not self.response:
             self.messages.append(response_message)
 
             if self.api_interaction_counter >= self.api_interaction_limit:
@@ -297,34 +269,7 @@ class AutoTulipAgent(TulipAgent):
                     )
                     continue
 
-                cud_lookup = {
-                    "create_tool": {
-                        "log_message": f"Creating tool: {str(func_args)}",
-                        "function": self.create_tool,
-                    },
-                    "update_tool": {
-                        "log_message": f"Updating tool: {str(func_args)}",
-                        "function": self.update_tool,
-                    },
-                    "delete_tool": {
-                        "log_message": f"Deleting tool: {str(func_args)}",
-                        "function": self.delete_tool,
-                    },
-                }
-
-                if func_name == "decompose_task":
-                    logger.info(f"Task decomposition for: {func_args['task']}")
-                    subtasks = self.decompose_task(**func_args)
-                    logger.info(f"Subtasks: {str(subtasks)}")
-                    self.messages.append(
-                        {
-                            "tool_call_id": tool_call.id,
-                            "role": "tool",
-                            "name": func_name,
-                            "content": f"Subtasks for `{func_args['task']}` are: {subtasks}",
-                        }
-                    )
-                elif func_name == "search_tools":
+                if func_name == "search_tools":
                     logger.info(f"Tool search for: {str(func_args)}")
                     new_tools = [
                         tool
@@ -342,17 +287,6 @@ class AutoTulipAgent(TulipAgent):
                         status = f"Successfully provided suitable tools: {tool_names_}."
                     else:
                         status = "Could not find suitable tools."
-                    self.messages.append(
-                        {
-                            "tool_call_id": tool_call.id,
-                            "role": "tool",
-                            "name": func_name,
-                            "content": status,
-                        }
-                    )
-                elif func_name in cud_lookup.keys():
-                    logger.info(cud_lookup[func_name]["log_message"])
-                    status = cud_lookup[func_name]["function"](**func_args)
                     self.messages.append(
                         {
                             "tool_call_id": tool_call.id,
@@ -386,14 +320,11 @@ class AutoTulipAgent(TulipAgent):
 
             response = self._get_response(
                 msgs=self.messages,
-                tools=self.tools,
-                tool_choice="auto",
+                tools=[t.definition for t in self.tools],
+                tool_choice="required",
             )
             response_message = response.choices[0].message
             tool_calls = response_message.tool_calls
-        self.messages.append(response_message)
-        logger.info(
-            f"{self.__class__.__name__} returns response: {response_message.content}"
-        )
+        logger.info(f"{self.__class__.__name__} returns response: {self.response}")
         self.api_interaction_counter = 0
-        return response_message.content
+        return self.response

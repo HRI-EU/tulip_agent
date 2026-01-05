@@ -144,7 +144,6 @@ class TestTulipAgent(unittest.TestCase):
             instructions=character,
         )
         res = agent.query(prompt="What is 2+2?")
-        print(res, agent.messages)
         self.assertTrue(
             any(s in res.lower() for s in ("4", "four"))
             and agent.messages[-3]["role"] == "tool"

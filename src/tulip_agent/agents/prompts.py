@@ -79,6 +79,7 @@ Solve the following task using exactly one of the tools you have available:
 Consider the following information from previous steps:
 {previous}
 If there is no suitable tool available, return an empty string.
+Return the result using the `stop` function.
 """
 
 
@@ -89,6 +90,7 @@ Task:
 Information:
 {information}
 If you cannot deduce the solution from the information provided return an empty string.
+Return the result using the `stop` function.
 """
 
 

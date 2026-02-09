@@ -156,3 +156,6 @@ cython_debug/
 # benchmark data
 data/MATH/
 data/MATH.tar
+
+# coding agents
+AGENTS.md

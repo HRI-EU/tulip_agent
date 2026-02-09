@@ -56,6 +56,9 @@ class Tool(ABC):
     unique_id: str = field(init=False)
     module_path: str = field(init=False)
 
+    def __repr__(self) -> str:
+        return f"<{self.__class__.__name__} object {id(self)}: {self.unique_id}>"
+
     @abstractmethod
     def execute(self, **params) -> Any:
         raise NotImplementedError()
@@ -63,9 +66,7 @@ class Tool(ABC):
 
 @dataclass(eq=False)
 class ImportedTool(Tool):
-    function_name: str
     module_name: str
-    definition: dict
     instance: Optional[object] = None
     class_name: str = ""
     timeout: Optional[int] = None
@@ -74,8 +75,6 @@ class ImportedTool(Tool):
     successor: Optional[str] = None
     verbose_id: bool = False
     description: str = field(init=False)
-    unique_id: str = field(init=False)
-    module_path: str = field(init=False)
 
     def __post_init__(self) -> None:
         self.module: ModuleType = (
@@ -102,9 +101,6 @@ class ImportedTool(Tool):
             self.function_name + ":\n" + self.definition["function"]["description"]
         )
         self.definition["function"]["name"] = self.unique_id
-
-    def __repr__(self) -> str:
-        return f"<{self.__class__.__name__} object {id(self)}: {self.unique_id}>"
 
     def format_for_chroma(self) -> dict:
         flat_dict = asdict(self)
@@ -139,12 +135,8 @@ class ImportedTool(Tool):
 
 @dataclass(eq=False)
 class InternalTool(Tool):
-    function_name: str
-    definition: dict
     function: Callable
     verbose_id: bool = False
-    unique_id: str = field(init=False)
-    module_path: str = field(init=False)
 
     def __post_init__(self) -> None:
         self.module_path = os.path.abspath(self.function.__func__.__code__.co_filename)

@@ -52,6 +52,7 @@ from openai.types.chat.chat_completion_message_tool_call import (
 from tulip_agent.agents.base_agent import LlmAgent
 from tulip_agent.agents.prompts import TECH_LEAD
 from tulip_agent.tool import InternalTool, Tool
+from tulip_agent.tool_execution import Job, execute_tool_calls
 from tulip_agent.tool_library import ToolLibrary
 
 
@@ -234,41 +235,7 @@ class TulipAgent(LlmAgent, ABC):
                 logger.warning(f"{self.__class__.__name__}: {error_message}")
                 return error_message
 
-            for tool_call in tool_calls:
-                func_name = tool_call.function.name
-                try:
-                    func_args = json.loads(tool_call.function.arguments)
-                    function_response, error = self.tool_library.execute(
-                        tool_id=func_name, arguments=func_args
-                    )
-                    if error:
-                        func_name = "invalid_tool_call"
-                        tool_call.function.name = func_name
-                        tool_call.function.arguments = "{}"
-                except json.decoder.JSONDecodeError as e:
-                    logger.error(e)
-                    generated_func_name = func_name
-                    func_name = "invalid_tool_call"
-                    tool_call.function.name = func_name
-                    tool_call.function.arguments = "{}"
-                    function_response = (
-                        f"Error: Invalid arguments for {func_name} "
-                        f"(previously {generated_func_name}): {e}"
-                    )
-                messages.append(
-                    {
-                        "tool_call_id": tool_call.id,
-                        "role": "tool",
-                        "name": func_name,
-                        "content": str(function_response),
-                    }
-                )
-                logger.info(
-                    (
-                        f"Function {func_name} returned `{str(function_response)}` "
-                        f"for arguments {tool_call.function.arguments}."
-                    )
-                )
+            self._execute_tool_calls(tool_calls=tool_calls, messages=messages)
 
             response = self._get_response(
                 msgs=messages,
@@ -278,6 +245,85 @@ class TulipAgent(LlmAgent, ABC):
             response_message = response.choices[0].message
             tool_calls = response_message.tool_calls
         return self.response
+
+    def _execute_tool_calls(self, tool_calls: list, messages: list) -> None:
+        tool_messages = [{} for _ in tool_calls]
+        valid_calls = []
+        jobs = []
+
+        for i, tool_call in enumerate(tool_calls):
+            func_name = tool_call.function.name
+            try:
+                func_args = json.loads(tool_call.function.arguments)
+            except json.decoder.JSONDecodeError as e:
+                logger.error(e)
+                generated_func_name, func_name = func_name, "invalid_tool_call"
+                tool_call.function.name = func_name
+                tool_call.function.arguments = "{}"
+                function_response = (
+                    f"Error: Invalid arguments for {func_name} "
+                    f"(previously {generated_func_name}): {e}"
+                )
+                tool_messages[i] = {
+                    "tool_call_id": tool_call.id,
+                    "role": "tool",
+                    "name": func_name,
+                    "content": function_response,
+                }
+                continue
+
+            if func_name not in self.tools:
+                logger.error(f"Invalid tool `{func_name}`.")
+                generated_func_name = func_name
+                func_name = "invalid_tool_call"
+                tool_call.function.name = func_name
+                tool_call.function.arguments = "{}"
+                function_response = f"Error: {generated_func_name} is not a valid tool. Use only the tools available."
+                tool_messages[i] = {
+                    "tool_call_id": tool_call.id,
+                    "role": "tool",
+                    "name": func_name,
+                    "content": function_response,
+                }
+                continue
+
+            valid_calls.append((i, tool_call, func_name))
+            jobs.append(
+                Job(
+                    tool_call_id=tool_call.id,
+                    tool=self.tool_library.tools[func_name],
+                    parameters=func_args,
+                )
+            )
+
+        execution_results = execute_tool_calls(jobs=jobs)
+        for (i, tool_call, func_name), execution_result in zip(
+            valid_calls, execution_results
+        ):
+            if execution_result.result.error:
+                logger.error(execution_result.result.error)
+                function_response = execution_result.result.error
+                func_name = "invalid_tool_call"
+                tool_call.function.name = func_name
+                tool_call.function.arguments = "{}"
+            else:
+                function_response = execution_result.result.value
+
+            tool_messages[i] = {
+                "tool_call_id": tool_call.id,
+                "role": "tool",
+                "name": func_name,
+                "content": function_response,
+            }
+
+        for tool_message, tool_call in zip(tool_messages, tool_calls):
+            messages.append(tool_message)
+            logger.info(
+                (
+                    f"Function {tool_message['name']} returned `{tool_message['content']}` "
+                    f"for arguments {tool_call.function.arguments}."
+                )
+            )
 
     @staticmethod
     def _run_ruff(code: str) -> str | None:

@@ -34,7 +34,6 @@
 #
 from __future__ import annotations
 
-import concurrent.futures
 import importlib
 import json
 import logging
@@ -43,7 +42,7 @@ import sys
 from abc import ABC, abstractmethod
 from dataclasses import asdict, dataclass, field
 from types import ModuleType
-from typing import Any, Callable, Optional
+from typing import Callable, Optional
 
 
 logger = logging.getLogger(__name__)
@@ -60,7 +59,7 @@ class Tool(ABC):
         return f"<{self.__class__.__name__} object {id(self)}: {self.unique_id}>"
 
     @abstractmethod
-    def execute(self, **params) -> Any:
+    def execute(self, **params) -> str:
         raise NotImplementedError()
 
 
@@ -112,30 +111,15 @@ class ImportedTool(Tool):
         flat_dict.pop("instance")
         return flat_dict
 
-    def execute(self, **parameters) -> Any:
-        with concurrent.futures.ThreadPoolExecutor() as executor:
-            try:
-                future = executor.submit(self.function, **parameters)
-            except Exception as e:
-                logger.error(f"{type(e).__name__}: {e}")
-                return f"Error: Invalid tool call for {self.unique_id}: {e}", True
-            try:
-                res = future.result(timeout=self.timeout)
-                error = False
-            except concurrent.futures.TimeoutError as e:
-                logger.error(
-                    f"{type(e).__name__}: {self.unique_id} did not return a result before timeout."
-                )
-                return self.timeout_message, True
-            except Exception as e:
-                logger.error(f"{type(e).__name__}: {e}")
-                return f"Error: Invalid tool call for {self.unique_id}: {e}", True
-        return res, error
+    def execute(self, **parameters) -> str:
+        return self.function(**parameters)
 
 
 @dataclass(eq=False)
 class InternalTool(Tool):
     function: Callable
+    timeout: Optional[int] = None
+    timeout_message: Optional[str] = None
     verbose_id: bool = False
 
     def __post_init__(self) -> None:
@@ -147,5 +131,5 @@ class InternalTool(Tool):
             self.unique_id = self.function_name
         self.definition["function"]["name"] = self.unique_id
 
-    def execute(self, **parameters) -> Any:
-        return self.function(**parameters), False
+    def execute(self, **parameters) -> str:
+        return self.function(**parameters)

@@ -456,16 +456,3 @@ class ToolLibrary:
                         break
             res = [self.tools[tool_id] for tool_id in res["ids"][0][:cutoff]]
         return res
-
-    def execute(
-        self,
-        tool_id: str,
-        arguments: dict,
-    ) -> tuple:
-        if tool_id not in self.tools:
-            return (
-                f"Error: {tool_id} is not a valid tool. Use only the tools available.",
-                True,
-            )
-        tool = self.tools[tool_id]
-        return tool.execute(**arguments)

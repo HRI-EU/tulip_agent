@@ -105,7 +105,7 @@ class ToolAgent(LlmAgent, ABC):
         self.response = None
         response = self._get_response(
             msgs=self.messages,
-            tools=[tool.definition for tool in self.tools],
+            tools=[tool.definition for tool in self.tools.values()],
             tool_choice="required",
         )
         response_message = response.choices[0].message
@@ -205,7 +205,7 @@ class ToolAgent(LlmAgent, ABC):
 
             response = self._get_response(
                 msgs=self.messages,
-                tools=[tool.definition for tool in self.tools],
+                tools=[tool.definition for tool in self.tools.values()],
                 tool_choice="required",
             )
             response_message = response.choices[0].message

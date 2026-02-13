@@ -34,7 +34,7 @@
 #
 import unittest
 
-from example_tools import add, slow
+from tests.example_tools import add, slow
 from tulip_agent import CotToolAgent, NaiveToolAgent
 
 
@@ -58,8 +58,9 @@ class TestToolAgent(unittest.TestCase):
         res = agent.query(prompt="What is 2+2?")
         self.assertTrue(
             any(s in res.lower() for s in ("4", "four"))
-            and len(agent.tool_descriptions) == 1
-            and agent.tool_descriptions[0]["function"]["name"] == "stop",
+            and len(agent.tools) == 1
+            and "stop" in agent.tools
+            and agent.tools["stop"].definition["function"]["name"] == "stop",
             "LLM query failed.",
         )
 
@@ -70,9 +71,11 @@ class TestToolAgent(unittest.TestCase):
 
     def test_naive_tool_timeout(self):
         agent = NaiveToolAgent(functions=[slow])
-        agent.tool_timeout = 1.0
-        _ = agent.query(prompt="Run the slow function with a duration of 10.")
-        self.assertEqual(
+        agent.tools["slow"].timeout = 0.05
+        _ = agent.query(
+            prompt="Try to run the slow function with a duration of 10. You may only run this once, then stop."
+        )
+        self.assertIn(
             "Error: The tool did not return a response within the specified timeout.",
             agent.messages[-3]["content"],
             "Timeout failed.",

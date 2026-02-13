@@ -36,6 +36,7 @@ import subprocess
 import unittest
 
 from tests.example_tools_in_class import Calculator
+from tulip_agent.tool_execution import Job, execute_tool_calls
 from tulip_agent.tool_library import ToolLibrary
 
 
@@ -318,69 +319,26 @@ class TestToolLibrary(unittest.TestCase):
             "Removing functions by instance failed.",
         )
 
-    def test_execute(self):
-        tulip = ToolLibrary(
-            chroma_sub_dir="test/", file_imports=[("tests.example_tools", ["multiply"])]
-        )
-        res, error = tulip.execute(tool_id="multiply", arguments={"a": 2.0, "b": 2.0})
-        self.assertEqual(error, False, "Function execution failed.")
-        self.assertEqual(
-            res,
-            4.0,
-            "Function execution via tool library failed.",
-        )
-
-    def test_execute_timeout(self):
-        tulip = ToolLibrary(
-            chroma_sub_dir="test/",
-            file_imports=[("tests.example_tools", ["slow"])],
-            default_timeout=1,
-        )
-        res, error = tulip.execute(tool_id="slow", arguments={"duration": 2})
-        self.assertEqual(error, True, "Function execution succeeded despite timeout.")
-        self.assertEqual(
-            res,
-            "Error: The tool did not return a response within the specified timeout.",
-            "Timeout did not return correct error message.",
-        )
-
-    def test_execute_unknown_tool(self):
-        tulip = ToolLibrary(
-            chroma_sub_dir="test/", file_imports=[("tests.example_tools", [])]
-        )
-        res, error = tulip.execute(tool_id="unknown", arguments={})
-        self.assertEqual(error, True, "Calling unknown function not caught.")
-        self.assertEqual(
-            res,
-            "Error: unknown is not a valid tool. Use only the tools available.",
-            "Catching unknown function did not return correct error message.",
-        )
-
-    def test_execute_invalid_arguments(self):
-        tulip = ToolLibrary(
-            chroma_sub_dir="test/", file_imports=[("tests.example_tools", ["multiply"])]
-        )
-        res, error = tulip.execute(tool_id="multiply", arguments={"a": 1, "wrong": 2})
-        self.assertEqual(
-            error, True, "Function execution succeeded despite wrong arguments."
-        )
-        self.assertEqual(
-            res,
-            (
-                "Error: Invalid tool call for multiply: multiply() "
-                "got an unexpected keyword argument 'wrong'"
-            ),
-            "Catching call with invalid arguments did not return correct error message.",
-        )
-
     def test_update_tool(self):
         tulip = ToolLibrary(
             chroma_sub_dir="test/", file_imports=[("example_module", [])]
         )
         function_id = "example"
-        res, error = tulip.execute(tool_id=function_id, arguments={"text": "unchanged"})
-        self.assertEqual(error, False, "Function execution failed.")
-        self.assertEqual(res, "unchanged", "Initial function execution failed.")
+        initial_res = execute_tool_calls(
+            jobs=[
+                Job(
+                    tool_call_id=function_id,
+                    tool=tulip.tools[function_id],
+                    parameters={"text": "unchanged"},
+                )
+            ]
+        )
+        self.assertIsNone(initial_res[0].result.error, "Function execution failed.")
+        self.assertEqual(
+            initial_res[0].result.value,
+            "unchanged",
+            "Initial function execution failed.",
+        )
         # overwrite function
         code = (
             "def example(text: str) -> str:\n"
@@ -395,10 +353,20 @@ class TestToolLibrary(unittest.TestCase):
         with open(tulip.tools[function_id].module_path, "w") as m:
             m.write(code)
         tulip.update_tool(tool_id=function_id)
-        res, error = tulip.execute(tool_id=function_id, arguments={"text": "failure"})
-        self.assertEqual(error, False, "Function execution failed.")
+        updated_res = execute_tool_calls(
+            jobs=[
+                Job(
+                    tool_call_id=function_id,
+                    tool=tulip.tools[function_id],
+                    parameters={"text": "failure"},
+                )
+            ]
+        )
+        self.assertIsNone(updated_res[0].result.error, "Function execution failed.")
         self.assertEqual(
-            res, "success", "Executing the function after updating the module failed."
+            updated_res[0].result.value,
+            "success",
+            "Executing the function after updating the module failed.",
         )
         example_module_path = tulip.tools[function_id].module_path
         subprocess.run(["git", "checkout", "HEAD", "--", example_module_path])

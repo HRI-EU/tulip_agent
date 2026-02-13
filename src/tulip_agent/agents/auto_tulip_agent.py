@@ -311,6 +311,7 @@ class AutoTulipAgent(TulipAgent):
                 self._execute_tool_calls(
                     tool_calls=pending_parallel_calls,
                     messages=self.messages,
+                    tools=self.tool_library.tools,
                 )
 
             response = self._get_response(

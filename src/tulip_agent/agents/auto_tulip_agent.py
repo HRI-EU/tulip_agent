@@ -246,32 +246,42 @@ class AutoTulipAgent(TulipAgent):
                 )
                 return error_message
 
+            pending_searches = []
+            pending_parallel_calls = []
+
             for tool_call in tool_calls:
                 func_name = tool_call.function.name
-                try:
-                    func_args = json.loads(tool_call.function.arguments)
-                except json.decoder.JSONDecodeError as e:
-                    logger.error(e)
-                    generated_func_name = func_name
-                    func_name = "invalid_tool_call"
-                    tool_call.function.name = func_name
-                    tool_call.function.arguments = "{}"
-                    function_response = (
-                        f"Error: Invalid arguments for {func_name} "
-                        f"(previously {generated_func_name}): {e}"
-                    )
-                    self.messages.append(
-                        {
-                            "tool_call_id": tool_call.id,
-                            "role": "tool",
-                            "name": func_name,
-                            "content": function_response,
-                        }
-                    )
-                    continue
-
                 if func_name == "search_tools":
-                    logger.info(f"Tool search for: {str(func_args)}")
+                    pending_searches.append(tool_call)
+                else:
+                    pending_parallel_calls.append(tool_call)
+
+            if pending_searches:
+                for tool_call in pending_searches:
+                    logger.info(f"Tool search for: {json.dumps(tool_call)}")
+
+                    func_name = tool_call.function.name
+                    try:
+                        func_args = json.loads(tool_call.function.arguments)
+                    except json.decoder.JSONDecodeError as e:
+                        logger.error(e)
+                        generated_func_name, func_name = func_name, "invalid_tool_call"
+                        tool_call.function.name = func_name
+                        tool_call.function.arguments = "{}"
+                        status = (
+                            f"Error: Invalid arguments for {func_name} "
+                            f"(previously {generated_func_name}): {e}"
+                        )
+                        self.messages.append(
+                            {
+                                "tool_call_id": tool_call.id,
+                                "role": "tool",
+                                "name": func_name,
+                                "content": status,
+                            }
+                        )
+                        continue
+
                     new_tools = [
                         tool
                         for partial in self.search_tools(
@@ -296,28 +306,12 @@ class AutoTulipAgent(TulipAgent):
                             "content": status,
                         }
                     )
-                else:
-                    function_response, error = self.tool_library.execute(
-                        tool_id=func_name, arguments=func_args
-                    )
-                    if error:
-                        func_name = "invalid_tool_call"
-                        tool_call.function.name = func_name
-                        tool_call.function.arguments = "{}"
-                    self.messages.append(
-                        {
-                            "tool_call_id": tool_call.id,
-                            "role": "tool",
-                            "name": func_name,
-                            "content": str(function_response),
-                        }
-                    )
-                    logger.info(
-                        (
-                            f"Function {func_name} returned `{str(function_response)}` "
-                            f"for arguments {tool_call.function.arguments}."
-                        )
-                    )
+
+            if pending_parallel_calls:
+                self._execute_tool_calls(
+                    tool_calls=pending_parallel_calls,
+                    messages=self.messages,
+                )
 
             response = self._get_response(
                 msgs=self.messages,

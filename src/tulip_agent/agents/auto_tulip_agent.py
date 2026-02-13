@@ -258,7 +258,7 @@ class AutoTulipAgent(TulipAgent):
 
             if pending_searches:
                 for tool_call in pending_searches:
-                    logger.info(f"Tool search for: {json.dumps(tool_call)}")
+                    logger.info(f"Tool search for: {tool_call.function.arguments}")
 
                     func_name = tool_call.function.name
                     try:

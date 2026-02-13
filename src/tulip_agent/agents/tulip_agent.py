@@ -247,6 +247,9 @@ class TulipAgent(LlmAgent, ABC):
         return self.response
 
     def _execute_tool_calls(self, tool_calls: list, messages: list) -> None:
+        if not tool_calls:
+            return
+
         tool_messages = [{} for _ in tool_calls]
         valid_calls = []
         jobs = []
@@ -272,7 +275,7 @@ class TulipAgent(LlmAgent, ABC):
                 }
                 continue
 
-            if func_name not in self.tools:
+            if func_name not in self.tool_library.tools:
                 logger.error(f"Invalid tool `{func_name}`.")
                 generated_func_name = func_name
                 func_name = "invalid_tool_call"
@@ -313,7 +316,7 @@ class TulipAgent(LlmAgent, ABC):
                 "tool_call_id": tool_call.id,
                 "role": "tool",
                 "name": func_name,
-                "content": function_response,
+                "content": str(function_response),
             }
 
         for tool_message, tool_call in zip(tool_messages, tool_calls):

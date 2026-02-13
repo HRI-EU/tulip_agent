@@ -192,7 +192,7 @@ class ToolAgent(LlmAgent, ABC):
                     "tool_call_id": tool_call.id,
                     "role": "tool",
                     "name": func_name,
-                    "content": function_response,
+                    "content": str(function_response),
                 }
 
             for tool_message, tool_call in zip(tool_messages, tool_calls):

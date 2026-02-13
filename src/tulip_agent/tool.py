@@ -68,7 +68,7 @@ class ImportedTool(Tool):
     module_name: str
     instance: Optional[object] = None
     class_name: str = ""
-    timeout: Optional[int] = None
+    timeout: Optional[float] = None
     timeout_message: Optional[str] = None
     predecessor: Optional[str] = None
     successor: Optional[str] = None
@@ -118,7 +118,7 @@ class ImportedTool(Tool):
 @dataclass(eq=False)
 class InternalTool(Tool):
     function: Callable
-    timeout: Optional[int] = None
+    timeout: Optional[float] = None
     timeout_message: Optional[str] = None
     verbose_id: bool = False
 

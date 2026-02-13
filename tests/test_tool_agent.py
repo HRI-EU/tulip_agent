@@ -70,7 +70,7 @@ class TestToolAgent(unittest.TestCase):
 
     def test_naive_tool_timeout(self):
         agent = NaiveToolAgent(functions=[slow])
-        agent.tool_timeout = 1
+        agent.tool_timeout = 1.0
         _ = agent.query(prompt="Run the slow function with a duration of 10.")
         self.assertEqual(
             "Error: The tool did not return a response within the specified timeout.",

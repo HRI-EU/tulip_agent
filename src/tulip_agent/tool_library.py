@@ -69,7 +69,7 @@ class ToolLibrary:
         embedding_model: str = BASE_EMBEDDING_MODEL,
         embedding_client: AzureOpenAI | OpenAI = None,
         description: Optional[str] = None,
-        default_timeout: int = 60,
+        default_timeout: float = 60.0,
         default_timeout_message: str = (
             "Error: The tool did not return a response within the specified timeout."
         ),
@@ -284,7 +284,7 @@ class ToolLibrary:
         self,
         function: Callable,
         module_name: str,
-        timeout: Optional[int] = None,
+        timeout: Optional[float] = None,
         timeout_message: Optional[str] = None,
     ) -> Tool:
         function_definition = self.function_analyzer.analyze_function(function)

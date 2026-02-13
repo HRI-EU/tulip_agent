@@ -83,7 +83,7 @@ class ToolAgent(LlmAgent, ABC):
                 function_name=function.__name__,
                 definition=self.function_analyzer.analyze_function(function),
                 function=function,
-                timeout=60,
+                timeout=60.0,
                 timeout_message="Error: The tool did not return a response within the specified timeout.",
             )
             for function in functions

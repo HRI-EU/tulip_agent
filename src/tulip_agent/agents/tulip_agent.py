@@ -306,8 +306,6 @@ class TulipAgent(LlmAgent, ABC):
             if execution_result.result.error:
                 logger.error(execution_result.result.error)
                 function_response = execution_result.result.error
-                func_name = "invalid_tool_call"
-                tool_call.function.name = func_name
                 tool_call.function.arguments = "{}"
             else:
                 function_response = execution_result.result.value

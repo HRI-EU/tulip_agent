@@ -36,7 +36,7 @@ import concurrent.futures
 from dataclasses import dataclass
 from typing import Any
 
-from tulip_agent import Tool
+from tulip_agent.tool import Tool
 
 
 @dataclass

@@ -78,12 +78,12 @@ def execute_tool_calls(jobs: list[Job]) -> list[Job]:
                     job.result = ToolCallResult(
                         value=fut.result(timeout=job.tool.timeout)
                     )
-            except concurrent.futures.TimeoutError as exc:
+            except concurrent.futures.TimeoutError:
                 error_message = (
                     job.tool.timeout_message
-                    or "Tool call did not return a result before timeout"
+                    or "Tool call did not return a result before timeout."
                 )
-                job.result = ToolCallResult(error=f"Error: {error_message} - {exc}")
+                job.result = ToolCallResult(error=f"Error: {error_message}")
             except Exception as exc:
                 job.result = ToolCallResult(error=f"Error: Invalid tool call - {exc}")
 

@@ -35,11 +35,12 @@
 from __future__ import annotations
 
 import importlib
+import inspect
 import json
 import logging
 import os
 import sys
-from abc import ABC, abstractmethod
+from abc import ABC
 from dataclasses import asdict, dataclass, field
 from types import ModuleType
 from typing import Callable, Optional
@@ -58,9 +59,8 @@ class Tool(ABC):
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__} object {id(self)}: {self.unique_id}>"
 
-    @abstractmethod
-    def execute(self, **params) -> str:
-        raise NotImplementedError()
+    def execute(self, **parameters) -> str:
+        return self.function(**parameters)
 
 
 @dataclass(eq=False)
@@ -111,9 +111,6 @@ class ImportedTool(Tool):
         flat_dict.pop("instance")
         return flat_dict
 
-    def execute(self, **parameters) -> str:
-        return self.function(**parameters)
-
 
 @dataclass(eq=False)
 class InternalTool(Tool):
@@ -131,5 +128,21 @@ class InternalTool(Tool):
             self.unique_id = self.function_name
         self.definition["function"]["name"] = self.unique_id
 
-    def execute(self, **parameters) -> str:
-        return self.function(**parameters)
+
+@dataclass(eq=False)
+class ExternalTool(Tool):
+    function: Callable
+    timeout: Optional[float] = None
+    timeout_message: Optional[str] = None
+    verbose_id: bool = False
+
+    def __post_init__(self) -> None:
+        self.module_path = os.path.abspath(inspect.getsourcefile(self.function))
+        if self.verbose_id:
+            clean_module_name = inspect.getmodule(self.function).__name__.replace(
+                ".", "__"
+            )
+            self.unique_id = f"{clean_module_name}__{self.function_name}"
+        else:
+            self.unique_id = self.function_name
+        self.definition["function"]["name"] = self.unique_id

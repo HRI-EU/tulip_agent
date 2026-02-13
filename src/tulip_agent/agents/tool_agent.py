@@ -44,7 +44,7 @@ from openai import AzureOpenAI, OpenAI
 
 from tulip_agent.agents.base_agent import LlmAgent
 from tulip_agent.function_analyzer import FunctionAnalyzer
-from tulip_agent.tool import InternalTool
+from tulip_agent.tool import ExternalTool, InternalTool, Tool
 from tulip_agent.tool_execution import Job, execute_tool_calls
 
 
@@ -78,17 +78,17 @@ class ToolAgent(LlmAgent, ABC):
             definition=self.function_analyzer.analyze_function(self.stop),
             function=self.stop,
         )
-        self.tools = {
-            function.__name__: InternalTool(
+        self.tools: dict[str, Tool] = {
+            function.__name__: ExternalTool(
                 function_name=function.__name__,
                 definition=self.function_analyzer.analyze_function(function),
                 function=function,
                 timeout=60.0,
-                timeout_message="Error: The tool did not return a response within the specified timeout.",
+                timeout_message="The tool did not return a response within the specified timeout.",
             )
             for function in functions
         }
-        self.tools["stop_tool"] = stop_tool
+        self.tools["stop"] = stop_tool
         self.response: str | None = None
 
     def stop(self, message: str) -> str:

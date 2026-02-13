@@ -40,6 +40,8 @@ import json
 import logging
 import os
 import subprocess
+import sys
+import tempfile
 from abc import ABC
 from concurrent.futures import ThreadPoolExecutor
 from typing import Optional
@@ -328,12 +330,13 @@ class TulipAgent(LlmAgent, ABC):
 
     @staticmethod
     def _run_ruff(code: str) -> str | None:
-        file_path = "ruff_tmp.py"
+        fd, file_path = tempfile.mkstemp(suffix=".py", prefix="ruff_tmp_")
+        os.close(fd)
         with open(file_path, "w") as file:
             file.write(code)
         try:
             result = subprocess.run(
-                ["ruff", "check", "--fix", file_path],
+                [sys.executable, "-m", "ruff", "check", "--fix", file_path],
                 capture_output=True,
                 text=True,
                 check=True,
@@ -346,7 +349,9 @@ class TulipAgent(LlmAgent, ABC):
             logging.error("Error running ruff:", e.stderr)
             ruff_output = "There was an error running ruff."
         if ruff_output is None:
-            subprocess.run(["ruff", "format", file_path])
+            subprocess.run(
+                [sys.executable, "-m", "ruff", "format", file_path], check=True
+            )
         os.remove(file_path)
         return ruff_output
 

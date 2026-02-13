@@ -94,13 +94,12 @@ class ToolAgent(LlmAgent, ABC):
     def stop(self, message: str) -> str:
         """
         Stop and return a final message to the user.
-        You may only call this tool once.
 
         :param message: The message to return.
         :return: The final response to be given to the user.
         """
         self.response = message
-        return "Successfully returned response."
+        return "Done."
 
     def run_with_tools(self):
         self.response = None

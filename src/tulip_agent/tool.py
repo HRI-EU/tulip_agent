@@ -59,7 +59,7 @@ class Tool(ABC):
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__} object {id(self)}: {self.unique_id}>"
 
-    def execute(self, **parameters) -> str:
+    def __call__(self, **parameters) -> str:
         return self.function(**parameters)
 
 

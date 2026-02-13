@@ -75,7 +75,7 @@ if __name__ == "__main__":
     print(hi)
     print(hi_description)
     pprint.pprint(hi.format_for_chroma())
-    print(hi.execute())
+    print(hi())
 
     calc = Calculator(10)
     add_description = fa.analyze_class(Calculator)[0]
@@ -88,4 +88,4 @@ if __name__ == "__main__":
     print(add)
     print(add_description)
     pprint.pprint(add.format_for_chroma())
-    print(add.execute(**{"a": 1, "b": 2}))
+    print(add(**{"a": 1, "b": 2}))

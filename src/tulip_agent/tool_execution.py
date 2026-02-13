@@ -61,7 +61,7 @@ def execute_tool_calls(jobs: list[Job]) -> list[Job]:
         scheduled = []
         for job in jobs:
             try:
-                fut = executor.submit(job.tool.execute, **job.parameters)
+                fut = executor.submit(job.tool, **job.parameters)
                 scheduled.append((job, fut))
             except TypeError as exc:
                 job.result = ToolCallResult(error=f"Error: Invalid tool call - {exc}")

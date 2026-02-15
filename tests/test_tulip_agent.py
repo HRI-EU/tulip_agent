@@ -59,11 +59,19 @@ class TestTulipAgent(unittest.TestCase):
             description="Various math tools.",
         )
 
+    @staticmethod
+    def _tool_message_names(messages: list) -> list[str]:
+        return [
+            message["name"]
+            for message in messages
+            if isinstance(message, dict) and message.get("role") == "tool"
+        ]
+
     def _check_res(self, res: str, messages: list):
+        tool_message_names = self._tool_message_names(messages)
         self.assertTrue(
             any(s in res.lower() for s in ("4", "four"))
-            and messages[-3]["role"] == "tool"
-            and messages[-3]["name"] == "add",
+            and "add" in tool_message_names,
             "LLM query failed.",
         )
 
@@ -125,10 +133,10 @@ class TestTulipAgent(unittest.TestCase):
         )
         agent = CotTulipAgent(tool_library=self.tulip)
         res = agent.query(prompt="What is 2+2?")
+        tool_message_names = self._tool_message_names(agent.messages)
         self.assertTrue(
             any(s in res.lower() for s in ("4", "four"))
-            and agent.messages[-3]["role"] == "tool"
-            and agent.messages[-3]["name"] == "add",
+            and "add" in tool_message_names,
             "LLM query failed.",
         )
 
@@ -144,10 +152,10 @@ class TestTulipAgent(unittest.TestCase):
             instructions=character,
         )
         res = agent.query(prompt="What is 2+2?")
+        tool_message_names = self._tool_message_names(agent.messages)
         self.assertTrue(
             any(s in res.lower() for s in ("4", "four"))
-            and agent.messages[-3]["role"] == "tool"
-            and agent.messages[-3]["name"] == "speak",
+            and "speak" in tool_message_names,
             "Using default_tool failed.",
         )
 

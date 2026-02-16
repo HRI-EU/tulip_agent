@@ -50,6 +50,7 @@ from tulip_agent.agents.prompts import (
 from tulip_agent.agents.tulip_agent import TulipAgent
 from tulip_agent.constants import BASE_LANGUAGE_MODEL, BASE_TEMPERATURE
 from tulip_agent.tool import InternalTool, Tool
+from tulip_agent.tool_execution import execute_tool_calls
 from tulip_agent.tool_library import ToolLibrary
 
 
@@ -302,7 +303,7 @@ class AutoTulipAgent(TulipAgent):
                 )
 
         if pending_parallel_calls:
-            self._execute_tool_calls(
+            execute_tool_calls(
                 tool_calls=pending_parallel_calls,
                 messages=messages,
                 tools=tools,

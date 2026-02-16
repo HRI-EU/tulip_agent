@@ -36,7 +36,7 @@ import subprocess
 import unittest
 
 from tests.example_tools_in_class import Calculator
-from tulip_agent.tool_execution import Job, execute_tool_calls
+from tulip_agent.tool_execution import Job, execute_parallel_jobs
 from tulip_agent.tool_library import ToolLibrary
 
 
@@ -324,7 +324,7 @@ class TestToolLibrary(unittest.TestCase):
             chroma_sub_dir="test/", file_imports=[("example_module", [])]
         )
         function_id = "example"
-        initial_res = execute_tool_calls(
+        initial_res = execute_parallel_jobs(
             jobs=[
                 Job(
                     tool_call_id=function_id,
@@ -353,7 +353,7 @@ class TestToolLibrary(unittest.TestCase):
         with open(tulip.tools[function_id].module_path, "w") as m:
             m.write(code)
         tulip.update_tool(tool_id=function_id)
-        updated_res = execute_tool_calls(
+        updated_res = execute_parallel_jobs(
             jobs=[
                 Job(
                     tool_call_id=function_id,

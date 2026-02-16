@@ -37,7 +37,7 @@ import unittest
 from tests import example_tools
 from tulip_agent.function_analyzer import FunctionAnalyzer
 from tulip_agent.tool import ImportedTool
-from tulip_agent.tool_execution import Job, execute_tool_calls
+from tulip_agent.tool_execution import Job, execute_parallel_jobs
 
 
 class TestToolExecution(unittest.TestCase):
@@ -61,7 +61,7 @@ class TestToolExecution(unittest.TestCase):
         )
 
     def test_execute(self):
-        res = execute_tool_calls(
+        res = execute_parallel_jobs(
             jobs=[
                 Job(
                     tool_call_id="test",
@@ -79,7 +79,7 @@ class TestToolExecution(unittest.TestCase):
         )
 
     def test_execute_timeout(self):
-        res = execute_tool_calls(
+        res = execute_parallel_jobs(
             jobs=[
                 Job(
                     tool_call_id="slow",
@@ -98,7 +98,7 @@ class TestToolExecution(unittest.TestCase):
         )
 
     def test_execute_invalid_arguments(self):
-        res = execute_tool_calls(
+        res = execute_parallel_jobs(
             jobs=[
                 Job(
                     tool_call_id="invalid",
@@ -123,7 +123,7 @@ class TestToolExecution(unittest.TestCase):
         )
 
     def test_execute_parallel_jobs_preserves_order(self):
-        res = execute_tool_calls(
+        res = execute_parallel_jobs(
             jobs=[
                 Job(
                     tool_call_id="first",
@@ -156,7 +156,7 @@ class TestToolExecution(unittest.TestCase):
         )
 
     def test_execute_parallel_jobs_timeout(self):
-        res = execute_tool_calls(
+        res = execute_parallel_jobs(
             jobs=[
                 Job(
                     tool_call_id="slow",

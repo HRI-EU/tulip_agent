@@ -102,7 +102,6 @@ class AutoTulipAgent(TulipAgent):
             )
             self.default_tools.append(tool_)
             self.tool_library.tools[tool_.unique_id] = tool_
-        self.tools = self.default_tools.copy()
 
     def create_tool(self, task_description: str) -> str:
         """
@@ -220,6 +219,7 @@ class AutoTulipAgent(TulipAgent):
         prompt: str,
     ) -> str:
         self.response = None
+        self.tools = self.default_tools.copy()
         logger.info(f"{self.__class__.__name__} received query: {prompt}")
         self.messages.append(
             {
@@ -227,78 +227,44 @@ class AutoTulipAgent(TulipAgent):
                 "content": prompt,
             }
         )
-
-        response = self._get_response(
-            msgs=self.messages,
-            tools=[t.definition for t in self.tools],
-            tool_choice="required",
+        self.response = self._run_tool_loop(
+            tools=self.tools,
+            execute_tool_calls_fn=self._execute_auto_tool_calls,
         )
-        response_message = response.choices[0].message
-        tool_calls = response_message.tool_calls
+        logger.info(f"{self.__class__.__name__} returns response: {self.response}")
+        self.api_interaction_counter = 0
+        return self.response
 
-        while not self.response:
-            self.messages.append(response_message)
+    def _execute_auto_tool_calls(
+        self, tool_calls: list, messages: list, tools: dict[str, Tool]
+    ) -> None:
+        pending_searches = []
+        pending_parallel_calls = []
 
-            if self.api_interaction_counter >= self.api_interaction_limit:
-                error_message = f"Error: Reached API interaction limit of {self.api_interaction_limit}."
-                logger.error(
-                    f"{self.__class__.__name__} returns response: {error_message}"
-                )
-                return error_message
+        for tool_call in tool_calls:
+            func_name = tool_call.function.name
+            if func_name == "search_tools":
+                pending_searches.append(tool_call)
+            else:
+                pending_parallel_calls.append(tool_call)
 
-            pending_searches = []
-            pending_parallel_calls = []
+        if pending_searches:
+            for tool_call in pending_searches:
+                logger.info(f"Tool search for: {tool_call.function.arguments}")
 
-            for tool_call in tool_calls:
                 func_name = tool_call.function.name
-                if func_name == "search_tools":
-                    pending_searches.append(tool_call)
-                else:
-                    pending_parallel_calls.append(tool_call)
-
-            if pending_searches:
-                for tool_call in pending_searches:
-                    logger.info(f"Tool search for: {tool_call.function.arguments}")
-
-                    func_name = tool_call.function.name
-                    try:
-                        func_args = json.loads(tool_call.function.arguments)
-                    except json.decoder.JSONDecodeError as e:
-                        logger.error(e)
-                        generated_func_name, func_name = func_name, "invalid_tool_call"
-                        tool_call.function.name = func_name
-                        tool_call.function.arguments = "{}"
-                        status = (
-                            f"Error: Invalid arguments for {func_name} "
-                            f"(previously {generated_func_name}): {e}"
-                        )
-                        self.messages.append(
-                            {
-                                "tool_call_id": tool_call.id,
-                                "role": "tool",
-                                "name": func_name,
-                                "content": status,
-                            }
-                        )
-                        continue
-
-                    new_tools = [
-                        tool
-                        for partial in self.search_tools(
-                            **func_args,
-                            similarity_threshold=self.search_similarity_threshold,
-                        )
-                        for tool in partial[1]
-                        if tool not in self.tools
-                    ]
-                    logger.info(f"Tools found: {str(new_tools)}")
-                    self.tools.extend(new_tools)
-                    tool_names_ = [new_tool.unique_id for new_tool in new_tools]
-                    if tool_names_:
-                        status = f"Successfully provided suitable tools: {tool_names_}."
-                    else:
-                        status = "Could not find suitable tools."
-                    self.messages.append(
+                try:
+                    func_args = json.loads(tool_call.function.arguments)
+                except json.decoder.JSONDecodeError as e:
+                    logger.error(e)
+                    generated_func_name, func_name = func_name, "invalid_tool_call"
+                    tool_call.function.name = func_name
+                    tool_call.function.arguments = "{}"
+                    status = (
+                        f"Error: Invalid arguments for {func_name} "
+                        f"(previously {generated_func_name}): {e}"
+                    )
+                    messages.append(
                         {
                             "tool_call_id": tool_call.id,
                             "role": "tool",
@@ -306,21 +272,38 @@ class AutoTulipAgent(TulipAgent):
                             "content": status,
                         }
                     )
+                    continue
 
-            if pending_parallel_calls:
-                self._execute_tool_calls(
-                    tool_calls=pending_parallel_calls,
-                    messages=self.messages,
-                    tools=self.tool_library.tools,
+                new_tools = [
+                    tool
+                    for partial in self.search_tools(
+                        **func_args,
+                        similarity_threshold=self.search_similarity_threshold,
+                    )
+                    for tool in partial[1]
+                    if tool not in tools
+                ]
+                logger.info(f"Tools found: {str(new_tools)}")
+                for new_tool in new_tools:
+                    tools[new_tool.unique_id] = new_tool
+                self.tools.extend(new_tools)
+                tool_names_ = [new_tool.unique_id for new_tool in new_tools]
+                if tool_names_:
+                    status = f"Successfully provided suitable tools: {tool_names_}."
+                else:
+                    status = "Could not find suitable tools."
+                messages.append(
+                    {
+                        "tool_call_id": tool_call.id,
+                        "role": "tool",
+                        "name": func_name,
+                        "content": status,
+                    }
                 )
 
-            response = self._get_response(
-                msgs=self.messages,
-                tools=[t.definition for t in self.tools],
-                tool_choice="required",
+        if pending_parallel_calls:
+            self._execute_tool_calls(
+                tool_calls=pending_parallel_calls,
+                messages=messages,
+                tools=tools,
             )
-            response_message = response.choices[0].message
-            tool_calls = response_message.tool_calls
-        logger.info(f"{self.__class__.__name__} returns response: {self.response}")
-        self.api_interaction_counter = 0
-        return self.response

@@ -216,44 +216,10 @@ class TulipAgent(LlmAgent, ABC):
         messages: list | None = None,
     ) -> str:
         self.response = None
-        tool_definitions = [tool.definition for tool in tools]
-        if messages is None:
-            messages = self.messages
-        response = self._get_response(
-            msgs=messages,
-            tools=tool_definitions,
-            tool_choice="required",
+        return self._run_tool_loop(
+            tools=tools,
+            messages=messages,
         )
-        response_message = response.choices[0].message
-        tool_calls = response_message.tool_calls
-
-        while not self.response:
-            if not tool_calls:
-                error_message = "Invalid response - no tool calls."
-                logger.error(
-                    f"{self.__class__.__name__} returns response: {error_message}"
-                )
-                return error_message
-
-            messages.append(response_message)
-
-            if self.api_interaction_counter >= self.api_interaction_limit:
-                error_message = f"Error: Reached API interaction limit of {self.api_interaction_limit}."
-                logger.warning(f"{self.__class__.__name__}: {error_message}")
-                return error_message
-
-            self._execute_tool_calls(
-                tool_calls=tool_calls, messages=messages, tools=self.tool_library.tools
-            )
-
-            response = self._get_response(
-                msgs=messages,
-                tools=tool_definitions,
-                tool_choice="required",
-            )
-            response_message = response.choices[0].message
-            tool_calls = response_message.tool_calls
-        return self.response
 
     @staticmethod
     def _run_ruff(code: str) -> str | None:

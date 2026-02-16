@@ -39,6 +39,7 @@ import json
 import logging
 import time
 from abc import ABC, abstractmethod
+from typing import Callable
 
 from openai import AzureOpenAI, BadRequestError, OpenAI, OpenAIError
 from openai.types.chat.chat_completion import ChatCompletion, Choice
@@ -196,8 +197,7 @@ class LlmAgent(ABC):
 
             if func_name not in tools:
                 logger.error(f"Invalid tool `{func_name}`.")
-                generated_func_name = func_name
-                func_name = "invalid_tool_call"
+                generated_func_name, func_name = func_name, "invalid_tool_call"
                 tool_call.function.name = func_name
                 tool_call.function.arguments = "{}"
                 function_response = f"Error: {generated_func_name} is not a valid tool. Use only the tools available."
@@ -244,3 +244,55 @@ class LlmAgent(ABC):
                     f"for arguments {tool_call.function.arguments}."
                 )
             )
+
+    def _run_tool_loop(
+        self,
+        tools: list[Tool],
+        messages: list | None = None,
+        execute_tool_calls_fn: Callable | None = None,
+    ) -> str:
+        if messages is None:
+            messages = self.messages
+        if execute_tool_calls_fn is None:
+            execute_tool_calls_fn = self._execute_tool_calls
+
+        response = self._get_response(
+            msgs=messages,
+            tools=[tool.definition for tool in tools],
+            tool_choice="required",
+        )
+        response_message = response.choices[0].message
+        tool_calls = response_message.tool_calls
+
+        while self.response is None:
+            if not tool_calls:
+                error_message = "Invalid response - no tool calls."
+                logger.error(
+                    f"{self.__class__.__name__} returns response: {error_message}"
+                )
+                return error_message
+
+            messages.append(response_message)
+
+            if self.api_interaction_counter >= self.api_interaction_limit:
+                error_message = f"Error: Reached API interaction limit of {self.api_interaction_limit}."
+                logger.warning(f"{self.__class__.__name__}: {error_message}")
+                return error_message
+
+            execute_tool_calls_fn(
+                tool_calls=tool_calls,
+                messages=messages,
+                tools={tool.unique_id: tool for tool in tools},
+            )
+
+            response = self._get_response(
+                msgs=messages,
+                tools=[tool.definition for tool in tools],
+                tool_choice="required",
+            )
+            response_message = response.choices[0].message
+            tool_calls = response_message.tool_calls
+
+        if self.response is None:
+            raise RuntimeError("Tool loop ended without a final response.")
+        return self.response

@@ -34,6 +34,7 @@
 #
 from __future__ import annotations
 
+import asyncio
 import importlib
 import inspect
 import json
@@ -44,6 +45,8 @@ from abc import ABC
 from dataclasses import asdict, dataclass, field
 from types import ModuleType
 from typing import Callable, Optional
+
+from fastmcp import Client
 
 
 logger = logging.getLogger(__name__)
@@ -146,3 +149,28 @@ class ExternalTool(Tool):
         else:
             self.unique_id = self.function_name
         self.definition["function"]["name"] = self.unique_id
+
+
+@dataclass(eq=False)
+class McpTool(Tool):
+    mcp_id: str
+    timeout: Optional[float] = None
+    timeout_message: Optional[str] = None
+    verbose_id: bool = False
+
+    def __post_init__(self) -> None:
+        self.module_path = ""
+        if self.verbose_id:
+            clean_module_name = self.mcp_id.split("/")[-1]
+            self.unique_id = f"{clean_module_name}__{self.function_name}"
+        else:
+            self.unique_id = self.function_name
+        self.definition["function"]["name"] = self.unique_id
+
+    def __call__(self, **parameters):
+        return asyncio.run(self.execute(**parameters))
+
+    async def execute(self, **parameters):
+        async with Client(self.mcp_id) as client:
+            res = await client.call_tool(self.function_name, parameters)
+            return res.content[0].text

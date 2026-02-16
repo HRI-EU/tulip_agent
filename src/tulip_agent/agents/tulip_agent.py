@@ -53,7 +53,7 @@ from openai.types.chat.chat_completion_message_tool_call import (
 
 from tulip_agent.agents.base_agent import LlmAgent
 from tulip_agent.agents.prompts import TECH_LEAD
-from tulip_agent.tool import InternalTool, Tool
+from tulip_agent.tool import Tool
 from tulip_agent.tool_library import ToolLibrary
 
 
@@ -100,10 +100,8 @@ class TulipAgent(LlmAgent, ABC):
             raise ValueError(
                 f"Tools {', '.join(missing_tools)} not available in tool library."
             )
-        stop_tool = InternalTool(
-            function_name=self.stop.__name__,
-            definition=self.tool_library.function_analyzer.analyze_function(self.stop),
-            function=self.stop,
+        stop_tool = self._create_stop_tool(
+            analyze_function=self.tool_library.function_analyzer.analyze_function
         )
         self.default_tools = (
             default_tools + [stop_tool] if default_tools else [stop_tool]
@@ -133,16 +131,6 @@ class TulipAgent(LlmAgent, ABC):
                 },
             },
         }
-
-    def stop(self, message: str) -> str:
-        """
-        Stop and return a final message to the user.
-
-        :param message: The message to return.
-        :return: The final response to be given to the user.
-        """
-        self.response = message
-        return "Done."
 
     def search_tools(
         self,

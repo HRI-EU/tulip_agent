@@ -43,7 +43,7 @@ from openai import AzureOpenAI, OpenAI
 
 from tulip_agent.agents.base_agent import LlmAgent
 from tulip_agent.function_analyzer import FunctionAnalyzer
-from tulip_agent.tool import ExternalTool, InternalTool, Tool
+from tulip_agent.tool import ExternalTool, Tool
 
 
 logger = logging.getLogger(__name__)
@@ -71,10 +71,8 @@ class ToolAgent(LlmAgent, ABC):
             api_interaction_limit=api_interaction_limit,
         )
         self.function_analyzer = FunctionAnalyzer()
-        stop_tool = InternalTool(
-            function_name=self.stop.__name__,
-            definition=self.function_analyzer.analyze_function(self.stop),
-            function=self.stop,
+        stop_tool = self._create_stop_tool(
+            analyze_function=self.function_analyzer.analyze_function
         )
         self.tools: list[Tool] = [
             ExternalTool(
@@ -87,16 +85,6 @@ class ToolAgent(LlmAgent, ABC):
             for function in functions
         ]
         self.tools.append(stop_tool)
-
-    def stop(self, message: str) -> str:
-        """
-        Stop and return a final message to the user.
-
-        :param message: The message to return.
-        :return: The final response to be given to the user.
-        """
-        self.response = message
-        return "Done."
 
     def run_with_tools(self):
         self.response = None

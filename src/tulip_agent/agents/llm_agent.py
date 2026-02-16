@@ -46,7 +46,7 @@ from openai.types.chat.chat_completion_message import ChatCompletionMessage
 
 from tulip_agent.client_setup import ModelServeMode, create_client
 from tulip_agent.constants import BASE_LANGUAGE_MODEL, BASE_REASONING_MODEL
-from tulip_agent.tool import Tool
+from tulip_agent.tool import InternalTool, Tool
 from tulip_agent.tool_execution import execute_tool_calls
 
 
@@ -86,6 +86,26 @@ class LlmAgent(ABC):
         self.max_retries = 5
 
         self.response: str | None = None
+
+    def stop(self, message: str) -> str:
+        """
+        Stop and return a final message to the user.
+
+        :param message: The message to return.
+        :return: The final response to be given to the user.
+        """
+        self.response = message
+        return "Done."
+
+    def _create_stop_tool(
+        self,
+        analyze_function: Callable[[Callable], dict],
+    ) -> InternalTool:
+        return InternalTool(
+            function_name=self.stop.__name__,
+            definition=analyze_function(self.stop),
+            function=self.stop,
+        )
 
     def _get_response(
         self,

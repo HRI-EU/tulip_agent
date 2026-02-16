@@ -47,6 +47,19 @@ def return_hi() -> str:
     return "hi"
 
 
+def import_tool_example(function_analyzer: FunctionAnalyzer):
+    hi_description = function_analyzer.analyze_function(return_hi)
+    hi = ImportedTool(
+        function_name="return_hi",
+        module_name="tool_examples",
+        definition=hi_description,
+    )
+    print(hi)
+    print(hi_description)
+    pprint.pprint(hi.format_for_chroma())
+    print(hi())
+
+
 class Calculator:
     def __init__(self, divisor: float) -> None:
         self.divisor = divisor
@@ -63,22 +76,9 @@ class Calculator:
         return a + b
 
 
-if __name__ == "__main__":
-    fa = FunctionAnalyzer()
-
-    hi_description = fa.analyze_function(return_hi)
-    hi = ImportedTool(
-        function_name="return_hi",
-        module_name="tool_examples",
-        definition=hi_description,
-    )
-    print(hi)
-    print(hi_description)
-    pprint.pprint(hi.format_for_chroma())
-    print(hi())
-
+def instance_tool_example(function_analyzer: FunctionAnalyzer):
     calc = Calculator(10)
-    add_description = fa.analyze_class(Calculator)[0]
+    add_description = function_analyzer.analyze_class(Calculator)[0]
     add = ImportedTool(
         function_name="add",
         module_name="tool_examples",
@@ -89,3 +89,9 @@ if __name__ == "__main__":
     print(add_description)
     pprint.pprint(add.format_for_chroma())
     print(add(**{"a": 1, "b": 2}))
+
+
+if __name__ == "__main__":
+    fa = FunctionAnalyzer()
+    import_tool_example(function_analyzer=fa)
+    instance_tool_example(function_analyzer=fa)

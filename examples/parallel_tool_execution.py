@@ -33,60 +33,35 @@
 #
 #
 """
-Some example tools for a home automation context.
+Demo showing the speedup due to parallel tool execution.
 """
+import logging
 import time
 
-
-def say_via_speaker(text: str) -> str:
-    """
-    Respond to the user via the loudspeakers.
-
-    :param text: Text to say.
-    :return: Status information.
-    """
-    print(f"🔉: {text}")
-    return f"Successfully said to the user: `{text}`."
+from tulip_agent import NaiveTulipAgent, ToolLibrary
 
 
-def turn_on_fan() -> str:
-    """
-    Turn on the fan.
-
-    :return: Status information.
-    """
-    print("🪭: Turned on the fan.")
-    return "Successfully turned on the fan."
+logging.basicConfig(level=logging.INFO)
 
 
-def control_ac(temperature: int) -> str:
-    """
-    Set the climate control to a specific temperature.
+tulip = ToolLibrary(
+    chroma_sub_dir="example_parallel/",
+    file_imports=[("home_automation", [])],
+)
+cta = NaiveTulipAgent(
+    tool_library=tulip,
+    top_k_functions=3,
+    base_model="gpt-5.2",
+)
 
-    :param temperature: Desired temperature value in degrees Celsius.
-    :return: Status information.
-    """
-    print(f"🌡️: Set the AC to {temperature} degrees Celsius.")
-    return f"Set the AC to {temperature} degrees Celsius"
-
-
-def open_blinds() -> str:
-    """
-    Open all blinds in the house.
-
-    :return: Status information.
-    """
-    time.sleep(20)
-    print("🪟: Opened all the blinds.")
-    return "Opened all the blinds."
-
-
-def open_garage() -> str:
-    """
-    Open the garage door.
-
-    :return: Status information.
-    """
-    time.sleep(20)
-    print("🛖: Opened the garage.")
-    return "Opened the garage."
+tasks = [
+    "Open all the blinds and in parallel open the garage.",
+    "Open the blinds. When done open the garage.",
+]
+for task in tasks:
+    start = time.time()
+    print(f"{task=}")
+    cta_res = cta.query(prompt=task)
+    print(f"{cta_res=}")
+    duration = time.time() - start
+    print(f"{duration=}")

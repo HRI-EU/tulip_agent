@@ -35,9 +35,12 @@
 """
 Tools can be created from a class' methods or from individual functions.
 """
+import asyncio
 import pprint
 
-from tulip_agent import FunctionAnalyzer, ImportedTool
+from fastmcp import Client
+
+from tulip_agent import FunctionAnalyzer, ImportedTool, McpTool
 
 
 def return_hi() -> str:
@@ -91,7 +94,38 @@ def instance_tool_example(function_analyzer: FunctionAnalyzer):
     print(add(**{"a": 1, "b": 2}))
 
 
+async def get_mcp_tool_definition(mcp_id: str, name: str):
+    async with Client(mcp_id) as client:
+        tools = await client.list_tools()
+        for tool in tools:
+            if tool.name == name:
+                return {
+                    "type": "function",
+                    "function": {
+                        "name": tool.name,
+                        "description": tool.description,
+                        "parameters": tool.inputSchema,
+                    },
+                    "strict": True,
+                }
+    raise ValueError(f"Tool with name {name} not found on {mcp_id}.")
+
+
+def mcp_tool_example():
+    mcp_id = "http://127.0.0.1:8000/mcp"
+    definition = asyncio.run(get_mcp_tool_definition(mcp_id, "multiply"))
+    multiply = McpTool(
+        mcp_id=mcp_id,
+        function_name="multiply",
+        definition=definition,
+    )
+    print(multiply)
+    print(multiply.definition)
+    print(multiply(**{"a": 1, "b": 2}))
+
+
 if __name__ == "__main__":
     fa = FunctionAnalyzer()
     import_tool_example(function_analyzer=fa)
     instance_tool_example(function_analyzer=fa)
+    mcp_tool_example()

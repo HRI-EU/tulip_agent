@@ -35,7 +35,7 @@
 import unittest
 
 from tests.example_tools import add, slow
-from tulip_agent import CotToolAgent, NaiveToolAgent
+from tulip_agent import CotToolAgent, NaiveToolAgent, Tool
 
 
 class TestToolAgent(unittest.TestCase):
@@ -48,6 +48,13 @@ class TestToolAgent(unittest.TestCase):
             "LLM query failed.",
         )
 
+    @staticmethod
+    def _get_tool_by_name(tools: list[Tool], name: str) -> Tool:
+        for tool in tools:
+            if tool.unique_id == name:
+                return tool
+        raise ValueError(f"Tool {name} not found.")
+
     def test_naive_tool_query(self):
         agent = NaiveToolAgent(functions=[add])
         res = agent.query(prompt="What is 2+2?")
@@ -59,8 +66,11 @@ class TestToolAgent(unittest.TestCase):
         self.assertTrue(
             any(s in res.lower() for s in ("4", "four"))
             and len(agent.tools) == 1
-            and "stop" in agent.tools
-            and agent.tools["stop"].definition["function"]["name"] == "stop",
+            and self._get_tool_by_name(agent.tools, "stop")
+            and self._get_tool_by_name(agent.tools, "stop").definition["function"][
+                "name"
+            ]
+            == "stop",
             "LLM query failed.",
         )
 
@@ -71,7 +81,7 @@ class TestToolAgent(unittest.TestCase):
 
     def test_naive_tool_timeout(self):
         agent = NaiveToolAgent(functions=[slow])
-        agent.tools["slow"].timeout = 0.05
+        self._get_tool_by_name(agent.tools, "slow").timeout = 0.05
         _ = agent.query(
             prompt="Try to run the slow function with a duration of 10. You may only run this once, then stop."
         )

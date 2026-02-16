@@ -1,6 +1,6 @@
 [project]
 name = "tulip_agent"
-version = "0.3.0"
+version = "0.4.0"
 description = "autonomous agent with access to a tool library"
 authors = [{ name = "Felix Ocker", email = "felix.ocker@honda-ri.de" }]
 requires-python = ">=3.10.11,<4"

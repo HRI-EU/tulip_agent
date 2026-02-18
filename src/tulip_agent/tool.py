@@ -71,8 +71,9 @@ class Tool(ABC):
 
 @dataclass(eq=False)
 class ImportedTool(Tool):
-    module_name: str
+    module_name: Optional[str] = None
     instance: Optional[object] = None
+    function: Optional[Callable] = None
     class_name: str = ""
     timeout: Optional[float] = None
     timeout_message: Optional[str] = None
@@ -81,27 +82,91 @@ class ImportedTool(Tool):
     verbose_id: bool = False
     description: str = field(init=False)
 
-    def __post_init__(self) -> None:
-        self.module: ModuleType = (
-            sys.modules[self.module_name]
-            if self.module_name in sys.modules
-            else importlib.import_module(self.module_name)
+    @classmethod
+    def from_function(
+        cls,
+        function: Callable,
+        definition: dict,
+        timeout: Optional[float] = None,
+        timeout_message: Optional[str] = None,
+        verbose_id: bool = False,
+    ) -> ImportedTool:
+        return cls(
+            function_name=function.__name__,
+            definition=definition,
+            function=function,
+            timeout=timeout,
+            timeout_message=timeout_message,
+            verbose_id=verbose_id,
         )
-        self.module_path = os.path.abspath(self.module.__file__)
-        clean_module_name = self.module_name.replace(".", "__")
-        if self.instance:
-            if self.verbose_id:
-                self.unique_id = f"{clean_module_name}__{self.instance.__class__.__name__}__{self.function_name}"
-            else:
-                self.unique_id = self.function_name
-            self.function: Callable = getattr(self.instance, self.function_name)
-            self.class_name = self.instance.__class__.__name__
-        else:
+
+    @classmethod
+    def from_module(
+        cls,
+        module_name: str,
+        function_name: str,
+        definition: dict,
+        instance: Optional[object] = None,
+        timeout: Optional[float] = None,
+        timeout_message: Optional[str] = None,
+        predecessor: Optional[str] = None,
+        successor: Optional[str] = None,
+        verbose_id: bool = False,
+    ) -> ImportedTool:
+        return cls(
+            function_name=function_name,
+            module_name=module_name,
+            definition=definition,
+            instance=instance,
+            timeout=timeout,
+            timeout_message=timeout_message,
+            predecessor=predecessor,
+            successor=successor,
+            verbose_id=verbose_id,
+        )
+
+    def __post_init__(self) -> None:
+        if self.function is not None:
+            module = inspect.getmodule(self.function)
+            self.module_name = module.__name__ if module else "__main__"
+            module_path = inspect.getsourcefile(self.function)
+            self.module_path = os.path.abspath(module_path) if module_path else ""
+            clean_module_name = self.module_name.replace(".", "__")
             if self.verbose_id:
                 self.unique_id = f"{clean_module_name}__{self.function_name}"
             else:
                 self.unique_id = self.function_name
-            self.function: Callable = getattr(self.module, self.function_name)
+        else:
+            if not self.module_name:
+                raise ValueError(
+                    "ImportedTool requires either `function` or `module_name`."
+                )
+            self.module: ModuleType = (
+                sys.modules[self.module_name]
+                if self.module_name in sys.modules
+                else importlib.import_module(self.module_name)
+            )
+            self.module_path = os.path.abspath(self.module.__file__)
+            clean_module_name = self.module_name.replace(".", "__")
+            if self.instance:
+                if self.verbose_id:
+                    self.unique_id = f"{clean_module_name}__{self.instance.__class__.__name__}__{self.function_name}"
+                else:
+                    self.unique_id = self.function_name
+                self.function = getattr(self.instance, self.function_name)
+                self.class_name = self.instance.__class__.__name__
+            else:
+                if self.verbose_id:
+                    self.unique_id = f"{clean_module_name}__{self.function_name}"
+                else:
+                    self.unique_id = self.function_name
+                self.function = getattr(self.module, self.function_name)
+
+        if self.instance and self.function is not None and self.class_name == "":
+            if self.verbose_id:
+                clean_module_name = self.module_name.replace(".", "__")
+                self.unique_id = f"{clean_module_name}__{self.instance.__class__.__name__}__{self.function_name}"
+            self.class_name = self.instance.__class__.__name__
         self.description = (
             self.function_name + ":\n" + self.definition["function"]["description"]
         )
@@ -116,6 +181,7 @@ class ImportedTool(Tool):
         if self.successor is None:
             flat_dict.pop("successor")
         flat_dict.pop("instance")
+        flat_dict.pop("function")
         return flat_dict
 
 
@@ -130,25 +196,6 @@ class InternalTool(Tool):
         self.module_path = os.path.abspath(self.function.__func__.__code__.co_filename)
         if self.verbose_id:
             clean_module_name = self.function.__func__.__module__.replace(".", "__")
-            self.unique_id = f"{clean_module_name}__{self.function_name}"
-        else:
-            self.unique_id = self.function_name
-        self.definition["function"]["name"] = self.unique_id
-
-
-@dataclass(eq=False)
-class ExternalTool(Tool):
-    function: Callable
-    timeout: Optional[float] = None
-    timeout_message: Optional[str] = None
-    verbose_id: bool = False
-
-    def __post_init__(self) -> None:
-        self.module_path = os.path.abspath(inspect.getsourcefile(self.function))
-        if self.verbose_id:
-            clean_module_name = inspect.getmodule(self.function).__name__.replace(
-                ".", "__"
-            )
             self.unique_id = f"{clean_module_name}__{self.function_name}"
         else:
             self.unique_id = self.function_name

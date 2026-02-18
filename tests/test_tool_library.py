@@ -41,6 +41,7 @@ from unittest.mock import patch
 
 from chromadb.errors import NotFoundError
 
+from tests import example_tools
 from tests.example_tools_in_class import Calculator
 from tulip_agent.tool import McpTool
 from tulip_agent.tool_execution import Job, execute_parallel_jobs
@@ -102,6 +103,39 @@ class TestToolLibrary(unittest.TestCase):
             set(functions),
             {"add"},
             "Initializing tool library with selected functions failed.",
+        )
+
+    def test_init_functions(self):
+        tulip = ToolLibrary(
+            chroma_sub_dir="test/",
+            function_imports=[example_tools.add, example_tools.subtract],
+        )
+        functions = tulip.collection.get(include=[])["ids"]
+        self.assertEqual(
+            set(functions),
+            {"add", "subtract"},
+            "Initializing tool library with direct functions failed.",
+        )
+
+    def test_init_functions_unspecified(self):
+        tulip = ToolLibrary(
+            chroma_sub_dir="test/",
+            function_imports=[example_tools.add, example_tools.subtract],
+        )
+        functions = tulip.collection.get(include=[])["ids"]
+        self.assertEqual(
+            set(functions),
+            {"add", "subtract"},
+            "Direct functions were not added in first initialization.",
+        )
+        tulip = ToolLibrary(
+            chroma_sub_dir="test/", function_imports=[example_tools.add]
+        )
+        functions = tulip.collection.get(include=[])["ids"]
+        self.assertEqual(
+            set(functions),
+            {"add"},
+            "Unspecified legacy direct function was not removed in second initialization.",
         )
 
     def test_init_instance(self):
@@ -267,6 +301,16 @@ class TestToolLibrary(unittest.TestCase):
                 "custom_division",
             },
             "Loading entire file failed.",
+        )
+
+    def test_load_callables(self):
+        tulip = ToolLibrary(chroma_sub_dir="test/")
+        tulip.load_functions_from_callables(functions=[example_tools.multiply])
+        functions = tulip.collection.get(include=[])["ids"]
+        self.assertEqual(
+            set(functions),
+            {"multiply"},
+            "Loading direct callables failed.",
         )
 
     def test_load_name_clash(self):

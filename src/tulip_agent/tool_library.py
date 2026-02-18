@@ -65,6 +65,7 @@ class ToolLibrary:
         self,
         chroma_sub_dir: str = "",
         file_imports: Optional[list[tuple[str, Optional[list[str]]]]] = None,
+        function_imports: Optional[list[Callable]] = None,
         instance_imports: Optional[list[object]] = None,
         mcp_imports: Optional[list[tuple[dict[str, Any], Optional[list[str]]]]] = None,
         chroma_base_dir: str = dirname(dirname(dirname(abspath(__file__))))
@@ -85,6 +86,7 @@ class ToolLibrary:
         :param chroma_sub_dir: A specific subfolder for the tool library.
         :param file_imports: List of tuples with a module name from which to load tools from and
             an optional list of tools to load. If no tools are specified, all tools are loaded.
+        :param function_imports: List of callables to load tools from directly.
         :param instance_imports: List of instances of classes from which to load tools.
         :param mcp_imports: List of tuples with an MCP server config and an optional list of
             tool names to load from that server. If no tools are specified, all tools are loaded.
@@ -140,6 +142,15 @@ class ToolLibrary:
             else {}
         )
         functions_by_file = {k: v for k, v in file_imports} if file_imports else {}
+        function_imports = function_imports if function_imports else []
+        for function in function_imports:
+            module_name = function.__module__
+            if module_name not in functions_by_file:
+                functions_by_file[module_name] = [function.__name__]
+                continue
+            if functions_by_file[module_name]:
+                if function.__name__ not in functions_by_file[module_name]:
+                    functions_by_file[module_name].append(function.__name__)
         functions_by_mcp = (
             {McpTool.serialized_config(config): names for config, names in mcp_imports}
             if mcp_imports
@@ -228,7 +239,7 @@ class ToolLibrary:
         )
 
         # load new tools from files, instances, and MCP servers
-        if not file_imports and not instance_imports and not mcp_imports:
+        if not any((file_imports, function_imports, instance_imports, mcp_imports)):
             return
         file_imports = file_imports if file_imports else []
         for file_import in file_imports:
@@ -256,6 +267,23 @@ class ToolLibrary:
                         "timeout_message"
                     ]
                 self._add_to_tools(tool)
+
+        for function in function_imports:
+            function_definition = self.function_analyzer.analyze_function(function)
+            tool = ImportedTool.from_function(
+                function=function,
+                definition=function_definition,
+                timeout=self.default_timeout,
+                timeout_message=self.default_timeout_message,
+                verbose_id=self.verbose_tool_ids,
+            )
+            if tool.unique_id in timeout_settings:
+                tool.timeout = timeout_settings[tool.unique_id]["timeout"]
+                tool.timeout_message = timeout_settings[tool.unique_id][
+                    "timeout_message"
+                ]
+            self._add_to_tools(tool)
+
         instance_imports = instance_imports if instance_imports else []
         for instance_import in instance_imports:
             function_definitions = self.function_analyzer.analyze_class(
@@ -443,6 +471,33 @@ class ToolLibrary:
                 function_name=function_definition["function"]["name"],
                 module_name=instance.__module__,
                 instance=instance,
+                definition=function_definition,
+                timeout=self.default_timeout,
+                timeout_message=self.default_timeout_message,
+                verbose_id=self.verbose_tool_ids,
+            )
+            if tool.unique_id in timeout_settings:
+                tool.timeout = timeout_settings[tool.unique_id]["timeout"]
+                tool.timeout_message = timeout_settings[tool.unique_id][
+                    "timeout_message"
+                ]
+            new_tools.append(tool)
+            self._add_to_tools(tool)
+
+        self._save_to_vector_store(tools=new_tools)
+        return new_tools
+
+    def load_functions_from_callables(
+        self,
+        functions: list[Callable],
+        timeout_settings: Optional[dict] = None,
+    ) -> list[Tool]:
+        timeout_settings = timeout_settings if timeout_settings else {}
+        new_tools = []
+        for function in functions:
+            function_definition = self.function_analyzer.analyze_function(function)
+            tool = ImportedTool.from_function(
+                function=function,
                 definition=function_definition,
                 timeout=self.default_timeout,
                 timeout_message=self.default_timeout_message,

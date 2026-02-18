@@ -44,7 +44,7 @@ import sys
 from abc import ABC
 from dataclasses import asdict, dataclass, field
 from types import ModuleType
-from typing import Callable, Optional
+from typing import Any, Callable, Optional
 
 from fastmcp import Client
 
@@ -64,6 +64,9 @@ class Tool(ABC):
 
     def __call__(self, **parameters) -> str:
         return self.function(**parameters)
+
+    def format_for_chroma(self) -> dict:
+        raise NotImplementedError
 
 
 @dataclass(eq=False)
@@ -106,6 +109,7 @@ class ImportedTool(Tool):
 
     def format_for_chroma(self) -> dict:
         flat_dict = asdict(self)
+        flat_dict["tool_type"] = "imported"
         flat_dict["definition"] = json.dumps(self.definition, indent=4)
         if self.predecessor is None:
             flat_dict.pop("predecessor")
@@ -153,24 +157,51 @@ class ExternalTool(Tool):
 
 @dataclass(eq=False)
 class McpTool(Tool):
-    mcp_id: str
+    mcp_config: dict[str, Any]
     timeout: Optional[float] = None
     timeout_message: Optional[str] = None
     verbose_id: bool = False
 
+    @classmethod
+    def serialized_config(cls, mcp_config: dict[str, Any]) -> str:
+        return json.dumps(mcp_config, sort_keys=True, separators=(",", ":"))
+
+    @classmethod
+    def config_from_metadata(cls, metadata: dict[str, Any]) -> dict[str, Any]:
+        if "mcp_config" not in metadata:
+            raise ValueError(
+                "Stored MCP metadata is missing required `mcp_config` for "
+                f"{metadata.get('unique_id', '<unknown>')}."
+            )
+        return json.loads(metadata["mcp_config"])
+
     def __post_init__(self) -> None:
-        self.module_path = ""
+        self.module_path = self.serialized_config(self.mcp_config)
         if self.verbose_id:
-            clean_module_name = self.mcp_id.split("/")[-1]
+            clean_module_name = "mcp_config"
             self.unique_id = f"{clean_module_name}__{self.function_name}"
         else:
             self.unique_id = self.function_name
+        self.description = (
+            self.function_name + ":\n" + self.definition["function"]["description"]
+        )
         self.definition["function"]["name"] = self.unique_id
 
     def __call__(self, **parameters):
         return asyncio.run(self.execute(**parameters))
 
     async def execute(self, **parameters):
-        async with Client(self.mcp_id) as client:
+        async with Client(self.mcp_config) as client:
             res = await client.call_tool(self.function_name, parameters)
             return res.content[0].text
+
+    def format_for_chroma(self) -> dict:
+        return {
+            "tool_type": "mcp",
+            "unique_id": self.unique_id,
+            "function_name": self.function_name,
+            "definition": json.dumps(self.definition, indent=4),
+            "mcp_config": self.serialized_config(self.mcp_config),
+            "timeout": self.timeout,
+            "timeout_message": self.timeout_message,
+        }

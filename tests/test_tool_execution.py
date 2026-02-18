@@ -47,17 +47,21 @@ class TestToolExecution(unittest.TestCase):
         function_analyzer = FunctionAnalyzer()
         cls.module_name = example_tools.__name__
 
-        cls.multiply_tool = ImportedTool(
+        cls.multiply_tool = ImportedTool.from_module(
             module_name=cls.module_name,
             function_name=example_tools.multiply.__name__,
             definition=function_analyzer.analyze_function(example_tools.multiply),
         )
-        cls.slow_tool = ImportedTool(
+        cls.slow_tool = ImportedTool.from_module(
             module_name=cls.module_name,
             function_name=example_tools.slow.__name__,
             definition=function_analyzer.analyze_function(example_tools.slow),
             timeout=0.05,
             timeout_message="The tool did not return a response within the specified timeout.",
+        )
+        cls.add_tool = ImportedTool.from_function(
+            function=example_tools.add,
+            definition=function_analyzer.analyze_function(example_tools.add),
         )
 
     def test_execute(self):
@@ -77,6 +81,20 @@ class TestToolExecution(unittest.TestCase):
             4.0,
             "Function execution via tool library failed.",
         )
+
+    def test_execute_from_callable(self):
+        res = execute_parallel_jobs(
+            jobs=[
+                Job(
+                    tool_call_id="test_callable",
+                    tool=self.add_tool,
+                    parameters={"a": 2.0, "b": 3.0},
+                ),
+            ]
+        )
+        self.assertEqual(len(res), 1)
+        self.assertIsNone(res[0].result.error)
+        self.assertEqual(res[0].result.value, 5.0)
 
     def test_execute_timeout(self):
         res = execute_parallel_jobs(

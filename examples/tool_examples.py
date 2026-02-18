@@ -94,8 +94,8 @@ def instance_tool_example(function_analyzer: FunctionAnalyzer):
     print(add(**{"a": 1, "b": 2}))
 
 
-async def get_mcp_tool_definition(mcp_id: str, name: str):
-    async with Client(mcp_id) as client:
+async def get_mcp_tool_definition(mcp_config: dict, name: str):
+    async with Client(mcp_config) as client:
         tools = await client.list_tools()
         for tool in tools:
             if tool.name == name:
@@ -108,14 +108,21 @@ async def get_mcp_tool_definition(mcp_id: str, name: str):
                     },
                     "strict": True,
                 }
-    raise ValueError(f"Tool with name {name} not found on {mcp_id}.")
+    raise ValueError(f"Tool with name {name} not found for {mcp_config}.")
 
 
 def local_mcp_tool_example():
-    mcp_id = "http://127.0.0.1:8000/mcp"
-    definition = asyncio.run(get_mcp_tool_definition(mcp_id, "multiply"))
+    mcp_config = {
+        "mcpServers": {
+            "local": {
+                "url": "http://127.0.0.1:8000/mcp",
+                "transport": "http",
+            }
+        }
+    }
+    definition = asyncio.run(get_mcp_tool_definition(mcp_config, "multiply"))
     multiply = McpTool(
-        mcp_id=mcp_id,
+        mcp_config=mcp_config,
         function_name="multiply",
         definition=definition,
     )
@@ -125,10 +132,17 @@ def local_mcp_tool_example():
 
 
 def remote_mcp_tool_example():
-    mcp_id = "https://mcp.deepwiki.com/mcp"
-    definition = asyncio.run(get_mcp_tool_definition(mcp_id, "read_wiki_contents"))
+    mcp_config = {
+        "mcpServers": {
+            "deepwiki": {
+                "url": "https://mcp.deepwiki.com/mcp",
+                "transport": "http",
+            }
+        }
+    }
+    definition = asyncio.run(get_mcp_tool_definition(mcp_config, "read_wiki_contents"))
     read_wiki_contents = McpTool(
-        mcp_id=mcp_id,
+        mcp_config=mcp_config,
         function_name="read_wiki_contents",
         definition=definition,
     )

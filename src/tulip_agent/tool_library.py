@@ -196,7 +196,7 @@ class ToolLibrary:
                         self.collection.delete(ids=[metadata["unique_id"]])
                         continue
 
-                tool = ImportedTool(
+                tool = ImportedTool.from_module(
                     function_name=metadata["function_name"],
                     module_name=metadata["module_name"],
                     definition=json.loads(metadata["definition"]),
@@ -242,7 +242,7 @@ class ToolLibrary:
             ]
             for function in functions:
                 function_definition = self.function_analyzer.analyze_function(function)
-                tool = ImportedTool(
+                tool = ImportedTool.from_module(
                     function_name=function.__name__,
                     module_name=module_name,
                     definition=function_definition,
@@ -262,7 +262,7 @@ class ToolLibrary:
                 instance_import.__class__
             )
             for function_definition in function_definitions:
-                tool = ImportedTool(
+                tool = ImportedTool.from_module(
                     function_name=function_definition["function"]["name"],
                     module_name=instance_import.__module__,
                     instance=instance_import,
@@ -385,7 +385,7 @@ class ToolLibrary:
         timeout_message: Optional[str] = None,
     ) -> Tool:
         function_definition = self.function_analyzer.analyze_function(function)
-        tool = ImportedTool(
+        tool = ImportedTool.from_module(
             function_name=function.__name__,
             module_name=module_name,
             definition=function_definition,
@@ -439,7 +439,7 @@ class ToolLibrary:
         function_definitions = self.function_analyzer.analyze_class(instance.__class__)
         new_tools = []
         for function_definition in function_definitions:
-            tool = ImportedTool(
+            tool = ImportedTool.from_module(
                 function_name=function_definition["function"]["name"],
                 module_name=instance.__module__,
                 instance=instance,

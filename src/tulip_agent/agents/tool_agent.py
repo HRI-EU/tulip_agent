@@ -43,7 +43,7 @@ from openai import AzureOpenAI, OpenAI
 
 from tulip_agent.agents.base_agent import LlmAgent
 from tulip_agent.function_analyzer import FunctionAnalyzer
-from tulip_agent.tool import ExternalTool, Tool
+from tulip_agent.tool import ImportedTool, Tool
 
 
 logger = logging.getLogger(__name__)
@@ -75,10 +75,9 @@ class ToolAgent(LlmAgent, ABC):
             analyze_function=self.function_analyzer.analyze_function
         )
         self.tools: list[Tool] = [
-            ExternalTool(
-                function_name=function.__name__,
-                definition=self.function_analyzer.analyze_function(function),
+            ImportedTool.from_function(
                 function=function,
+                definition=self.function_analyzer.analyze_function(function),
                 timeout=60.0,
                 timeout_message="The tool did not return a response within the specified timeout.",
             )

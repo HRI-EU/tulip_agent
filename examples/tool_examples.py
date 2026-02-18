@@ -52,7 +52,7 @@ def return_hi() -> str:
 
 def import_tool_example(function_analyzer: FunctionAnalyzer):
     hi_description = function_analyzer.analyze_function(return_hi)
-    hi = ImportedTool(
+    hi = ImportedTool.from_module(
         function_name="return_hi",
         module_name="tool_examples",
         definition=hi_description,
@@ -82,7 +82,7 @@ class Calculator:
 def instance_tool_example(function_analyzer: FunctionAnalyzer):
     calc = Calculator(10)
     add_description = function_analyzer.analyze_class(Calculator)[0]
-    add = ImportedTool(
+    add = ImportedTool.from_module(
         function_name="add",
         module_name="tool_examples",
         definition=add_description,

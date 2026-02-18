@@ -35,6 +35,7 @@
 """
 The tool library (tulip) for the agent
 """
+import asyncio
 import importlib
 import json
 import logging
@@ -43,16 +44,17 @@ from collections import Counter
 from inspect import getmembers, isfunction
 from os.path import abspath, dirname
 from pathlib import Path
-from typing import Callable, Optional
+from typing import Any, Callable, Optional
 
 import chromadb
+from fastmcp import Client
 from openai import AzureOpenAI, OpenAI
 
 from tulip_agent.client_setup import ModelServeMode, create_client
 from tulip_agent.constants import BASE_EMBEDDING_MODEL
 from tulip_agent.embed import embed
 from tulip_agent.function_analyzer import FunctionAnalyzer
-from tulip_agent.tool import ImportedTool, Tool
+from tulip_agent.tool import ImportedTool, McpTool, Tool
 
 
 logger = logging.getLogger(__name__)
@@ -64,6 +66,7 @@ class ToolLibrary:
         chroma_sub_dir: str = "",
         file_imports: Optional[list[tuple[str, Optional[list[str]]]]] = None,
         instance_imports: Optional[list[object]] = None,
+        mcp_imports: Optional[list[tuple[dict[str, Any], Optional[list[str]]]]] = None,
         chroma_base_dir: str = dirname(dirname(dirname(abspath(__file__))))
         + "/data/chroma/",
         embedding_model: str = BASE_EMBEDDING_MODEL,
@@ -83,6 +86,8 @@ class ToolLibrary:
         :param file_imports: List of tuples with a module name from which to load tools from and
             an optional list of tools to load. If no tools are specified, all tools are loaded.
         :param instance_imports: List of instances of classes from which to load tools.
+        :param mcp_imports: List of tuples with an MCP server config and an optional list of
+            tool names to load from that server. If no tools are specified, all tools are loaded.
         :param chroma_base_dir: Absolute path to the tool library folder.
         :param embedding_model: Name of the embedding model used. Defaults to the one specified in constants.
         :param embedding_client: Client for serving embedding model. Defaults to OPENAI.
@@ -135,41 +140,82 @@ class ToolLibrary:
             else {}
         )
         functions_by_file = {k: v for k, v in file_imports} if file_imports else {}
+        functions_by_mcp = (
+            {McpTool.serialized_config(config): names for config, names in mcp_imports}
+            if mcp_imports
+            else {}
+        )
 
         for metadata in stored_tools["metadatas"]:
-            instance = None
+            tool_type = metadata.get("tool_type")
+            if tool_type is None:
+                raise ValueError(
+                    "Stored tool metadata is missing required `tool_type` for "
+                    f"{metadata.get('unique_id', '<unknown>')}."
+                )
 
-            if class_name := metadata["class_name"]:
-                if class_name not in instances_by_class:
-                    self.collection.delete(ids=[metadata["unique_id"]])
-                    continue
-                else:
-                    instance = instances_by_class[class_name]
-            else:
-                module_name = metadata["module_name"]
-                if module_name not in functions_by_file:
+            if tool_type == "mcp":
+                mcp_config = McpTool.config_from_metadata(metadata)
+                mcp_key = metadata["mcp_config"]
+                if mcp_key not in functions_by_mcp:
                     self.collection.delete(ids=[metadata["unique_id"]])
                     continue
                 if (
-                    functions_by_file[module_name]
-                    and metadata["function_name"] not in functions_by_file[module_name]
+                    functions_by_mcp[mcp_key]
+                    and metadata["function_name"] not in functions_by_mcp[mcp_key]
                 ):
                     self.collection.delete(ids=[metadata["unique_id"]])
                     continue
+                tool = McpTool(
+                    mcp_config=mcp_config,
+                    function_name=metadata["function_name"],
+                    definition=json.loads(metadata["definition"]),
+                    timeout=metadata["timeout"],
+                    timeout_message=metadata["timeout_message"],
+                    verbose_id=self.verbose_tool_ids,
+                )
+            elif tool_type == "imported":
+                instance = None
 
-            tool = ImportedTool(
-                function_name=metadata["function_name"],
-                module_name=metadata["module_name"],
-                definition=json.loads(metadata["definition"]),
-                instance=instance if instance else None,
-                timeout=metadata["timeout"],
-                timeout_message=metadata["timeout_message"],
-                predecessor=(
-                    metadata["predecessor"] if "predecessor" in metadata else None
-                ),
-                successor=metadata["successor"] if "successor" in metadata else None,
-                verbose_id=self.verbose_tool_ids,
-            )
+                class_name = metadata.get("class_name")
+                if class_name:
+                    if class_name not in instances_by_class:
+                        self.collection.delete(ids=[metadata["unique_id"]])
+                        continue
+                    instance = instances_by_class[class_name]
+                else:
+                    module_name = metadata["module_name"]
+                    if module_name not in functions_by_file:
+                        self.collection.delete(ids=[metadata["unique_id"]])
+                        continue
+                    if (
+                        functions_by_file[module_name]
+                        and metadata["function_name"]
+                        not in functions_by_file[module_name]
+                    ):
+                        self.collection.delete(ids=[metadata["unique_id"]])
+                        continue
+
+                tool = ImportedTool(
+                    function_name=metadata["function_name"],
+                    module_name=metadata["module_name"],
+                    definition=json.loads(metadata["definition"]),
+                    instance=instance if instance else None,
+                    timeout=metadata["timeout"],
+                    timeout_message=metadata["timeout_message"],
+                    predecessor=(
+                        metadata["predecessor"] if "predecessor" in metadata else None
+                    ),
+                    successor=(
+                        metadata["successor"] if "successor" in metadata else None
+                    ),
+                    verbose_id=self.verbose_tool_ids,
+                )
+            else:
+                raise ValueError(
+                    f"Unsupported tool_type `{tool_type}` in stored metadata for "
+                    f"{metadata.get('unique_id', '<unknown>')}."
+                )
             self.tools[tool.unique_id] = tool
         logger.info(
             (
@@ -181,8 +227,8 @@ class ToolLibrary:
             f"Loaded {len(self.tools)} tools from collection {self.collection.name}."
         )
 
-        # load new tools from files and instances
-        if not file_imports and not instance_imports:
+        # load new tools from files, instances, and MCP servers
+        if not file_imports and not instance_imports and not mcp_imports:
             return
         file_imports = file_imports if file_imports else []
         for file_import in file_imports:
@@ -233,11 +279,33 @@ class ToolLibrary:
                 self._add_to_tools(tool)
                 self.tools[tool.unique_id] = tool
 
+        mcp_imports = mcp_imports if mcp_imports else []
+        for mcp_config, function_names in mcp_imports:
+            for function_definition in self._load_mcp_function_definitions(
+                mcp_config=mcp_config,
+                function_names=function_names,
+            ):
+                tool = McpTool(
+                    mcp_config=mcp_config,
+                    function_name=function_definition["function"]["name"],
+                    definition=function_definition,
+                    timeout=self.default_timeout,
+                    timeout_message=self.default_timeout_message,
+                    verbose_id=self.verbose_tool_ids,
+                )
+                if tool.unique_id in timeout_settings:
+                    tool.timeout = timeout_settings[tool.unique_id]["timeout"]
+                    tool.timeout_message = timeout_settings[tool.unique_id][
+                        "timeout_message"
+                    ]
+                self._add_to_tools(tool)
+
         # store new functions in vector store
         new_tools = [
             tool
             for tool_id, tool in self.tools.items()
-            if tool_id not in stored_tools_ids and isinstance(tool, ImportedTool)
+            if tool_id not in stored_tools_ids
+            and isinstance(tool, (ImportedTool, McpTool))
         ]
         if not new_tools:
             return
@@ -246,7 +314,34 @@ class ToolLibrary:
             f"Added {len(new_tools)} new tools to collection {self.collection.name}."
         )
 
-    def _add_to_tools(self, tool: ImportedTool) -> None:
+    @staticmethod
+    def _load_mcp_function_definitions(
+        mcp_config: dict[str, Any], function_names: Optional[list[str]] = None
+    ) -> list[dict]:
+        async def _list_tools() -> list:
+            async with Client(mcp_config) as client:
+                return await client.list_tools()
+
+        tools = asyncio.run(_list_tools())
+        filtered_tools = (
+            [tool for tool in tools if tool.name in function_names]
+            if function_names
+            else tools
+        )
+        return [
+            {
+                "type": "function",
+                "function": {
+                    "name": tool.name,
+                    "description": tool.description or "",
+                    "parameters": tool.inputSchema,
+                },
+                "strict": True,
+            }
+            for tool in filtered_tools
+        ]
+
+    def _add_to_tools(self, tool: Tool) -> None:
         if tool.unique_id in self.tools:
             if tool.module_path != self.tools[tool.unique_id].module_path:
                 raise ValueError(
@@ -259,8 +354,10 @@ class ToolLibrary:
         else:
             self.tools[tool.unique_id] = tool
 
-    def _save_to_vector_store(self, tools: list[ImportedTool]) -> None:
+    def _save_to_vector_store(self, tools: list[Tool]) -> None:
         tool_lookup = {tool.unique_id: tool for tool in tools}
+        if not tool_lookup:
+            return
         logger.info(
             f"Adding tools to collection {self.collection}: {tool_lookup.keys()}"
         )
@@ -359,6 +456,35 @@ class ToolLibrary:
             new_tools.append(tool)
             self._add_to_tools(tool)
 
+        self._save_to_vector_store(tools=new_tools)
+        return new_tools
+
+    def load_functions_from_mcp(
+        self,
+        mcp_config: dict[str, Any],
+        function_names: Optional[list[str]] = None,
+        timeout_settings: Optional[dict] = None,
+    ) -> list[Tool]:
+        timeout_settings = timeout_settings if timeout_settings else {}
+        new_tools = []
+        for function_definition in self._load_mcp_function_definitions(
+            mcp_config=mcp_config, function_names=function_names
+        ):
+            tool = McpTool(
+                mcp_config=mcp_config,
+                function_name=function_definition["function"]["name"],
+                definition=function_definition,
+                timeout=self.default_timeout,
+                timeout_message=self.default_timeout_message,
+                verbose_id=self.verbose_tool_ids,
+            )
+            if tool.unique_id in timeout_settings:
+                tool.timeout = timeout_settings[tool.unique_id]["timeout"]
+                tool.timeout_message = timeout_settings[tool.unique_id][
+                    "timeout_message"
+                ]
+            new_tools.append(tool)
+            self._add_to_tools(tool)
         self._save_to_vector_store(tools=new_tools)
         return new_tools
 

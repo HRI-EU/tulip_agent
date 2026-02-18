@@ -33,9 +33,16 @@
 #
 #
 import subprocess
+import sys
+import tempfile
+import textwrap
 import unittest
+from unittest.mock import patch
+
+from chromadb.errors import NotFoundError
 
 from tests.example_tools_in_class import Calculator
+from tulip_agent.tool import McpTool
 from tulip_agent.tool_execution import Job, execute_parallel_jobs
 from tulip_agent.tool_library import ToolLibrary
 
@@ -43,7 +50,10 @@ from tulip_agent.tool_library import ToolLibrary
 class TestToolLibrary(unittest.TestCase):
     def setUp(self):
         tulip = ToolLibrary(chroma_sub_dir="test/")
-        tulip.chroma_client.delete_collection("tulip")
+        try:
+            tulip.chroma_client.delete_collection("tulip")
+        except NotFoundError:
+            pass
 
     def test_init(self):
         tulip = ToolLibrary(
@@ -278,6 +288,163 @@ class TestToolLibrary(unittest.TestCase):
             {"multiply"},
             "Loading selected functions from file failed.",
         )
+
+    def test_init_mcp_reloads_from_disk(self):
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            server_script = f"{tmp_dir}/mcp_reload_server.py"
+            with open(server_script, "w", encoding="utf-8") as f:
+                f.write(
+                    textwrap.dedent(
+                        """
+                        from fastmcp import FastMCP
+
+                        mcp = FastMCP("ReloadTest")
+
+
+                        @mcp.tool
+                        def disk_mcp_tool(x: str) -> str:
+                            return x
+
+
+                        if __name__ == "__main__":
+                            mcp.run()
+                        """
+                    )
+                )
+
+            mcp_config = {
+                "mcpServers": {
+                    "local": {
+                        "transport": "stdio",
+                        "command": sys.executable,
+                        "args": [server_script],
+                    }
+                }
+            }
+
+            first = ToolLibrary(chroma_sub_dir="test/", mcp_imports=[(mcp_config, [])])
+            self.assertIn("disk_mcp_tool", first.tools)
+
+            with patch.object(
+                ToolLibrary,
+                "_load_mcp_function_definitions",
+                return_value=[],
+            ):
+                second = ToolLibrary(
+                    chroma_sub_dir="test/", mcp_imports=[(mcp_config, [])]
+                )
+
+            self.assertIn(
+                "disk_mcp_tool",
+                second.tools,
+                "MCP tool was not reloaded from persisted metadata.",
+            )
+
+    def test_mcp_stdio_integration(self):
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            server_script = f"{tmp_dir}/mcp_server.py"
+            with open(server_script, "w", encoding="utf-8") as f:
+                f.write(
+                    textwrap.dedent(
+                        """
+                        from fastmcp import FastMCP
+
+                        mcp = FastMCP("Test")
+
+
+                        @mcp.tool
+                        def ping(text: str) -> str:
+                            return text
+
+
+                        if __name__ == "__main__":
+                            mcp.run()
+                        """
+                    )
+                )
+
+            mcp_config = {
+                "mcpServers": {
+                    "local": {
+                        "transport": "stdio",
+                        "command": sys.executable,
+                        "args": [server_script],
+                    }
+                }
+            }
+            definitions = ToolLibrary._load_mcp_function_definitions(
+                mcp_config=mcp_config
+            )
+            tool_names = {d["function"]["name"] for d in definitions}
+            self.assertIn("ping", tool_names)
+
+            ping_definition = next(
+                d for d in definitions if d["function"]["name"] == "ping"
+            )
+            ping_tool = McpTool(
+                mcp_config=mcp_config,
+                function_name="ping",
+                definition=ping_definition,
+            )
+            self.assertEqual(ping_tool(text="pong"), "pong")
+
+    def test_init_mcp_reloads_selected_function_names_from_disk(self):
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            server_script = f"{tmp_dir}/mcp_subset_server.py"
+            with open(server_script, "w", encoding="utf-8") as f:
+                f.write(
+                    textwrap.dedent(
+                        """
+                        from fastmcp import FastMCP
+
+                        mcp = FastMCP("SubsetTest")
+
+
+                        @mcp.tool
+                        def alpha(x: str) -> str:
+                            return x
+
+
+                        @mcp.tool
+                        def beta(x: str) -> str:
+                            return x
+
+
+                        if __name__ == "__main__":
+                            mcp.run()
+                        """
+                    )
+                )
+
+            mcp_config = {
+                "mcpServers": {
+                    "local": {
+                        "transport": "stdio",
+                        "command": sys.executable,
+                        "args": [server_script],
+                    }
+                }
+            }
+
+            first = ToolLibrary(
+                chroma_sub_dir="test/",
+                mcp_imports=[(mcp_config, ["beta"])],
+            )
+            self.assertIn("beta", first.tools)
+            self.assertNotIn("alpha", first.tools)
+
+            with patch.object(
+                ToolLibrary,
+                "_load_mcp_function_definitions",
+                return_value=[],
+            ):
+                second = ToolLibrary(
+                    chroma_sub_dir="test/",
+                    mcp_imports=[(mcp_config, ["beta"])],
+                )
+
+            self.assertIn("beta", second.tools)
+            self.assertNotIn("alpha", second.tools)
 
     def test_search_function(self):
         tulip = ToolLibrary(

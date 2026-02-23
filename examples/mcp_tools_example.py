@@ -33,14 +33,20 @@
 #
 #
 import logging
+from pathlib import Path
 
-from tulip_agent import NaiveTulipAgent, ToolLibrary
-
-
-logging.basicConfig(level=logging.INFO)
+from tulip_agent import MinimalTulipAgent, ToolLibrary
 
 
-tasks = ["Summarize the contents of the github repo `HRI-EU/tulip_agent`"]
+logging.basicConfig(level=logging.ERROR)
+
+
+tasks = [
+    "Summarize the contents of the github repo `HRI-EU/tulip_agent` in one sentence.",
+    "What is 12 * 289?",
+    "Add 12 and 289.",
+    "How many files are in the current directory?",
+]
 
 
 tulip = ToolLibrary(
@@ -49,9 +55,30 @@ tulip = ToolLibrary(
         (
             {
                 "mcpServers": {
+                    # remote MCP server
                     "deepwiki": {
                         "url": "https://mcp.deepwiki.com/mcp",
                         "transport": "http",
+                    },
+                    # local, up-and-running MCP server
+                    "multiplication": {
+                        "url": "http://127.0.0.2:8000/mcp",
+                        "transport": "http",
+                    },
+                    # local file with an MCP server, not running
+                    "addition": {
+                        "command": "python",
+                        "args": [str(Path(__file__).parent / "example_mcp_add.py")],
+                        "transport": "stdio",
+                    },
+                    # MCP server as a package
+                    "filesystem": {
+                        "command": "uvx",
+                        "args": ["fastmcp-file-server"],
+                        "transport": "stdio",
+                        "env": {
+                            "MCP_ALLOWED_PATH": str(Path(__file__).parent.resolve().absolute()),
+                        },
                     }
                 }
             },
@@ -60,7 +87,7 @@ tulip = ToolLibrary(
     ],
 )
 print(tulip.tools)
-agent = NaiveTulipAgent(
+agent = MinimalTulipAgent(
     base_model="gpt-5.2",
     tool_library=tulip,
     top_k_functions=2,

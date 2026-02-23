@@ -35,7 +35,7 @@
 from fastmcp import FastMCP
 
 
-mcp = FastMCP("Dummy MCP")
+mcp = FastMCP("Multiply MCP")
 
 
 @mcp.tool

@@ -41,7 +41,7 @@ import time
 from tulip_agent import NaiveTulipAgent, ToolLibrary
 
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.WARNING)
 
 
 tulip = ToolLibrary(

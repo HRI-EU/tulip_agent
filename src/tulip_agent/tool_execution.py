@@ -39,6 +39,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from tulip_agent.tool import Tool
+from tulip_agent.tracing import get_thread_pool_executor, trace_call
 
 
 logger = logging.getLogger(__name__)
@@ -61,97 +62,124 @@ class Job:
 def execute_tool_calls(
     tool_calls: list, messages: list, tools: dict[str, Tool]
 ) -> None:
-    if not tool_calls:
-        return
+    def _execute() -> None:
+        if not tool_calls:
+            return
 
-    tool_messages = [{} for _ in tool_calls]
-    valid_calls = []
-    jobs = []
+        tool_messages = [{} for _ in tool_calls]
+        valid_calls = []
+        jobs = []
 
-    for i, tool_call in enumerate(tool_calls):
-        func_name = tool_call.function.name
-        try:
-            func_args = json.loads(tool_call.function.arguments)
-        except json.decoder.JSONDecodeError as e:
-            logger.error(e)
-            generated_func_name, func_name = func_name, "invalid_tool_call"
-            tool_call.function.name = func_name
-            tool_call.function.arguments = "{}"
-            function_response = (
-                f"Error: Invalid arguments for {func_name} "
-                f"(previously {generated_func_name}): {e}"
+        for i, tool_call in enumerate(tool_calls):
+            func_name = tool_call.function.name
+            try:
+                func_args = json.loads(tool_call.function.arguments)
+            except json.decoder.JSONDecodeError as e:
+                logger.error(e)
+                generated_func_name, func_name = func_name, "invalid_tool_call"
+                tool_call.function.name = func_name
+                tool_call.function.arguments = "{}"
+                function_response = (
+                    f"Error: Invalid arguments for {func_name} "
+                    f"(previously {generated_func_name}): {e}"
+                )
+                tool_messages[i] = {
+                    "tool_call_id": tool_call.id,
+                    "role": "tool",
+                    "name": func_name,
+                    "content": function_response,
+                }
+                continue
+
+            if func_name not in tools:
+                logger.error(f"Invalid tool `{func_name}`.")
+                generated_func_name, func_name = func_name, "invalid_tool_call"
+                tool_call.function.name = func_name
+                tool_call.function.arguments = "{}"
+                function_response = (
+                    f"Error: {generated_func_name} is not a valid tool. "
+                    "Use only the tools available."
+                )
+                tool_messages[i] = {
+                    "tool_call_id": tool_call.id,
+                    "role": "tool",
+                    "name": func_name,
+                    "content": function_response,
+                }
+                continue
+
+            valid_calls.append((i, tool_call, func_name))
+            jobs.append(
+                Job(
+                    tool_call_id=tool_call.id,
+                    tool=tools[func_name],
+                    parameters=func_args,
+                )
             )
+
+        execution_results = execute_parallel_jobs(jobs=jobs)
+        for (i, tool_call, func_name), execution_result in zip(
+            valid_calls, execution_results
+        ):
+            if execution_result.result.error:
+                logger.error(execution_result.result.error)
+                function_response = execution_result.result.error
+                tool_call.function.arguments = "{}"
+            else:
+                function_response = execution_result.result.value
+
             tool_messages[i] = {
                 "tool_call_id": tool_call.id,
                 "role": "tool",
                 "name": func_name,
-                "content": function_response,
+                "content": str(function_response),
             }
-            continue
 
-        if func_name not in tools:
-            logger.error(f"Invalid tool `{func_name}`.")
-            generated_func_name, func_name = func_name, "invalid_tool_call"
-            tool_call.function.name = func_name
-            tool_call.function.arguments = "{}"
-            function_response = (
-                f"Error: {generated_func_name} is not a valid tool. "
-                "Use only the tools available."
+        for tool_message, tool_call in zip(tool_messages, tool_calls):
+            messages.append(tool_message)
+            logger.info(
+                (
+                    f"Function {tool_message['name']} returned `{tool_message['content']}` "
+                    f"for arguments {tool_call.function.arguments}."
+                )
             )
-            tool_messages[i] = {
-                "tool_call_id": tool_call.id,
-                "role": "tool",
-                "name": func_name,
-                "content": function_response,
-            }
-            continue
 
-        valid_calls.append((i, tool_call, func_name))
-        jobs.append(
-            Job(
-                tool_call_id=tool_call.id,
-                tool=tools[func_name],
-                parameters=func_args,
-            )
-        )
+    trace_call(
+        "tulip.tool_batch",
+        _execute,
+        inputs={
+            "tool_call_count": len(tool_calls),
+            "tool_ids": [tool_call.function.name for tool_call in tool_calls],
+        },
+        attributes={"message_count_before": len(messages)},
+        output_summarizer=lambda _: {"message_count_after": len(messages)},
+    )
 
-    execution_results = execute_parallel_jobs(jobs=jobs)
-    for (i, tool_call, func_name), execution_result in zip(
-        valid_calls, execution_results
-    ):
-        if execution_result.result.error:
-            logger.error(execution_result.result.error)
-            function_response = execution_result.result.error
-            tool_call.function.arguments = "{}"
-        else:
-            function_response = execution_result.result.value
 
-        tool_messages[i] = {
-            "tool_call_id": tool_call.id,
-            "role": "tool",
-            "name": func_name,
-            "content": str(function_response),
-        }
-
-    for tool_message, tool_call in zip(tool_messages, tool_calls):
-        messages.append(tool_message)
-        logger.info(
-            (
-                f"Function {tool_message['name']} returned `{tool_message['content']}` "
-                f"for arguments {tool_call.function.arguments}."
-            )
-        )
+def _run_job(job: Job) -> ToolCallResult:
+    return trace_call(
+        "tulip.tool_call",
+        lambda: ToolCallResult(value=job.tool(**job.parameters)),
+        inputs={"tool_id": job.tool.unique_id, "parameters": job.parameters},
+        attributes={"tool_call_id": job.tool_call_id},
+        output_summarizer=lambda result: {
+            "tool_id": job.tool.unique_id,
+            "value": result.value,
+            "error": result.error,
+        },
+    )
 
 
 def execute_parallel_jobs(jobs: list[Job]) -> list[Job]:
     if not jobs:
         return []
 
-    with concurrent.futures.ThreadPoolExecutor(max_workers=len(jobs)) as executor:
+    executor_cls = get_thread_pool_executor()
+    with executor_cls(max_workers=len(jobs)) as executor:
         scheduled = []
         for job in jobs:
             try:
-                fut = executor.submit(job.tool, **job.parameters)
+                fut = executor.submit(_run_job, job)
                 scheduled.append((job, fut))
             except TypeError as exc:
                 job.result = ToolCallResult(error=f"Error: Invalid tool call - {exc}")
@@ -163,11 +191,9 @@ def execute_parallel_jobs(jobs: list[Job]) -> list[Job]:
         for job, fut in scheduled:
             try:
                 if job.tool.timeout is None:
-                    job.result = ToolCallResult(value=fut.result())
+                    job.result = fut.result()
                 else:
-                    job.result = ToolCallResult(
-                        value=fut.result(timeout=job.tool.timeout)
-                    )
+                    job.result = fut.result(timeout=job.tool.timeout)
             except concurrent.futures.TimeoutError:
                 error_message = (
                     job.tool.timeout_message

@@ -48,6 +48,7 @@ from tulip_agent.client_setup import ModelServeMode, create_client
 from tulip_agent.constants import BASE_LANGUAGE_MODEL, BASE_REASONING_MODEL
 from tulip_agent.tool import InternalTool, Tool
 from tulip_agent.tool_execution import execute_tool_calls
+from tulip_agent.tracing import summarize_messages, summarize_response, trace_call
 
 
 logger = logging.getLogger(__name__)
@@ -115,59 +116,83 @@ class LlmAgent(ABC):
         reasoning: bool = False,
         response_format: str = None,
     ):
-        client = self.reasoning_client if reasoning else self.base_client
-        reasoning = (
-            True
-            if self.reasoning_only
-            else False if not self.reasoning_available else reasoning
-        )
+        def _request():
+            client = self.reasoning_client if reasoning else self.base_client
+            use_reasoning = (
+                True
+                if self.reasoning_only
+                else False if not self.reasoning_available else reasoning
+            )
 
-        self.api_interaction_counter += 1
-        response, retries = None, 0
+            self.api_interaction_counter += 1
+            response, retries = None, 0
 
-        while not response:
-            params = {
-                "model": self.reasoning_model if reasoning else self.base_model,
-                "messages": msgs,
-            }
-            if tools:
-                params["tools"] = tools
-                params["tool_choice"] = tool_choice
-            if response_format == "json":
-                params["response_format"] = {"type": "json_object"}
-            if not reasoning and not params["model"].startswith("gpt-5"):
-                params["temperature"] = self.temperature
-            try:
-                response = client.chat.completions.create(**params)
-            # Return error message for bad requests, e.g., repetitive inputs or context window exceeded
-            except BadRequestError as e:
-                logger.error(f"{type(e).__name__}: {e}")
-                return ChatCompletion(
-                    id="abort",
-                    choices=[
-                        Choice(
-                            finish_reason="stop",
-                            index=0,
-                            message=ChatCompletionMessage(
-                                content=f"{type(e).__name__}: {e}", role="assistant"
-                            ),
-                        )
-                    ],
-                    created=int(time.time()),
-                    model=self.base_model,
-                    object="chat.completion",
-                )
-            except OpenAIError as e:
-                logger.error(f"{type(e).__name__}: {e}")
-                retries += 1
-                time.sleep(retries / 4)
-                if retries >= self.max_retries:
-                    raise e
-        logger.info(
-            f"Usage for {response.id} in tokens: "
-            f"{response.usage.prompt_tokens} prompt and {response.usage.completion_tokens} completion."
+            while not response:
+                params = {
+                    "model": self.reasoning_model if use_reasoning else self.base_model,
+                    "messages": msgs,
+                }
+                if tools:
+                    params["tools"] = tools
+                    params["tool_choice"] = tool_choice
+                if response_format == "json":
+                    params["response_format"] = {"type": "json_object"}
+                if not use_reasoning and not params["model"].startswith("gpt-5"):
+                    params["temperature"] = self.temperature
+                try:
+                    response = client.chat.completions.create(**params)
+                # Return error message for bad requests, e.g., repetitive inputs or context window exceeded
+                except BadRequestError as e:
+                    logger.error(f"{type(e).__name__}: {e}")
+                    return ChatCompletion(
+                        id="abort",
+                        choices=[
+                            Choice(
+                                finish_reason="stop",
+                                index=0,
+                                message=ChatCompletionMessage(
+                                    content=f"{type(e).__name__}: {e}",
+                                    role="assistant",
+                                ),
+                            )
+                        ],
+                        created=int(time.time()),
+                        model=self.base_model,
+                        object="chat.completion",
+                    )
+                except OpenAIError as e:
+                    logger.error(f"{type(e).__name__}: {e}")
+                    retries += 1
+                    time.sleep(retries / 4)
+                    if retries >= self.max_retries:
+                        raise e
+            logger.info(
+                f"Usage for {response.id} in tokens: "
+                f"{response.usage.prompt_tokens} prompt and {response.usage.completion_tokens} completion."
+            )
+            return response
+
+        return trace_call(
+            "tulip.llm_request",
+            _request,
+            inputs={
+                "messages": summarize_messages(messages=msgs, include_content=False),
+                "tools": (
+                    [tool["function"]["name"] for tool in tools if "function" in tool]
+                    if tools
+                    else []
+                ),
+                "tool_choice": tool_choice,
+                "reasoning": reasoning,
+                "response_format": response_format,
+            },
+            attributes={
+                "agent_class": self.__class__.__name__,
+                "base_model": self.base_model,
+                "reasoning_model": self.reasoning_model,
+            },
+            output_summarizer=summarize_response,
         )
-        return response
 
     @abstractmethod
     def query(
@@ -188,48 +213,70 @@ class LlmAgent(ABC):
         messages: list | None = None,
         execute_tool_calls_fn: Callable | None = None,
     ) -> str:
-        if messages is None:
-            messages = self.messages
-        if execute_tool_calls_fn is None:
-            execute_tool_calls_fn = execute_tool_calls
-
-        response = self._get_response(
-            msgs=messages,
-            tools=[tool.definition for tool in tools],
-            tool_choice="required",
-        )
-        response_message = response.choices[0].message
-        tool_calls = response_message.tool_calls
-
-        while self.response is None:
-            if not tool_calls:
-                error_message = "Invalid response - no tool calls."
-                logger.error(
-                    f"{self.__class__.__name__} returns response: {error_message}"
-                )
-                return error_message
-
-            messages.append(response_message)
-
-            if self.api_interaction_counter >= self.api_interaction_limit:
-                error_message = f"Error: Reached API interaction limit of {self.api_interaction_limit}."
-                logger.warning(f"{self.__class__.__name__}: {error_message}")
-                return error_message
-
-            execute_tool_calls_fn(
-                tool_calls=tool_calls,
-                messages=messages,
-                tools={tool.unique_id: tool for tool in tools},
+        def _tool_loop() -> str:
+            if messages is None:
+                active_messages = self.messages
+            else:
+                active_messages = messages
+            active_execute_tool_calls_fn = (
+                execute_tool_calls_fn if execute_tool_calls_fn else execute_tool_calls
             )
 
             response = self._get_response(
-                msgs=messages,
+                msgs=active_messages,
                 tools=[tool.definition for tool in tools],
                 tool_choice="required",
             )
             response_message = response.choices[0].message
             tool_calls = response_message.tool_calls
 
-        if self.response is None:
-            raise RuntimeError("Tool loop ended without a final response.")
-        return self.response
+            while self.response is None:
+                if not tool_calls:
+                    error_message = "Invalid response - no tool calls."
+                    logger.error(
+                        f"{self.__class__.__name__} returns response: {error_message}"
+                    )
+                    return error_message
+
+                active_messages.append(response_message)
+
+                if self.api_interaction_counter >= self.api_interaction_limit:
+                    error_message = (
+                        "Error: Reached API interaction limit of "
+                        f"{self.api_interaction_limit}."
+                    )
+                    logger.warning(f"{self.__class__.__name__}: {error_message}")
+                    return error_message
+
+                active_execute_tool_calls_fn(
+                    tool_calls=tool_calls,
+                    messages=active_messages,
+                    tools={tool.unique_id: tool for tool in tools},
+                )
+
+                response = self._get_response(
+                    msgs=active_messages,
+                    tools=[tool.definition for tool in tools],
+                    tool_choice="required",
+                )
+                response_message = response.choices[0].message
+                tool_calls = response_message.tool_calls
+
+            if self.response is None:
+                raise RuntimeError("Tool loop ended without a final response.")
+            return self.response
+
+        return trace_call(
+            "tulip.tool_loop",
+            _tool_loop,
+            inputs={
+                "tool_ids": [tool.unique_id for tool in tools],
+                "message_count": len(
+                    messages if messages is not None else self.messages
+                ),
+            },
+            attributes={"agent_class": self.__class__.__name__},
+            output_summarizer=lambda output: {
+                "final_response_preview": output[:200] if output else output
+            },
+        )

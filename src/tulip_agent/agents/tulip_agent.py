@@ -43,7 +43,6 @@ import subprocess
 import sys
 import tempfile
 from abc import ABC
-from concurrent.futures import ThreadPoolExecutor
 from typing import Optional
 
 from openai import AzureOpenAI, OpenAI
@@ -55,6 +54,7 @@ from tulip_agent.agents.base_agent import LlmAgent
 from tulip_agent.agents.prompts import TECH_LEAD
 from tulip_agent.tool import Tool
 from tulip_agent.tool_library import ToolLibrary
+from tulip_agent.tracing import get_thread_pool_executor, trace_call
 
 
 logger = logging.getLogger(__name__)
@@ -145,58 +145,104 @@ class TulipAgent(LlmAgent, ABC):
         :param similarity_threshold: Similarity threshold to use for searching.
         :return: A list of tuples with action descriptions and respective tools.
         """
-        unique_actions = set(action_descriptions)
-        tool_lookup = {}
 
-        with ThreadPoolExecutor() as executor:
-            future_to_action = {
-                action: executor.submit(
-                    self.tool_library.search,
-                    problem_description=action,
-                    top_k=self.top_k_functions,
-                    similarity_threshold=similarity_threshold,
-                )
-                for action in unique_actions
-            }
-            for action, future in future_to_action.items():
-                tools = future.result()
-                if self.default_tools:
-                    tools.extend(
-                        [tool for tool in self.default_tools if tool not in tools]
+        def _search():
+            unique_actions = set(action_descriptions)
+            tool_lookup = {}
+            executor_cls = get_thread_pool_executor()
+
+            with executor_cls() as executor:
+                future_to_action = {
+                    action: executor.submit(
+                        trace_call,
+                        "tulip.tool_search_action",
+                        lambda action=action: self.tool_library.search(
+                            problem_description=action,
+                            top_k=self.top_k_functions,
+                            similarity_threshold=similarity_threshold,
+                        ),
+                        inputs={"action_description": action},
+                        attributes={"agent_class": self.__class__.__name__},
+                        output_summarizer=lambda tools: [
+                            tool.unique_id for tool in tools
+                        ],
                     )
-                logger.info(
-                    f"Functions for `{action}`: {[tool.unique_id for tool in tools]}"
-                )
-                tool_lookup[action] = tools
+                    for action in unique_actions
+                }
+                for action, future in future_to_action.items():
+                    tools = future.result()
+                    if self.default_tools:
+                        tools.extend(
+                            [tool for tool in self.default_tools if tool not in tools]
+                        )
+                    logger.info(
+                        f"Functions for `{action}`: {[tool.unique_id for tool in tools]}"
+                    )
+                    tool_lookup[action] = tools
 
-        return [(action, tool_lookup[action]) for action in action_descriptions]
+            return [(action, tool_lookup[action]) for action in action_descriptions]
+
+        return trace_call(
+            "tulip.tool_search",
+            _search,
+            inputs={
+                "action_descriptions": action_descriptions,
+                "similarity_threshold": similarity_threshold,
+                "top_k_functions": self.top_k_functions,
+            },
+            attributes={"agent_class": self.__class__.__name__},
+            output_summarizer=lambda matches: [
+                {
+                    "action_description": action,
+                    "tool_ids": [tool.unique_id for tool in tools],
+                }
+                for action, tools in matches
+            ],
+        )
 
     def execute_search_tool_call(
         self,
         tool_call: ChatCompletionMessageToolCall,
         track_history: bool,
     ) -> list[tuple[str, list]]:
-        func = tool_call.function.name
-        args = json.loads(tool_call.function.arguments)
-        assert func == "search_tools", f"Unexpected tool call: {func}"
+        def _execute():
+            func = tool_call.function.name
+            args = json.loads(tool_call.function.arguments)
+            assert func == "search_tools", f"Unexpected tool call: {func}"
 
-        # search tulip for function with args
-        logger.info(f"Tool search for: {str(args)}")
-        tasks_and_tools = self.search_tools(
-            **args, similarity_threshold=self.search_similarity_threshold
-        )
-        logger.info(f"Tools found: {str(tasks_and_tools)}")
-        # TODO: add details to feedback message - task: suitable tools
-        if track_history:
-            self.messages.append(
-                {
-                    "tool_call_id": tool_call.id,
-                    "role": "tool",
-                    "name": func,
-                    "content": "Successfully provided suitable tools.",
-                }
+            logger.info(f"Tool search for: {str(args)}")
+            tasks_and_tools = self.search_tools(
+                **args, similarity_threshold=self.search_similarity_threshold
             )
-        return tasks_and_tools
+            logger.info(f"Tools found: {str(tasks_and_tools)}")
+            if track_history:
+                self.messages.append(
+                    {
+                        "tool_call_id": tool_call.id,
+                        "role": "tool",
+                        "name": func,
+                        "content": "Successfully provided suitable tools.",
+                    }
+                )
+            return tasks_and_tools
+
+        return trace_call(
+            "tulip.search_tool_call",
+            _execute,
+            inputs={
+                "tool_call_id": tool_call.id,
+                "arguments": tool_call.function.arguments,
+                "track_history": track_history,
+            },
+            attributes={"agent_class": self.__class__.__name__},
+            output_summarizer=lambda matches: [
+                {
+                    "action_description": action,
+                    "tool_ids": [tool.unique_id for tool in tools],
+                }
+                for action, tools in matches
+            ],
+        )
 
     def run_with_tools(
         self,

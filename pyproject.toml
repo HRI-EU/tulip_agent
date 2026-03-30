@@ -34,6 +34,10 @@ Repository = "https://github.com/HRI-EU/tulip_agent"
 dev = [
     "pre-commit>=3.6.2,<4",
 ]
+weave = [
+    "wandb>=0.25.1",
+    "weave>=0.52.35",
+]
 
 [tool.hatch.build.targets.sdist]
 include = [

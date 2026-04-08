@@ -35,7 +35,6 @@
 """
 The tool library (tulip) for the agent
 """
-import asyncio
 import importlib
 import json
 import logging
@@ -47,14 +46,13 @@ from pathlib import Path
 from typing import Any, Callable, Optional
 
 import chromadb
-from fastmcp import Client
 from openai import AzureOpenAI, OpenAI
 
 from tulip_agent.client_setup import ModelServeMode, create_client
 from tulip_agent.constants import BASE_EMBEDDING_MODEL
 from tulip_agent.embed import embed
 from tulip_agent.function_analyzer import FunctionAnalyzer
-from tulip_agent.tool import ImportedTool, McpTool, Tool
+from tulip_agent.tool import ImportedTool, McpClientManager, McpTool, Tool
 
 
 logger = logging.getLogger(__name__)
@@ -104,6 +102,7 @@ class ToolLibrary:
         self.description = description
         self.embedding_model = embedding_model
         self.embedding_client = embedding_client or create_client(ModelServeMode.OPENAI)
+        self._mcp_manager = McpClientManager()
 
         self.function_analyzer = FunctionAnalyzer()
         self.tools: dict[str, Tool] = {}
@@ -184,6 +183,7 @@ class ToolLibrary:
                     timeout=metadata["timeout"],
                     timeout_message=metadata["timeout_message"],
                     verbose_id=self.verbose_tool_ids,
+                    mcp_manager=self._mcp_manager,
                 )
             elif tool_type == "imported":
                 instance = None
@@ -320,6 +320,7 @@ class ToolLibrary:
                     timeout=self.default_timeout,
                     timeout_message=self.default_timeout_message,
                     verbose_id=self.verbose_tool_ids,
+                    mcp_manager=self._mcp_manager,
                 )
                 if tool.unique_id in timeout_settings:
                     tool.timeout = timeout_settings[tool.unique_id]["timeout"]
@@ -342,15 +343,11 @@ class ToolLibrary:
             f"Added {len(new_tools)} new tools to collection {self.collection.name}."
         )
 
-    @staticmethod
     def _load_mcp_function_definitions(
-        mcp_config: dict[str, Any], function_names: Optional[list[str]] = None
+        self, mcp_config: dict[str, Any], function_names: Optional[list[str]] = None
     ) -> list[dict]:
-        async def _list_tools() -> list:
-            async with Client(mcp_config) as client:
-                return await client.list_tools()
-
-        tools = asyncio.run(_list_tools())
+        config_key = McpTool.serialized_config(mcp_config)
+        tools = self._mcp_manager.list_tools(config_key, mcp_config)
         filtered_tools = (
             [tool for tool in tools if tool.name in function_names]
             if function_names
@@ -523,7 +520,8 @@ class ToolLibrary:
         timeout_settings = timeout_settings if timeout_settings else {}
         new_tools = []
         for function_definition in self._load_mcp_function_definitions(
-            mcp_config=mcp_config, function_names=function_names
+            mcp_config=mcp_config,
+            function_names=function_names,
         ):
             tool = McpTool(
                 mcp_config=mcp_config,
@@ -532,6 +530,7 @@ class ToolLibrary:
                 timeout=self.default_timeout,
                 timeout_message=self.default_timeout_message,
                 verbose_id=self.verbose_tool_ids,
+                mcp_manager=self._mcp_manager,
             )
             if tool.unique_id in timeout_settings:
                 tool.timeout = timeout_settings[tool.unique_id]["timeout"]

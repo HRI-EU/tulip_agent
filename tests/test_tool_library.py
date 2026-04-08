@@ -43,7 +43,7 @@ from chromadb.errors import NotFoundError
 
 from tests import example_tools
 from tests.example_tools_in_class import Calculator
-from tulip_agent.tool import McpTool
+from tulip_agent.tool import McpClientManager, McpTool
 from tulip_agent.tool_execution import Job, execute_parallel_jobs
 from tulip_agent.tool_library import ToolLibrary
 
@@ -416,19 +416,27 @@ class TestToolLibrary(unittest.TestCase):
                     }
                 }
             }
-            definitions = ToolLibrary._load_mcp_function_definitions(
-                mcp_config=mcp_config
-            )
-            tool_names = {d["function"]["name"] for d in definitions}
+            manager = McpClientManager()
+            config_key = McpTool.serialized_config(mcp_config)
+            definitions = manager.list_tools(config_key, mcp_config)
+            tool_names = {t.name for t in definitions}
             self.assertIn("ping", tool_names)
 
-            ping_definition = next(
-                d for d in definitions if d["function"]["name"] == "ping"
-            )
+            ping_meta = next(t for t in definitions if t.name == "ping")
+            ping_definition = {
+                "type": "function",
+                "function": {
+                    "name": ping_meta.name,
+                    "description": ping_meta.description or "",
+                    "parameters": ping_meta.inputSchema,
+                },
+                "strict": True,
+            }
             ping_tool = McpTool(
                 mcp_config=mcp_config,
                 function_name="ping",
                 definition=ping_definition,
+                mcp_manager=manager,
             )
             self.assertEqual(ping_tool(text="pong"), "pong")
 

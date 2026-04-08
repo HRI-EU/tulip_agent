@@ -55,15 +55,14 @@ include = [
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
+[tool.ruff]
+src = ["examples", "src", "tests"]
+exclude = ["src/eval/robo_eval/AttentiveSupport", ".venv"]
+
 [tool.ruff.format]
 
 [tool.ruff.lint]
+select = ["I"]
 
-[tool.isort]
-profile = "black"
-src_paths = ["examples", "src", "tests"]
-skip = [
-    "src/eval/robo_eval/AttentiveSupport",
-    ".venv"
-]
-lines_after_imports = 2
+[tool.ruff.lint.isort]
+lines-after-imports = 2

@@ -35,6 +35,7 @@
 """
 LLM agent ABC.
 """
+
 import logging
 import time
 from abc import ABC, abstractmethod
@@ -119,7 +120,9 @@ class LlmAgent(ABC):
         reasoning = (
             True
             if self.reasoning_only
-            else False if not self.reasoning_available else reasoning
+            else False
+            if not self.reasoning_available
+            else reasoning
         )
 
         self.api_interaction_counter += 1

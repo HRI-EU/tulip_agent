@@ -41,7 +41,6 @@ from tulip_agent.tool_execution import Job, execute_parallel_jobs
 
 
 class TestToolExecution(unittest.TestCase):
-
     @classmethod
     def setUpClass(cls):
         function_analyzer = FunctionAnalyzer()

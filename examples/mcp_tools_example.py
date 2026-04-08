@@ -77,9 +77,11 @@ tulip = ToolLibrary(
                         "args": ["fastmcp-file-server"],
                         "transport": "stdio",
                         "env": {
-                            "MCP_ALLOWED_PATH": str(Path(__file__).parent.resolve().absolute()),
+                            "MCP_ALLOWED_PATH": str(
+                                Path(__file__).parent.resolve().absolute()
+                            ),
                         },
-                    }
+                    },
                 }
             },
             [],

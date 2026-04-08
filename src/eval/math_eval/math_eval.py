@@ -110,7 +110,7 @@ def run_math_eval(
                     continue
                 agent = agent_class(**setup_args)
                 print(
-                    f"{agent_class.__name__} -- {query_ct+1}/{len(queries)} {queries[query]['name']} -- {query} -- run [{r+1}/{number_of_runs}]"
+                    f"{agent_class.__name__} -- {query_ct + 1}/{len(queries)} {queries[query]['name']} -- {query} -- run [{r + 1}/{number_of_runs}]"
                 )
                 res = agent.query(query)
                 print(f"{res=}")

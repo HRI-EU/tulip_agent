@@ -41,6 +41,7 @@ use sphinx documentation style without type documentation, add meaningful docstr
 
 Rinse and repeat as necessary; note that gpt-4 seems to be lazy so simply increasing the number is insufficient.
 """
+
 import math
 import sys
 from collections import Counter

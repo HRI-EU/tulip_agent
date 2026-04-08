@@ -38,6 +38,7 @@ This is helpful when a behavior is specified in the system prompt that explicitl
 When not making sure that the tool is available, this may lead to infinite loops of tool calls in case of gpt-4o series.
 Comment out the line that sets `default_tools` in the NaiveTulipAgent to reproduce the issue.
 """
+
 import logging
 
 from tulip_agent import NaiveTulipAgent, ToolLibrary

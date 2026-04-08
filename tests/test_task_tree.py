@@ -39,7 +39,6 @@ from tulip_agent.tool import ImportedTool
 
 
 class TestTaskTree(unittest.TestCase):
-
     def setUp(self):
         def _add_subtasks(task: Task, subtask_names: list[str]):
             subtasks = [Task(description=d, supertask=task) for d in subtask_names]

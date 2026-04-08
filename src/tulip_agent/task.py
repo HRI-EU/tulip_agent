@@ -67,9 +67,9 @@ class Task:
                 results.append(result_)
             valid = all(results)
         else:
-            assert (
-                lntc := len(self.tool_candidates)
-            ) == 1, f"Number of tool candidates is {lntc} instead of 1 for {self.description}."
+            assert (lntc := len(self.tool_candidates)) == 1, (
+                f"Number of tool candidates is {lntc} instead of 1 for {self.description}."
+            )
             if self.tool_candidates[0].predecessor:
                 valid = (
                     self.tool_candidates[0].predecessor

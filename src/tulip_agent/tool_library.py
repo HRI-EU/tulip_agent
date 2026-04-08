@@ -35,6 +35,7 @@
 """
 The tool library (tulip) for the agent
 """
+
 import importlib
 import json
 import logging
@@ -571,9 +572,9 @@ class ToolLibrary:
         timeout_message: Optional[str] = None,
     ) -> Tool:
         old_tool = self.tools[tool_id]
-        assert isinstance(
-            old_tool, ImportedTool
-        ), f"The tool {old_tool} is not an ImportedTool and cannot be changed."
+        assert isinstance(old_tool, ImportedTool), (
+            f"The tool {old_tool} is not an ImportedTool and cannot be changed."
+        )
 
         module_name = old_tool.module_name
         timeout = timeout or old_tool.timeout

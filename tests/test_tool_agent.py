@@ -39,7 +39,6 @@ from tulip_agent import CotToolAgent, NaiveToolAgent, Tool
 
 
 class TestToolAgent(unittest.TestCase):
-
     def _check_res(self, res: str, messages: list):
         self.assertTrue(
             any(s in res.lower() for s in ("4", "four"))

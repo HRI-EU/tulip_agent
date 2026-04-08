@@ -122,7 +122,6 @@ def modulus(x: float, y: float):
 
 
 class TrigonometryCalculator:
-
     @staticmethod
     def sine(x: float):
         """

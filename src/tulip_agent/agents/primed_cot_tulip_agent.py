@@ -36,6 +36,7 @@
 PrimedCotTulipAgent variant; uses a vector store as a tool library, COT for task decomposition,
 and is primed with suitable tools from its library.
 """
+
 import copy
 import logging
 from typing import Optional
@@ -118,7 +119,7 @@ class PrimedCotTulipAgent(CotTulipAgent):
         # Run with tools
         task_str = ""
         for c, task in enumerate(tasks):
-            task_str += f"{str(c+1)}. {task}\n"
+            task_str += f"{str(c + 1)}. {task}\n"
         logger.info(f"{task_str=}")
         self.messages.append(
             {

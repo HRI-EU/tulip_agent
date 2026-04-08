@@ -35,6 +35,7 @@
 """
 Basic LLM agent.
 """
+
 import logging
 
 from openai import AzureOpenAI, OpenAI

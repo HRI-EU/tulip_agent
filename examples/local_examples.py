@@ -43,6 +43,7 @@ ollama setup
 * pull embedding model: `ollama pull mxbai-embed-large`
 * get language model, eg: `ollama pull llama3.2`
 """
+
 import logging
 
 from tulip_agent import (

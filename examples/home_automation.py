@@ -35,6 +35,7 @@
 """
 Some example tools for a home automation context.
 """
+
 import time
 
 

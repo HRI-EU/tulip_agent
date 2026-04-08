@@ -35,6 +35,7 @@
 """
 Tool agent ABC.
 """
+
 import logging
 from abc import ABC
 from typing import Callable

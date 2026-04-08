@@ -35,6 +35,7 @@
 """
 MinimalTulipAgent variant.
 """
+
 import logging
 from typing import Optional
 

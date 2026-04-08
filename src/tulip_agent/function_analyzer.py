@@ -39,11 +39,11 @@ for creating descriptions usable with the OpenAI API
 Note: Function calling w structured outputs is limited to a subset of the JSON schema language
 https://platform.openai.com/docs/guides/function-calling
 """
+
 import pydantic
 
 
 class FunctionAnalyzer:
-
     @staticmethod
     def analyze_function(function_) -> dict:
         """

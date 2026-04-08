@@ -35,6 +35,7 @@
 """
 DfsTulipAgent variant; uses a vector store as a tool library and does DFS style planning.
 """
+
 import copy
 import json
 import logging
@@ -238,7 +239,7 @@ class DfsTulipAgent(TulipAgent):
                     return self.recurse(task=task, recursion_level=recursion_level)
             # aggregate subtask results
             subtask_information = "\n".join(
-                f"{c+1}. {st.description}: {st.result}"
+                f"{c + 1}. {st.description}: {st.result}"
                 for c, st in enumerate(task.subtasks[-1])
             )
             messages = [
@@ -263,7 +264,7 @@ class DfsTulipAgent(TulipAgent):
             if tools:
                 previous_info = "\n".join(
                     [
-                        f"{c+1}. {p.description}: {p.result}"
+                        f"{c + 1}. {p.description}: {p.result}"
                         for c, p in enumerate(task.get_predecessors()[::-1])
                     ]
                 )

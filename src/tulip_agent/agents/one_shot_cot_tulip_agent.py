@@ -36,6 +36,7 @@
 OneShotCotTulipAgent variant; uses a vector store as a tool library, COT for task decomposition,
 and is primed with an example for the task decomposition and tool selection.
 """
+
 import logging
 from typing import Optional
 

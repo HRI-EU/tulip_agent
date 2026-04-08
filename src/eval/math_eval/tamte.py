@@ -35,6 +35,7 @@
 """
 tools and mte: combines tools and mte files
 """
+
 import math
 from collections import Counter
 from functools import reduce
@@ -7793,7 +7794,7 @@ def calculate_harmonic_number(n: int) -> float:
 
 
 def calculate_least_squares_regression_line(
-    points: list[tuple[float, float]]
+    points: list[tuple[float, float]],
 ) -> tuple[float, float]:
     """
     Calculate the slope and intercept of the least squares regression line for a set of points.

@@ -114,7 +114,6 @@ class Calculator:
 
 
 class TestFunctionAnalyzer(unittest.TestCase):
-
     def setUp(self):
         self.fa = FunctionAnalyzer()
 

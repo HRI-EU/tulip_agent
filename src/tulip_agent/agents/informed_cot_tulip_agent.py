@@ -36,6 +36,7 @@
 InformedCotTulipAgent variant; uses a vector store as a tool library, COT for task decomposition,
 and is informed about the contents of its tool library.
 """
+
 import logging
 from typing import Optional
 

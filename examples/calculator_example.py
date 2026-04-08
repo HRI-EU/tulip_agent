@@ -71,7 +71,6 @@ def print_seperator(name: str) -> None:
 
 
 def run_comparison():
-
     queries = (
         "What is 45342 * 23487 + ((32478 - 2) * (-1) + 2)?",  # 1064915080
         "Find the value of $x$ such that $\sqrt{x - 2} = 8$.",  # 66

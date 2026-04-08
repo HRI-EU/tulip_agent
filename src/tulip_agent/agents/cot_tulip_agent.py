@@ -35,6 +35,7 @@
 """
 CotTulipAgent variant; uses a vector store as a tool library and COT for task decomposition.
 """
+
 import json
 import logging
 from typing import Optional
@@ -111,7 +112,7 @@ class CotTulipAgent(TulipAgent):
                 )
                 subtask_str = ""
                 for c, subtask in enumerate(subtasks):
-                    subtask_str += f"{str(c+1)}. {subtask}"
+                    subtask_str += f"{str(c + 1)}. {subtask}"
                 tool_call = self.get_search_tool_call(tasks=subtask_str)
                 tools_, tasks_ = self.recursively_search_tool(
                     tool_call=tool_call,
@@ -166,9 +167,9 @@ class CotTulipAgent(TulipAgent):
         response_message = function_response.choices[0].message
         tool_calls = response_message.tool_calls
         self.messages.append(response_message)
-        assert (
-            lntc := len(tool_calls)
-        ) == 1, f"Not exactly one tool search executed, but {lntc}."
+        assert (lntc := len(tool_calls)) == 1, (
+            f"Not exactly one tool search executed, but {lntc}."
+        )
         return tool_calls[0]
 
     def query(
@@ -187,7 +188,7 @@ class CotTulipAgent(TulipAgent):
         # Run with tools
         task_str = ""
         for c, task in enumerate(tasks):
-            task_str += f"{str(c+1)}. {task}\n"
+            task_str += f"{str(c + 1)}. {task}\n"
         logger.info(f"{task_str=}")
         self.messages.append(
             {

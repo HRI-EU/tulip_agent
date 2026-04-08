@@ -32,12 +32,13 @@
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 #
+import copy
+import json
 import os
 from pathlib import Path
-import json
+
 import regex
 from latex2sympy2 import latex2sympy
-import copy
 
 
 def evaluate_latex_expression(latex_expression):
@@ -46,21 +47,24 @@ def evaluate_latex_expression(latex_expression):
         expression = latex2sympy(latex_expression)
         # Evaluate the expression
         result = expression.evalf()
-        all_returns = [str(expression),
-                       str(float(str(result))),
-                       str(float(str(result.round(4)))),
-                       str(float(int(result * 10000))/10000),
-                       str(float(str(result.round(2)))),
-                       str(float(int(result * 100)) / 100)
-                       ]
+        all_returns = [
+            str(expression),
+            str(float(str(result))),
+            str(float(str(result.round(4)))),
+            str(float(int(result * 10000)) / 10000),
+            str(float(str(result.round(2)))),
+            str(float(int(result * 100)) / 100),
+        ]
         return all_returns
     except Exception as e:
         print(f"Error evaluating expression: {e}")
 
+
 def extract_nested_braces(content):
-    pattern = r'\{(?:[^{}]++|(?R))*\}'
+    pattern = r"\{(?:[^{}]++|(?R))*\}"
     matches = regex.findall(pattern, content)
     return matches
+
 
 def create_benchmark_task(subcategory, levels, max_tasks=None):
     """
@@ -75,15 +79,17 @@ def create_benchmark_task(subcategory, levels, max_tasks=None):
     suffix = ""
     if max_tasks:
         suffix = f"_{max_tasks}_tasks"
-    benchmark_task_file = f"MATH_benchmarks/benchmark_{subcategory}_{levels[0]}-{levels[-1]}{suffix}.json"
+    benchmark_task_file = (
+        f"MATH_benchmarks/benchmark_{subcategory}_{levels[0]}-{levels[-1]}{suffix}.json"
+    )
 
     cwd = Path.cwd()
     path = os.path.join(Path(cwd).parents[2], f"data/MATH/train/{subcategory}")
     dir = Path(path)
 
     benchmark_tasks = []
-    level_counters = [0 for _ in [1,2,3,4,5]]
-    for file_counter, file in enumerate(dir.glob('*.json')):
+    level_counters = [0 for _ in [1, 2, 3, 4, 5]]
+    for file_counter, file in enumerate(dir.glob("*.json")):
         if max_tasks and sum(level_counters) == max_tasks * len(levels):
             break
         content = json.loads(file.read_text())
@@ -91,16 +97,18 @@ def create_benchmark_task(subcategory, levels, max_tasks=None):
 
         if level_int not in levels:
             continue
-        if max_tasks and level_counters[level_int-1] == max_tasks:
+        if max_tasks and level_counters[level_int - 1] == max_tasks:
             continue
         if "[asy]" in content["problem"]:
             continue
 
-        level_counters[level_int-1] += 1
+        level_counters[level_int - 1] += 1
 
         # in the MATH files, the correct answer is marked with \boxed{ANSWER}
         print()
-        extracted_solution = extract_nested_braces(content["solution"].split("boxed")[-1])
+        extracted_solution = extract_nested_braces(
+            content["solution"].split("boxed")[-1]
+        )
         print(extracted_solution)
         extracted_solution = extracted_solution[0][1:-1]
         print(extracted_solution)
@@ -109,7 +117,7 @@ def create_benchmark_task(subcategory, levels, max_tasks=None):
 
         solutions = [extracted_solution]
         # add fraction in clear format and as floating numbers
-        if 'frac' in extracted_solution:
+        if "frac" in extracted_solution:
             evaluated = evaluate_latex_expression(extracted_solution)
             if evaluated:
                 solutions.extend(evaluated)
@@ -119,14 +127,13 @@ def create_benchmark_task(subcategory, levels, max_tasks=None):
                 if evaluated:
                     solutions.extend(evaluated)
 
-
         # add numbers in different formant
         if "\!" in extracted_solution:
             stripped = copy.copy(extracted_solution).replace("\!", "")
             solutions.append(stripped)
             # solutions.append(copy.copy(extracted_solution).replace("\!", "").replace(",", "."))
             if "," in stripped:
-                solutions.append(copy.copy(stripped).replace(",",""))
+                solutions.append(copy.copy(stripped).replace(",", ""))
 
         # add dollar values without the dollar
         if "\$" in extracted_solution:
@@ -149,15 +156,18 @@ def create_benchmark_task(subcategory, levels, max_tasks=None):
             solutions.append(copy.copy(extracted_solution).replace("^{\\circ}", ""))
 
         # get numbers out of string
-        if 'frac' not in extracted_solution:
-            matches = regex.findall("[-+]?[.]?[\d]+(?:,\d\d\d)*[\.]?\d*(?:[eE][-+]?\d+)?", extracted_solution)
+        if "frac" not in extracted_solution:
+            matches = regex.findall(
+                "[-+]?[.]?[\d]+(?:,\d\d\d)*[\.]?\d*(?:[eE][-+]?\d+)?",
+                extracted_solution,
+            )
             if len(matches) == 1:
                 solutions.extend(matches)
 
         # remove trailing zeros of numbers
         try:
             solutions.append(str(float(copy.copy(extracted_solution))))
-        except:
+        except Exception:
             pass
 
         chars = ["+", "-"]
@@ -166,13 +176,12 @@ def create_benchmark_task(subcategory, levels, max_tasks=None):
                 idx = extracted_solution.find(c)
                 if idx > 0:
                     copied = copy.copy(extracted_solution)
-                    copied = copied[:idx] + " " + copied[idx] + " " + copied[idx+1:]
+                    copied = copied[:idx] + " " + copied[idx] + " " + copied[idx + 1 :]
                     solutions.append(copied)
-
 
         # remove \mbox
         if "\\mbox" in extracted_solution:
-            removed = copy.copy(extracted_solution).replace("\\mbox{","")
+            removed = copy.copy(extracted_solution).replace("\\mbox{", "")
             if removed[-1] == "}":
                 removed = removed[:-1]
             solutions.append(removed)
@@ -221,18 +230,20 @@ def create_benchmark_task(subcategory, levels, max_tasks=None):
             "name": f"{subcategory}.{file.name.split('.')[0]}.{level_int}",
             "category": subcategory,
             "level": level_int,
-            "valid_solutions": solutions
+            "valid_solutions": solutions,
         }
         benchmark_tasks.append(new_task)
 
     print(level_counters)
-    print(f"Created {len(benchmark_tasks)} from '{subcategory}' Levels '{levels}', saving to '{benchmark_task_file}'")
+    print(
+        f"Created {len(benchmark_tasks)} from '{subcategory}' Levels '{levels}', saving to '{benchmark_task_file}'"
+    )
     if len(benchmark_tasks) > 0:
         with open(benchmark_task_file, "w") as file:
             json.dump(benchmark_tasks, file, indent=4)
 
 
 if __name__ == "__main__":
-    levels = [4,5]
+    levels = [4, 5]
     # levels = [1,2,3]
-    create_benchmark_task(subcategory='prealgebra', levels=levels, max_tasks=None)
+    create_benchmark_task(subcategory="prealgebra", levels=levels, max_tasks=None)

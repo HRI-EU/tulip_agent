@@ -131,12 +131,12 @@ class Result:
 def run_significance_test(
     all_results, criterion: str = "correctness", pairs: str = "all"
 ):
-    assert criterion in (
-        criteria := ("correctness", "costs")
-    ), f"Invalid criterion `{criterion}`. Use one of {criteria}."
-    assert pairs in (
-        pairs_options := ("all", "specific")
-    ), f"Invalid pairs `{pairs}`. Use one of {pairs_options}."
+    assert criterion in (criteria := ("correctness", "costs")), (
+        f"Invalid criterion `{criterion}`. Use one of {criteria}."
+    )
+    assert pairs in (pairs_options := ("all", "specific")), (
+        f"Invalid pairs `{pairs}`. Use one of {pairs_options}."
+    )
     task_result_dict = {}
     all_agents = set()
     for res in all_results:
@@ -188,6 +188,7 @@ def run_significance_test(
         )
         print()
     input("..plot?")
+
 
 def interquartile_mean(values: list) -> float:
     lnv = len(values)
@@ -329,7 +330,6 @@ def assess_data(
         gtf_data_ = json.load(gtf)
         gtf_data = {e["task"]: e for e in gtf_data_}
     for r in results:
-
         if r.agent == "Embedding" or r.agent == "Usage":
             continue
         logger.debug(f"Assessing {r.agent}.")
@@ -686,7 +686,6 @@ def sanity_check_results(
 
 
 if __name__ == "__main__":
-
     logs_to_plot = ["logs/math.eval.20240619-1357.log"]
     history_file = "history"  # to use different history files
 

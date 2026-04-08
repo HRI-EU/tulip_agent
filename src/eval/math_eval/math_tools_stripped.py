@@ -252,6 +252,7 @@ def log(number: float, base: float = math.e) -> float:
     """
     return math.log(number, base)
 
+
 def exp(number: float) -> float:
     """
     Calculate the exponential of a given number.
@@ -327,6 +328,7 @@ def is_odd(number: int) -> bool:
     """
     return number % 2 != 0
 
+
 def convert_celsius_to_fahrenheit(celsius: float) -> float:
     """
     Convert temperature from Celsius to Fahrenheit.
@@ -346,6 +348,7 @@ def convert_fahrenheit_to_celsius(fahrenheit: float) -> float:
     """
     return (fahrenheit - 32) * 5 / 9
 
+
 def arithmetic_mean(numbers: list[float]) -> float:
     """
     Calculate the arithmetic mean of a list of numbers.
@@ -354,6 +357,7 @@ def arithmetic_mean(numbers: list[float]) -> float:
     :return: The arithmetic mean.
     """
     return sum(x for x in numbers) / len(numbers)
+
 
 def harmonic_mean(numbers: list[float]) -> float:
     """
@@ -505,7 +509,6 @@ def range_of_numbers(numbers: list[float]) -> float:
     return max(numbers) - min(numbers)
 
 
-
 def is_palindrome(number: int) -> bool:
     """
     Check if a number is a palindrome.
@@ -539,7 +542,6 @@ def digital_root(number: int) -> int:
     return number
 
 
-
 def prime_sieve(n: int) -> list:
     """
     Sieve of Eratosthenes: Find all prime numbers up to n.
@@ -556,6 +558,7 @@ def prime_sieve(n: int) -> list:
                 sieve[i] = False
     return primes
 
+
 def length_of_numbers(numbers: list[float]) -> float:
     """
     Calculate the lenght of a list of numbers.
@@ -564,6 +567,7 @@ def length_of_numbers(numbers: list[float]) -> float:
     :return: The length of the list..
     """
     return len(numbers)
+
 
 def product_of_numbers(numbers: list[float]) -> float:
     """
@@ -574,6 +578,7 @@ def product_of_numbers(numbers: list[float]) -> float:
     """
     return reduce((lambda x, y: x * y), numbers)
 
+
 def sum_of_numbers(numbers: list[float]) -> float:
     """
     Calculate the sum of all numbers in a list.
@@ -582,6 +587,7 @@ def sum_of_numbers(numbers: list[float]) -> float:
     :return: The sum of all numbers.
     """
     return reduce((lambda x, y: x + y), numbers)
+
 
 def number_of_divisors(n: int) -> int:
     """
@@ -596,6 +602,7 @@ def number_of_divisors(n: int) -> int:
             divisors += 1
     return divisors
 
+
 def is_divisible_by(a: int, b: int) -> bool:
     """
     Calculate if a is divisible by b.
@@ -605,6 +612,7 @@ def is_divisible_by(a: int, b: int) -> bool:
     :return: True if a is divisible by b, False otherwise.
     """
     return a % b == 0
+
 
 def round(number: float, decimals: int) -> float:
     """
@@ -616,6 +624,7 @@ def round(number: float, decimals: int) -> float:
     """
     return np.round(number, decimals=decimals)
 
+
 def floor(number: float) -> float:
     """
     Return the floor of the number.
@@ -625,6 +634,7 @@ def floor(number: float) -> float:
     """
     return np.floor(number)
 
+
 def ceil(number: float) -> float:
     """
     Return the ceiling of the number.
@@ -633,6 +643,7 @@ def ceil(number: float) -> float:
     :return: The ceiling of the number.
     """
     return np.ceil(number)
+
 
 if __name__ == "__main__":
     current_module = sys.modules[__name__]

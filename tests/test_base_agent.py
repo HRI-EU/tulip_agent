@@ -38,7 +38,6 @@ from tulip_agent import BaseAgent
 
 
 class TestBaseAgent(unittest.TestCase):
-
     def test_query(self):
         self.agent = BaseAgent()
         res = self.agent.query(prompt="What is 2+2?")

@@ -49,7 +49,6 @@ from tulip_agent import (
 
 
 class TestTulipAgent(unittest.TestCase):
-
     def setUp(self):
         self.tulip = ToolLibrary(chroma_sub_dir="test/")
         self.tulip.chroma_client.delete_collection("tulip")

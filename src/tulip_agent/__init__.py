@@ -50,7 +50,7 @@ from tulip_agent.agents import (
 from tulip_agent.client_setup import ModelServeMode, create_client
 from tulip_agent.function_analyzer import FunctionAnalyzer
 from tulip_agent.task import Task
-from tulip_agent.tool import ImportedTool, InternalTool, McpTool, Tool
+from tulip_agent.tool import ImportedTool, InternalTool, McpClientManager, McpTool, Tool
 from tulip_agent.tool_library import ToolLibrary
 from tulip_agent.tracing import finish_weave, init_weave, weave_tracing_enabled
 
@@ -65,6 +65,7 @@ __all__ = [
     "ImportedTool",
     "InformedCotTulipAgent",
     "InternalTool",
+    "McpClientManager",
     "McpTool",
     "MinimalTulipAgent",
     "ModelServeMode",

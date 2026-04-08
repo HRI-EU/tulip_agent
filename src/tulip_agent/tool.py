@@ -35,12 +35,14 @@
 from __future__ import annotations
 
 import asyncio
+import atexit
 import importlib
 import inspect
 import json
 import logging
 import os
 import sys
+import threading
 from abc import ABC
 from dataclasses import asdict, dataclass, field
 from types import ModuleType
@@ -50,6 +52,70 @@ from fastmcp import Client
 
 
 logger = logging.getLogger(__name__)
+
+
+class McpClientManager:
+    """Manages persistent MCP client connections, one per unique server config."""
+
+    def __init__(self):
+        self._clients: dict[str, Client] = {}
+        self._loop: asyncio.AbstractEventLoop | None = None
+        self._thread: threading.Thread | None = None
+        atexit.register(self._shutdown)
+
+    def _ensure_loop(self):
+        if self._loop is None or self._loop.is_closed():
+            self._loop = asyncio.new_event_loop()
+            self._thread = threading.Thread(target=self._loop.run_forever, daemon=True)
+            self._thread.start()
+
+    async def _get_client(self, config_key: str, mcp_config: dict) -> Client:
+        if config_key not in self._clients:
+            client = Client(mcp_config)
+            await client.__aenter__()
+            self._clients[config_key] = client
+        return self._clients[config_key]
+
+    def call_tool(
+        self, config_key: str, mcp_config: dict, function_name: str, parameters: dict
+    ):
+        self._ensure_loop()
+        return asyncio.run_coroutine_threadsafe(
+            self._call(config_key, mcp_config, function_name, parameters), self._loop
+        ).result()
+
+    async def _call(self, config_key, mcp_config, function_name, parameters):
+        client = await self._get_client(config_key, mcp_config)
+        res = await client.call_tool(function_name, parameters)
+        return res.content[0].text
+
+    def list_tools(self, config_key: str, mcp_config: dict):
+        self._ensure_loop()
+        return asyncio.run_coroutine_threadsafe(
+            self._list_tools(config_key, mcp_config), self._loop
+        ).result()
+
+    async def _list_tools(self, config_key, mcp_config):
+        client = await self._get_client(config_key, mcp_config)
+        return await client.list_tools()
+
+    async def _close_all(self):
+        for config_key, client in self._clients.items():
+            try:
+                await client.__aexit__(None, None, None)
+            except (OSError, asyncio.CancelledError):
+                logger.debug(
+                    "MCP client %s already closed during shutdown.", config_key
+                )
+        self._clients.clear()
+
+    def _shutdown(self):
+        if self._loop is None or self._loop.is_closed():
+            return
+        asyncio.run_coroutine_threadsafe(self._close_all(), self._loop).result(
+            timeout=5
+        )
+        self._loop.call_soon_threadsafe(self._loop.stop)
 
 
 @dataclass(eq=False)
@@ -205,6 +271,7 @@ class InternalTool(Tool):
 @dataclass(eq=False)
 class McpTool(Tool):
     mcp_config: dict[str, Any]
+    mcp_manager: McpClientManager
     timeout: Optional[float] = None
     timeout_message: Optional[str] = None
     verbose_id: bool = False
@@ -235,12 +302,9 @@ class McpTool(Tool):
         self.definition["function"]["name"] = self.unique_id
 
     def __call__(self, **parameters):
-        return asyncio.run(self.execute(**parameters))
-
-    async def execute(self, **parameters):
-        async with Client(self.mcp_config) as client:
-            res = await client.call_tool(self.function_name, parameters)
-            return res.content[0].text
+        return self.mcp_manager.call_tool(
+            self.module_path, self.mcp_config, self.function_name, parameters
+        )
 
     def format_for_chroma(self) -> dict:
         return {

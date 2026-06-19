@@ -136,6 +136,8 @@ class NaiveTulipAgent(TulipAgent):
                         tool_call=tool_calls[0], track_history=True
                     )
                     tools = [tool for partial in tools_ for tool in partial[1]]
+                    # concatenation of tools from different tasks could be redundant
+                    tools = list(set(tools))
                     if tools:
                         break
                     else:

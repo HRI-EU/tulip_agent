@@ -32,172 +32,197 @@
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 #
-import unittest
+import json
 
 from tests import example_tools
+from tests.conftest import FakeFunctionCall, FakeToolCall
 from tulip_agent.function_analyzer import FunctionAnalyzer
 from tulip_agent.tool import ImportedTool
-from tulip_agent.tool_execution import Job, execute_parallel_jobs
+from tulip_agent.tool_execution import Job, execute_parallel_jobs, execute_tool_calls
 
 
-class TestToolExecution(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        function_analyzer = FunctionAnalyzer()
-        cls.module_name = example_tools.__name__
-
-        cls.multiply_tool = ImportedTool.from_module(
-            module_name=cls.module_name,
-            function_name=example_tools.multiply.__name__,
-            definition=function_analyzer.analyze_function(example_tools.multiply),
-        )
-        cls.slow_tool = ImportedTool.from_module(
-            module_name=cls.module_name,
-            function_name=example_tools.slow.__name__,
-            definition=function_analyzer.analyze_function(example_tools.slow),
-            timeout=0.05,
-            timeout_message="The tool did not return a response within the specified timeout.",
-        )
-        cls.add_tool = ImportedTool.from_function(
-            function=example_tools.add,
-            definition=function_analyzer.analyze_function(example_tools.add),
-        )
-
-    def test_execute(self):
-        res = execute_parallel_jobs(
-            jobs=[
-                Job(
-                    tool_call_id="test",
-                    tool=self.multiply_tool,
-                    parameters={"a": 2.0, "b": 2.0},
-                ),
-            ]
-        )
-        self.assertEqual(len(res), 1, "Did not return exactly one result for one job.")
-        self.assertEqual(res[0].result.error, None, "Function execution failed.")
-        self.assertEqual(
-            res[0].result.value,
-            4.0,
-            "Function execution via tool library failed.",
-        )
-
-    def test_execute_from_callable(self):
-        res = execute_parallel_jobs(
-            jobs=[
-                Job(
-                    tool_call_id="test_callable",
-                    tool=self.add_tool,
-                    parameters={"a": 2.0, "b": 3.0},
-                ),
-            ]
-        )
-        self.assertEqual(len(res), 1)
-        self.assertIsNone(res[0].result.error)
-        self.assertEqual(res[0].result.value, 5.0)
-
-    def test_execute_timeout(self):
-        res = execute_parallel_jobs(
-            jobs=[
-                Job(
-                    tool_call_id="slow",
-                    tool=self.slow_tool,
-                    parameters={"duration": 1},
-                ),
-            ]
-        )
-        self.assertEqual(len(res), 1, "Did not return exactly one result for one job.")
-        self.assertIsNone(res[0].result.value, "Timeout should not return a value.")
-        self.assertIsNotNone(res[0].result.error, "Timeout should return an error.")
-        self.assertIn(
-            "Error: The tool did not return a response within the specified timeout.",
-            res[0].result.error,
-            "Timeout did not return correct error message.",
-        )
-
-    def test_execute_invalid_arguments(self):
-        res = execute_parallel_jobs(
-            jobs=[
-                Job(
-                    tool_call_id="invalid",
-                    tool=self.multiply_tool,
-                    parameters={"a": 1, "wrong": 2},
-                ),
-            ]
-        )
-        self.assertEqual(len(res), 1, "Did not return exactly one result for one job.")
-        self.assertIsNone(
-            res[0].result.value, "Invalid arguments should not return a value."
-        )
-        self.assertIn(
-            "Error: Invalid tool call -",
-            res[0].result.error,
-            "Catching call with invalid arguments did not return correct error prefix.",
-        )
-        self.assertIn(
-            "unexpected keyword argument 'wrong'",
-            res[0].result.error,
-            "Invalid argument details were not preserved.",
-        )
-
-    def test_execute_parallel_jobs_preserves_order(self):
-        res = execute_parallel_jobs(
-            jobs=[
-                Job(
-                    tool_call_id="first",
-                    tool=self.multiply_tool,
-                    parameters={"a": 1.0, "b": 1.0},
-                ),
-                Job(
-                    tool_call_id="second",
-                    tool=self.multiply_tool,
-                    parameters={"a": 2.0, "b": 2.0},
-                ),
-                Job(
-                    tool_call_id="third",
-                    tool=self.multiply_tool,
-                    parameters={"a": 3.0, "b": 3.0},
-                ),
-            ]
-        )
-        self.assertEqual(len(res), 3, "Did not return exactly three results.")
-        self.assertEqual(
-            [job.tool_call_id for job in res],
-            ["first", "second", "third"],
-            "Incorrect order.",
-        )
-        self.assertEqual(
-            [job.result.value for job in res], [1.0, 4.0, 9.0], "Incorrect results."
-        )
-        self.assertTrue(
-            all(job.result.error is None for job in res), "Unexpected error."
-        )
-
-    def test_execute_parallel_jobs_timeout(self):
-        res = execute_parallel_jobs(
-            jobs=[
-                Job(
-                    tool_call_id="slow",
-                    tool=self.slow_tool,
-                    parameters={"duration": 1},
-                ),
-                Job(
-                    tool_call_id="fast",
-                    tool=self.multiply_tool,
-                    parameters={"a": 2.0, "b": 2.0},
-                ),
-            ]
-        )
-        self.assertEqual(len(res), 2, "Did not return exactly two results.")
-        self.assertIsNotNone(
-            res[0].result.error, "Expected timeout error for slow job."
-        )
-        self.assertIn(
-            "The tool did not return a response within the specified timeout.",
-            res[0].result.error,
-        )
-        self.assertEqual(res[1].result.value, 4.0)
-        self.assertIsNone(res[1].result.error)
+def test_execute():
+    res = execute_parallel_jobs(
+        jobs=[
+            Job(
+                tool_call_id="test",
+                tool=_multiply_tool(),
+                parameters={"a": 2.0, "b": 2.0},
+            ),
+        ]
+    )
+    assert len(res) == 1
+    assert res[0].result.error is None
+    assert res[0].result.value == 4.0
 
 
-if __name__ == "__main__":
-    unittest.main()
+def test_execute_from_callable():
+    res = execute_parallel_jobs(
+        jobs=[
+            Job(
+                tool_call_id="test_callable",
+                tool=_add_tool(),
+                parameters={"a": 2.0, "b": 3.0},
+            ),
+        ]
+    )
+    assert len(res) == 1
+    assert res[0].result.error is None
+    assert res[0].result.value == 5.0
+
+
+def test_execute_timeout():
+    res = execute_parallel_jobs(
+        jobs=[
+            Job(
+                tool_call_id="slow",
+                tool=_slow_tool(),
+                parameters={"duration": 1},
+            ),
+        ]
+    )
+    assert len(res) == 1
+    assert res[0].result.value is None
+    assert res[0].result.error is not None
+    assert (
+        "Error: The tool did not return a response within the specified timeout."
+        in res[0].result.error
+    )
+
+
+def test_execute_invalid_arguments():
+    res = execute_parallel_jobs(
+        jobs=[
+            Job(
+                tool_call_id="invalid",
+                tool=_multiply_tool(),
+                parameters={"a": 1, "wrong": 2},
+            ),
+        ]
+    )
+    assert len(res) == 1
+    assert res[0].result.value is None
+    assert "Error: Invalid tool call -" in res[0].result.error
+    assert "unexpected keyword argument 'wrong'" in res[0].result.error
+
+
+def test_execute_parallel_jobs_preserves_order():
+    res = execute_parallel_jobs(
+        jobs=[
+            Job(
+                tool_call_id="first",
+                tool=_multiply_tool(),
+                parameters={"a": 1.0, "b": 1.0},
+            ),
+            Job(
+                tool_call_id="second",
+                tool=_multiply_tool(),
+                parameters={"a": 2.0, "b": 2.0},
+            ),
+            Job(
+                tool_call_id="third",
+                tool=_multiply_tool(),
+                parameters={"a": 3.0, "b": 3.0},
+            ),
+        ]
+    )
+    assert len(res) == 3
+    assert [job.tool_call_id for job in res] == ["first", "second", "third"]
+    assert [job.result.value for job in res] == [1.0, 4.0, 9.0]
+    assert all(job.result.error is None for job in res)
+
+
+def test_execute_parallel_jobs_timeout():
+    res = execute_parallel_jobs(
+        jobs=[
+            Job(
+                tool_call_id="slow",
+                tool=_slow_tool(),
+                parameters={"duration": 1},
+            ),
+            Job(
+                tool_call_id="fast",
+                tool=_multiply_tool(),
+                parameters={"a": 2.0, "b": 2.0},
+            ),
+        ]
+    )
+    assert len(res) == 2
+    assert res[0].result.error is not None
+    assert "The tool did not return a response within the specified timeout." in (
+        res[0].result.error
+    )
+    assert res[1].result.value == 4.0
+    assert res[1].result.error is None
+
+
+def test_execute_tool_calls_handles_invalid_json():
+    messages = []
+    tool_call = FakeToolCall(
+        id="invalid-json",
+        function=FakeFunctionCall(name="add", arguments="{"),
+    )
+
+    execute_tool_calls(tool_calls=[tool_call], messages=messages, tools={})
+
+    assert messages == [
+        {
+            "tool_call_id": "invalid-json",
+            "role": "tool",
+            "name": "invalid_tool_call",
+            "content": "Error: Invalid arguments for invalid_tool_call "
+            "(previously add): Expecting property name enclosed in double quotes: "
+            "line 1 column 2 (char 1)",
+        }
+    ]
+
+
+def test_execute_tool_calls_rejects_unknown_tool():
+    messages = []
+    tool_call = FakeToolCall(
+        id="unknown-tool",
+        function=FakeFunctionCall(
+            name="missing_tool",
+            arguments=json.dumps({"a": 1}),
+        ),
+    )
+
+    execute_tool_calls(tool_calls=[tool_call], messages=messages, tools={})
+
+    assert messages == [
+        {
+            "tool_call_id": "unknown-tool",
+            "role": "tool",
+            "name": "invalid_tool_call",
+            "content": "Error: missing_tool is not a valid tool. "
+            "Use only the tools available.",
+        }
+    ]
+
+
+def _multiply_tool():
+    function_analyzer = FunctionAnalyzer()
+    return ImportedTool.from_module(
+        module_name=example_tools.__name__,
+        function_name=example_tools.multiply.__name__,
+        definition=function_analyzer.analyze_function(example_tools.multiply),
+    )
+
+
+def _slow_tool():
+    function_analyzer = FunctionAnalyzer()
+    return ImportedTool.from_module(
+        module_name=example_tools.__name__,
+        function_name=example_tools.slow.__name__,
+        definition=function_analyzer.analyze_function(example_tools.slow),
+        timeout=0.05,
+        timeout_message="The tool did not return a response within the specified timeout.",
+    )
+
+
+def _add_tool():
+    function_analyzer = FunctionAnalyzer()
+    return ImportedTool.from_function(
+        function=example_tools.add,
+        definition=function_analyzer.analyze_function(example_tools.add),
+    )

@@ -32,7 +32,6 @@
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 #
-import unittest
 from typing import Optional, Union
 
 from tulip_agent.function_analyzer import FunctionAnalyzer
@@ -113,153 +112,125 @@ class Calculator:
         return number / self.divisor
 
 
-class TestFunctionAnalyzer(unittest.TestCase):
-    def setUp(self):
-        self.fa = FunctionAnalyzer()
+def test_function_description():
+    res = FunctionAnalyzer.analyze_function(dummy_function)
+    assert (
+        res["function"]["description"]
+        == "Print some fine information.\n\n    Some more information."
+    )
 
-    def test_function_description(self):
-        res = self.fa.analyze_function(dummy_function)
-        self.assertEqual(
-            res["function"]["description"],
-            "Print some fine information.\n\n    Some more information.",
-            "Identifying function description failed.",
-        )
 
-    def test_required_identification(self):
-        res = self.fa.analyze_function(dummy_function)
-        self.assertEqual(
-            res["function"]["parameters"]["required"],
-            [
-                "required",
-                "texts",
-                "number",
-            ],
-            "Identifying optional parameters failed.",
-        )
+def test_required_identification():
+    res = FunctionAnalyzer.analyze_function(dummy_function)
+    assert res["function"]["parameters"]["required"] == [
+        "required",
+        "texts",
+        "number",
+    ]
 
-    def test_parameter_identification(self):
-        res = self.fa.analyze_function(dummy_function)
-        self.assertEqual(
-            [k for k, _ in res["function"]["parameters"]["properties"].items()],
-            [
-                "required",
-                "texts",
-                "number",
-                "str_one",
-                "str_two",
-                "optional",
-            ],
-            "Identifying parameters failed.",
-        )
 
-    def test_parameter_type_origin(self):
-        res = self.fa.analyze_function(nested_function)
-        self.assertEqual(
-            res["function"]["parameters"]["properties"]["nested"]["type"],
-            "array",
-            "Resolving parameter type origin failed.",
-        )
+def test_parameter_identification():
+    res = FunctionAnalyzer.analyze_function(dummy_function)
+    assert list(res["function"]["parameters"]["properties"]) == [
+        "required",
+        "texts",
+        "number",
+        "str_one",
+        "str_two",
+        "optional",
+    ]
 
-    def test_parameter_types_nested(self):
-        res = self.fa.analyze_function(nested_function)
-        self.assertEqual(
-            res["function"]["parameters"]["properties"]["nested"]["items"],
-            {
-                "items": {
-                    "items": {
-                        "items": {"type": "string"},
-                        "type": "array",
-                        "uniqueItems": True,
-                    },
-                    "type": "array",
-                },
+
+def test_parameter_type_origin():
+    res = FunctionAnalyzer.analyze_function(nested_function)
+    assert res["function"]["parameters"]["properties"]["nested"]["type"] == "array"
+
+
+def test_parameter_types_nested():
+    res = FunctionAnalyzer.analyze_function(nested_function)
+    assert res["function"]["parameters"]["properties"]["nested"]["items"] == {
+        "items": {
+            "items": {
+                "items": {"type": "string"},
                 "type": "array",
+                "uniqueItems": True,
             },
-            "Resolving nested parameter types failed.",
-        )
+            "type": "array",
+        },
+        "type": "array",
+    }
 
-    def test_parameter_description(self):
-        res = self.fa.analyze_function(nested_function)
-        self.assertEqual(
-            res["function"]["parameters"]["properties"]["nested"]["description"],
-            "A four-dimensional array of strings.",
-            "Resolving parameter description failed.",
-        )
 
-    def test_analyze_class(self):
-        res = self.fa.analyze_class(Calculator)
-        expected_descriptions = [
-            {
-                "type": "function",
-                "function": {
-                    "name": "add",
-                    "description": "Add two numbers.",
-                    "parameters": {
-                        "additionalProperties": False,
-                        "properties": {
-                            "a": {
-                                "title": "A",
-                                "type": "number",
-                                "description": "The first number.",
-                            },
-                            "b": {
-                                "title": "B",
-                                "type": "number",
-                                "description": "The second number.",
-                            },
+def test_parameter_description():
+    res = FunctionAnalyzer.analyze_function(nested_function)
+    assert (
+        res["function"]["parameters"]["properties"]["nested"]["description"]
+        == "A four-dimensional array of strings."
+    )
+
+
+def test_analyze_class():
+    res = FunctionAnalyzer().analyze_class(Calculator)
+    expected_descriptions = [
+        {
+            "type": "function",
+            "function": {
+                "name": "add",
+                "description": "Add two numbers.",
+                "parameters": {
+                    "additionalProperties": False,
+                    "properties": {
+                        "a": {
+                            "title": "A",
+                            "type": "number",
+                            "description": "The first number.",
                         },
-                        "required": ["a", "b"],
-                        "type": "object",
-                    },
-                },
-                "strict": True,
-            },
-            {
-                "type": "function",
-                "function": {
-                    "name": "custom_division",
-                    "description": "Divides a number by the calculator's divisor attribute.",
-                    "parameters": {
-                        "additionalProperties": False,
-                        "properties": {
-                            "number": {
-                                "title": "Number",
-                                "type": "number",
-                                "description": "The number to be subtracted from.",
-                            }
+                        "b": {
+                            "title": "B",
+                            "type": "number",
+                            "description": "The second number.",
                         },
-                        "required": ["number"],
-                        "type": "object",
                     },
+                    "required": ["a", "b"],
+                    "type": "object",
                 },
-                "strict": True,
             },
-            {
-                "type": "function",
-                "function": {
-                    "name": "say_hi",
-                    "description": 'Print "hi".',
-                    "parameters": {
-                        "additionalProperties": False,
-                        "properties": {},
-                        "type": "object",
+            "strict": True,
+        },
+        {
+            "type": "function",
+            "function": {
+                "name": "custom_division",
+                "description": "Divides a number by the calculator's divisor attribute.",
+                "parameters": {
+                    "additionalProperties": False,
+                    "properties": {
+                        "number": {
+                            "title": "Number",
+                            "type": "number",
+                            "description": "The number to be subtracted from.",
+                        }
                     },
+                    "required": ["number"],
+                    "type": "object",
                 },
-                "strict": True,
             },
-        ]
-        for expected_description in expected_descriptions:
-            self.assertIn(
-                expected_description,
-                res,
-                f"Analyzing class failed for {expected_description['function']['name']}.",
-            )
-        self.assertEqual(
-            len(res),
-            len(expected_descriptions),
-            f"Analyzing class failed: len(res) instead of {len(expected_descriptions)} functions.",
-        )
-
-
-if __name__ == "__main__":
-    unittest.main()
+            "strict": True,
+        },
+        {
+            "type": "function",
+            "function": {
+                "name": "say_hi",
+                "description": 'Print "hi".',
+                "parameters": {
+                    "additionalProperties": False,
+                    "properties": {},
+                    "type": "object",
+                },
+            },
+            "strict": True,
+        },
+    ]
+    for expected_description in expected_descriptions:
+        assert expected_description in res
+    assert len(res) == len(expected_descriptions)

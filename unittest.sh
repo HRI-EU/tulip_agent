@@ -33,4 +33,4 @@
 #
 #
 set -euo pipefail
-source .venv/bin/activate && python -m unittest discover tests
+source .venv/bin/activate && python -m pytest tests

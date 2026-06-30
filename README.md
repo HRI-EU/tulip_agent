@@ -54,9 +54,14 @@ See `./examples`
 * Python v3.10.11 recommended, higher versions may lead to issues with chroma during installation
 * [Pre-commit hooks](https://pre-commit.com/) - install with `(uv run) pre-commit install`
 * Linting: [ruff](https://github.com/astral-sh/ruff)
-* Formatting: [black](https://github.com/psf/black)
-* Import sorting: [isort](https://github.com/PyCQA/isort)
-* Tests: Run with `(uv run) python -m unittest discover tests/`
+* Formatting: `uv run ruff format`
+* Import sorting: `uv run ruff check --fix`
+* Tests: Run with `uv run pytest`
+  * The default test suite uses fake chat and embedding clients, so no OpenAI, Azure, or compatible endpoint API keys are required.
+
+
+## TODO
+* Investigate `McpClientManager` stdio behavior with FastMCP when used from its background event-loop thread. The default tests mock MCP servers to stay deterministic and non-hanging.
 
 
 ## Known issues

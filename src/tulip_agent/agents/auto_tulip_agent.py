@@ -104,6 +104,7 @@ class AutoTulipAgent(TulipAgent):
             )
             self.default_tools.append(tool_)
             self.tool_library.tools[tool_.unique_id] = tool_
+        self.tools = self.default_tools.copy()
 
     def create_tool(self, task_description: str) -> str:
         """

@@ -598,6 +598,9 @@ class ToolLibrary:
                 f"{module_name} includes {module_occurrences}."
             )
 
+        importlib.invalidate_caches()
+        cache_path = importlib.util.cache_from_source(old_tool.module_path)
+        Path(cache_path).unlink(missing_ok=True)
         module = importlib.reload(old_tool.module)
         function = getattr(module, old_tool.function_name)
 

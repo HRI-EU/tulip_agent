@@ -321,6 +321,18 @@ def test_search_function(tool_library_factory):
     assert res[0].unique_id == "add"
 
 
+def test_search_respects_similarity_threshold(tool_library_factory):
+    tulip = tool_library_factory(file_imports=[("tests.example_tools", [])])
+
+    res = tulip.search(
+        problem_description="add 4 and 5",
+        top_k=1,
+        similarity_threshold=-1,
+    )
+
+    assert res == []
+
+
 def test_remove_tool(tool_library_factory):
     tulip = tool_library_factory(file_imports=[("tests.example_tools", [])])
 

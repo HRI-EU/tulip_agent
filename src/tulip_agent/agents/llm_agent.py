@@ -45,8 +45,12 @@ from openai import AzureOpenAI, BadRequestError, OpenAI, OpenAIError
 from openai.types.chat.chat_completion import ChatCompletion, Choice
 from openai.types.chat.chat_completion_message import ChatCompletionMessage
 
-from tulip_agent.client_setup import ModelServeMode, create_client
-from tulip_agent.constants import BASE_LANGUAGE_MODEL, BASE_REASONING_MODEL
+from tulip_agent.client_setup import (
+    create_client,
+    resolve_base_model,
+    resolve_reasoning_model,
+    resolve_temperature,
+)
 from tulip_agent.tool import InternalTool, Tool
 from tulip_agent.tool_execution import execute_tool_calls
 
@@ -65,17 +69,24 @@ class LlmAgent(ABC):
         temperature: float | None,
         api_interaction_limit: int,
     ) -> None:
-        self.reasoning_available = True if reasoning_model else False
-        self.reasoning_only = reasoning_model and not base_model
-
-        self.base_model = base_model or reasoning_model or BASE_LANGUAGE_MODEL
-        self.base_client = (
-            base_client or reasoning_client or create_client(ModelServeMode.OPENAI)
+        explicit_client = base_client is not None or reasoning_client is not None
+        self.reasoning_model = reasoning_model or resolve_reasoning_model(
+            fallback_to_legacy_default=False
         )
-        self.reasoning_model = reasoning_model or base_model or BASE_REASONING_MODEL
+        self.base_model = base_model or resolve_base_model(
+            required=self.reasoning_model is None,
+            fallback_to_legacy_default=explicit_client,
+        )
+
+        self.reasoning_available = True if self.reasoning_model else False
+        self.reasoning_only = self.reasoning_model and not self.base_model
+
+        self.base_model = self.base_model or self.reasoning_model
+        self.base_client = base_client or reasoning_client or create_client()
+        self.reasoning_model = self.reasoning_model or self.base_model
         self.reasoning_client = reasoning_client or self.base_client
 
-        self.temperature = temperature
+        self.temperature = resolve_temperature(temperature)
         self.instructions = instructions
 
         self.messages = []
@@ -138,7 +149,11 @@ class LlmAgent(ABC):
                 params["tool_choice"] = tool_choice
             if response_format == "json":
                 params["response_format"] = {"type": "json_object"}
-            if not reasoning and not params["model"].startswith("gpt-5"):
+            if (
+                not reasoning
+                and self.temperature is not None
+                and not params["model"].startswith("gpt-5")
+            ):
                 params["temperature"] = self.temperature
             try:
                 response = client.chat.completions.create(**params)

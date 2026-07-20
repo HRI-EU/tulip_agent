@@ -49,8 +49,7 @@ from typing import Any, Callable, Optional
 import chromadb
 from openai import AzureOpenAI, OpenAI
 
-from tulip_agent.client_setup import ModelServeMode, create_client
-from tulip_agent.constants import BASE_EMBEDDING_MODEL
+from tulip_agent.client_setup import create_client, resolve_embedding_model
 from tulip_agent.embed import embed
 from tulip_agent.function_analyzer import FunctionAnalyzer
 from tulip_agent.tool import ImportedTool, McpClientManager, McpTool, Tool
@@ -69,7 +68,7 @@ class ToolLibrary:
         mcp_imports: Optional[list[tuple[dict[str, Any], Optional[list[str]]]]] = None,
         chroma_base_dir: str = dirname(dirname(dirname(abspath(__file__))))
         + "/data/chroma/",
-        embedding_model: str = BASE_EMBEDDING_MODEL,
+        embedding_model: str | None = None,
         embedding_client: AzureOpenAI | OpenAI = None,
         description: Optional[str] = None,
         default_timeout: float = 60.0,
@@ -90,8 +89,10 @@ class ToolLibrary:
         :param mcp_imports: List of tuples with an MCP server config and an optional list of
             tool names to load from that server. If no tools are specified, all tools are loaded.
         :param chroma_base_dir: Absolute path to the tool library folder.
-        :param embedding_model: Name of the embedding model used. Defaults to the one specified in constants.
-        :param embedding_client: Client for serving embedding model. Defaults to OPENAI.
+        :param embedding_model: Name of the embedding model used. Defaults to
+            TULIP_EMBEDDING_MODEL when Tulip creates the embedding client.
+        :param embedding_client: Client for serving the embedding model. When omitted,
+            Tulip creates one from ./.env or exported provider variables.
         :param description: Natural language description of the tool library.
         :param default_timeout: Execution timeout for tools.
         :param default_timeout_message: Default message returned in case of tool execution timeout.
@@ -101,8 +102,10 @@ class ToolLibrary:
         :param verbose_tool_ids: Includes module information in tool ID if set to true.
         """
         self.description = description
-        self.embedding_model = embedding_model
-        self.embedding_client = embedding_client or create_client(ModelServeMode.OPENAI)
+        self.embedding_model = embedding_model or resolve_embedding_model(
+            fallback_to_legacy_default=embedding_client is not None
+        )
+        self.embedding_client = embedding_client or create_client()
         self._mcp_manager = McpClientManager()
 
         self.function_analyzer = FunctionAnalyzer()

@@ -47,7 +47,6 @@ from tulip_agent.agents.prompts import (
     TOOL_COT_PROMPT,
 )
 from tulip_agent.agents.tool_agent import ToolAgent
-from tulip_agent.constants import BASE_LANGUAGE_MODEL, BASE_TEMPERATURE
 
 
 logger = logging.getLogger(__name__)
@@ -65,9 +64,6 @@ class CotToolAgent(ToolAgent):
         temperature: float | None = None,
         api_interaction_limit: int = 100,
     ) -> None:
-        if base_model is None and reasoning_model is None:
-            base_model = BASE_LANGUAGE_MODEL
-            temperature = BASE_TEMPERATURE
         super().__init__(
             instructions=(instructions or TOOL_COT_PROMPT),
             functions=functions,

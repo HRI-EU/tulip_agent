@@ -90,7 +90,6 @@ tulip = ToolLibrary(
 )
 print(tulip.tools)
 agent = MinimalTulipAgent(
-    base_model="gpt-5.2",
     tool_library=tulip,
     top_k_functions=2,
 )

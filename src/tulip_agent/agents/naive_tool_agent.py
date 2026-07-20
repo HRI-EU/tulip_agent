@@ -43,7 +43,6 @@ from openai import AzureOpenAI, OpenAI
 
 from tulip_agent.agents.prompts import TOOL_PROMPT
 from tulip_agent.agents.tool_agent import ToolAgent
-from tulip_agent.constants import BASE_LANGUAGE_MODEL, BASE_TEMPERATURE
 
 
 logger = logging.getLogger(__name__)
@@ -61,9 +60,6 @@ class NaiveToolAgent(ToolAgent):
         temperature: float | None = None,
         api_interaction_limit: int = 100,
     ) -> None:
-        if base_model is None and reasoning_model is None:
-            base_model = BASE_LANGUAGE_MODEL
-            temperature = BASE_TEMPERATURE
         super().__init__(
             functions=functions,
             instructions=(instructions or TOOL_PROMPT),

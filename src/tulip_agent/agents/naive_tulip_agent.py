@@ -43,7 +43,6 @@ from openai import AzureOpenAI, OpenAI
 
 from tulip_agent.agents.prompts import TOOL_PROMPT
 from tulip_agent.agents.tulip_agent import TulipAgent
-from tulip_agent.constants import BASE_LANGUAGE_MODEL, BASE_TEMPERATURE
 from tulip_agent.tool import Tool
 from tulip_agent.tool_library import ToolLibrary
 
@@ -66,9 +65,6 @@ class NaiveTulipAgent(TulipAgent):
         top_k_functions: int = 10,
         search_similarity_threshold: float = None,
     ) -> None:
-        if base_model is None and reasoning_model is None:
-            base_model = BASE_LANGUAGE_MODEL
-            temperature = BASE_TEMPERATURE
         super().__init__(
             instructions=(instructions or TOOL_PROMPT),
             tool_library=tool_library,

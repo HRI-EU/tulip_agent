@@ -47,7 +47,15 @@ from tulip_agent.agents import (
     OneShotCotTulipAgent,
     PrimedCotTulipAgent,
 )
-from tulip_agent.client_setup import ModelServeMode, create_client
+from tulip_agent.client_setup import (
+    ModelServeMode,
+    create_client,
+    load_dotenv,
+    resolve_base_model,
+    resolve_embedding_model,
+    resolve_model_serve_mode,
+    resolve_reasoning_model,
+)
 from tulip_agent.function_analyzer import FunctionAnalyzer
 from tulip_agent.task import Task
 from tulip_agent.tool import ImportedTool, InternalTool, McpClientManager, McpTool, Tool
@@ -64,6 +72,7 @@ __all__ = [
     "ImportedTool",
     "InformedCotTulipAgent",
     "InternalTool",
+    "load_dotenv",
     "McpClientManager",
     "McpTool",
     "MinimalTulipAgent",
@@ -72,6 +81,10 @@ __all__ = [
     "NaiveTulipAgent",
     "OneShotCotTulipAgent",
     "PrimedCotTulipAgent",
+    "resolve_base_model",
+    "resolve_embedding_model",
+    "resolve_model_serve_mode",
+    "resolve_reasoning_model",
     "Task",
     "Tool",
     "ToolLibrary",

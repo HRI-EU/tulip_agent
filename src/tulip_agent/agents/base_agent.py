@@ -42,7 +42,6 @@ from openai import AzureOpenAI, OpenAI
 
 from tulip_agent.agents.llm_agent import LlmAgent
 from tulip_agent.agents.prompts import BASE_PROMPT
-from tulip_agent.constants import BASE_LANGUAGE_MODEL, BASE_TEMPERATURE
 
 
 logger = logging.getLogger(__name__)
@@ -59,9 +58,6 @@ class BaseAgent(LlmAgent):
         temperature: float | None = None,
         api_interaction_limit: int = 100,
     ) -> None:
-        if not base_model and not reasoning_model:
-            base_model = BASE_LANGUAGE_MODEL
-            temperature = BASE_TEMPERATURE
         super().__init__(
             instructions=(instructions or BASE_PROMPT),
             base_model=base_model,

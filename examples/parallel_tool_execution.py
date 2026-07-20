@@ -52,7 +52,6 @@ tulip = ToolLibrary(
 cta = NaiveTulipAgent(
     tool_library=tulip,
     top_k_functions=3,
-    base_model="gpt-5.2",
 )
 
 tasks = [

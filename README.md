@@ -42,10 +42,19 @@ See `./examples`
 
 
 ## Setup
-* Make sure to set the environment variables required by the API of your choice. Currently supported:
-  * OpenAI: `OPENAI_API_KEY`, see the [official instructions](https://help.openai.com/en/articles/5112595-best-practices-for-api-key-safety)
-  * Azure: `AZURE_OPENAI_API_KEY`, `AZURE_API_VERSION`, and `AZURE_OPENAI_ENDPOINT`
-  * OpenAI compatible endpoints: `OAI_COMPATIBLE_BASE_URL` and `OAI_COMPATIBLE_API_KEY` for OpenAI compatible endpoints, such as Ollama
+* Configure the model provider in `./.env` from the project root, or export the same variables before running Tulip. Tulip does not silently fall back to OpenAI; if no provider is configured, it fails with a configuration hint.
+  * Common Tulip settings:
+```bash
+# Supported values: openai, azure, or oai_compatible
+TULIP_MODEL_SERVE_MODE=oai_compatible
+TULIP_BASE_MODEL=llama3.2
+TULIP_EMBEDDING_MODEL=mxbai-embed-large
+# Optional. Used by agents that make explicit reasoning-model calls.
+TULIP_REASONING_MODEL=
+```
+  * OpenAI: set `TULIP_MODEL_SERVE_MODE=openai`, `OPENAI_API_KEY`, `TULIP_BASE_MODEL`, and `TULIP_EMBEDDING_MODEL`.
+  * Azure: set `TULIP_MODEL_SERVE_MODE=azure`, `AZURE_OPENAI_API_KEY`, `AZURE_API_VERSION`, `AZURE_OPENAI_ENDPOINT`, `TULIP_BASE_MODEL`, and `TULIP_EMBEDDING_MODEL`.
+  * OpenAI-compatible endpoints such as Ollama: set `TULIP_MODEL_SERVE_MODE=oai_compatible`, `OAI_COMPATIBLE_BASE_URL`, `TULIP_BASE_MODEL`, and `TULIP_EMBEDDING_MODEL`. `OAI_COMPATIBLE_API_KEY` is optional and defaults to `EMPTY`.
 * Install with `uv venv --allow-existing && uv sync` or `pip install -e .`
 * Check out the `examples`, the robot evaluation in `src/eval/robo_eval`, and `examples/local_examples.py` for a local setup
 

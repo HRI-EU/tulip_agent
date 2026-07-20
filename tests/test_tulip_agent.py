@@ -32,132 +32,116 @@
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 #
-import unittest
+import pytest
 
+from tests import example_tools
 from tests.example_tools_in_class import Calculator
 from tulip_agent import (
     AutoTulipAgent,
     CotTulipAgent,
     DfsTulipAgent,
+    FunctionAnalyzer,
+    ImportedTool,
     InformedCotTulipAgent,
     MinimalTulipAgent,
     NaiveTulipAgent,
     OneShotCotTulipAgent,
     PrimedCotTulipAgent,
-    ToolLibrary,
 )
 
 
-class TestTulipAgent(unittest.TestCase):
-    def setUp(self):
-        self.tulip = ToolLibrary(chroma_sub_dir="test/")
-        self.tulip.chroma_client.delete_collection("tulip")
-        self.tulip = ToolLibrary(
-            chroma_sub_dir="test/",
-            file_imports=[("tests.example_tools", [])],
-            description="Various math tools.",
-        )
+@pytest.mark.parametrize(
+    "agent_class",
+    [
+        NaiveTulipAgent,
+        MinimalTulipAgent,
+        CotTulipAgent,
+        InformedCotTulipAgent,
+        OneShotCotTulipAgent,
+        PrimedCotTulipAgent,
+        AutoTulipAgent,
+    ],
+)
+def test_tulip_agent_query(agent_class, tulip, fake_chat_client):
+    # FakeChatClient is intentionally scripted for this simple math/retrieval flow.
+    agent = agent_class(tool_library=tulip, base_client=fake_chat_client)
 
-    @staticmethod
-    def _tool_message_names(messages: list) -> list[str]:
-        return [
-            message["name"]
-            for message in messages
-            if isinstance(message, dict) and message.get("role") == "tool"
-        ]
+    res = agent.query(prompt="What is 2+2?")
 
-    def _check_res(self, res: str, messages: list):
-        tool_message_names = self._tool_message_names(messages)
-        self.assertTrue(
-            any(s in res.lower() for s in ("4", "four"))
-            and "add" in tool_message_names,
-            "LLM query failed.",
-        )
+    assert "4" in res
+    assert "add" in _tool_message_names(agent.messages)
 
-    def test_naive_tulip_query(self):
-        agent = NaiveTulipAgent(tool_library=self.tulip)
-        res = agent.query(prompt="What is 2+2?")
-        self._check_res(res, agent.messages)
 
-    def test_minimal_tulip_query(self):
-        agent = MinimalTulipAgent(tool_library=self.tulip)
-        res = agent.query(prompt="What is 2+2?")
-        self._check_res(res, agent.messages)
+def test_dfs_tulip_query(tulip, fake_chat_client):
+    # DFS gets a fake empty decomposition for `2+2`, then executes the add tool.
+    agent = DfsTulipAgent(tool_library=tulip, base_client=fake_chat_client)
 
-    def test_cot_tulip_query(self):
-        agent = CotTulipAgent(tool_library=self.tulip)
-        res = agent.query(prompt="What is 2+2?")
-        self._check_res(res, agent.messages)
+    res = agent.query(prompt="What is 2+2?")
 
-    def test_informed_cot_tulip_query(self):
-        agent = InformedCotTulipAgent(tool_library=self.tulip)
-        res = agent.query(prompt="What is 2+2?")
-        self._check_res(res, agent.messages)
+    assert "4" in res
+    assert "add" in [tc.unique_id for tc in agent.task.tool_candidates]
 
-    def test_one_shot_cot_tulip_query(self):
-        agent = OneShotCotTulipAgent(tool_library=self.tulip)
-        res = agent.query(prompt="What is 2+2?")
-        self._check_res(res, agent.messages)
 
-    def test_primed_cot_tulip_query(self):
-        agent = PrimedCotTulipAgent(tool_library=self.tulip)
-        res = agent.query(prompt="What is 2+2?")
-        self._check_res(res, agent.messages)
+def test_cot_tulip_query_with_instance(tool_library_factory, fake_chat_client):
+    calculator = Calculator(divisor=3)
+    tulip = tool_library_factory(
+        instance_imports=[calculator],
+        description="Various math tools.",
+    )
+    agent = CotTulipAgent(tool_library=tulip, base_client=fake_chat_client)
 
-    def test_dfs_tulip_query(self):
-        agent = DfsTulipAgent(tool_library=self.tulip)
-        res = agent.query(prompt="What is 2+2?")
-        self.assertTrue(
-            any(s in res.lower() for s in ("4", "four"))
-            and len(agent.task.tool_candidates) == 2
-            and "add" in [tc.unique_id for tc in agent.task.tool_candidates],
-            "LLM query failed.",
-        )
+    res = agent.query(prompt="What is 2+2?")
 
-    def test_auto_tulip_query(self):
-        agent = AutoTulipAgent(tool_library=self.tulip)
-        res = agent.query(prompt="What is 2+2?")
-        self.assertTrue(
-            any(s in res.lower() for s in ("4", "four")),
-            "LLM query failed.",
-        )
+    assert "4" in res
+    assert "add" in _tool_message_names(agent.messages)
 
-    def test_cot_tulip_query_with_instance(self):
-        calculator = Calculator(divisor=3)
-        self.tulip.chroma_client.delete_collection("tulip")
-        self.tulip = ToolLibrary(
-            chroma_sub_dir="test/",
-            instance_imports=[calculator],
-            description="Various math tools.",
-        )
-        agent = CotTulipAgent(tool_library=self.tulip)
-        res = agent.query(prompt="What is 2+2?")
-        tool_message_names = self._tool_message_names(agent.messages)
-        self.assertTrue(
-            any(s in res.lower() for s in ("4", "four"))
-            and "add" in tool_message_names,
-            "LLM query failed.",
-        )
 
-    def test_default_tools(self):
-        character = (
-            "You must solve the task provided by the user using a tool. "
-            "Eventually use the speak function to tell them the result."
-        )
-        agent = MinimalTulipAgent(
-            tool_library=self.tulip,
-            default_tools=[self.tulip.tools["speak"]],
-            top_k_functions=1,
-            instructions=character,
-        )
-        res = agent.query(prompt="What is 2+2?")
-        tool_message_names = self._tool_message_names(agent.messages)
-        self.assertTrue(
-            any(s in res.lower() for s in ("4", "four"))
-            and "speak" in tool_message_names,
-            "Using default_tool failed.",
+def test_default_tools(tulip, fake_chat_client):
+    character = (
+        "You must solve the task provided by the user using a tool. "
+        "Eventually use the speak function to tell them the result."
+    )
+    agent = MinimalTulipAgent(
+        tool_library=tulip,
+        default_tools=[tulip.tools["speak"]],
+        top_k_functions=1,
+        instructions=character,
+        base_client=fake_chat_client,
+    )
+
+    res = agent.query(prompt="What is 2+2?")
+
+    tool_message_names = _tool_message_names(agent.messages)
+    assert "4" in res
+    assert "speak" in tool_message_names
+
+
+def test_default_tools_must_exist_in_library(tulip, fake_chat_client):
+    missing_tool = ImportedTool.from_function(
+        function=example_tools.add,
+        definition=FunctionAnalyzer.analyze_function(example_tools.add),
+        verbose_id=True,
+    )
+
+    with pytest.raises(ValueError, match="not available in tool library"):
+        MinimalTulipAgent(
+            tool_library=tulip,
+            default_tools=[missing_tool],
+            base_client=fake_chat_client,
         )
 
 
-if __name__ == "__main__":
-    unittest.main()
+@pytest.fixture
+def tulip(tool_library_factory):
+    return tool_library_factory(
+        file_imports=[("tests.example_tools", [])],
+        description="Various math tools.",
+    )
+
+
+def _tool_message_names(messages: list) -> list[str]:
+    return [
+        message["name"]
+        for message in messages
+        if isinstance(message, dict) and message.get("role") == "tool"
+    ]

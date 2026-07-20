@@ -32,64 +32,78 @@
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 #
-import unittest
-
 from tests.example_tools import add, slow
 from tulip_agent import CotToolAgent, NaiveToolAgent, Tool
 
 
-class TestToolAgent(unittest.TestCase):
-    def _check_res(self, res: str, messages: list):
-        self.assertTrue(
-            any(s in res.lower() for s in ("4", "four"))
-            and messages[-3]["role"] == "tool"
-            and messages[-3]["name"] == "add",
-            "LLM query failed.",
+def test_naive_tool_query(fake_chat_client):
+    # FakeChatClient has an explicit branch for the simple `2+2` add-tool flow.
+    agent = NaiveToolAgent(functions=[add], base_client=fake_chat_client)
+
+    res = agent.query(prompt="What is 2+2?")
+
+    _check_res(res, agent.messages)
+
+
+def test_naive_tool_query_no_tools(fake_chat_client):
+    agent = NaiveToolAgent(functions=[], base_client=fake_chat_client)
+
+    res = agent.query(prompt="What is 2+2?")
+
+    assert "4" in res
+    assert len(agent.tools) == 1
+    assert (
+        _get_tool_by_name(agent.tools, "stop").definition["function"]["name"] == "stop"
+    )
+
+
+def test_cot_tool_query(fake_chat_client):
+    agent = CotToolAgent(functions=[add], base_client=fake_chat_client)
+
+    res = agent.query(prompt="What is 2+2?")
+
+    _check_res(res, agent.messages)
+
+
+def test_naive_tool_timeout(fake_chat_client):
+    # The fake LLM only calls `slow` when the prompt mentions the slow-tool scenario.
+    agent = NaiveToolAgent(functions=[slow], base_client=fake_chat_client)
+    _get_tool_by_name(agent.tools, "slow").timeout = 0.05
+
+    _ = agent.query(
+        prompt=(
+            "Try to run the slow function with a duration of 10. "
+            "You may only run this once, then stop."
         )
+    )
 
-    @staticmethod
-    def _get_tool_by_name(tools: list[Tool], name: str) -> Tool:
-        for tool in tools:
-            if tool.unique_id == name:
-                return tool
-        raise ValueError(f"Tool {name} not found.")
-
-    def test_naive_tool_query(self):
-        agent = NaiveToolAgent(functions=[add])
-        res = agent.query(prompt="What is 2+2?")
-        self._check_res(res, agent.messages)
-
-    def test_naive_tool_query_no_tools(self):
-        agent = NaiveToolAgent(functions=[])
-        res = agent.query(prompt="What is 2+2?")
-        self.assertTrue(
-            any(s in res.lower() for s in ("4", "four"))
-            and len(agent.tools) == 1
-            and self._get_tool_by_name(agent.tools, "stop")
-            and self._get_tool_by_name(agent.tools, "stop").definition["function"][
-                "name"
-            ]
-            == "stop",
-            "LLM query failed.",
-        )
-
-    def test_cot_tool_query(self):
-        agent = CotToolAgent(functions=[add])
-        res = agent.query(prompt="What is 2+2?")
-        self._check_res(res, agent.messages)
-
-    def test_naive_tool_timeout(self):
-        agent = NaiveToolAgent(functions=[slow])
-        self._get_tool_by_name(agent.tools, "slow").timeout = 0.05
-        _ = agent.query(
-            prompt="Try to run the slow function with a duration of 10. You may only run this once, then stop."
-        )
-        self.assertIn(
-            "Error: The tool did not return a response within the specified timeout.",
-            agent.messages[-3]["content"],
-            "Timeout failed.",
-        )
+    slow_messages = [
+        message
+        for message in agent.messages
+        if isinstance(message, dict) and message.get("name") == "slow"
+    ]
+    assert len(slow_messages) == 1
+    assert (
+        "Error: The tool did not return a response within the specified timeout."
+        in slow_messages[0]["content"]
+    )
 
 
-if __name__ == "__main__":
-    unittest.main()
+def _check_res(res: str, messages: list):
+    assert "4" in res
+    assert "add" in _tool_message_names(messages)
+
+
+def _tool_message_names(messages: list) -> list[str]:
+    return [
+        message["name"]
+        for message in messages
+        if isinstance(message, dict) and message.get("role") == "tool"
+    ]
+
+
+def _get_tool_by_name(tools: list[Tool], name: str) -> Tool:
+    for tool in tools:
+        if tool.unique_id == name:
+            return tool
+    raise ValueError(f"Tool {name} not found.")

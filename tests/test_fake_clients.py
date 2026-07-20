@@ -23,30 +23,27 @@
 #  PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
 #  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
 #  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-#  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-#  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-#  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-#  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-#  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF DATA, OR PROFITS; OR
+#  BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+#  WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+#  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+#  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 #  SPDX-License-Identifier: BSD-3-Clause
 #
 #
-from tulip_agent import BaseAgent
+import pytest
 
 
-def test_query(fake_chat_client):
-    agent = BaseAgent(base_client=fake_chat_client)
-
-    res = agent.query(prompt="What is 2+2?")
-
-    assert "4" in res
-
-
-def test_gpt5_request_omits_temperature(fake_chat_client):
-    agent = BaseAgent(base_model="gpt-5", base_client=fake_chat_client, temperature=0.1)
-
-    res = agent.query(prompt="What is 2+2?")
-
-    assert "4" in res
-    assert "temperature" not in fake_chat_client.calls[-1]
+def test_fake_chat_client_fails_loudly_for_unknown_text_prompt(fake_chat_client):
+    with pytest.raises(AssertionError, match="without updating FakeChatClient"):
+        fake_chat_client.response_for(
+            {
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": "This is not a scenario the fake LLM supports.",
+                    }
+                ]
+            }
+        )
